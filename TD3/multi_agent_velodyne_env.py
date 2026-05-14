@@ -31,6 +31,8 @@ class MultiAgentGazeboEnv:
         cooperative_reward=False,
         reward_neighbor_radius=10.0,
         reward_neighbor_fov=np.pi / 2 + 0.03,
+        robot_safe_distance=1.0,
+        weak_coupling_layout=False,
     ):
         self.environment_dim = environment_dim
         self.agent_names = agent_names or ["r1", "r2", "r3"]
@@ -38,17 +40,24 @@ class MultiAgentGazeboEnv:
         self.cooperative_reward = cooperative_reward
         self.reward_neighbor_radius = reward_neighbor_radius
         self.reward_neighbor_fov = reward_neighbor_fov
+        self.robot_safe_distance = robot_safe_distance
+        self.weak_coupling_layout = weak_coupling_layout
 
         self.upper = 5.0
         self.lower = -5.0
+        self.goal_min_distance = 0.8
+        self.goal_clearance = 1.2
+        self.goal_max_distance = 5.0
 
         self.velodyne_data = {
             name: np.ones(self.environment_dim) * 10 for name in self.agent_names
         }
         self.last_odom = {name: None for name in self.agent_names}
+        self.previous_distances = {name: None for name in self.agent_names}
         self.goal_positions = {name: np.array([1.0, 0.0]) for name in self.agent_names}
         self.robot_positions = {name: np.array([0.0, 0.0]) for name in self.agent_names}
         self.set_self_states = {name: self._create_model_state(name) for name in self.agent_names}
+        self.last_step_info = self._empty_last_step_info()
 
         self.gaps = [[-np.pi / 2 - 0.03, -np.pi / 2 + np.pi / self.environment_dim]]
         for m in range(self.environment_dim - 1):
@@ -57,7 +66,7 @@ class MultiAgentGazeboEnv:
             )
         self.gaps[-1][-1] += 0.03
 
-        port = "11311"
+        port = os.environ.get("ROS_PORT_SIM", "11311")
         subprocess.Popen(["roscore", "-p", port])
         print("Roscore launched!")
 
@@ -143,6 +152,25 @@ class MultiAgentGazeboEnv:
 
         return callback
 
+    def _empty_last_step_info(self):
+        return {
+            "agents": {
+                name: {
+                    "target": False,
+                    "collision": False,
+                    "distance": None,
+                    "progress": 0.0,
+                    "min_laser": None,
+                    "nearest_robot_distance": None,
+                    "reward": 0.0,
+                }
+                for name in self.agent_names
+            },
+            "mean_reward": 0.0,
+            "success_count": 0,
+            "collision_count": 0,
+        }
+
     def set_cooperative_reward(self, enabled):
         self.cooperative_reward = enabled
 
@@ -185,7 +213,8 @@ class MultiAgentGazeboEnv:
         dot = skew_x
         mag1 = math.sqrt(skew_x ** 2 + skew_y ** 2)
         mag2 = 1.0
-        beta = math.acos(dot / (mag1 * mag2))
+        cos_beta = np.clip(dot / (mag1 * mag2), -1.0, 1.0) if mag1 > 0 else 1.0
+        beta = math.acos(cos_beta)
         if skew_y < 0:
             if skew_x < 0:
                 beta = -beta
@@ -233,6 +262,60 @@ class MultiAgentGazeboEnv:
             adjusted[idx] = float(np.mean([rewards[self.agent_names.index(n)] for n in visible]))
         return adjusted
 
+    def _nearest_robot_distance(self, name):
+        origin = self.robot_positions[name]
+        distances = []
+        for other_name in self.agent_names:
+            if other_name == name:
+                continue
+            distances.append(np.linalg.norm(self.robot_positions[other_name] - origin))
+        if not distances:
+            return float("inf")
+        return float(min(distances))
+
+    def _sample_position(self, x_range, y_range):
+        while True:
+            candidate = np.array(
+                [np.random.uniform(*x_range), np.random.uniform(*y_range)]
+            )
+            if check_pos(candidate[0], candidate[1]):
+                return candidate
+
+    def _agent_side_ranges(self, name):
+        if not self.weak_coupling_layout:
+            return (-4.5, 4.5), (-4.5, 4.5)
+        if name == self.agent_names[0]:
+            return (-4.2, -1.0), (-4.2, 4.2)
+        return (1.0, 4.2), (-4.2, 4.2)
+
+    def _sample_goal_candidate_for_agent(self, name):
+        if not self.weak_coupling_layout:
+            return np.array(
+                [
+                    self.robot_positions[name][0] + random.uniform(self.lower, self.upper),
+                    self.robot_positions[name][1] + random.uniform(self.lower, self.upper),
+                ]
+            )
+
+        x_range, y_range = self._agent_side_ranges(name)
+        while True:
+            x_offset = random.uniform(-1.8, 1.8)
+            y_offset = random.uniform(-2.2, 2.2)
+            candidate = np.array(
+                [
+                    np.clip(self.robot_positions[name][0] + x_offset, x_range[0], x_range[1]),
+                    np.clip(self.robot_positions[name][1] + y_offset, y_range[0], y_range[1]),
+                ]
+            )
+            if np.linalg.norm(candidate - self.robot_positions[name]) < self.goal_min_distance:
+                continue
+            return candidate
+
+    def _sample_start_heading(self, name):
+        goal_offset = self.goal_positions[name] - self.robot_positions[name]
+        goal_heading = math.atan2(goal_offset[1], goal_offset[0])
+        return goal_heading + np.random.uniform(-0.2, 0.2)
+
     def step(self, actions, active_mask=None):
         if active_mask is None:
             active_mask = [True] * self.num_agents
@@ -265,6 +348,7 @@ class MultiAgentGazeboEnv:
         dones = []
         targets = []
         collisions = []
+        step_agents_info = {}
 
         for idx, name in enumerate(self.agent_names):
             state, distance = self._build_state(name, actions[idx])
@@ -272,22 +356,55 @@ class MultiAgentGazeboEnv:
             target = distance < GOAL_REACHED_DIST
             if target:
                 done = True
-            reward = self.get_reward(target, collision, actions[idx], min_laser)
+            progress = (
+                0.0
+                if self.previous_distances[name] is None
+                else self.previous_distances[name] - distance
+            )
+            reward = self.get_reward(target, collision, actions[idx], min_laser, progress)
+            self.previous_distances[name] = distance
+            nearest_robot_distance = self._nearest_robot_distance(name)
+            if (
+                self.robot_safe_distance > 0.0
+                and np.isfinite(nearest_robot_distance)
+                and nearest_robot_distance < self.robot_safe_distance
+            ):
+                reward -= 5.0 * (self.robot_safe_distance - nearest_robot_distance)
 
             if not active_mask[idx]:
                 reward = 0.0
                 done = True
                 collision = False
                 target = False
+                progress = 0.0
+                nearest_robot_distance = None
 
             next_states.append(state)
             rewards.append(reward)
             dones.append(done)
             targets.append(target)
             collisions.append(collision)
+            step_agents_info[name] = {
+                "target": target,
+                "collision": collision,
+                "distance": distance,
+                "progress": progress,
+                "min_laser": min_laser,
+                "nearest_robot_distance": nearest_robot_distance,
+                "reward": reward,
+            }
 
         if self.cooperative_reward:
             rewards = self._apply_cooperative_reward(rewards, active_mask)
+            for idx, name in enumerate(self.agent_names):
+                step_agents_info[name]["reward"] = rewards[idx]
+
+        self.last_step_info = {
+            "agents": step_agents_info,
+            "mean_reward": float(np.mean(rewards)) if rewards else 0.0,
+            "success_count": int(sum(int(flag) for flag in targets)),
+            "collision_count": int(sum(int(flag) for flag in collisions)),
+        }
 
         return next_states, rewards, dones, targets, collisions
 
@@ -298,11 +415,22 @@ class MultiAgentGazeboEnv:
         except rospy.ServiceException:
             print("/gazebo/reset_simulation service call failed")
 
+        if self.upper < 10:
+            self.upper += 0.004
+        if self.lower > -10:
+            self.lower -= 0.004
+
         self.last_odom = {name: None for name in self.agent_names}
+        self.previous_distances = {name: None for name in self.agent_names}
+        self.last_step_info = self._empty_last_step_info()
 
         spawn_positions = self._sample_robot_positions()
         for name, position in spawn_positions.items():
-            angle = np.random.uniform(-np.pi, np.pi)
+            self.robot_positions[name] = np.array(position)
+        self.goal_positions = self._sample_goal_positions()
+
+        for name, position in spawn_positions.items():
+            angle = self._sample_start_heading(name)
             quaternion = Quaternion.from_euler(0.0, 0.0, angle)
             state = self.set_self_states[name]
             state.pose.position.x = position[0]
@@ -312,9 +440,7 @@ class MultiAgentGazeboEnv:
             state.pose.orientation.z = quaternion.z
             state.pose.orientation.w = quaternion.w
             self.set_state.publish(state)
-            self.robot_positions[name] = np.array(position)
 
-        self.goal_positions = self._sample_goal_positions()
         self.random_box()
         self.publish_goal_markers()
 
@@ -332,18 +458,26 @@ class MultiAgentGazeboEnv:
         except rospy.ServiceException:
             print("/gazebo/pause_physics service call failed")
 
-        return [self._build_state(name, [0.0, 0.0])[0] for name in self.agent_names]
+        initial_states = []
+        for name in self.agent_names:
+            state, distance = self._build_state(name, [0.0, 0.0])
+            self.previous_distances[name] = distance
+            self.last_step_info["agents"][name]["distance"] = distance
+            self.last_step_info["agents"][name]["min_laser"] = float(
+                np.min(self.velodyne_data[name])
+            )
+            initial_states.append(state)
+        return initial_states
 
     def _sample_robot_positions(self, min_clearance=1.2):
+        if self.weak_coupling_layout:
+            min_clearance = max(min_clearance, 3.0)
         positions = {}
         for name in self.agent_names:
             placed = False
             while not placed:
-                candidate = np.array(
-                    [np.random.uniform(-4.5, 4.5), np.random.uniform(-4.5, 4.5)]
-                )
-                if not check_pos(candidate[0], candidate[1]):
-                    continue
+                x_range, y_range = self._agent_side_ranges(name)
+                candidate = self._sample_position(x_range, y_range)
                 if any(
                     np.linalg.norm(candidate - existing) < min_clearance
                     for existing in positions.values()
@@ -354,19 +488,23 @@ class MultiAgentGazeboEnv:
         return positions
 
     def _sample_goal_positions(self, min_clearance=1.2):
+        if self.weak_coupling_layout:
+            min_clearance = max(min_clearance, 1.8)
         goals = {}
         for name in self.agent_names:
             placed = False
             while not placed:
-                candidate = np.array(
-                    [np.random.uniform(-4.5, 4.5), np.random.uniform(-4.5, 4.5)]
-                )
+                candidate = self._sample_goal_candidate_for_agent(name)
                 if not check_pos(candidate[0], candidate[1]):
                     continue
-                if np.linalg.norm(candidate - self.robot_positions[name]) < min_clearance:
+                goal_distance = np.linalg.norm(candidate - self.robot_positions[name])
+                if (
+                    goal_distance < self.goal_min_distance
+                    or goal_distance > self.goal_max_distance
+                ):
                     continue
                 if any(
-                    np.linalg.norm(candidate - other_robot) < min_clearance
+                    np.linalg.norm(candidate - other_robot) < self.goal_clearance
                     for other_robot in self.robot_positions.values()
                 ):
                     continue
@@ -390,12 +528,13 @@ class MultiAgentGazeboEnv:
                 if not check_pos(candidate[0], candidate[1]):
                     continue
 
+                clearance = 2.0 if self.weak_coupling_layout else 1.5
                 too_close_robot = any(
-                    np.linalg.norm(candidate - robot_pos) < 1.5
+                    np.linalg.norm(candidate - robot_pos) < clearance
                     for robot_pos in self.robot_positions.values()
                 )
                 too_close_goal = any(
-                    np.linalg.norm(candidate - goal_pos) < 1.5
+                    np.linalg.norm(candidate - goal_pos) < clearance
                     for goal_pos in self.goal_positions.values()
                 )
                 if too_close_robot or too_close_goal:
@@ -444,10 +583,20 @@ class MultiAgentGazeboEnv:
         return False, False, min_laser
 
     @staticmethod
-    def get_reward(target, collision, action, min_laser):
+    def get_reward(target, collision, action, min_laser, progress):
         if target:
             return 100.0
         if collision:
             return -100.0
-        r3 = lambda x: 1 - x if x < 1 else 0.0
-        return action[0] / 2 - abs(action[1]) / 2 - r3(min_laser) / 2
+        obstacle_penalty = 1 - min_laser if min_laser < 1 else 0.0
+        progress_reward = 20.0 * progress
+        forward_reward = 0.5 * action[0]
+        turn_penalty = 0.2 * abs(action[1])
+        stagnation_penalty = 0.03 if action[0] < 0.1 and abs(progress) < 0.01 else 0.0
+        return (
+            progress_reward
+            + forward_reward
+            - turn_penalty
+            - 0.5 * obstacle_penalty
+            - stagnation_penalty
+        )

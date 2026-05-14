@@ -3,13 +3,20 @@
 
   <xacro:arg name="velodyne_name" default="velodyne"/>
   <xacro:arg name="velodyne_topic" default="/velodyne_points"/>
+  <xacro:arg name="robot_namespace" default=""/>
+  <xacro:arg name="tf_prefix" default=""/>
+  <xacro:property name="robot_namespace" value="$(arg robot_namespace)"/>
+  <xacro:property name="tf_prefix" value="$(arg tf_prefix)"/>
 
   <!-- Import Rviz colors -->
   <xacro:include filename="$(find multi_robot_scenario)/xacro/materials.xacro" />
 
   <!-- Import robot -->
   <xacro:include filename="$(find multi_robot_scenario)/xacro/p3dx/pioneer3dx_body.xacro"/>
-  <xacro:pioneer3dx_body name="chassis" parent="base_link" meshes="package://gazebo_plugins/test/multi_robot_scenario/meshes/p3dx"/>
+  <xacro:pioneer3dx_body
+    name="chassis"
+    parent="base_link"
+    meshes="package://gazebo_plugins/test/multi_robot_scenario/meshes/p3dx"/>
 
   <!-- Laser -->
   <xacro:include filename="$(find multi_robot_scenario)/xacro/laser/hokuyo.xacro"/>

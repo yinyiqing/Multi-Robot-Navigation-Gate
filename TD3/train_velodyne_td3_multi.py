@@ -1,5 +1,7 @@
 import os
+import socket
 import time
+from datetime import datetime
 
 import numpy as np
 import torch
@@ -20,6 +22,8 @@ def evaluate(network, env, epoch, eval_episodes=10):
     total_collisions = 0
     total_targets = 0
     total_agents = eval_episodes * env.num_agents
+    total_episode_steps = 0.0
+    total_final_distance = 0.0
 
     for _ in range(eval_episodes):
         states = env.reset()
@@ -48,19 +52,41 @@ def evaluate(network, env, epoch, eval_episodes=10):
             states = next_states
             count += 1
 
+        total_episode_steps += count
+        for name in env.agent_names:
+            distance = env.last_step_info["agents"][name]["distance"]
+            if distance is not None:
+                total_final_distance += distance
+
     avg_reward = total_reward / total_agents
     success_rate = total_targets / total_agents
     collision_rate = total_collisions / total_agents
+    avg_episode_steps = total_episode_steps / eval_episodes
+    avg_final_distance = total_final_distance / total_agents
 
     print("..............................................")
     print(
-        "Multi-Agent Eval Epoch %i | Avg Reward: %f | Success Rate: %f | Collision Rate: %f"
-        % (epoch, avg_reward, success_rate, collision_rate)
+        "Multi-Agent Eval Epoch %i | avg_reward=%.3f | success_rate=%.3f | "
+        "collision_rate=%.3f | avg_env_steps=%.1f | avg_final_distance=%.3f"
+        % (
+            epoch,
+            avg_reward,
+            success_rate,
+            collision_rate,
+            avg_episode_steps,
+            avg_final_distance,
+        )
     )
     print("..............................................")
 
     env.set_cooperative_reward(previous_mode)
-    return avg_reward, success_rate, collision_rate
+    return {
+        "avg_reward": avg_reward,
+        "success_rate": success_rate,
+        "collision_rate": collision_rate,
+        "avg_episode_steps": avg_episode_steps,
+        "avg_final_distance": avg_final_distance,
+    }
 
 
 class Actor(nn.Module):
@@ -113,7 +139,7 @@ class Critic(nn.Module):
 
 
 class TD3(object):
-    def __init__(self, state_dim, action_dim, max_action):
+    def __init__(self, state_dim, action_dim, max_action, log_dir=None):
         self.actor = Actor(state_dim, action_dim).to(device)
         self.actor_target = Actor(state_dim, action_dim).to(device)
         self.actor_target.load_state_dict(self.actor.state_dict())
@@ -125,7 +151,7 @@ class TD3(object):
         self.critic_optimizer = torch.optim.Adam(self.critic.parameters())
 
         self.max_action = max_action
-        self.writer = SummaryWriter()
+        self.writer = SummaryWriter(log_dir=log_dir)
         self.iter_count = 0
 
     def get_action(self, state):
@@ -212,20 +238,42 @@ class TD3(object):
 
     def load(self, filename, directory):
         self.actor.load_state_dict(
-            torch.load("%s/%s_actor.pth" % (directory, filename))
+            torch.load("%s/%s_actor.pth" % (directory, filename), map_location=device)
         )
         self.critic.load_state_dict(
-            torch.load("%s/%s_critic.pth" % (directory, filename))
+            torch.load("%s/%s_critic.pth" % (directory, filename), map_location=device)
         )
+
+    def state_dict(self):
+        return {
+            "actor": self.actor.state_dict(),
+            "actor_target": self.actor_target.state_dict(),
+            "actor_optimizer": self.actor_optimizer.state_dict(),
+            "critic": self.critic.state_dict(),
+            "critic_target": self.critic_target.state_dict(),
+            "critic_optimizer": self.critic_optimizer.state_dict(),
+            "iter_count": self.iter_count,
+            "log_dir": self.writer.log_dir,
+            "max_action": self.max_action,
+        }
+
+    def load_state_dict(self, state):
+        self.actor.load_state_dict(state["actor"])
+        self.actor_target.load_state_dict(state["actor_target"])
+        self.actor_optimizer.load_state_dict(state["actor_optimizer"])
+        self.critic.load_state_dict(state["critic"])
+        self.critic_target.load_state_dict(state["critic_target"])
+        self.critic_optimizer.load_state_dict(state["critic_optimizer"])
+        self.iter_count = state["iter_count"]
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 seed = 0
 eval_freq = 5e3
-max_ep = 500
+max_ep = 300
 eval_ep = 10
 max_timesteps = 5e6
-expl_noise = 1
+expl_noise = 1.0
 expl_decay_steps = 500000
 expl_min = 0.1
 batch_size = 40
@@ -235,27 +283,82 @@ policy_noise = 0.2
 noise_clip = 0.5
 policy_freq = 2
 buffer_size = 1e6
-agent_names = ["r1", "r2", "r3"]
+agent_names = ["r1", "r2"]
 use_dynamic_reward = False
-file_name = "TD3_velodyne_multi"
+file_name = "TD3_velodyne_multi_v4"
 if use_dynamic_reward:
     file_name += "_coop"
 save_model = True
 load_model = False
-random_near_obstacle = True
+random_near_obstacle = False
+resume_training = True
+launchfile = os.environ.get(
+    "DRL_MULTI_TRAIN_LAUNCHFILE", "multi_robot_scenario_multi_2.launch"
+)
+checkpoint_dir = "./checkpoints"
+checkpoint_path = os.path.join(checkpoint_dir, f"{file_name}_latest.pt")
+checkpoint_interval_episodes = 10
+training_version = (
+    "multi-agent-shared-policy-v4-coop"
+    if use_dynamic_reward
+    else "multi-agent-shared-policy-v4"
+)
 
 if not os.path.exists("./results"):
     os.makedirs("./results")
 if save_model and not os.path.exists("./pytorch_models"):
     os.makedirs("./pytorch_models")
+if not os.path.exists(checkpoint_dir):
+    os.makedirs(checkpoint_dir)
+
+
+def make_run_log_dir():
+    timestamp = datetime.now().strftime("%b%d_%H-%M-%S")
+    return os.path.join("runs", f"multi_{timestamp}_{socket.gethostname()}")
+
+
+def save_training_checkpoint(
+    network,
+    replay_buffer,
+    evaluations,
+    timestep,
+    env_step_count,
+    timesteps_since_eval,
+    episode_num,
+    epoch,
+    expl_noise_value,
+):
+    torch.save(
+        {
+            "network": network.state_dict(),
+            "replay_buffer": replay_buffer.state_dict(),
+            "evaluations": evaluations,
+            "timestep": timestep,
+            "env_step_count": env_step_count,
+            "timesteps_since_eval": timesteps_since_eval,
+            "episode_num": episode_num,
+            "epoch": epoch,
+            "expl_noise": expl_noise_value,
+        },
+        checkpoint_path,
+    )
+
+
+def load_training_checkpoint():
+    if not (resume_training and os.path.exists(checkpoint_path)):
+        return None
+    return torch.load(checkpoint_path, map_location="cpu")
+
 
 environment_dim = 20
 robot_dim = 4
 env = MultiAgentGazeboEnv(
-    "multi_robot_scenario_multi.launch",
+    launchfile,
     environment_dim,
     agent_names=agent_names,
     cooperative_reward=use_dynamic_reward,
+    robot_safe_distance=0.0,
+    weak_coupling_layout=True,
 )
 time.sleep(5)
 torch.manual_seed(seed)
@@ -264,27 +367,58 @@ state_dim = environment_dim + robot_dim
 action_dim = 2
 max_action = 1
 
-network = TD3(state_dim, action_dim, max_action)
+checkpoint = load_training_checkpoint()
+log_dir = checkpoint["network"]["log_dir"] if checkpoint else make_run_log_dir()
+
+network = TD3(state_dim, action_dim, max_action, log_dir=log_dir)
 replay_buffer = ReplayBuffer(buffer_size, seed)
-if load_model:
+
+if checkpoint:
+    network.load_state_dict(checkpoint["network"])
+    replay_buffer.load_state_dict(checkpoint["replay_buffer"])
+    print("Resumed multi-agent training from checkpoint:", checkpoint_path)
+elif load_model:
     try:
         network.load(file_name, "./pytorch_models")
     except Exception:
         print("Could not load the stored model parameters, initializing randomly")
 
-evaluations = []
-timestep = 0
-timesteps_since_eval = 0
-episode_num = 0
+evaluations = checkpoint["evaluations"] if checkpoint else []
+timestep = checkpoint["timestep"] if checkpoint else 0
+env_step_count = checkpoint["env_step_count"] if checkpoint else 0
+timesteps_since_eval = checkpoint["timesteps_since_eval"] if checkpoint else 0
+episode_num = checkpoint["episode_num"] if checkpoint else 0
 episode_done = True
-epoch = 1
+epoch = checkpoint["epoch"] if checkpoint else 1
 count_rand_actions = [0 for _ in agent_names]
 random_actions = [np.zeros(2) for _ in agent_names]
+expl_noise = checkpoint["expl_noise"] if checkpoint else expl_noise
+skip_episode_summary_once = checkpoint is not None
+train_start_time = time.time()
+
+print("==============================================")
+print("Training version:", training_version)
+print("Training process PID:", os.getpid())
+print("Launchfile:", launchfile)
+print("Device:", device)
+if torch.cuda.is_available():
+    print("GPU:", torch.cuda.get_device_name(0))
+print("Agent names:", ", ".join(agent_names))
+print("Cooperative reward:", use_dynamic_reward)
+print("TensorBoard log dir:", log_dir)
+print("Checkpoint path:", checkpoint_path)
+print("Resume mode:", resume_training)
+print("Starting agent samples:", timestep)
+print("Starting env steps:", env_step_count)
+print("Starting epoch:", epoch)
+print("==============================================")
+
+last_eval_summary = None
 
 while timestep < max_timesteps:
     if episode_done:
-        if timestep != 0:
-            train_iterations = max(episode_sample_count, 1)
+        if timestep != 0 and not skip_episode_summary_once:
+            train_iterations = max(episode_timesteps, 1)
             network.train(
                 replay_buffer,
                 train_iterations,
@@ -295,35 +429,157 @@ while timestep < max_timesteps:
                 noise_clip,
                 policy_freq,
             )
+            elapsed = time.time() - train_start_time
+            steps_per_sec = timestep / elapsed if elapsed > 0 else 0.0
+            step_agents = env.last_step_info["agents"]
+            success_count = int(sum(episode_success_flags))
+            collision_count = int(sum(episode_collision_flags))
+            mean_final_distance = float(
+                np.mean(
+                    [
+                        episode_final_distances[name]
+                        for name in agent_names
+                        if episode_final_distances[name] is not None
+                    ]
+                )
+            )
+            mean_progress = float(
+                np.mean([step_agents[name]["progress"] for name in agent_names])
+            )
+            min_laser = float(
+                np.min(
+                    [
+                        episode_min_lasers[name]
+                        for name in agent_names
+                        if episode_min_lasers[name] is not None
+                    ]
+                )
+            )
+            mean_linear_action = float(
+                np.mean(
+                    [episode_last_env_actions[name][0] for name in agent_names]
+                )
+            )
+            mean_angular_action = float(
+                np.mean([episode_last_env_actions[name][1] for name in agent_names])
+            )
+            nearest_robot_distances = [
+                step_agents[name]["nearest_robot_distance"]
+                for name in agent_names
+                if step_agents[name]["nearest_robot_distance"] is not None
+            ]
+            mean_nearest_robot_distance = (
+                float(np.mean(nearest_robot_distances))
+                if nearest_robot_distances
+                else float("nan")
+            )
             print(
-                "Episode %i finished | Env steps: %i | Agent samples: %i | Mean reward: %.3f"
+                "Episode %i complete | agent_samples=%i | env_steps=%i | "
+                "episode_env_steps=%i | episode_agent_samples=%i | mean_reward=%.3f | "
+                "success=%i/%i | collision=%i/%i | mean_final_distance=%.3f | "
+                "mean_progress=%.4f | min_laser=%.3f | mean_lin=%.3f | mean_ang=%.3f | "
+                "mean_robot_dist=%.3f | expl_noise=%.4f | replay=%i | samples/sec=%.3f"
                 % (
                     episode_num,
+                    timestep,
+                    env_step_count,
                     episode_timesteps,
                     episode_sample_count,
                     float(np.mean(episode_rewards)),
+                    success_count,
+                    len(agent_names),
+                    collision_count,
+                    len(agent_names),
+                    mean_final_distance,
+                    mean_progress,
+                    min_laser,
+                    mean_linear_action,
+                    mean_angular_action,
+                    mean_nearest_robot_distance,
+                    expl_noise,
+                    replay_buffer.size(),
+                    steps_per_sec,
                 )
             )
+            if episode_num % checkpoint_interval_episodes == 0:
+                save_training_checkpoint(
+                    network,
+                    replay_buffer,
+                    evaluations,
+                    timestep,
+                    env_step_count,
+                    timesteps_since_eval,
+                    episode_num,
+                    epoch,
+                    expl_noise,
+                )
+                print("Checkpoint saved:", checkpoint_path)
 
         if timesteps_since_eval >= eval_freq:
-            print("Validating")
+            print(
+                "Validating multi-agent policy at agent_samples=%i env_steps=%i"
+                % (timestep, env_step_count)
+            )
             timesteps_since_eval %= eval_freq
-            eval_reward, eval_success_rate, eval_collision_rate = evaluate(
+            last_eval_summary = evaluate(
                 network=network, env=env, epoch=epoch, eval_episodes=eval_ep
             )
             evaluations.append(
-                [eval_reward, eval_success_rate, eval_collision_rate]
+                [
+                    last_eval_summary["avg_reward"],
+                    last_eval_summary["success_rate"],
+                    last_eval_summary["collision_rate"],
+                    last_eval_summary["avg_episode_steps"],
+                    last_eval_summary["avg_final_distance"],
+                ]
+            )
+            network.writer.add_scalar(
+                "eval/avg_reward", last_eval_summary["avg_reward"], epoch
+            )
+            network.writer.add_scalar(
+                "eval/success_rate", last_eval_summary["success_rate"], epoch
+            )
+            network.writer.add_scalar(
+                "eval/collision_rate", last_eval_summary["collision_rate"], epoch
+            )
+            network.writer.add_scalar(
+                "eval/avg_env_steps", last_eval_summary["avg_episode_steps"], epoch
+            )
+            network.writer.add_scalar(
+                "eval/avg_final_distance",
+                last_eval_summary["avg_final_distance"],
+                epoch,
             )
             network.save(file_name, directory="./pytorch_models")
             np.save("./results/%s" % file_name, evaluations)
+            save_training_checkpoint(
+                network,
+                replay_buffer,
+                evaluations,
+                timestep,
+                env_step_count,
+                timesteps_since_eval,
+                episode_num,
+                epoch,
+                expl_noise,
+            )
+            print("Checkpoint saved:", checkpoint_path)
             epoch += 1
 
         states = env.reset()
+        skip_episode_summary_once = False
         active_mask = [True] * len(agent_names)
         episode_done = False
         episode_rewards = np.zeros(len(agent_names), dtype=np.float32)
         episode_timesteps = 0
         episode_sample_count = 0
+        episode_success_flags = np.zeros(len(agent_names), dtype=np.int32)
+        episode_collision_flags = np.zeros(len(agent_names), dtype=np.int32)
+        episode_final_distances = {name: None for name in agent_names}
+        episode_min_lasers = {name: None for name in agent_names}
+        episode_last_env_actions = {
+            name: np.zeros(action_dim, dtype=np.float32) for name in agent_names
+        }
         episode_num += 1
 
     if expl_noise > expl_min:
@@ -346,7 +602,7 @@ while timestep < max_timesteps:
         if random_near_obstacle:
             if (
                 np.random.uniform(0, 1) > 0.85
-                and min(state[4:-8]) < 0.6
+                and min(state[:environment_dim]) < 0.6
                 and count_rand_actions[idx] < 1
             ):
                 count_rand_actions[idx] = np.random.randint(8, 15)
@@ -359,10 +615,15 @@ while timestep < max_timesteps:
 
         raw_actions.append(action)
         env_actions.append([(action[0] + 1) / 2, action[1]])
+        episode_last_env_actions[agent_names[idx]] = np.array(
+            [(action[0] + 1) / 2, action[1]], dtype=np.float32
+        )
 
     next_states, rewards, dones, targets, collisions = env.step(
         env_actions, active_mask
     )
+    env_step_count += 1
+    step_agents = env.last_step_info["agents"]
 
     truncated = episode_timesteps + 1 == max_ep
     for idx in range(len(agent_names)):
@@ -374,6 +635,22 @@ while timestep < max_timesteps:
         )
         episode_rewards[idx] += rewards[idx]
         episode_sample_count += 1
+        episode_success_flags[idx] = max(episode_success_flags[idx], int(targets[idx]))
+        episode_collision_flags[idx] = max(
+            episode_collision_flags[idx], int(collisions[idx])
+        )
+        episode_final_distances[agent_names[idx]] = step_agents[agent_names[idx]][
+            "distance"
+        ]
+        min_laser_value = step_agents[agent_names[idx]]["min_laser"]
+        if min_laser_value is not None:
+            previous_min_laser = episode_min_lasers[agent_names[idx]]
+            if previous_min_laser is None:
+                episode_min_lasers[agent_names[idx]] = min_laser_value
+            else:
+                episode_min_lasers[agent_names[idx]] = min(
+                    previous_min_laser, min_laser_value
+                )
         timestep += 1
         timesteps_since_eval += 1
 
@@ -386,10 +663,40 @@ while timestep < max_timesteps:
     if truncated or not any(active_mask):
         episode_done = True
 
-eval_reward, eval_success_rate, eval_collision_rate = evaluate(
-    network=network, env=env, epoch=epoch, eval_episodes=eval_ep
+last_eval_summary = evaluate(network=network, env=env, epoch=epoch, eval_episodes=eval_ep)
+evaluations.append(
+    [
+        last_eval_summary["avg_reward"],
+        last_eval_summary["success_rate"],
+        last_eval_summary["collision_rate"],
+        last_eval_summary["avg_episode_steps"],
+        last_eval_summary["avg_final_distance"],
+    ]
 )
-evaluations.append([eval_reward, eval_success_rate, eval_collision_rate])
+network.writer.add_scalar("eval/avg_reward", last_eval_summary["avg_reward"], epoch)
+network.writer.add_scalar(
+    "eval/success_rate", last_eval_summary["success_rate"], epoch
+)
+network.writer.add_scalar(
+    "eval/collision_rate", last_eval_summary["collision_rate"], epoch
+)
+network.writer.add_scalar(
+    "eval/avg_env_steps", last_eval_summary["avg_episode_steps"], epoch
+)
+network.writer.add_scalar(
+    "eval/avg_final_distance", last_eval_summary["avg_final_distance"], epoch
+)
 if save_model:
     network.save("%s" % file_name, directory="./pytorch_models")
 np.save("./results/%s" % file_name, evaluations)
+save_training_checkpoint(
+    network,
+    replay_buffer,
+    evaluations,
+    timestep,
+    env_step_count,
+    timesteps_since_eval,
+    episode_num,
+    epoch,
+    expl_noise,
+)
