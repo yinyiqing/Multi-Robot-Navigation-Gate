@@ -75,8 +75,8 @@ def pointcloud_block(name, color, enabled):
       Channel Name: intensity
       Class: rviz/PointCloud2
       Color: {color_text(color)}
-      Color Transformer: FlatColor
-      Decay Time: 0.15
+      Color Transformer: Intensity
+      Decay Time: 0
       Enabled: {value}
       Invert Rainbow: false
       Max Color: 255; 255; 255
@@ -85,13 +85,45 @@ def pointcloud_block(name, color, enabled):
       Position Transformer: XYZ
       Queue Size: 3
       Selectable: true
-      Size (Pixels): 1
-      Size (m): 0.015
+      Size (Pixels): 3
+      Size (m): 0.01
       Style: Flat Squares
       Topic: /{name}/velodyne_points
       Unreliable: false
       Use Fixed Frame: true
-      Use rainbow: false
+      Use rainbow: true
+      Value: {value}"""
+
+
+def laserscan_block(name, enabled):
+    value = "true" if enabled else "false"
+    return f"""    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/LaserScan
+      Color: 255; 255; 255
+      Color Transformer: AxisColor
+      Decay Time: 0
+      Enabled: {value}
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Min Color: 0; 0; 0
+      Name: {name} LaserScan
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.1
+      Style: Flat Squares
+      Topic: /{name}/front_laser/scan
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
       Value: {value}"""
 
 
@@ -129,6 +161,7 @@ def render_rviz(num_agents):
     for idx, name in enumerate(agent_names):
         displays.append(robot_model_block(name))
         displays.append(odom_block(name, COLORS[idx % len(COLORS)]))
+        displays.append(laserscan_block(name, idx == 0))
         displays.append(pointcloud_block(name, COLORS[idx % len(COLORS)], idx == 0))
 
     displays.extend(
@@ -179,23 +212,38 @@ Visualization Manager:
     - Class: rviz/Select
     - Class: rviz/FocusCamera
     - Class: rviz/Measure
+    - Class: rviz/SetInitialPose
+      Theta std deviation: 0.2617993950843811
+      Topic: /initialpose
+      X std deviation: 0.5
+      Y std deviation: 0.5
+    - Class: rviz/SetGoal
+      Topic: /move_base_simple/goal
+    - Class: rviz/PublishPoint
+      Single click: true
+      Topic: /clicked_point
   Value: true
   Views:
     Current:
-      Angle: 0
-      Class: rviz/TopDownOrtho
+      Class: rviz/Orbit
+      Distance: 14
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
+      Focal Point:
+        X: 0
+        Y: 0
+        Z: 0
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.05
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.01
-      Scale: 16
+      Pitch: 1.05
       Target Frame: <Fixed Frame>
-      X: 0
-      Y: 0
+      Yaw: 3.95
     Saved: ~
 Window Geometry:
   Displays:
