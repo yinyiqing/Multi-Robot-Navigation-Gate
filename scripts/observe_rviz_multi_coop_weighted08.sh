@@ -23,4 +23,4 @@ if ! rosnode list >/dev/null 2>&1; then
 fi
 
 echo "Opening RViz for weighted cooperative multi-agent training at $ROS_MASTER_URI"
-rviz -d "$PROJECT_ROOT/catkin_ws/src/multi_robot_scenario/launch/pioneer3dx.rviz"
+rviz -d "$PROJECT_ROOT/catkin_ws/src/multi_robot_scenario/launch/pioneer3dx_multi.rviz"
