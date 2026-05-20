@@ -36,18 +36,18 @@ Visualization Manager:
     - Angle Tolerance: 20
       Class: rviz/Odometry
       Enabled: true
-      Keep: 200
+      Keep: 1
       Name: r1 Odom
       Position Tolerance: 0.1
       Queue Size: 10
       Shape:
         Alpha: 1
-        Axes Length: 0.7
+        Axes Length: 0.45
         Axes Radius: 0.05
         Color: 255; 70; 50
-        Head Length: 0.22
+        Head Length: 0.14
         Head Radius: 0.09
-        Shaft Length: 0.45
+        Shaft Length: 0.28
         Shaft Radius: 0.035
         Value: Arrow
       Topic: /r1/odom
@@ -56,18 +56,18 @@ Visualization Manager:
     - Angle Tolerance: 20
       Class: rviz/Odometry
       Enabled: true
-      Keep: 200
+      Keep: 1
       Name: r2 Odom
       Position Tolerance: 0.1
       Queue Size: 10
       Shape:
         Alpha: 1
-        Axes Length: 0.7
+        Axes Length: 0.45
         Axes Radius: 0.05
         Color: 70; 160; 255
-        Head Length: 0.22
+        Head Length: 0.14
         Head Radius: 0.09
-        Shaft Length: 0.45
+        Shaft Length: 0.28
         Shaft Radius: 0.035
         Value: Arrow
       Topic: /r2/odom
@@ -76,18 +76,18 @@ Visualization Manager:
     - Angle Tolerance: 20
       Class: rviz/Odometry
       Enabled: true
-      Keep: 200
+      Keep: 1
       Name: r3 Odom
       Position Tolerance: 0.1
       Queue Size: 10
       Shape:
         Alpha: 1
-        Axes Length: 0.7
+        Axes Length: 0.45
         Axes Radius: 0.05
         Color: 80; 220; 120
-        Head Length: 0.22
+        Head Length: 0.14
         Head Radius: 0.09
-        Shaft Length: 0.45
+        Shaft Length: 0.28
         Shaft Radius: 0.035
         Value: Arrow
       Topic: /r3/odom
