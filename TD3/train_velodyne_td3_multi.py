@@ -381,6 +381,20 @@ def env_int(name, default):
     return int(value)
 
 
+def make_agent_names():
+    explicit_names = os.environ.get("DRL_MULTI_AGENT_NAMES")
+    if explicit_names and explicit_names.strip():
+        names = [name.strip() for name in explicit_names.split(",") if name.strip()]
+        if not names:
+            raise ValueError("DRL_MULTI_AGENT_NAMES did not contain valid agent names")
+        return names
+
+    num_agents = env_int("DRL_MULTI_NUM_AGENTS", 2)
+    if num_agents < 1 or num_agents > 10:
+        raise ValueError("DRL_MULTI_NUM_AGENTS must be between 1 and 10")
+    return [f"r{idx}" for idx in range(1, num_agents + 1)]
+
+
 seed = 0
 eval_freq = 5e3
 max_ep = 300
@@ -396,7 +410,7 @@ policy_noise = 0.2
 noise_clip = 0.5
 policy_freq = 2
 buffer_size = 1e6
-agent_names = ["r1", "r2"]
+agent_names = make_agent_names()
 use_dynamic_reward = env_flag("DRL_MULTI_USE_DYNAMIC_REWARD", False)
 cooperative_reward_self_weight = env_float("DRL_MULTI_REWARD_SELF_WEIGHT", None)
 use_local_critic = env_flag("DRL_MULTI_USE_LOCAL_CRITIC", False)
