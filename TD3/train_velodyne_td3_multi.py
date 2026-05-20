@@ -399,6 +399,7 @@ seed = 0
 eval_freq = 5e3
 max_ep = 300
 eval_ep = int(os.environ.get("DRL_MULTI_EVAL_EPISODES", "10"))
+max_epochs = env_int("DRL_MULTI_MAX_EPOCHS", 0)
 max_timesteps = 5e6
 expl_noise = 1.0
 expl_decay_steps = 500000
@@ -583,6 +584,7 @@ print("Critic state dim:", critic_state_dim)
 print("Local critic max neighbors:", local_critic_max_neighbors)
 print("Local critic context dim:", critic_context_dim)
 print("Eval episodes:", eval_ep)
+print("Max epochs:", max_epochs or "unlimited")
 print("TensorBoard log dir:", log_dir)
 print("Checkpoint path:", checkpoint_path)
 print("Best checkpoint path:", best_checkpoint_path)
@@ -875,6 +877,12 @@ while timestep < max_timesteps:
                 "Next epoch will start from %i. Resume keeps this counter in %s"
                 % (epoch, checkpoint_path)
             )
+            if max_epochs and epoch > max_epochs:
+                print(
+                    "Max epochs reached | completed_epochs=%i | max_epochs=%i"
+                    % (epoch - 1, max_epochs)
+                )
+                break
 
         states = env.reset()
         zero_env_actions = [[0.0, 0.0] for _ in agent_names]
@@ -1006,6 +1014,10 @@ while timestep < max_timesteps:
 
     if truncated or not any(active_mask):
         episode_done = True
+
+if max_epochs and epoch > max_epochs:
+    print("Training stopped after reaching configured max epochs.")
+    sys.exit(0)
 
 last_eval_summary = evaluate(network=network, env=env, epoch=epoch, eval_episodes=eval_ep)
 evaluations.append(
