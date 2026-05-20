@@ -21,6 +21,13 @@
   - 额外保存 `best` checkpoint，避免高峰模型被 latest 覆盖。
   - 对应模型名：`TD3_velodyne_multi_v4_coop_weighted08`
 
+- `局部邻域Critic/`
+  - 下一阶段实验计划。
+  - 参考 MADDPG/CTDE 思想，让 critic 在训练时看到局部可见邻居信息。
+  - actor 保持单机 observation 输入；critic 输入扩展为自身信息和按距离排序的邻居 context。
+  - 目标是在不改变执行阶段观测条件的前提下，提高训练阶段对多机交互的价值估计能力。
+  - 已加入环境容量验证流程，用于正式训练前检查 2、3、5、10 车是否可稳定运行。
+
 ## 正式产物位置
 
 普通多智能体 baseline：
@@ -50,3 +57,14 @@
 - `TD3/checkpoints/TD3_velodyne_multi_v4_coop_weighted08_best.pt`
 - `TD3/results/TD3_velodyne_multi_v4_coop_weighted08.npy`
 - `TD3/results/TD3_velodyne_multi_v4_coop_weighted08_best_test.npy`
+
+局部邻域 critic 预期产物命名：
+
+- `TD3/pytorch_models/TD3_velodyne_multi_v4_local_critic_actor.pth`
+- `TD3/pytorch_models/TD3_velodyne_multi_v4_local_critic_critic.pth`
+- `TD3/pytorch_models/TD3_velodyne_multi_v4_local_critic_best_actor.pth`
+- `TD3/pytorch_models/TD3_velodyne_multi_v4_local_critic_best_critic.pth`
+- `TD3/checkpoints/TD3_velodyne_multi_v4_local_critic_latest.pt`
+- `TD3/checkpoints/TD3_velodyne_multi_v4_local_critic_best.pt`
+- `TD3/results/TD3_velodyne_multi_v4_local_critic.npy`
+- `TD3/results/TD3_velodyne_multi_v4_local_critic_best_test.npy`

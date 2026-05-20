@@ -69,6 +69,12 @@
 - 后台训练：`bash /home/jiutian/DRL-robot-navigation/scripts/start_training_detached_multi_coop_weighted08.sh`
 - 测试 best 模型：`bash /home/jiutian/DRL-robot-navigation/scripts/start_test_detached_multi_coop_weighted08_best.sh`
 
+局部邻域 critic 前置容量验证：
+
+- 2/3/5/10 车容量检查：`bash /home/jiutian/DRL-robot-navigation/scripts/start_capacity_check_multi.sh 5`
+- 停止容量检查：`bash /home/jiutian/DRL-robot-navigation/scripts/stop_capacity_check_multi.sh 5`
+- 详细说明：`experiments/多智能体/局部邻域Critic/环境容量验证.md`
+
 补充说明：
 
 - `logs/` 保存运行中的实时日志，方便 `tail -f` 观察。
