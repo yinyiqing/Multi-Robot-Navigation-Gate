@@ -22,4 +22,4 @@ if ! rosnode list >/dev/null 2>&1; then
   exit 1
 fi
 
-rviz -d "$PROJECT_ROOT/catkin_ws/src/multi_robot_scenario/launch/pioneer3dx_multi.rviz"
+rviz -d "$PROJECT_ROOT/catkin_ws/src/multi_robot_scenario/launch/pioneer3dx_multi_3.rviz"
