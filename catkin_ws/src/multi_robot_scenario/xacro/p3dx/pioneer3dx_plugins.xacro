@@ -20,7 +20,6 @@
             <robotNamespace>${robot_namespace}</robotNamespace>
             <tf_prefix>${tf_prefix}</tf_prefix>
             <publishOdomTF>false</publishOdomTF>
-            <publishTf>false</publishTf>
             <publishWheelTF>false</publishWheelTF>
             <publishWheelJointState>true</publishWheelJointState>
             <alwaysOn>true</alwaysOn>
