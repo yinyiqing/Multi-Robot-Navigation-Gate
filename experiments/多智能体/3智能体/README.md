@@ -6,7 +6,7 @@
 
 | 编号 | 目录 | 方法 |
 | --- | --- | --- |
-| A | `A_共享Policy基线/` | 三车共享 Policy Baseline |
+| A | `A_共享PolicyBaseline/` | 三车共享 Policy Baseline |
 | B | `B_RewardOnly动态奖励对照/` | 三车 RewardOnly |
 | C | `C_Weighted08距离加权奖励对照/` | 三车 Weighted08 |
 | D | `D_局部邻域Critic加Weighted08/` | 三车局部邻域 Critic + Weighted08 |

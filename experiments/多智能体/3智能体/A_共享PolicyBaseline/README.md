@@ -1,13 +1,8 @@
-# 共享 Policy Baseline 实验归档
+# A. 三车共享 Policy Baseline
 
-本目录用于保存多机器人共享 policy baseline 的训练与测试结果。共享 policy baseline 指多个机器人在同一环境中运行，并共同使用同一个 actor/critic 策略；执行阶段每个机器人仍只使用自身观测。
+本目录用于保存三车共享 policy baseline 的训练与测试结果。共享 policy baseline 指多个机器人在同一环境中运行，并共同使用同一个 actor/critic 策略；执行阶段每个机器人仍只使用自身观测。
 
 ## 目录结构
-
-- `两车共享Policy验证/`
-  - 早期两车共享 policy 可行性验证。
-  - 作用是证明多机器人共享 policy 训练流程、环境 reset、目标采样和测试流程可以稳定运行。
-  - 该目录中的结果用于方法开发记录，不作为当前三车局部邻域 Critic 主线的最终对照结果。
 
 - `三车共享PolicyBaseline/`
   - 当前三车主线实验的共享 policy baseline。

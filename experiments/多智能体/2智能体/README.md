@@ -6,7 +6,7 @@
 
 | 目录 | 内容 |
 | --- | --- |
-| `A_共享Policy基线/` | 两车共享 policy 验证 |
+| `A_共享PolicyBaseline/` | 两车共享 policy 验证 |
 | `B_RewardOnly动态奖励对照/` | 两车 RewardOnly 动态奖励验证 |
 | `C_Weighted08距离加权奖励对照/` | 两车 Weighted08 动态奖励验证 |
 | `D_局部邻域Critic验证/` | 两车单邻居局部 critic 验证 |
