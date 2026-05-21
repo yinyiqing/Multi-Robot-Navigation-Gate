@@ -1,4 +1,4 @@
-# 局部邻域 Critic 实验目录
+# 局部邻域 Critic 方法与消融
 
 本目录归档 CTDE 风格局部邻域 Critic 实验。核心约束是：actor 执行阶段只使用本车 24 维 observation；邻居信息只允许在训练阶段进入 critic。
 

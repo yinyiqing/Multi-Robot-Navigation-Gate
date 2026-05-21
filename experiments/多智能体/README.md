@@ -13,16 +13,16 @@
 
 主线横向表见：
 
-- `三车主线实验矩阵.md`
+- `三车主线对照总表.md`
 
 ## 目录
 
 | 目录 | 内容 | 当前状态 |
 | --- | --- | --- |
-| `共享PolicyBaseline/` | 多机器人共享 actor/critic baseline | 三车主线完成，20 epoch 扩展未更新 best |
-| `动态Reward/` | RewardOnly 对照，只改变训练 reward | 三车主线完成，20 epoch 扩展未更新 best |
-| `动态RewardWeighted08/` | Weighted08 reward 对照 | 三车主线完成，20 epoch 扩展未更新 best |
-| `局部邻域Critic/` | 局部 critic、几何 critic、容量验证 | D 与 D2 均完成，D2 当前最有论文价值 |
+| `A_共享Policy基线/` | 多机器人共享 actor/critic baseline | 三车主线完成，20 epoch 扩展未更新 best |
+| `B_RewardOnly动态奖励对照/` | RewardOnly 对照，只改变训练 reward | 三车主线完成，20 epoch 扩展未更新 best |
+| `C_Weighted08距离加权奖励对照/` | Weighted08 reward 对照 | 三车主线完成，20 epoch 扩展未更新 best |
+| `D_局部邻域Critic方法与消融/` | 局部 critic、几何 critic、容量验证 | D 与 D2 均完成，D2 当前最有论文价值 |
 
 ## 三车主线结果
 
@@ -36,7 +36,7 @@
 
 ## 阅读建议
 
-1. 先看 `三车主线实验矩阵.md`。
+1. 先看 `三车主线对照总表.md`。
 2. 再看各方向子目录的 `README.md`。
 3. 最后进入具体三车实验目录查看 `*_summary.md` 和对应日志。
 

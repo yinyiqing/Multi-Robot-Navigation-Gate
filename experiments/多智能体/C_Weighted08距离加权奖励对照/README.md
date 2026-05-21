@@ -1,11 +1,11 @@
-# 动态 Reward Weighted08 实验
+# Weighted08 距离加权奖励对照
 
 本目录归档 `weighted08` 类动态 reward 对照实验。该类实验只改变训练阶段 reward，不启用局部邻域 critic。
 
 当前目录结构：
 
 ```text
-动态RewardWeighted08/
+C_Weighted08距离加权奖励对照/
 ├── 两车Weighted08验证/
 ├── 三车Weighted08/
 ├── 实验计划.md
@@ -26,8 +26,7 @@ reward_i = 0.8 * own_reward_i + 0.2 * distance_weighted_neighbor_reward_i
 
 ## 三车主线位置
 
-- 三车共享 Policy Baseline：`experiments/多智能体/共享PolicyBaseline/三车共享PolicyBaseline/`
-- 三车 RewardOnly：`experiments/多智能体/动态Reward/三车RewardOnly/`
-- 三车 Weighted08：`experiments/多智能体/动态RewardWeighted08/三车Weighted08/`
-- 三车局部邻域 Critic + Weighted08：`experiments/多智能体/局部邻域Critic/三车多邻居验证/`
-
+- 三车共享 Policy Baseline：`experiments/多智能体/A_共享Policy基线/三车共享PolicyBaseline/`
+- 三车 RewardOnly：`experiments/多智能体/B_RewardOnly动态奖励对照/三车RewardOnly/`
+- 三车 Weighted08：`experiments/多智能体/C_Weighted08距离加权奖励对照/三车Weighted08/`
+- 三车局部邻域 Critic + Weighted08：`experiments/多智能体/D_局部邻域Critic方法与消融/三车多邻居验证/`

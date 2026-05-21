@@ -51,7 +51,7 @@
   - 说明这份仓库和原始开源项目的关系，以及当前改动主线。
 - `experiments/实验总览.md`
   - 汇总当前三车主线、阶段性结论和缺口。
-- `experiments/多智能体/三车主线实验矩阵.md`
+- `experiments/多智能体/三车主线对照总表.md`
   - 汇总 A/B/C/D/D2 五组三车对照实验。
 - `experiments/多智能体/README.md`
   - 说明多智能体 baseline、动态 reward、weighted08、局部邻域 critic 的产物位置。
@@ -93,7 +93,7 @@ DRL_MULTI_MAX_EPOCHS=20 bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/s
 
 - 2/3/5/10 车容量检查：`bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_capacity_check_multi.sh 5`
 - 停止容量检查：`bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/stop_capacity_check_multi.sh 5`
-- 详细说明：`experiments/多智能体/局部邻域Critic/环境容量验证.md`
+- 详细说明：`experiments/多智能体/D_局部邻域Critic方法与消融/环境容量验证.md`
 
 补充说明：
 
