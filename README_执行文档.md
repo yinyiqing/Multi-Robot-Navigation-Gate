@@ -1,6 +1,8 @@
-# DRL-robot-navigation 执行文档
+# Local-Critic-Multi-Robot-Navigation 执行文档
 
 本文档整理了本项目在当前机器上的实际可用执行流程，覆盖从开机检查、环境准备、训练启动，到 TensorBoard 监控与效果判断的完整步骤。
+
+当前论文主线以三车实验为准。单车脚本和早期两车脚本仍可用于复现、排错和历史对照，但不要把它们当作当前三车主线的默认入口。
 
 适用环境：
 
@@ -15,31 +17,31 @@
 项目根目录：
 
 ```bash
-/home/jiutian/DRL-robot-navigation
+/home/jiutian/Local-Critic-Multi-Robot-Navigation
 ```
 
 常用脚本：
 
 - Python 环境激活脚本：
-  `/home/jiutian/DRL-robot-navigation/env.python.sh`
+  `/home/jiutian/Local-Critic-Multi-Robot-Navigation/env.python.sh`
 - ROS 安装脚本：
-  `/home/jiutian/DRL-robot-navigation/scripts/install_ros_noetic_system.sh`
+  `/home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/install_ros_noetic_system.sh`
 - catkin 编译脚本：
-  `/home/jiutian/DRL-robot-navigation/scripts/build_readme_workspace.sh`
-- 训练启动脚本：
-  `/home/jiutian/DRL-robot-navigation/scripts/run_readme_training.sh`
-- 后台训练启动脚本：
-  `/home/jiutian/DRL-robot-navigation/scripts/start_training_detached.sh`
-- 后台测试启动脚本：
-  `/home/jiutian/DRL-robot-navigation/scripts/start_test_detached.sh`
+  `/home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/build_readme_workspace.sh`
+- 单车基础复现训练脚本：
+  `/home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/run_readme_training.sh`
+- 单车基础复现后台训练脚本：
+  `/home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_training_detached.sh`
+- 单车基础复现后台测试脚本：
+  `/home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_test_detached.sh`
 - 重新观察 RViz：
-  `/home/jiutian/DRL-robot-navigation/scripts/observe_rviz.sh`
+  `/home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/observe_rviz.sh`
 - 停止后台训练：
-  `/home/jiutian/DRL-robot-navigation/scripts/stop_training_detached.sh`
+  `/home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/stop_training_detached.sh`
 - 停止后台测试：
-  `/home/jiutian/DRL-robot-navigation/scripts/stop_test_detached.sh`
+  `/home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/stop_test_detached.sh`
 - 清理旧训练记录：
-  `/home/jiutian/DRL-robot-navigation/scripts/clean_training_artifacts.sh`
+  `/home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/clean_training_artifacts.sh`
 
 ### 1.1 建议先看哪里
 
@@ -48,31 +50,49 @@
 - `README.md`
   - 说明这份仓库和原始开源项目的关系，以及当前改动主线。
 - `experiments/实验总览.md`
-  - 汇总四个正式实验的横向对比和阶段性结论。
+  - 汇总当前三车主线、阶段性结论和缺口。
+- `experiments/多智能体/三车主线实验矩阵.md`
+  - 汇总 A/B/C/D/D2 五组三车对照实验。
 - `experiments/多智能体/README.md`
-  - 说明多智能体 baseline、动态 reward、weighted08 三版实验的产物位置。
+  - 说明多智能体 baseline、动态 reward、weighted08、局部邻域 critic 的产物位置。
 
 ### 1.2 当前正式多智能体实验入口
 
-普通多智能体共享 policy baseline：
+三车共享 Policy Baseline：
 
-- 后台训练：`bash /home/jiutian/DRL-robot-navigation/scripts/start_training_detached_multi.sh`
-- 公平 300 episode 测试：`bash /home/jiutian/DRL-robot-navigation/scripts/start_test_detached_multi_baseline_fair300.sh`
+- 后台训练：`bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_training_detached_multi_baseline_3.sh`
+- 测试 best 模型：`bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_test_detached_multi_baseline_3_best.sh`
 
-动态 reward 完全平均：
+三车 RewardOnly：
 
-- 后台训练：`bash /home/jiutian/DRL-robot-navigation/scripts/start_training_detached_multi_coop.sh`
-- 后台测试：`bash /home/jiutian/DRL-robot-navigation/scripts/start_test_detached_multi_coop.sh`
+- 后台训练：`bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_training_detached_multi_reward_only_3.sh`
+- 测试 best 模型：`bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_test_detached_multi_reward_only_3_best.sh`
 
-动态 reward weighted08：
+三车 Weighted08：
 
-- 后台训练：`bash /home/jiutian/DRL-robot-navigation/scripts/start_training_detached_multi_coop_weighted08.sh`
-- 测试 best 模型：`bash /home/jiutian/DRL-robot-navigation/scripts/start_test_detached_multi_coop_weighted08_best.sh`
+- 后台训练：`bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_training_detached_multi_weighted08_3.sh`
+- 测试 best 模型：`bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_test_detached_multi_weighted08_3_best.sh`
+
+三车局部邻域 Critic：
+
+- 后台训练：`bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_training_detached_multi_local_critic_3.sh`
+- 测试 best 模型：`bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_test_detached_multi_local_critic_3_best.sh`
+
+三车几何邻域 Critic：
+
+- 后台训练：`bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_training_detached_multi_local_critic_geo_3.sh`
+- 测试 best 模型：`bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_test_detached_multi_local_critic_geo_3_best.sh`
+
+临时扩展训练预算示例：
+
+```bash
+DRL_MULTI_MAX_EPOCHS=20 bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_training_detached_multi_weighted08_3.sh
+```
 
 局部邻域 critic 前置容量验证：
 
-- 2/3/5/10 车容量检查：`bash /home/jiutian/DRL-robot-navigation/scripts/start_capacity_check_multi.sh 5`
-- 停止容量检查：`bash /home/jiutian/DRL-robot-navigation/scripts/stop_capacity_check_multi.sh 5`
+- 2/3/5/10 车容量检查：`bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_capacity_check_multi.sh 5`
+- 停止容量检查：`bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/stop_capacity_check_multi.sh 5`
 - 详细说明：`experiments/多智能体/局部邻域Critic/环境容量验证.md`
 
 补充说明：
@@ -103,7 +123,7 @@ nvidia-smi
 执行：
 
 ```bash
-sudo bash /home/jiutian/DRL-robot-navigation/scripts/install_ros_noetic_system.sh
+sudo bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/install_ros_noetic_system.sh
 ```
 
 该脚本会完成：
@@ -118,13 +138,13 @@ sudo bash /home/jiutian/DRL-robot-navigation/scripts/install_ros_noetic_system.s
 执行：
 
 ```bash
-bash /home/jiutian/DRL-robot-navigation/scripts/build_readme_workspace.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/build_readme_workspace.sh
 ```
 
 编译成功后，可用工作区为：
 
 ```bash
-/home/jiutian/DRL-robot-navigation/catkin_ws
+/home/jiutian/Local-Critic-Multi-Robot-Navigation/catkin_ws
 ```
 
 ### 3.3 Python 隔离环境
@@ -138,7 +158,7 @@ bash /home/jiutian/DRL-robot-navigation/scripts/build_readme_workspace.sh
 激活方式：
 
 ```bash
-source /home/jiutian/DRL-robot-navigation/env.python.sh
+source /home/jiutian/Local-Critic-Multi-Robot-Navigation/env.python.sh
 ```
 
 当前已验证可用的重要依赖包括：
@@ -175,12 +195,14 @@ xclock
 
 如果 `xclock` 不能显示，不建议继续启动训练。
 
-## 5. 每次训练前的标准步骤
+## 5. 单车基础复现流程
 
-进入支持 X11 的 MobaXterm 会话后，直接执行：
+本节用于单车基础复现和环境排错。当前三车主线训练请优先使用 1.2 中列出的 `*_multi_*_3.sh` 脚本。
+
+进入支持 X11 的 MobaXterm 会话后，可执行：
 
 ```bash
-bash /home/jiutian/DRL-robot-navigation/scripts/run_readme_training.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/run_readme_training.sh
 ```
 
 这个脚本会自动完成：
@@ -253,8 +275,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 另开一个终端，执行：
 
 ```bash
-source /home/jiutian/DRL-robot-navigation/env.python.sh
-cd /home/jiutian/DRL-robot-navigation/TD3
+source /home/jiutian/Local-Critic-Multi-Robot-Navigation/env.python.sh
+cd /home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3
 tensorboard --logdir runs --bind_all
 ```
 
@@ -281,10 +303,10 @@ http://192.168.30.4:6006/
 
 ## 9. 后台持续训练与断线续跑
 
-如果你晚上要关掉本地 Windows 电脑，但希望 4090 机器继续训练，不要直接在前台跑 `run_readme_training.sh`，而是用后台脚本：
+如果你晚上要关掉本地 Windows 电脑，但希望单车基础复现继续训练，不要直接在前台跑 `run_readme_training.sh`，而是用后台脚本：
 
 ```bash
-bash /home/jiutian/DRL-robot-navigation/scripts/start_training_detached.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_training_detached.sh
 ```
 
 作用：
@@ -302,7 +324,7 @@ bash /home/jiutian/DRL-robot-navigation/scripts/start_training_detached.sh
 例如可查看最新日志：
 
 ```bash
-tail -f /home/jiutian/DRL-robot-navigation/logs/最新日志文件名
+tail -f /home/jiutian/Local-Critic-Multi-Robot-Navigation/logs/最新日志文件名
 ```
 
 ### 9.1 后台训练后如何重新看 RViz
@@ -310,7 +332,7 @@ tail -f /home/jiutian/DRL-robot-navigation/logs/最新日志文件名
 第二天重新用 MobaXterm 连上，并确认 `xclock` 能弹窗后，执行：
 
 ```bash
-bash /home/jiutian/DRL-robot-navigation/scripts/observe_rviz.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/observe_rviz.sh
 ```
 
 前提：
@@ -323,7 +345,7 @@ bash /home/jiutian/DRL-robot-navigation/scripts/observe_rviz.sh
 ### 9.2 如何停止后台训练
 
 ```bash
-bash /home/jiutian/DRL-robot-navigation/scripts/stop_training_detached.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/stop_training_detached.sh
 ```
 
 这个脚本会停止这套后台训练对应的进程组。
@@ -337,7 +359,7 @@ bash /home/jiutian/DRL-robot-navigation/scripts/stop_training_detached.sh
 目录：
 
 ```bash
-/home/jiutian/DRL-robot-navigation/TD3/runs
+/home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3/runs
 ```
 
 如果不断出现新的时间戳目录，说明训练正在持续写日志。
@@ -347,7 +369,7 @@ bash /home/jiutian/DRL-robot-navigation/scripts/stop_training_detached.sh
 目录：
 
 ```bash
-/home/jiutian/DRL-robot-navigation/TD3/results
+/home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3/results
 ```
 
 通常会出现：
@@ -361,7 +383,7 @@ TD3_velodyne.npy
 目录：
 
 ```bash
-/home/jiutian/DRL-robot-navigation/TD3/pytorch_models
+/home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3/pytorch_models
 ```
 
 通常会出现：
@@ -376,7 +398,7 @@ TD3_velodyne_critic.pth
 目录：
 
 ```bash
-/home/jiutian/DRL-robot-navigation/TD3/checkpoints
+/home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3/checkpoints
 ```
 
 通常会出现：
@@ -491,25 +513,25 @@ Ctrl+C
 如果训练中断后需要重新开始，直接重新运行：
 
 ```bash
-bash /home/jiutian/DRL-robot-navigation/scripts/run_readme_training.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/run_readme_training.sh
 ```
 
 脚本会自动清理本项目残留进程。
 
-## 14. 如何恢复训练
+## 14. 如何恢复单车基础训练
 
-如果训练因为网络断开、手动停止、窗口关闭或其他原因中断，只要 checkpoint 文件还在，就可以继续：
+如果单车基础训练因为网络断开、手动停止、窗口关闭或其他原因中断，只要 checkpoint 文件还在，就可以继续：
 
 前台恢复：
 
 ```bash
-bash /home/jiutian/DRL-robot-navigation/scripts/run_readme_training.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/run_readme_training.sh
 ```
 
 后台恢复：
 
 ```bash
-bash /home/jiutian/DRL-robot-navigation/scripts/start_training_detached.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_training_detached.sh
 ```
 
 恢复时控制台会打印类似：
@@ -520,30 +542,30 @@ Resumed training from checkpoint: ./checkpoints/TD3_velodyne_latest.pt
 
 如果你已经跑到第 10 次评估附近，再恢复后会继续往后跑，不必重新从头训练。
 
-## 15. 如何测试已训练模型
+## 15. 如何测试单车基础模型
 
-当 `pytorch_models` 中已有模型文件后，可以执行测试：
+当 `pytorch_models` 中已有单车模型文件后，可以执行测试：
 
 ```bash
-source /home/jiutian/DRL-robot-navigation/env.python.sh
+source /home/jiutian/Local-Critic-Multi-Robot-Navigation/env.python.sh
 source /opt/ros/noetic/setup.bash
-cd /home/jiutian/DRL-robot-navigation/catkin_ws
+cd /home/jiutian/Local-Critic-Multi-Robot-Navigation/catkin_ws
 source devel_isolated/setup.bash
-cd /home/jiutian/DRL-robot-navigation/TD3
+cd /home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3
 python3 test_velodyne_td3.py
 ```
 
 如果你想像训练一样让测试在后台继续跑，直接执行：
 
 ```bash
-bash /home/jiutian/DRL-robot-navigation/scripts/start_test_detached.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_test_detached.sh
 ```
 
 后台测试默认使用 headless launch，不会主动打开 RViz。  
 你之后可以再单独执行：
 
 ```bash
-bash /home/jiutian/DRL-robot-navigation/scripts/observe_rviz.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/observe_rviz.sh
 ```
 
 来重新观察同一套 ROS/Gazebo 运行状态。
@@ -551,13 +573,13 @@ bash /home/jiutian/DRL-robot-navigation/scripts/observe_rviz.sh
 测试日志会写到：
 
 ```bash
-/home/jiutian/DRL-robot-navigation/logs/test_detached_*.log
+/home/jiutian/Local-Critic-Multi-Robot-Navigation/logs/test_detached_*.log
 ```
 
 测试状态会写到：
 
 ```bash
-/home/jiutian/DRL-robot-navigation/TD3/checkpoints/TD3_velodyne_test_state.pt
+/home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3/checkpoints/TD3_velodyne_test_state.pt
 ```
 
 注意：
@@ -578,7 +600,7 @@ bash /home/jiutian/DRL-robot-navigation/scripts/observe_rviz.sh
 如果你想把以前的训练曲线、结果和模型都清掉，执行：
 
 ```bash
-bash /home/jiutian/DRL-robot-navigation/scripts/clean_training_artifacts.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/clean_training_artifacts.sh
 ```
 
 会清理：
@@ -646,7 +668,7 @@ bash /home/jiutian/DRL-robot-navigation/scripts/clean_training_artifacts.sh
 如果你是用：
 
 ```bash
-bash /home/jiutian/DRL-robot-navigation/scripts/start_training_detached.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_training_detached.sh
 ```
 
 启动：
@@ -659,14 +681,34 @@ bash /home/jiutian/DRL-robot-navigation/scripts/start_training_detached.sh
 首次部署：
 
 ```bash
-sudo bash /home/jiutian/DRL-robot-navigation/scripts/install_ros_noetic_system.sh
-bash /home/jiutian/DRL-robot-navigation/scripts/build_readme_workspace.sh
+sudo bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/install_ros_noetic_system.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/build_readme_workspace.sh
 ```
 
-每次训练：
+当前三车主线训练：
 
 ```bash
-bash /home/jiutian/DRL-robot-navigation/scripts/start_training_detached.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_training_detached_multi_baseline_3.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_training_detached_multi_reward_only_3.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_training_detached_multi_weighted08_3.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_training_detached_multi_local_critic_3.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_training_detached_multi_local_critic_geo_3.sh
+```
+
+当前三车主线测试：
+
+```bash
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_test_detached_multi_baseline_3_best.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_test_detached_multi_reward_only_3_best.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_test_detached_multi_weighted08_3_best.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_test_detached_multi_local_critic_3_best.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_test_detached_multi_local_critic_geo_3_best.sh
+```
+
+单车基础复现训练：
+
+```bash
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/start_training_detached.sh
 ```
 
 监控训练：
@@ -676,30 +718,30 @@ watch -n 1 nvidia-smi
 ```
 
 ```bash
-source /home/jiutian/DRL-robot-navigation/env.python.sh
-cd /home/jiutian/DRL-robot-navigation/TD3
+source /home/jiutian/Local-Critic-Multi-Robot-Navigation/env.python.sh
+cd /home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3
 tensorboard --logdir runs --bind_all
 ```
 
 重新连接后观察 RViz：
 
 ```bash
-bash /home/jiutian/DRL-robot-navigation/scripts/observe_rviz.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/observe_rviz.sh
 ```
 
 停止后台训练：
 
 ```bash
-bash /home/jiutian/DRL-robot-navigation/scripts/stop_training_detached.sh
+bash /home/jiutian/Local-Critic-Multi-Robot-Navigation/scripts/stop_training_detached.sh
 ```
 
 测试模型：
 
 ```bash
-source /home/jiutian/DRL-robot-navigation/env.python.sh
+source /home/jiutian/Local-Critic-Multi-Robot-Navigation/env.python.sh
 source /opt/ros/noetic/setup.bash
-cd /home/jiutian/DRL-robot-navigation/catkin_ws
+cd /home/jiutian/Local-Critic-Multi-Robot-Navigation/catkin_ws
 source devel_isolated/setup.bash
-cd /home/jiutian/DRL-robot-navigation/TD3
+cd /home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3
 python3 test_velodyne_td3.py
 ```

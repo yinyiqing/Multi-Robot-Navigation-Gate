@@ -1,103 +1,111 @@
-# DRL-robot-navigation
+# Local-Critic-Multi-Robot-Navigation
 
-本仓库基于开源项目 `reiniscimurs/DRL-robot-navigation` 做复现和进一步修改。工作重点不是从零重写导航系统，而是在原始 TD3 + ROS Gazebo 导航框架上，完成单智能体复现、扩展到同环境双机器人共享 policy，并继续探索局部动态 reward 对多机协同能力的影响。
+本仓库基于开源项目 `reiniscimurs/DRL-robot-navigation` 做复现和多机器人导航研究。当前工作重点是：在 TD3 + ROS/Gazebo 导航框架上，研究共享 policy、动态 reward 和局部邻域 critic 对多机器人协同导航的影响。
 
 ## 项目定位
 
-这里保留了原项目的基础环境、训练框架和论文背景，同时加入了当前这轮实验中的研究性改动：
+本项目不是从零重写导航系统，而是在原始单机器人 TD3 导航框架上逐步扩展：
 
-- 完成单智能体训练与测试复现，得到可用 baseline。
-- 扩展到同一个 Gazebo 环境下两个机器人共享同一个 TD3 policy 共同训练。
-- 实现基于雷达可见邻居的动态 reward。
-- 对比了动态 reward 完全平均与加权版本 `0.8 * self + 0.2 * neighbor_mean`。
-- 增加 detached 训练/测试脚本、断点续跑、best checkpoint 保存和更清晰的控制台信息。
-- 整理了实验归档、横向对比和正式日志，方便后续汇报与继续优化。
+- 单智能体 TD3 导航复现。
+- 多机器人共享 actor/critic policy。
+- RewardOnly 与 Weighted08 动态 reward 对照。
+- CTDE 风格局部邻域 critic。
+- 几何邻域 critic：actor 执行时仍只看自身观测，邻居几何信息只进入训练期 critic。
+- detached 训练/测试脚本、断点续跑、best checkpoint 和实验归档。
 
-## 当前实验主线
+## 当前论文主线
 
-目前正式保留 4 组实验：
+当前主线是三车对照实验，统一口径如下：
 
-1. `单智能体`
-2. `多智能体/共享PolicyBaseline`
-3. `多智能体/动态Reward`
-4. `多智能体/动态RewardWeighted08`
+- warm-start：`TD3_velodyne_multi_v4`
+- actor 输入：本车 24 维 observation
+- 执行阶段：无通信，不使用邻居信息
+- 测试规模：best actor 300 episodes
 
-其中当前效果最好的多智能体版本是 `动态RewardWeighted08`：
+核心实验：
 
-- `Success Rate = 0.889`
-- `Collision Rate = 0.089`
-- `Full Success Rate = 0.797`
-- `Timeout Rate = 0.054`
+| 方法 | 简述 |
+| --- | --- |
+| A. 三车共享 Policy Baseline | 共享 actor/critic，不使用动态 reward 和局部 critic |
+| B. 三车 RewardOnly | 只改变训练 reward |
+| C. 三车 Weighted08 | `0.8 * own + 0.2 * distance-weighted neighbor` |
+| D. 三车局部邻域 Critic | critic 看邻居几何和邻居动作 |
+| D2. 三车几何邻域 Critic | critic 只看邻居几何信息 |
 
-完整横向对比见 [experiments/实验总览.md](experiments/实验总览.md)。
+当前最有价值的结果是 D2：三车几何邻域 Critic 在 20 epoch 扩展验证中达到 `full_success_rate=0.827`，高于三车 baseline、RewardOnly、Weighted08 和原始局部邻域 Critic。
+
+完整横向对比见：
+
+- [experiments/实验总览.md](experiments/实验总览.md)
+- [experiments/多智能体/三车主线实验矩阵.md](experiments/多智能体/三车主线实验矩阵.md)
 
 ## 建议阅读顺序
 
-如果第一次看这个仓库，建议按下面顺序：
-
-1. [experiments/实验总览.md](experiments/实验总览.md)：看整体实验链条与结论。
-2. [experiments/多智能体/README.md](experiments/多智能体/README.md)：看多智能体三版实验和产物位置。
-3. [README_执行文档.md](README_执行文档.md)：看当前机器上的实际执行流程。
+1. [experiments/实验总览.md](experiments/实验总览.md)
+2. [experiments/多智能体/三车主线实验矩阵.md](experiments/多智能体/三车主线实验矩阵.md)
+3. [experiments/多智能体/README.md](experiments/多智能体/README.md)
+4. [README_执行文档.md](README_执行文档.md)
 
 ## 快速入口
 
-### 单智能体
+### 三车共享 Policy Baseline
 
-- 后台训练：`bash scripts/start_training_detached.sh`
-- 后台测试：`bash scripts/start_test_detached.sh`
+```bash
+bash scripts/start_training_detached_multi_baseline_3.sh
+bash scripts/start_test_detached_multi_baseline_3_best.sh
+```
 
-### 多智能体共享 Policy Baseline
+### 三车 RewardOnly
 
-- 后台训练：`bash scripts/start_training_detached_multi.sh`
-- 公平 300 episode 测试：`bash scripts/start_test_detached_multi_baseline_fair300.sh`
+```bash
+bash scripts/start_training_detached_multi_reward_only_3.sh
+bash scripts/start_test_detached_multi_reward_only_3_best.sh
+```
 
-### 多智能体动态 Reward
+### 三车 Weighted08
 
-- 后台训练：`bash scripts/start_training_detached_multi_coop.sh`
-- 后台测试：`bash scripts/start_test_detached_multi_coop.sh`
+```bash
+bash scripts/start_training_detached_multi_weighted08_3.sh
+bash scripts/start_test_detached_multi_weighted08_3_best.sh
+```
 
-### 多智能体动态 Reward Weighted08
+### 三车局部邻域 Critic
 
-- 后台训练：`bash scripts/start_training_detached_multi_coop_weighted08.sh`
-- 测试 best 模型：`bash scripts/start_test_detached_multi_coop_weighted08_best.sh`
+```bash
+bash scripts/start_training_detached_multi_local_critic_3.sh
+bash scripts/start_test_detached_multi_local_critic_3_best.sh
+```
 
-更完整的执行说明见 [README_执行文档.md](README_执行文档.md)。
+### 三车几何邻域 Critic
+
+```bash
+bash scripts/start_training_detached_multi_local_critic_geo_3.sh
+bash scripts/start_test_detached_multi_local_critic_geo_3_best.sh
+```
+
+默认训练脚本可通过 `DRL_MULTI_MAX_EPOCHS` 临时覆盖训练 epoch，例如：
+
+```bash
+DRL_MULTI_MAX_EPOCHS=20 bash scripts/start_training_detached_multi_weighted08_3.sh
+```
 
 ## 实验记录与日志
 
-- 运行时日志默认写到 `logs/`，方便训练和测试过程中实时查看。
-- 正式归档日志、实验总结和横向对比统一保存在 `experiments/`。
-- 上传和汇报时，建议以 `experiments/` 下的正式归档为准。
+- 运行时日志写入 `logs/`，只保留正在运行或待处理日志。
+- 正式归档放在 `experiments/`。
+- 三车主线结果以各实验目录中的 `*_summary.md` 为准。
 
 ## 仓库结构
 
 ```text
-DRL-robot-navigation/
+Local-Critic-Multi-Robot-Navigation/
 ├── TD3/                      # 训练、测试、模型、checkpoint、结果
 ├── catkin_ws/                # ROS 工作区
-├── scripts/                  # 单智能体/多智能体 detached 启停脚本
+├── scripts/                  # detached 启停脚本
 ├── experiments/              # 实验归档、总结、正式 train/test 日志
 ├── README.md                 # 项目首页
 └── README_执行文档.md         # 当前机器上的执行手册
 ```
-
-## 当前修改重点
-
-核心代码修改主要集中在以下文件：
-
-- `TD3/train_velodyne_td3_multi.py`
-  - 支持多智能体动态 reward 配置。
-  - 支持 detached 训练中断后续跑。
-  - 支持 `best` checkpoint 保存。
-  - 增加更详细的训练状态输出。
-
-- `TD3/test_velodyne_td3_multi.py`
-  - 支持按环境变量切换测试模型和结果文件。
-  - 支持目标 episode 数自动停止。
-
-- `TD3/multi_agent_velodyne_env.py`
-  - 加入邻域动态 reward 和加权动态 reward。
-  - 记录每步的原始 reward、调整后 reward 和可见邻居信息。
 
 ## 上游项目与论文
 
@@ -120,17 +128,3 @@ DRL-robot-navigation/
   doi={10.1109/LRA.2021.3133591}
 }
 ```
-
-## 环境示意
-
-训练示意：
-
-![Training Example](training.gif)
-
-Gazebo 环境：
-
-![Gazebo Environment](env1.png)
-
-Rviz：
-
-![Rviz](velodyne.png)

@@ -1,22 +1,52 @@
 # 局部邻域 Critic 实验目录
 
-本目录用于归档局部邻域 Critic 方向的计划、日志和阶段结论。顶层保留面向阅读的文档，具体训练和测试日志按实验阶段放入子目录。
+本目录归档 CTDE 风格局部邻域 Critic 实验。核心约束是：actor 执行阶段只使用本车 24 维 observation；邻居信息只允许在训练阶段进入 critic。
 
-## 顶层文档
+## 方法关系
 
-- `实验计划.md`：方法设计、实验阶段、对照设置和评价指标。
-- `实验总结.md`：当前已完成实验的阶段总结，重点记录三车局部邻域 Critic 结果。
-- `环境容量验证.md`：2/3/5/10 车环境容量检查结论。
+| 方法 | 子目录 | critic 邻居 context | 当前角色 |
+| --- | --- | --- | --- |
+| 两车单邻居验证 | `两车单邻居验证/` | 单邻居 context | 工程机制验证 |
+| 三车局部邻域 Critic | `三车多邻居验证/` | 几何 + 邻居动作 + mask | D，作为消融保留 |
+| 三车几何邻域 Critic | `三车几何邻域Critic扩展验证/` | 几何 + mask | D2，当前主方法候选 |
+| 容量验证 | `容量验证/` | 无训练 | 检查 2/3/5/10 车环境可运行性 |
 
-## 子目录
+## D 与 D2 的区别
 
-- `容量验证/`：不同机器人数量下的 reset、goal 采样和随机运行检查日志。
-- `两车单邻居验证/`：两车局部邻域 Critic 的训练与测试日志，用于验证 critic context、mask、checkpoint 和测试流程是否跑通。两车场景下每个机器人最多只有一个邻居，因此不用于验证多邻居排序。
-- `三车多邻居验证/`：三车局部邻域 Critic 的正式小规模多邻居实验，包含训练日志、300 episodes clean 测试记录和测试摘要。
+原始 D 每个邻居提供 7 维 context：
 
-当前最重要的结果文件：
+```text
+relative_x, relative_y, distance, bearing,
+neighbor_linear_action, neighbor_angular_action, mask
+```
+
+D2 每个邻居提供 5 维 context：
+
+```text
+relative_x, relative_y, distance, bearing, mask
+```
+
+D2 更符合“局部几何邻域 critic”的论文叙事：critic 学习相对空间关系，而不是额外依赖邻居动作。
+
+## 当前三车结果
+
+| 方法 | `success_rate` | `collision_rate` | `full_success_rate` | `timeout_rate` | 结论 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| D. 局部邻域 Critic | `0.913` | `0.052` | `0.747` | `0.100` | 没有超过 Weighted08 |
+| D2. 几何邻域 Critic | `0.937` | `0.053` | `0.827` | `0.010` | 当前三车全成功率最好 |
+
+## 关键文件
 
 ```text
 三车多邻居验证/test_multi_local_critic_3_best_300episodes_summary.md
-三车多邻居验证/test_multi_local_critic_3_best_300episodes_clean.log
+三车几何邻域Critic扩展验证/test_multi_local_critic_geo_3_best_300episodes_summary.md
+三车几何邻域Critic扩展验证/train_multi_local_critic_geo_3_extended20.raw.log
+环境容量验证.md
 ```
+
+## 当前判断
+
+- D 不建议删除。它是必要消融，用来说明“critic 看到邻居动作并不一定更好”。
+- D2 更适合作为论文主方法候选。
+- 若正式采用 20 epoch 预算，应补齐 D 的 20 epoch 扩展检查。
+- 若三车差距仍不够强，应优先扩展到 5 车和 10 车。

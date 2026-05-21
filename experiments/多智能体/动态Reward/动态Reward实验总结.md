@@ -1,5 +1,7 @@
 # 多智能体动态 Reward 实验总结
 
+> 历史记录：本文档主要总结早期两车 RewardOnly 实验。当前三车 RewardOnly 对照和 20 epoch 扩展状态请以 `README.md`、`三车RewardOnly/` 和 `experiments/多智能体/三车主线实验矩阵.md` 为准。
+
 ## 结论
 
 这一轮实验是对原始动态 reward 想法的直接实现：在共享 policy 多智能体训练基础上，加入“雷达感知范围内机器人 reward 平均”的动态 reward，并完成了训练和独立测试。

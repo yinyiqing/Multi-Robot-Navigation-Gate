@@ -1,5 +1,7 @@
 # 多智能体动态 Reward 实验计划
 
+> 历史记录：本文档记录早期两车 RewardOnly 机制验证。当前论文主线的三车 RewardOnly 对照请以 `experiments/多智能体/动态Reward/README.md`、`三车RewardOnly/` 和 `experiments/多智能体/三车主线实验矩阵.md` 为准。
+
 ## 目标
 
 在当前有效 baseline `multi-agent-shared-policy-v4` 的基础上，尝试局部协同 reward：
