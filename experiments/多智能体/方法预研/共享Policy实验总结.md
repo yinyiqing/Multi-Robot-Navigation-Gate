@@ -1,6 +1,6 @@
 # 多智能体共享 Policy 实验总结
 
-> 历史记录：本文档前半部分记录早期两车共享 Policy 验证，后半部分补充三车共享 Policy Baseline。当前三车主线横向比较请以 `experiments/多智能体/三车主线对照总表.md` 和 `三车共享PolicyBaseline/test_multi_baseline_3_best_300episodes_summary.md` 为准。
+> 历史记录：本文档前半部分记录早期两车共享 Policy 验证，后半部分补充三车共享 Policy Baseline。当前三车主线横向比较请以 `experiments/多智能体/3智能体/三车主线对照总表.md` 和 `experiments/多智能体/3智能体/A_共享Policy基线/三车共享PolicyBaseline/test_multi_baseline_3_best_300episodes_summary.md` 为准。
 
 ## 结论
 
@@ -79,11 +79,11 @@
 - 模型：`TD3_velodyne_multi_v4_shared_policy_3_best`
 - 初始化：统一从 `TD3_velodyne_multi_v4` warm-start
 - 训练日志：
-  - `三车共享PolicyBaseline/train_multi_baseline_3_detached_20260520_171539.log`
+  - `experiments/多智能体/3智能体/A_共享Policy基线/三车共享PolicyBaseline/train_multi_baseline_3_detached_20260520_171539.log`
 - 300 episodes 测试日志：
-  - `三车共享PolicyBaseline/test_multi_baseline_3_best_300episodes_clean.log`
+  - `experiments/多智能体/3智能体/A_共享Policy基线/三车共享PolicyBaseline/test_multi_baseline_3_best_300episodes_clean.log`
 - 测试摘要：
-  - `三车共享PolicyBaseline/test_multi_baseline_3_best_300episodes_summary.md`
+  - `experiments/多智能体/3智能体/A_共享Policy基线/三车共享PolicyBaseline/test_multi_baseline_3_best_300episodes_summary.md`
 
 300 episodes 测试整体统计：
 
