@@ -56,7 +56,7 @@ setsid bash -lc "
   export DRL_MULTI_USE_DISTANCE_WEIGHTED_REWARD=1
   export DRL_MULTI_REWARD_SIGMA=2.0
   export DRL_MULTI_EVAL_EPISODES=20
-  export DRL_MULTI_MAX_EPOCHS=10
+  export DRL_MULTI_MAX_EPOCHS=\"\${DRL_MULTI_MAX_EPOCHS:-10}\"
   export DRL_MULTI_TRAINING_VERSION='multi-agent-weighted08-3-v1'
   export DRL_MULTI_TRAIN_FILE_NAME='$MODEL_NAME'
   export DRL_MULTI_LOAD_MODEL=1
@@ -76,5 +76,5 @@ echo "Launch: $LAUNCH_PATH"
 echo "Warm start: TD3_velodyne_multi_v4"
 echo "Reward: distance-weighted 0.8 own + 0.2 visible-neighbor"
 echo "Local critic: disabled"
-echo "Max epochs: 10"
+echo "Max epochs: ${DRL_MULTI_MAX_EPOCHS:-10}"
 echo "Log: $log_file"

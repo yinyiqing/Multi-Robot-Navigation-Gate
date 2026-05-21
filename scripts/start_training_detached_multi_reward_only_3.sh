@@ -53,6 +53,7 @@ setsid bash -lc "
   export DRL_MULTI_TRAIN_LAUNCHFILE='$LAUNCHFILE'
   export DRL_MULTI_USE_DYNAMIC_REWARD=1
   export DRL_MULTI_EVAL_EPISODES=20
+  export DRL_MULTI_MAX_EPOCHS=\"\${DRL_MULTI_MAX_EPOCHS:-10}\"
   export DRL_MULTI_TRAINING_VERSION='multi-agent-reward-only-3-v1'
   export DRL_MULTI_TRAIN_FILE_NAME='$MODEL_NAME'
   export DRL_MULTI_LOAD_MODEL=1
@@ -72,4 +73,5 @@ echo "Launch: $LAUNCH_PATH"
 echo "Warm start: TD3_velodyne_multi_v4"
 echo "Reward: visible-neighbor mean cooperative reward"
 echo "Local critic: disabled"
+echo "Max epochs: ${DRL_MULTI_MAX_EPOCHS:-10}"
 echo "Log: $log_file"
