@@ -15,7 +15,7 @@
 
 ## 当前论文主线
 
-当前主线是三车对照实验，统一口径如下：
+当前主线是三车对照实验：
 
 - warm-start：`TD3_velodyne_multi_v4`
 - actor 输入：本车 24 维 observation
@@ -83,15 +83,9 @@ bash scripts/start_training_detached_multi_local_critic_geo_3.sh
 bash scripts/start_test_detached_multi_local_critic_geo_3_best.sh
 ```
 
-默认训练脚本可通过 `DRL_MULTI_MAX_EPOCHS` 临时覆盖训练 epoch，例如：
-
-```bash
-DRL_MULTI_MAX_EPOCHS=20 bash scripts/start_training_detached_multi_weighted08_3.sh
-```
 
 ## 实验记录与日志
 
-- 运行时日志写入 `logs/`，只保留正在运行或待处理日志。
 - 正式归档放在 `experiments/`。
 - 三车主线结果以各实验目录中的 `*_summary.md` 为准。
 
@@ -105,26 +99,4 @@ Local-Critic-Multi-Robot-Navigation/
 ├── experiments/              # 实验归档、总结、正式 train/test 日志
 ├── README.md                 # 项目首页
 └── README_执行文档.md         # 当前机器上的执行手册
-```
-
-## 上游项目与论文
-
-本仓库基于以下开源项目和论文开展复现与改进：
-
-- Original repository: `https://github.com/reiniscimurs/DRL-robot-navigation`
-- Paper: `Goal-Driven Autonomous Exploration Through Deep Reinforcement Learning`
-
-原始论文引用信息保留如下：
-
-```bibtex
-@ARTICLE{9645287,
-  author={Cimurs, Reinis and Suh, Il Hong and Lee, Jin Han},
-  journal={IEEE Robotics and Automation Letters},
-  title={Goal-Driven Autonomous Exploration Through Deep Reinforcement Learning},
-  year={2022},
-  volume={7},
-  number={2},
-  pages={730-737},
-  doi={10.1109/LRA.2021.3133591}
-}
 ```
