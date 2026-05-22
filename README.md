@@ -30,17 +30,17 @@
 | D. 三车局部邻域 Critic | critic 看邻居几何和邻居动作 |
 | D2. 三车几何邻域 Critic | critic 只看邻居几何信息 |
 
-当前最有价值的结果是 D2：三车几何邻域 Critic 在 20 epoch 扩展验证中达到 `full_success_rate=0.827`，高于三车 baseline、RewardOnly、Weighted08 和原始局部邻域 Critic。
+当前表现较好的结果是 D2：三车几何邻域 Critic 在 20 epoch 扩展验证中达到 `full_success_rate=0.827`，高于三车 baseline、RewardOnly、Weighted08 和原始局部邻域 Critic。
 
 完整横向对比见：
 
 - [experiments/实验总览.md](experiments/实验总览.md)
-- [experiments/多智能体/三车主线对照总表.md](experiments/多智能体/三车主线对照总表.md)
+- [experiments/多智能体/3智能体/三车主线对照总表.md](experiments/多智能体/3智能体/三车主线对照总表.md)
 
 ## 建议阅读顺序
 
 1. [experiments/实验总览.md](experiments/实验总览.md)
-2. [experiments/多智能体/三车主线对照总表.md](experiments/多智能体/三车主线对照总表.md)
+2. [experiments/多智能体/3智能体/三车主线对照总表.md](experiments/多智能体/3智能体/三车主线对照总表.md)
 3. [experiments/多智能体/README.md](experiments/多智能体/README.md)
 
 ## 快速入口

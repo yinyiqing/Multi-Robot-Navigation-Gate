@@ -1,6 +1,6 @@
 # 3 智能体主线实验
 
-本目录保存当前论文主线的三车实验。所有主线实验统一从 `TD3_velodyne_multi_v4` warm-start，actor 执行阶段只使用本车 24 维 observation，测试阶段使用 300 episodes best actor 统计。
+本目录保存当前实验主线的三车实验。所有主线实验统一从 `TD3_velodyne_multi_v4` warm-start，actor 执行阶段只使用本车 24 维 observation，测试阶段使用 300 episodes best actor 统计。
 
 ## 目录
 
