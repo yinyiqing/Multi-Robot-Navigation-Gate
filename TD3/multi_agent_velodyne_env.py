@@ -271,6 +271,25 @@ class MultiAgentGazeboEnv:
                 f"Timed out waiting for /{name}/odom after {timeout} seconds"
             ) from exc
 
+    def wait_for_all_odom(self, timeout_per_agent=2.0, attempts=5):
+        missing = []
+        for attempt in range(attempts):
+            missing = []
+            for name in self.agent_names:
+                if self.last_odom[name] is not None:
+                    continue
+                try:
+                    self.wait_for_odom(name, timeout=timeout_per_agent)
+                except TimeoutError:
+                    missing.append(name)
+            if not missing:
+                return
+            time.sleep(TIME_DELTA)
+        raise TimeoutError(
+            "Timed out waiting for odom topics after reset: "
+            + ", ".join(f"/{name}/odom" for name in missing)
+        )
+
     def _get_robot_yaw(self, name):
         odom = self.last_odom[name]
         quaternion = Quaternion(
@@ -546,7 +565,8 @@ class MultiAgentGazeboEnv:
         except rospy.ServiceException:
             print("/gazebo/unpause_physics service call failed")
 
-        time.sleep(TIME_DELTA)
+        time.sleep(max(TIME_DELTA, 0.2))
+        self.wait_for_all_odom()
 
         rospy.wait_for_service("/gazebo/pause_physics")
         try:
