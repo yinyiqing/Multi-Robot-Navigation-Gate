@@ -422,6 +422,7 @@ local_critic_geometry_only = env_flag(
 local_critic_max_agents = env_int("DRL_MULTI_LOCAL_CRITIC_MAX_AGENTS", 10)
 local_critic_max_neighbors = max(local_critic_max_agents - 1, 1)
 local_critic_feature_dim = 5 if local_critic_geometry_only else 7
+scenario_mode = os.environ.get("DRL_MULTI_SCENARIO", "standard").strip().lower()
 use_distance_weighted_reward = env_flag(
     "DRL_MULTI_USE_DISTANCE_WEIGHTED_REWARD", False
 )
@@ -517,6 +518,7 @@ env = MultiAgentGazeboEnv(
     cooperative_reward_sigma=cooperative_reward_sigma,
     robot_safe_distance=0.0,
     weak_coupling_layout=True,
+    scenario_mode=scenario_mode,
 )
 time.sleep(5)
 torch.manual_seed(seed)
@@ -577,6 +579,7 @@ print("==============================================")
 print("Training version:", training_version)
 print("Training process PID:", os.getpid())
 print("Launchfile:", launchfile)
+print("Scenario mode:", scenario_mode)
 print("Device:", device)
 if torch.cuda.is_available():
     print("GPU:", torch.cuda.get_device_name(0))

@@ -69,6 +69,7 @@ def make_agent_names():
 seed = 0
 max_ep = 300
 target_test_episodes = int(os.environ.get("DRL_MULTI_TEST_TARGET_EPISODES", "0"))
+scenario_mode = os.environ.get("DRL_MULTI_SCENARIO", "standard").strip().lower()
 base_file_name = "TD3_velodyne_multi_v4"
 file_name = os.environ.get("DRL_MULTI_TEST_FILE_NAME", base_file_name)
 launchfile = os.environ.get(
@@ -132,6 +133,7 @@ env = MultiAgentGazeboEnv(
     cooperative_reward=False,
     robot_safe_distance=0.0,
     weak_coupling_layout=True,
+    scenario_mode=scenario_mode,
 )
 time.sleep(5)
 torch.manual_seed(seed)
@@ -164,6 +166,7 @@ print("Test version: multi-agent-eval-v1-headless")
 print("Test process PID:", os.getpid())
 print("Launchfile:", launchfile)
 print("Model file:", file_name)
+print("Scenario mode:", scenario_mode)
 print("Device:", device)
 if torch.cuda.is_available():
     print("GPU:", torch.cuda.get_device_name(0))

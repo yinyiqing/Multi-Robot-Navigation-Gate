@@ -34,6 +34,26 @@ AGENT_COLORS = [
 ]
 
 
+def _env_float(name, default):
+    value = os.environ.get(name)
+    if value is None or value.strip() == "":
+        return default
+    return float(value)
+
+
+def _env_range(name, default):
+    value = os.environ.get(name)
+    if value is None or value.strip() == "":
+        return default
+    parts = [part.strip() for part in value.split(",")]
+    if len(parts) != 2:
+        raise ValueError(f"{name} must be formatted as min,max")
+    low, high = float(parts[0]), float(parts[1])
+    if low >= high:
+        raise ValueError(f"{name} must satisfy min < max")
+    return (low, high)
+
+
 class MultiAgentGazeboEnv:
     """Gazebo environment with multiple robots sharing the same policy."""
 
@@ -50,6 +70,7 @@ class MultiAgentGazeboEnv:
         reward_neighbor_fov=np.pi / 2 + 0.03,
         robot_safe_distance=1.0,
         weak_coupling_layout=False,
+        scenario_mode="standard",
     ):
         self.environment_dim = environment_dim
         self.agent_names = agent_names or ["r1", "r2", "r3"]
@@ -62,12 +83,37 @@ class MultiAgentGazeboEnv:
         self.reward_neighbor_fov = reward_neighbor_fov
         self.robot_safe_distance = robot_safe_distance
         self.weak_coupling_layout = weak_coupling_layout
+        self.scenario_mode = scenario_mode.strip().lower()
+        if self.scenario_mode not in ("standard", "dense"):
+            raise ValueError("scenario_mode must be either 'standard' or 'dense'")
 
         self.upper = 5.0
         self.lower = -5.0
         self.goal_min_distance = 0.8
         self.goal_clearance = 1.2
         self.goal_max_distance = 5.0
+        self.dense_start_x_range = _env_range(
+            "DRL_MULTI_DENSE_START_X_RANGE", (-2.0, 2.0)
+        )
+        self.dense_start_y_range = _env_range(
+            "DRL_MULTI_DENSE_START_Y_RANGE", (-2.0, 2.0)
+        )
+        self.dense_goal_x_offset = _env_range(
+            "DRL_MULTI_DENSE_GOAL_X_OFFSET", (-1.2, 1.2)
+        )
+        self.dense_goal_y_offset = _env_range(
+            "DRL_MULTI_DENSE_GOAL_Y_OFFSET", (-1.2, 1.2)
+        )
+        self.dense_robot_clearance = _env_float(
+            "DRL_MULTI_DENSE_ROBOT_CLEARANCE", 0.9
+        )
+        self.dense_goal_clearance = _env_float("DRL_MULTI_DENSE_GOAL_CLEARANCE", 0.8)
+        self.dense_goal_min_distance = _env_float(
+            "DRL_MULTI_DENSE_GOAL_MIN_DISTANCE", 0.6
+        )
+        self.dense_goal_max_distance = _env_float(
+            "DRL_MULTI_DENSE_GOAL_MAX_DISTANCE", 2.5
+        )
 
         self.velodyne_data = {
             name: np.ones(self.environment_dim) * 10 for name in self.agent_names
@@ -386,6 +432,8 @@ class MultiAgentGazeboEnv:
         )
 
     def _agent_side_ranges(self, name):
+        if self.scenario_mode == "dense":
+            return self.dense_start_x_range, self.dense_start_y_range
         if not self.weak_coupling_layout:
             return (-4.5, 4.5), (-4.5, 4.5)
         if self.num_agents > 2:
@@ -395,6 +443,32 @@ class MultiAgentGazeboEnv:
         return (1.0, 4.2), (-4.2, 4.2)
 
     def _sample_goal_candidate_for_agent(self, name):
+        if self.scenario_mode == "dense":
+            x_range, y_range = self._agent_side_ranges(name)
+            while True:
+                x_offset = random.uniform(*self.dense_goal_x_offset)
+                y_offset = random.uniform(*self.dense_goal_y_offset)
+                candidate = np.array(
+                    [
+                        np.clip(
+                            self.robot_positions[name][0] + x_offset,
+                            x_range[0],
+                            x_range[1],
+                        ),
+                        np.clip(
+                            self.robot_positions[name][1] + y_offset,
+                            y_range[0],
+                            y_range[1],
+                        ),
+                    ]
+                )
+                if (
+                    np.linalg.norm(candidate - self.robot_positions[name])
+                    < self.dense_goal_min_distance
+                ):
+                    continue
+                return candidate
+
         if not self.weak_coupling_layout:
             return np.array(
                 [
@@ -596,6 +670,8 @@ class MultiAgentGazeboEnv:
         return initial_states
 
     def _sample_robot_positions(self, min_clearance=1.2):
+        if self.scenario_mode == "dense":
+            min_clearance = self.dense_robot_clearance
         if self.weak_coupling_layout:
             if self.num_agents <= 2:
                 min_clearance = max(min_clearance, 3.0)
@@ -624,8 +700,24 @@ class MultiAgentGazeboEnv:
         return positions
 
     def _sample_goal_positions(self, min_clearance=1.2):
+        if self.scenario_mode == "dense":
+            min_clearance = self.dense_goal_clearance
+            goal_min_distance = self.dense_goal_min_distance
+            goal_max_distance = self.dense_goal_max_distance
+            robot_goal_clearance = self.dense_goal_clearance
+        else:
+            goal_min_distance = self.goal_min_distance
+            goal_max_distance = self.goal_max_distance
+            robot_goal_clearance = self.goal_clearance
+
         clearance_schedule = [min_clearance]
-        if self.weak_coupling_layout:
+        if self.scenario_mode == "dense":
+            clearance_schedule = [
+                min_clearance,
+                max(min_clearance * 0.75, 0.55),
+                max(min_clearance * 0.6, 0.45),
+            ]
+        elif self.weak_coupling_layout:
             if self.num_agents <= 2:
                 clearance_schedule = [max(min_clearance, 1.8), min_clearance]
             else:
@@ -644,12 +736,12 @@ class MultiAgentGazeboEnv:
                         candidate - self.robot_positions[name]
                     )
                     if (
-                        goal_distance < self.goal_min_distance
-                        or goal_distance > self.goal_max_distance
+                        goal_distance < goal_min_distance
+                        or goal_distance > goal_max_distance
                     ):
                         continue
                     if any(
-                        np.linalg.norm(candidate - other_robot) < self.goal_clearance
+                        np.linalg.norm(candidate - other_robot) < robot_goal_clearance
                         for other_robot in self.robot_positions.values()
                     ):
                         continue
