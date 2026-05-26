@@ -14,7 +14,7 @@
 | C | Weighted08 | 强 reward shaping 对照 |
 | D2 | 几何邻域 Critic + Weighted08 | 当前表现较好的 critic 结构 |
 
-如果三车 dense case 中 D2 的优势更明显，再扩展到 `5智能体/` 和 `10智能体/`。
+当前已扩展到 `5智能体/`。五车 dense baseline 已完成，D2 正在作为直接对照推进。
 
 ## 运行入口
 
@@ -22,6 +22,8 @@
 bash scripts/start_test_detached_multi_dense_baseline_3_best.sh
 bash scripts/start_test_detached_multi_dense_weighted08_3_best.sh
 bash scripts/start_test_detached_multi_dense_local_critic_geo_3_best.sh
+bash scripts/start_test_detached_multi_dense_baseline_5_best.sh
+bash scripts/start_test_detached_multi_dense_local_critic_geo_5_best.sh
 ```
 
 对应停止脚本：
@@ -30,4 +32,6 @@ bash scripts/start_test_detached_multi_dense_local_critic_geo_3_best.sh
 bash scripts/stop_test_detached_multi_dense_baseline_3_best.sh
 bash scripts/stop_test_detached_multi_dense_weighted08_3_best.sh
 bash scripts/stop_test_detached_multi_dense_local_critic_geo_3_best.sh
+bash scripts/stop_test_detached_multi_dense_baseline_5_best.sh
+bash scripts/stop_test_detached_multi_dense_local_critic_geo_5_best.sh
 ```
