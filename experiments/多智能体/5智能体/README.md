@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-五车共享 Policy baseline、RewardOnly 和 D2 几何邻域 Critic + Weighted08 已完成训练和 300 episodes 测试。该规模用于检验三车实验中表现较好的设置在机器人数量增加后是否仍然稳定。
+五车共享 Policy baseline、RewardOnly、Weighted08 和 D2 几何邻域 Critic + Weighted08 已完成训练和 300 episodes 测试。该规模用于检验三车实验中表现较好的设置在机器人数量增加后是否仍然稳定。
 
 ## 计划优先级
 
@@ -17,7 +17,7 @@
 | C | Weighted08 | 五车 reward shaping 对照 |
 | D2 | 几何邻域 Critic + Weighted08 | 五车局部几何 critic 验证 |
 
-当前正在补齐 B/C，用于判断五车 D2 下降主要来自 reward 设计还是 critic 结构。
+当前 A/B/C/D2 已补齐，可用于判断五车 D2 下降主要来自 reward 设计还是 critic 结构。
 
 ## 当前结果
 
@@ -25,12 +25,13 @@
 | --- | --- | ---: | ---: | ---: | --- |
 | A | 共享 Policy Baseline | 0.874 | 0.107 | 0.540 | 已完成 |
 | B | RewardOnly | 0.881 | 0.080 | 0.533 | 已完成 |
-| C | Weighted08 | - | - | - | 待测 |
+| C | Weighted08 | 0.849 | 0.057 | 0.447 | 已完成 |
 | D2 | 几何邻域 Critic + Weighted08 | 0.841 | 0.082 | 0.420 | 已完成 |
 
 ## 当前观察
 
 - 五车 baseline 的整体完成效果优于 D2。
 - RewardOnly 与 baseline 接近，个体成功率略高、碰撞率更低，但全成功率略低。
-- D2 的碰撞率更低，但 success_rate 和 full_success_rate 更低，表现为更保守、完成更慢。
-- 三车中 D2 优于 baseline，但五车标准场景未保持该优势，后续应继续补 Weighted08 判断 reward shaping 的影响。
+- Weighted08 的碰撞率最低，但 success_rate 和 full_success_rate 明显下降，avg_env_steps 增加，表现为更保守、完成更慢。
+- D2 与 Weighted08 趋势接近，说明五车 D2 的下降主要来自 Weighted08 带来的目标驱动力削弱，几何邻域 critic 没有抵消这个问题。
+- 三车中 D2 优于 baseline，但五车标准场景未保持该优势。后续若继续优化五车，应优先调整 reward 权重或邻域范围，而不是直接扩大到更多机器人。
