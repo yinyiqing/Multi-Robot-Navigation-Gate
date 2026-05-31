@@ -10,11 +10,14 @@ if [[ ! -f "$PID_FILE" ]]; then
 fi
 
 pid="$(cat "$PID_FILE" 2>/dev/null || true)"
-if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
-  kill -- "-$pid" 2>/dev/null || kill "$pid" || true
+if [[ -n "$pid" ]]; then
+  kill -- "-$pid" 2>/dev/null || true
+  if kill -0 "$pid" 2>/dev/null; then
+    kill "$pid" 2>/dev/null || true
+  fi
   echo "Stopped detached 5-agent weighted09-active best-model test process group led by PID $pid"
 else
-  echo "PID $pid is not running."
+  echo "PID file did not contain a valid PID."
 fi
 
 rm -f "$PID_FILE"
