@@ -66,6 +66,10 @@ class MultiAgentGazeboEnv:
         cooperative_reward_self_weight=None,
         cooperative_reward_distance_weighted=False,
         cooperative_reward_sigma=2.0,
+        cooperative_reward_mode="average",
+        interaction_safe_distance=1.2,
+        interaction_close_penalty=0.5,
+        interaction_stagnation_penalty=0.05,
         reward_neighbor_radius=10.0,
         reward_neighbor_fov=np.pi / 2 + 0.03,
         robot_safe_distance=1.0,
@@ -80,6 +84,14 @@ class MultiAgentGazeboEnv:
         self.cooperative_reward_self_weight = cooperative_reward_self_weight
         self.cooperative_reward_distance_weighted = cooperative_reward_distance_weighted
         self.cooperative_reward_sigma = cooperative_reward_sigma
+        self.cooperative_reward_mode = cooperative_reward_mode.strip().lower()
+        if self.cooperative_reward_mode not in ("average", "interaction_only"):
+            raise ValueError(
+                "cooperative_reward_mode must be either 'average' or 'interaction_only'"
+            )
+        self.interaction_safe_distance = interaction_safe_distance
+        self.interaction_close_penalty = interaction_close_penalty
+        self.interaction_stagnation_penalty = interaction_stagnation_penalty
         self.reward_neighbor_radius = reward_neighbor_radius
         self.reward_neighbor_fov = reward_neighbor_fov
         self.robot_safe_distance = robot_safe_distance
@@ -145,6 +157,10 @@ class MultiAgentGazeboEnv:
         self.set_self_states = {name: self._create_model_state(name) for name in self.agent_names}
         self.last_step_info = self._empty_last_step_info()
         self.last_reward_neighbors = {name: [] for name in self.agent_names}
+        self.last_interaction_rewards = {name: 0.0 for name in self.agent_names}
+        self.last_active_visible_neighbor_counts = {
+            name: 0 for name in self.agent_names
+        }
 
         self.gaps = [[-np.pi / 2 - 0.03, -np.pi / 2 + np.pi / self.environment_dim]]
         for m in range(self.environment_dim - 1):
@@ -250,12 +266,21 @@ class MultiAgentGazeboEnv:
                     "min_laser": None,
                     "nearest_robot_distance": None,
                     "reward": 0.0,
+                    "raw_reward": 0.0,
+                    "interaction_reward": 0.0,
+                    "reward_neighbors": [],
+                    "active_visible_neighbor_count": 0,
+                    "nearest_active_visible_neighbor_distance": None,
                 }
                 for name in self.agent_names
             },
             "mean_reward": 0.0,
             "success_count": 0,
             "collision_count": 0,
+            "active_neighbor_agent_count": 0,
+            "mean_active_visible_neighbors": 0.0,
+            "max_active_visible_neighbors": 0,
+            "mean_interaction_reward": 0.0,
         }
 
     def set_cooperative_reward(self, enabled):
@@ -448,9 +473,13 @@ class MultiAgentGazeboEnv:
             contexts.append(np.array(context, dtype=np.float32))
         return contexts
 
-    def _apply_cooperative_reward(self, rewards, active_mask):
+    def _apply_cooperative_reward(self, rewards, active_mask, step_agents_info=None):
         adjusted = rewards.copy()
         self.last_reward_neighbors = {name: [] for name in self.agent_names}
+        self.last_interaction_rewards = {name: 0.0 for name in self.agent_names}
+        self.last_active_visible_neighbor_counts = {
+            name: 0 for name in self.agent_names
+        }
         active_names = None
         if self.active_neighbors_only:
             active_names = {
@@ -466,6 +495,18 @@ class MultiAgentGazeboEnv:
             )
             visible = [name] + visible_neighbors
             self.last_reward_neighbors[name] = [n for n in visible if n != name]
+            self.last_active_visible_neighbor_counts[name] = len(
+                self.last_reward_neighbors[name]
+            )
+            if self.cooperative_reward_mode == "interaction_only":
+                interaction_reward = self._compute_interaction_reward(
+                    name,
+                    self.last_reward_neighbors[name],
+                    step_agents_info[name]["progress"] if step_agents_info else 0.0,
+                )
+                self.last_interaction_rewards[name] = interaction_reward
+                adjusted[idx] = float(rewards[idx] + interaction_reward)
+                continue
             if (
                 self.cooperative_reward_self_weight is not None
                 and self.last_reward_neighbors[name]
@@ -502,6 +543,27 @@ class MultiAgentGazeboEnv:
                     np.mean([rewards[self.agent_names.index(n)] for n in visible])
                 )
         return adjusted
+
+    def _compute_interaction_reward(self, name, visible_neighbors, progress):
+        if not visible_neighbors:
+            return 0.0
+
+        distances = np.array(
+            [
+                np.linalg.norm(self.robot_positions[other_name] - self.robot_positions[name])
+                for other_name in visible_neighbors
+            ],
+            dtype=np.float32,
+        )
+        safe_distance = max(float(self.interaction_safe_distance), 1e-6)
+        close_pressure = np.maximum(0.0, safe_distance - distances) / safe_distance
+        close_penalty = float(np.mean(close_pressure))
+
+        stagnation_penalty = 0.0
+        if progress < 0.002:
+            stagnation_penalty = float(self.interaction_stagnation_penalty)
+
+        return -float(self.interaction_close_penalty) * close_penalty - stagnation_penalty
 
     def _nearest_robot_distance(self, name):
         origin = self.robot_positions[name]
@@ -682,22 +744,69 @@ class MultiAgentGazeboEnv:
                 "nearest_robot_distance": nearest_robot_distance,
                 "reward": reward,
                 "raw_reward": reward,
+                "interaction_reward": 0.0,
                 "reward_neighbors": [],
+                "active_visible_neighbor_count": 0,
+                "nearest_active_visible_neighbor_distance": None,
             }
 
         if self.cooperative_reward:
-            rewards = self._apply_cooperative_reward(rewards, active_mask)
+            rewards = self._apply_cooperative_reward(
+                rewards, active_mask, step_agents_info
+            )
             for idx, name in enumerate(self.agent_names):
                 step_agents_info[name]["reward"] = rewards[idx]
                 step_agents_info[name]["reward_neighbors"] = self.last_reward_neighbors[
                     name
                 ]
+                step_agents_info[name]["interaction_reward"] = (
+                    self.last_interaction_rewards[name]
+                )
+                step_agents_info[name]["active_visible_neighbor_count"] = (
+                    self.last_active_visible_neighbor_counts[name]
+                )
+                active_neighbor_distances = [
+                    float(
+                        np.linalg.norm(
+                            self.robot_positions[other_name]
+                            - self.robot_positions[name]
+                        )
+                    )
+                    for other_name in self.last_reward_neighbors[name]
+                ]
+                if active_neighbor_distances:
+                    step_agents_info[name][
+                        "nearest_active_visible_neighbor_distance"
+                    ] = min(active_neighbor_distances)
+
+        active_neighbor_counts = [
+            step_agents_info[name]["active_visible_neighbor_count"]
+            for idx, name in enumerate(self.agent_names)
+            if idx < len(active_mask) and active_mask[idx]
+        ]
+        interaction_rewards = [
+            step_agents_info[name]["interaction_reward"]
+            for idx, name in enumerate(self.agent_names)
+            if idx < len(active_mask) and active_mask[idx]
+        ]
 
         self.last_step_info = {
             "agents": step_agents_info,
             "mean_reward": float(np.mean(rewards)) if rewards else 0.0,
             "success_count": int(sum(int(flag) for flag in targets)),
             "collision_count": int(sum(int(flag) for flag in collisions)),
+            "active_neighbor_agent_count": int(
+                sum(1 for count in active_neighbor_counts if count > 0)
+            ),
+            "mean_active_visible_neighbors": (
+                float(np.mean(active_neighbor_counts)) if active_neighbor_counts else 0.0
+            ),
+            "max_active_visible_neighbors": (
+                int(max(active_neighbor_counts)) if active_neighbor_counts else 0
+            ),
+            "mean_interaction_reward": (
+                float(np.mean(interaction_rewards)) if interaction_rewards else 0.0
+            ),
         }
 
         return next_states, rewards, dones, targets, collisions

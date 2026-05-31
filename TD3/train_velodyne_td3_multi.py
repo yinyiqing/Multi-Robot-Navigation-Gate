@@ -468,6 +468,12 @@ use_distance_weighted_reward = env_flag(
     "DRL_MULTI_USE_DISTANCE_WEIGHTED_REWARD", False
 )
 cooperative_reward_sigma = env_float("DRL_MULTI_REWARD_SIGMA", 2.0)
+cooperative_reward_mode = os.environ.get("DRL_MULTI_REWARD_MODE", "average").strip().lower()
+interaction_safe_distance = env_float("DRL_MULTI_INTERACTION_SAFE_DISTANCE", 1.2)
+interaction_close_penalty = env_float("DRL_MULTI_INTERACTION_CLOSE_PENALTY", 0.5)
+interaction_stagnation_penalty = env_float(
+    "DRL_MULTI_INTERACTION_STAGNATION_PENALTY", 0.05
+)
 base_file_name = "TD3_velodyne_multi_v4"
 file_name = os.environ.get(
     "DRL_MULTI_TRAIN_FILE_NAME",
@@ -557,6 +563,10 @@ env = MultiAgentGazeboEnv(
     cooperative_reward_self_weight=cooperative_reward_self_weight,
     cooperative_reward_distance_weighted=use_distance_weighted_reward,
     cooperative_reward_sigma=cooperative_reward_sigma,
+    cooperative_reward_mode=cooperative_reward_mode,
+    interaction_safe_distance=interaction_safe_distance,
+    interaction_close_penalty=interaction_close_penalty,
+    interaction_stagnation_penalty=interaction_stagnation_penalty,
     robot_safe_distance=0.0,
     weak_coupling_layout=True,
     scenario_mode=scenario_mode,
@@ -629,9 +639,13 @@ if torch.cuda.is_available():
     print("GPU:", torch.cuda.get_device_name(0))
 print("Agent names:", ", ".join(agent_names))
 print("Cooperative reward:", use_dynamic_reward)
+print("Cooperative reward mode:", cooperative_reward_mode)
 print("Cooperative reward self weight:", cooperative_reward_self_weight)
 print("Distance-weighted reward:", use_distance_weighted_reward)
 print("Distance reward sigma:", cooperative_reward_sigma)
+print("Interaction safe distance:", interaction_safe_distance)
+print("Interaction close penalty:", interaction_close_penalty)
+print("Interaction stagnation penalty:", interaction_stagnation_penalty)
 print("Local critic enabled:", use_local_critic)
 print("Local critic geometry only:", local_critic_geometry_only)
 print("Active neighbors only:", active_neighbors_only)
@@ -788,6 +802,26 @@ while timestep < max_timesteps:
             coop_neighbor_counts = [
                 len(step_agents[name]["reward_neighbors"]) for name in agent_names
             ]
+            active_neighbor_step_rate = (
+                episode_active_neighbor_agent_steps / episode_sample_count
+                if episode_sample_count > 0
+                else 0.0
+            )
+            mean_active_neighbors_step = (
+                episode_active_neighbor_count_sum / episode_sample_count
+                if episode_sample_count > 0
+                else 0.0
+            )
+            mean_interaction_reward_step = (
+                episode_interaction_reward_sum / episode_sample_count
+                if episode_sample_count > 0
+                else 0.0
+            )
+            mean_abs_interaction_reward_step = (
+                episode_abs_interaction_reward_sum / episode_sample_count
+                if episode_sample_count > 0
+                else 0.0
+            )
             mean_context_neighbors, max_context_neighbors = context_stats(
                 episode_last_neighbor_contexts
             )
@@ -802,6 +836,9 @@ while timestep < max_timesteps:
                 "mean_progress=%.4f | min_laser=%.3f | mean_lin=%.3f | mean_ang=%.3f | "
                 "mean_robot_dist=%.3f | raw_reward=%.3f | adjusted_reward=%.3f | "
                 "coop_agents=%i/%i | mean_coop_neighbors=%.2f | "
+                "active_neighbor_step_rate=%.3f | mean_active_neighbors_step=%.3f | "
+                "max_active_neighbors_step=%i | interaction_reward=%.4f | "
+                "abs_interaction_reward=%.4f | "
                 "context_neighbors_mean=%.2f | context_neighbors_max=%.0f | "
                 "expl_noise=%.4f | "
                 "replay=%i | samples/sec=%.3f"
@@ -827,6 +864,11 @@ while timestep < max_timesteps:
                     coop_active_agents,
                     len(agent_names),
                     mean_coop_neighbors,
+                    active_neighbor_step_rate,
+                    mean_active_neighbors_step,
+                    episode_active_neighbor_max,
+                    mean_interaction_reward_step,
+                    mean_abs_interaction_reward_step,
                     mean_context_neighbors,
                     max_context_neighbors,
                     expl_noise,
@@ -1017,6 +1059,11 @@ while timestep < max_timesteps:
             if use_local_critic
             else [np.zeros(critic_context_dim, dtype=np.float32) for _ in agent_names]
         )
+        episode_active_neighbor_agent_steps = 0
+        episode_active_neighbor_count_sum = 0.0
+        episode_active_neighbor_max = 0
+        episode_interaction_reward_sum = 0.0
+        episode_abs_interaction_reward_sum = 0.0
         episode_num += 1
 
     if expl_noise > expl_min:
@@ -1061,6 +1108,20 @@ while timestep < max_timesteps:
     )
     env_step_count += 1
     step_agents = env.last_step_info["agents"]
+    for idx, name in enumerate(agent_names):
+        if not active_mask[idx]:
+            continue
+        active_neighbor_count = int(
+            step_agents[name].get("active_visible_neighbor_count", 0)
+        )
+        episode_active_neighbor_count_sum += active_neighbor_count
+        episode_active_neighbor_agent_steps += int(active_neighbor_count > 0)
+        episode_active_neighbor_max = max(
+            episode_active_neighbor_max, active_neighbor_count
+        )
+        interaction_reward = float(step_agents[name].get("interaction_reward", 0.0))
+        episode_interaction_reward_sum += interaction_reward
+        episode_abs_interaction_reward_sum += abs(interaction_reward)
 
     truncated = episode_timesteps + 1 == max_ep
     next_active_mask = [

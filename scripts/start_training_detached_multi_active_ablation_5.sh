@@ -14,8 +14,12 @@ case "$VARIANT" in
     MODEL_NAME="TD3_velodyne_multi_v4_weighted08_active_5"
     VERSION="multi-agent-weighted08-active-neighbors-5-v1"
     USE_DYNAMIC_REWARD=1
+    REWARD_MODE=average
     SELF_WEIGHT=0.8
     USE_DISTANCE_WEIGHTED_REWARD=1
+    INTERACTION_SAFE_DISTANCE=1.2
+    INTERACTION_CLOSE_PENALTY=0.5
+    INTERACTION_STAGNATION_PENALTY=0.05
     USE_LOCAL_CRITIC=0
     LOCAL_CRITIC_GEOMETRY_ONLY=0
     DESCRIPTION="distance-weighted 0.8 own + 0.2 active-neighbor"
@@ -24,8 +28,12 @@ case "$VARIANT" in
     MODEL_NAME="TD3_velodyne_multi_v4_weighted09_active_5"
     VERSION="multi-agent-weighted09-active-neighbors-5-v1"
     USE_DYNAMIC_REWARD=1
+    REWARD_MODE=average
     SELF_WEIGHT=0.9
     USE_DISTANCE_WEIGHTED_REWARD=1
+    INTERACTION_SAFE_DISTANCE=1.2
+    INTERACTION_CLOSE_PENALTY=0.5
+    INTERACTION_STAGNATION_PENALTY=0.05
     USE_LOCAL_CRITIC=0
     LOCAL_CRITIC_GEOMETRY_ONLY=0
     DESCRIPTION="distance-weighted 0.9 own + 0.1 active-neighbor"
@@ -34,18 +42,40 @@ case "$VARIANT" in
     MODEL_NAME="TD3_velodyne_multi_v4_weighted095_active_5"
     VERSION="multi-agent-weighted095-active-neighbors-5-v1"
     USE_DYNAMIC_REWARD=1
+    REWARD_MODE=average
     SELF_WEIGHT=0.95
     USE_DISTANCE_WEIGHTED_REWARD=1
+    INTERACTION_SAFE_DISTANCE=1.2
+    INTERACTION_CLOSE_PENALTY=0.5
+    INTERACTION_STAGNATION_PENALTY=0.05
     USE_LOCAL_CRITIC=0
     LOCAL_CRITIC_GEOMETRY_ONLY=0
     DESCRIPTION="distance-weighted 0.95 own + 0.05 active-neighbor"
+    ;;
+  interaction_only_active)
+    MODEL_NAME="TD3_velodyne_multi_v4_interaction_only_active_5"
+    VERSION="multi-agent-interaction-only-active-neighbors-5-v1"
+    USE_DYNAMIC_REWARD=1
+    REWARD_MODE=interaction_only
+    SELF_WEIGHT=
+    USE_DISTANCE_WEIGHTED_REWARD=0
+    INTERACTION_SAFE_DISTANCE=1.2
+    INTERACTION_CLOSE_PENALTY=0.5
+    INTERACTION_STAGNATION_PENALTY=0.05
+    USE_LOCAL_CRITIC=0
+    LOCAL_CRITIC_GEOMETRY_ONLY=0
+    DESCRIPTION="individual reward + active-neighbor interaction penalty"
     ;;
   geo_individual_active)
     MODEL_NAME="TD3_velodyne_multi_v4_local_critic_geo_individual_active_5"
     VERSION="multi-agent-local-neighborhood-critic-geo-individual-active-5-v1"
     USE_DYNAMIC_REWARD=0
+    REWARD_MODE=average
     SELF_WEIGHT=
     USE_DISTANCE_WEIGHTED_REWARD=0
+    INTERACTION_SAFE_DISTANCE=1.2
+    INTERACTION_CLOSE_PENALTY=0.5
+    INTERACTION_STAGNATION_PENALTY=0.05
     USE_LOCAL_CRITIC=1
     LOCAL_CRITIC_GEOMETRY_ONLY=1
     DESCRIPTION="individual reward + active-neighbor geometry critic"
@@ -54,8 +84,12 @@ case "$VARIANT" in
     MODEL_NAME="TD3_velodyne_multi_v4_local_critic_geo_weighted09_active_5"
     VERSION="multi-agent-local-neighborhood-critic-geo-weighted09-active-5-v1"
     USE_DYNAMIC_REWARD=1
+    REWARD_MODE=average
     SELF_WEIGHT=0.9
     USE_DISTANCE_WEIGHTED_REWARD=1
+    INTERACTION_SAFE_DISTANCE=1.2
+    INTERACTION_CLOSE_PENALTY=0.5
+    INTERACTION_STAGNATION_PENALTY=0.05
     USE_LOCAL_CRITIC=1
     LOCAL_CRITIC_GEOMETRY_ONLY=1
     DESCRIPTION="distance-weighted 0.9 own + 0.1 active-neighbor with geometry critic"
@@ -66,6 +100,7 @@ case "$VARIANT" in
     echo "  weighted08_active"
     echo "  weighted09_active"
     echo "  weighted095_active"
+    echo "  interaction_only_active"
     echo "  geo_individual_active"
     echo "  geo_weighted09_active"
     exit 1
@@ -116,9 +151,13 @@ setsid bash -lc "
   export DRL_MULTI_NUM_AGENTS='$NUM_AGENTS'
   export DRL_MULTI_TRAIN_LAUNCHFILE='$LAUNCHFILE'
   export DRL_MULTI_USE_DYNAMIC_REWARD='$USE_DYNAMIC_REWARD'
+  export DRL_MULTI_REWARD_MODE='$REWARD_MODE'
   export DRL_MULTI_REWARD_SELF_WEIGHT='$SELF_WEIGHT'
   export DRL_MULTI_USE_DISTANCE_WEIGHTED_REWARD='$USE_DISTANCE_WEIGHTED_REWARD'
   export DRL_MULTI_REWARD_SIGMA=2.0
+  export DRL_MULTI_INTERACTION_SAFE_DISTANCE='$INTERACTION_SAFE_DISTANCE'
+  export DRL_MULTI_INTERACTION_CLOSE_PENALTY='$INTERACTION_CLOSE_PENALTY'
+  export DRL_MULTI_INTERACTION_STAGNATION_PENALTY='$INTERACTION_STAGNATION_PENALTY'
   export DRL_MULTI_USE_LOCAL_CRITIC='$USE_LOCAL_CRITIC'
   export DRL_MULTI_LOCAL_CRITIC_GEOMETRY_ONLY='$LOCAL_CRITIC_GEOMETRY_ONLY'
   export DRL_MULTI_LOCAL_CRITIC_MAX_AGENTS=10
@@ -145,6 +184,7 @@ echo "Model: $MODEL_NAME"
 echo "Launch: $LAUNCH_PATH"
 echo "Warm start: TD3_velodyne_multi_v4"
 echo "Reward/Critic: $DESCRIPTION"
+echo "Reward mode: $REWARD_MODE"
 echo "Active neighbors only: enabled"
 echo "Best metric: full_success"
 echo "Max epochs: ${DRL_MULTI_MAX_EPOCHS:-20}"
