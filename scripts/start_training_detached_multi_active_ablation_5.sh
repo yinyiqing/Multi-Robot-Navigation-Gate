@@ -66,6 +66,20 @@ case "$VARIANT" in
     LOCAL_CRITIC_GEOMETRY_ONLY=0
     DESCRIPTION="individual reward + active-neighbor interaction penalty"
     ;;
+  individual_active_probe)
+    MODEL_NAME="TD3_velodyne_multi_v4_individual_active_probe_5"
+    VERSION="multi-agent-individual-active-probe-5-v1"
+    USE_DYNAMIC_REWARD=1
+    REWARD_MODE=interaction_only
+    SELF_WEIGHT=
+    USE_DISTANCE_WEIGHTED_REWARD=0
+    INTERACTION_SAFE_DISTANCE=1.2
+    INTERACTION_CLOSE_PENALTY=0.0
+    INTERACTION_STAGNATION_PENALTY=0.0
+    USE_LOCAL_CRITIC=0
+    LOCAL_CRITIC_GEOMETRY_ONLY=0
+    DESCRIPTION="individual reward through active-neighbor diagnostics"
+    ;;
   geo_individual_active)
     MODEL_NAME="TD3_velodyne_multi_v4_local_critic_geo_individual_active_5"
     VERSION="multi-agent-local-neighborhood-critic-geo-individual-active-5-v1"
@@ -101,6 +115,7 @@ case "$VARIANT" in
     echo "  weighted09_active"
     echo "  weighted095_active"
     echo "  interaction_only_active"
+    echo "  individual_active_probe"
     echo "  geo_individual_active"
     echo "  geo_weighted09_active"
     exit 1
