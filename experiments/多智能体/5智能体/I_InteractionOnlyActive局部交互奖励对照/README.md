@@ -45,9 +45,14 @@ Best checkpoint 出现在 epoch 4：`full_success_rate=0.667`，`success_rate=0.
 
 训练内 30 episodes eval 显示，InteractionOnly Active 明显强于 H 的后期表现，并在 epoch 4 达到目前最好的小样本 full-success。它支持一个判断：五车问题不是“没有邻居暴露”，而是旧 cooperative reward 把邻居完整任务 reward 混入本车学习信号，噪声和 credit assignment 负担太大。
 
-该结论仍需 300 episodes best checkpoint 测试确认。正式测试完成前，不把 I 组写入主线总表的最终 300-episode 结果。
+300 episodes best checkpoint 测试中，I 的 `full_success_rate=0.553`，略高于 baseline/H 的 `0.540`，是当前最高的五车主线结果；`collision_rate=0.069`，接近 H 的低碰撞表现并明显低于 baseline。但提升幅度很小，且 `timeout_episode_rate=0.230`、`avg_env_steps=95.197`，说明长尾 timeout/deadlock 仍未解决。
+
+因此，I 支持“去掉邻居完整 reward averaging，保留个体任务 reward + 局部交互约束”的方向，但它还不是充分的协同能力突破。下一步应继续处理 timeout 长尾，例如把局部交互项改为更明确的让行/解锁 shaping，或把邻居几何信息开放给 critic 但保持 reward 个体化。
 
 ## 核心文件
 
 - `五车InteractionOnlyActive/train_multi_interaction_only_active_5_detached_20260531_144304.log`
-- 300 episodes best 测试待完成后补充
+- `五车InteractionOnlyActive/test_multi_interaction_only_active_5_best_detached_20260531_215232.raw.log`
+- `五车InteractionOnlyActive/test_multi_interaction_only_active_5_best_300episodes_clean.log`
+- `五车InteractionOnlyActive/test_multi_interaction_only_active_5_best_300episodes.npy`
+- `五车InteractionOnlyActive/test_multi_interaction_only_active_5_best_300episodes_summary.md`
