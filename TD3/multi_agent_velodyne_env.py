@@ -77,6 +77,11 @@ class MultiAgentGazeboEnv:
         interaction_safe_distance=1.2,
         interaction_close_penalty=0.5,
         interaction_stagnation_penalty=0.05,
+        anti_stagnation_reward=False,
+        anti_stagnation_penalty=0.2,
+        anti_stagnation_linear_threshold=0.05,
+        anti_stagnation_progress_threshold=0.005,
+        anti_stagnation_min_laser=0.35,
         reward_neighbor_radius=10.0,
         reward_neighbor_fov=np.pi / 2 + 0.03,
         robot_safe_distance=1.0,
@@ -99,6 +104,11 @@ class MultiAgentGazeboEnv:
         self.interaction_safe_distance = interaction_safe_distance
         self.interaction_close_penalty = interaction_close_penalty
         self.interaction_stagnation_penalty = interaction_stagnation_penalty
+        self.anti_stagnation_reward = anti_stagnation_reward
+        self.anti_stagnation_penalty = anti_stagnation_penalty
+        self.anti_stagnation_linear_threshold = anti_stagnation_linear_threshold
+        self.anti_stagnation_progress_threshold = anti_stagnation_progress_threshold
+        self.anti_stagnation_min_laser = anti_stagnation_min_laser
         self.reward_neighbor_radius = reward_neighbor_radius
         self.reward_neighbor_fov = reward_neighbor_fov
         self.robot_safe_distance = robot_safe_distance
@@ -341,10 +351,14 @@ class MultiAgentGazeboEnv:
             "mean_active_visible_neighbors": 0.0,
             "max_active_visible_neighbors": 0,
             "mean_interaction_reward": 0.0,
+            "mean_anti_stagnation_reward": 0.0,
         }
 
     def set_cooperative_reward(self, enabled):
         self.cooperative_reward = enabled
+
+    def set_anti_stagnation_reward(self, enabled):
+        self.anti_stagnation_reward = enabled
 
     def wait_for_odom(self, name, timeout=60.0, recover_with_unpause=True):
         if self.last_odom[name] is not None:
@@ -625,6 +639,20 @@ class MultiAgentGazeboEnv:
 
         return -float(self.interaction_close_penalty) * close_penalty - stagnation_penalty
 
+    def _compute_anti_stagnation_penalty(
+        self, target, collision, action, min_laser, progress
+    ):
+        if not self.anti_stagnation_reward or target or collision:
+            return 0.0
+        if min_laser is None or min_laser < self.anti_stagnation_min_laser:
+            return 0.0
+        if (
+            action[0] < self.anti_stagnation_linear_threshold
+            and abs(progress) < self.anti_stagnation_progress_threshold
+        ):
+            return float(self.anti_stagnation_penalty)
+        return 0.0
+
     def _nearest_robot_distance(self, name):
         origin = self.robot_positions[name]
         distances = []
@@ -773,6 +801,10 @@ class MultiAgentGazeboEnv:
                 else self.previous_distances[name] - distance
             )
             reward = self.get_reward(target, collision, actions[idx], min_laser, progress)
+            anti_stagnation_penalty = self._compute_anti_stagnation_penalty(
+                target, collision, actions[idx], min_laser, progress
+            )
+            reward -= anti_stagnation_penalty
             self.previous_distances[name] = distance
             nearest_robot_distance = self._nearest_robot_distance(name)
             if (
@@ -788,6 +820,7 @@ class MultiAgentGazeboEnv:
                 collision = False
                 target = False
                 progress = 0.0
+                anti_stagnation_penalty = 0.0
                 nearest_robot_distance = None
 
             next_states.append(state)
@@ -805,6 +838,7 @@ class MultiAgentGazeboEnv:
                 "reward": reward,
                 "raw_reward": reward,
                 "interaction_reward": 0.0,
+                "anti_stagnation_reward": -anti_stagnation_penalty,
                 "reward_neighbors": [],
                 "active_visible_neighbor_count": 0,
                 "nearest_active_visible_neighbor_distance": None,
@@ -850,6 +884,11 @@ class MultiAgentGazeboEnv:
             for idx, name in enumerate(self.agent_names)
             if idx < len(active_mask) and active_mask[idx]
         ]
+        anti_stagnation_rewards = [
+            step_agents_info[name]["anti_stagnation_reward"]
+            for idx, name in enumerate(self.agent_names)
+            if idx < len(active_mask) and active_mask[idx]
+        ]
         relocated_successful_agents = []
         if self.relocate_successful_done_agents:
             for idx, name in enumerate(self.agent_names):
@@ -876,6 +915,11 @@ class MultiAgentGazeboEnv:
             ),
             "mean_interaction_reward": (
                 float(np.mean(interaction_rewards)) if interaction_rewards else 0.0
+            ),
+            "mean_anti_stagnation_reward": (
+                float(np.mean(anti_stagnation_rewards))
+                if anti_stagnation_rewards
+                else 0.0
             ),
         }
 

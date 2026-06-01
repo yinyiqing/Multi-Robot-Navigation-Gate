@@ -18,7 +18,9 @@ from replay_buffer import ReplayBuffer
 
 def evaluate(network, env, epoch, eval_episodes=10):
     previous_mode = env.cooperative_reward
+    previous_anti_stagnation = env.anti_stagnation_reward
     env.set_cooperative_reward(False)
+    env.set_anti_stagnation_reward(False)
 
     total_reward = 0.0
     total_collisions = 0
@@ -115,6 +117,7 @@ def evaluate(network, env, epoch, eval_episodes=10):
     print("..............................................")
 
     env.set_cooperative_reward(previous_mode)
+    env.set_anti_stagnation_reward(previous_anti_stagnation)
     return {
         "avg_reward": avg_reward,
         "success_rate": success_rate,
@@ -474,6 +477,15 @@ interaction_close_penalty = env_float("DRL_MULTI_INTERACTION_CLOSE_PENALTY", 0.5
 interaction_stagnation_penalty = env_float(
     "DRL_MULTI_INTERACTION_STAGNATION_PENALTY", 0.05
 )
+anti_stagnation_reward = env_flag("DRL_MULTI_USE_ANTI_STAGNATION_REWARD", False)
+anti_stagnation_penalty = env_float("DRL_MULTI_ANTI_STAGNATION_PENALTY", 0.2)
+anti_stagnation_linear_threshold = env_float(
+    "DRL_MULTI_ANTI_STAGNATION_LINEAR_THRESHOLD", 0.05
+)
+anti_stagnation_progress_threshold = env_float(
+    "DRL_MULTI_ANTI_STAGNATION_PROGRESS_THRESHOLD", 0.005
+)
+anti_stagnation_min_laser = env_float("DRL_MULTI_ANTI_STAGNATION_MIN_LASER", 0.35)
 base_file_name = "TD3_velodyne_multi_v4"
 file_name = os.environ.get(
     "DRL_MULTI_TRAIN_FILE_NAME",
@@ -567,6 +579,11 @@ env = MultiAgentGazeboEnv(
     interaction_safe_distance=interaction_safe_distance,
     interaction_close_penalty=interaction_close_penalty,
     interaction_stagnation_penalty=interaction_stagnation_penalty,
+    anti_stagnation_reward=anti_stagnation_reward,
+    anti_stagnation_penalty=anti_stagnation_penalty,
+    anti_stagnation_linear_threshold=anti_stagnation_linear_threshold,
+    anti_stagnation_progress_threshold=anti_stagnation_progress_threshold,
+    anti_stagnation_min_laser=anti_stagnation_min_laser,
     robot_safe_distance=0.0,
     weak_coupling_layout=True,
     scenario_mode=scenario_mode,
@@ -646,6 +663,11 @@ print("Distance reward sigma:", cooperative_reward_sigma)
 print("Interaction safe distance:", interaction_safe_distance)
 print("Interaction close penalty:", interaction_close_penalty)
 print("Interaction stagnation penalty:", interaction_stagnation_penalty)
+print("Anti-stagnation reward:", anti_stagnation_reward)
+print("Anti-stagnation penalty:", anti_stagnation_penalty)
+print("Anti-stagnation linear threshold:", anti_stagnation_linear_threshold)
+print("Anti-stagnation progress threshold:", anti_stagnation_progress_threshold)
+print("Anti-stagnation min laser:", anti_stagnation_min_laser)
 print("Local critic enabled:", use_local_critic)
 print("Local critic geometry only:", local_critic_geometry_only)
 print("Active neighbors only:", active_neighbors_only)
@@ -822,6 +844,16 @@ while timestep < max_timesteps:
                 if episode_sample_count > 0
                 else 0.0
             )
+            mean_anti_stagnation_reward_step = (
+                episode_anti_stagnation_reward_sum / episode_sample_count
+                if episode_sample_count > 0
+                else 0.0
+            )
+            mean_abs_anti_stagnation_reward_step = (
+                episode_abs_anti_stagnation_reward_sum / episode_sample_count
+                if episode_sample_count > 0
+                else 0.0
+            )
             mean_context_neighbors, max_context_neighbors = context_stats(
                 episode_last_neighbor_contexts
             )
@@ -838,7 +870,8 @@ while timestep < max_timesteps:
                 "coop_agents=%i/%i | mean_coop_neighbors=%.2f | "
                 "active_neighbor_step_rate=%.3f | mean_active_neighbors_step=%.3f | "
                 "max_active_neighbors_step=%i | interaction_reward=%.4f | "
-                "abs_interaction_reward=%.4f | "
+                "abs_interaction_reward=%.4f | anti_stag_reward=%.4f | "
+                "abs_anti_stag_reward=%.4f | "
                 "context_neighbors_mean=%.2f | context_neighbors_max=%.0f | "
                 "expl_noise=%.4f | "
                 "replay=%i | samples/sec=%.3f"
@@ -869,6 +902,8 @@ while timestep < max_timesteps:
                     episode_active_neighbor_max,
                     mean_interaction_reward_step,
                     mean_abs_interaction_reward_step,
+                    mean_anti_stagnation_reward_step,
+                    mean_abs_anti_stagnation_reward_step,
                     mean_context_neighbors,
                     max_context_neighbors,
                     expl_noise,
@@ -1064,6 +1099,8 @@ while timestep < max_timesteps:
         episode_active_neighbor_max = 0
         episode_interaction_reward_sum = 0.0
         episode_abs_interaction_reward_sum = 0.0
+        episode_anti_stagnation_reward_sum = 0.0
+        episode_abs_anti_stagnation_reward_sum = 0.0
         episode_num += 1
 
     if expl_noise > expl_min:
@@ -1122,6 +1159,11 @@ while timestep < max_timesteps:
         interaction_reward = float(step_agents[name].get("interaction_reward", 0.0))
         episode_interaction_reward_sum += interaction_reward
         episode_abs_interaction_reward_sum += abs(interaction_reward)
+        anti_stagnation_reward_step = float(
+            step_agents[name].get("anti_stagnation_reward", 0.0)
+        )
+        episode_anti_stagnation_reward_sum += anti_stagnation_reward_step
+        episode_abs_anti_stagnation_reward_sum += abs(anti_stagnation_reward_step)
 
     truncated = episode_timesteps + 1 == max_ep
     next_active_mask = [

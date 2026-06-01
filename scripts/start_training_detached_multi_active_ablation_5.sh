@@ -8,6 +8,11 @@ NUM_AGENTS=5
 VARIANT="${1:-weighted09_active}"
 ROS_PORT="${DRL_MULTI_ROS_PORT:-11367}"
 GAZEBO_PORT="${DRL_MULTI_GAZEBO_PORT:-11407}"
+ANTI_STAGNATION_REWARD=0
+ANTI_STAGNATION_PENALTY=0.0
+ANTI_STAGNATION_LINEAR_THRESHOLD=0.05
+ANTI_STAGNATION_PROGRESS_THRESHOLD=0.005
+ANTI_STAGNATION_MIN_LASER=0.35
 
 case "$VARIANT" in
   weighted08_active)
@@ -80,6 +85,25 @@ case "$VARIANT" in
     LOCAL_CRITIC_GEOMETRY_ONLY=0
     DESCRIPTION="individual reward through active-neighbor diagnostics"
     ;;
+  individual_antistagnation)
+    MODEL_NAME="TD3_velodyne_multi_v4_individual_antistagnation_5"
+    VERSION="multi-agent-individual-antistagnation-5-v1"
+    USE_DYNAMIC_REWARD=1
+    REWARD_MODE=interaction_only
+    SELF_WEIGHT=
+    USE_DISTANCE_WEIGHTED_REWARD=0
+    INTERACTION_SAFE_DISTANCE=1.2
+    INTERACTION_CLOSE_PENALTY=0.0
+    INTERACTION_STAGNATION_PENALTY=0.0
+    ANTI_STAGNATION_REWARD=1
+    ANTI_STAGNATION_PENALTY=0.2
+    ANTI_STAGNATION_LINEAR_THRESHOLD=0.05
+    ANTI_STAGNATION_PROGRESS_THRESHOLD=0.005
+    ANTI_STAGNATION_MIN_LASER=0.35
+    USE_LOCAL_CRITIC=0
+    LOCAL_CRITIC_GEOMETRY_ONLY=0
+    DESCRIPTION="individual reward + self anti-stagnation penalty"
+    ;;
   geo_individual_active)
     MODEL_NAME="TD3_velodyne_multi_v4_local_critic_geo_individual_active_5"
     VERSION="multi-agent-local-neighborhood-critic-geo-individual-active-5-v1"
@@ -116,6 +140,7 @@ case "$VARIANT" in
     echo "  weighted095_active"
     echo "  interaction_only_active"
     echo "  individual_active_probe"
+    echo "  individual_antistagnation"
     echo "  geo_individual_active"
     echo "  geo_weighted09_active"
     exit 1
@@ -173,6 +198,11 @@ setsid bash -lc "
   export DRL_MULTI_INTERACTION_SAFE_DISTANCE='$INTERACTION_SAFE_DISTANCE'
   export DRL_MULTI_INTERACTION_CLOSE_PENALTY='$INTERACTION_CLOSE_PENALTY'
   export DRL_MULTI_INTERACTION_STAGNATION_PENALTY='$INTERACTION_STAGNATION_PENALTY'
+  export DRL_MULTI_USE_ANTI_STAGNATION_REWARD='$ANTI_STAGNATION_REWARD'
+  export DRL_MULTI_ANTI_STAGNATION_PENALTY='$ANTI_STAGNATION_PENALTY'
+  export DRL_MULTI_ANTI_STAGNATION_LINEAR_THRESHOLD='$ANTI_STAGNATION_LINEAR_THRESHOLD'
+  export DRL_MULTI_ANTI_STAGNATION_PROGRESS_THRESHOLD='$ANTI_STAGNATION_PROGRESS_THRESHOLD'
+  export DRL_MULTI_ANTI_STAGNATION_MIN_LASER='$ANTI_STAGNATION_MIN_LASER'
   export DRL_MULTI_USE_LOCAL_CRITIC='$USE_LOCAL_CRITIC'
   export DRL_MULTI_LOCAL_CRITIC_GEOMETRY_ONLY='$LOCAL_CRITIC_GEOMETRY_ONLY'
   export DRL_MULTI_LOCAL_CRITIC_MAX_AGENTS=10
@@ -201,6 +231,8 @@ echo "Warm start: TD3_velodyne_multi_v4"
 echo "Reward/Critic: $DESCRIPTION"
 echo "Reward mode: $REWARD_MODE"
 echo "Active neighbors only: enabled"
+echo "Anti-stagnation reward: $ANTI_STAGNATION_REWARD"
+echo "Anti-stagnation penalty: $ANTI_STAGNATION_PENALTY"
 echo "Best metric: full_success"
 echo "Max epochs: ${DRL_MULTI_MAX_EPOCHS:-20}"
 echo "Log: $log_file"
