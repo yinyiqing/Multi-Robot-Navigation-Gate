@@ -42,9 +42,16 @@ Best checkpoint 出现在 epoch 3：`full_success_rate=0.633`，`success_rate=0.
 
 ## 当前结论
 
-J 的训练内 30 episodes best 表现接近 I 组，说明 I 组相对 baseline/H 的小幅提升不一定来自局部 interaction penalty 本身，也可能来自短训练、early stopping 或重训随机性。正式判断需要 J 的 300 episodes best checkpoint 测试。
+J 的 300 episodes best 测试结果为 `success_rate=0.869`、`collision_rate=0.087`、`full_success_rate=0.537`、`timeout_episode_rate=0.197`。它接近 baseline/H 的 `full_success_rate=0.540`，略低于 I 组 `0.553`。
+
+这说明 I 组相对 baseline/H 的小幅提升不一定来自局部 interaction penalty 本身，也可能来自短训练、early stopping 或重训随机性。J 组纯 individual reward 仍能达到同一量级表现，削弱了“局部 interaction penalty 已经稳定带来协同能力”的判断。
+
+J 的 timeout 结构进一步支持当前 deadlock 诊断：59 个 timeout episode 中，35 个已经有 4/5 机器人成功，19 个已经有 3/5 机器人成功，且 52 个只剩 1 个 unresolved agent。这说明主要长尾不是五车整体失败，而是多数机器人完成并停住后，最后一两辆进入静止/小范围摆动/局部死锁。
 
 ## 核心文件
 
 - `五车IndividualActiveProbe/train_multi_individual_active_probe_5_detached_20260601_091906.log`
-- 300 episodes best 测试待完成后补充
+- `五车IndividualActiveProbe/test_multi_individual_active_probe_5_best_detached_20260601_145111.raw.log.gz`
+- `五车IndividualActiveProbe/test_multi_individual_active_probe_5_best_300episodes_clean.log`
+- `五车IndividualActiveProbe/test_multi_individual_active_probe_5_best_300episodes.npy`
+- `五车IndividualActiveProbe/test_multi_individual_active_probe_5_best_300episodes_summary.md`
