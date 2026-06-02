@@ -13,7 +13,8 @@
 | 阶段 | case 文件 | 目的 |
 | --- | --- | --- |
 | Stage 1 | `cases/stage1_single_local_cases.json` | 先用 1 agent 复现并修复目标隔墙、近目标捕获、近障局部停滞 |
-| Stage 2 | `cases/stage2_dense_multi_cases.json` | 用 5 agents 手动制造交错、密集目标、密集起点等多车交互样本 |
+| Stage 2a | `cases/stage2_three_dense_cases.json` | 用 3 agents 插入中等密集交互课程，避免从单车直接跳到五车密集 |
+| Stage 2b | `cases/stage2_dense_multi_cases.json` | 用 5 agents 手动制造交错、密集目标、密集起点等多车交互样本 |
 | Stage 3 | 暂未定义 | 如果 Stage 2 在手动密集 case 有提升但随机标准场景不稳，再进入五车随机 fine-tune |
 
 ## 使用原则

@@ -35,9 +35,22 @@ case "$STAGE" in
     DEFAULT_ACTOR_LR=0.0003
     DEFAULT_CRITIC_LR=0.0003
     ;;
+  stage2_three_dense)
+    NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-3}"
+    MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_three_dense_3}"
+    LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage1_single_best}"
+    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2_three_dense_cases.json"
+    VERSION="multi-agent-curriculum-stage2-three-dense-v1"
+    DEFAULT_MAX_EPOCHS=8
+    DEFAULT_EVAL_EPISODES=24
+    DEFAULT_EXPL_NOISE=0.32
+    DEFAULT_EXPL_MIN=0.08
+    DEFAULT_ACTOR_LR=0.0003
+    DEFAULT_CRITIC_LR=0.0003
+    ;;
   *)
     echo "Unknown curriculum stage: $STAGE"
-    echo "Available stages: stage1_single, stage2_dense"
+    echo "Available stages: stage1_single, stage2_three_dense, stage2_dense"
     exit 1
     ;;
 esac

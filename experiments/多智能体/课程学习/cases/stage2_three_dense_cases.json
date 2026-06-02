@@ -1,0 +1,38 @@
+{
+  "name": "stage2_three_dense_cases",
+  "description": "Three-agent intermediate dense-interaction curriculum cases between single-agent local navigation and five-agent dense interaction.",
+  "cases": [
+    {
+      "name": "three_way_cross_center",
+      "agents": {
+        "r1": {"start": [-1.2, 0.0], "goal": [1.2, 0.0]},
+        "r2": {"start": [1.2, 0.0], "goal": [-1.2, 0.0]},
+        "r3": {"start": [0.0, -1.2], "goal": [0.0, 1.2]}
+      }
+    },
+    {
+      "name": "clustered_starts_three",
+      "agents": {
+        "r1": {"start": [-0.8, -0.2], "goal": [1.4, 0.6]},
+        "r2": {"start": [0.0, -0.4], "goal": [-1.0, 0.9]},
+        "r3": {"start": [0.6, 0.1], "goal": [0.0, 1.6]}
+      }
+    },
+    {
+      "name": "clustered_goals_three",
+      "agents": {
+        "r1": {"start": [-1.6, -0.8], "goal": [-0.35, 0.05]},
+        "r2": {"start": [1.6, -0.8], "goal": [0.35, 0.05]},
+        "r3": {"start": [0.0, 1.6], "goal": [0.0, 0.55]}
+      }
+    },
+    {
+      "name": "wall_adjacent_three",
+      "agents": {
+        "r1": {"start": [1.0, -0.5], "goal": [4.2, 0.0]},
+        "r2": {"start": [4.3, 0.2], "goal": [1.1, -0.4]},
+        "r3": {"start": [1.1, 2.9], "goal": [4.3, 2.8]}
+      }
+    }
+  ]
+}
