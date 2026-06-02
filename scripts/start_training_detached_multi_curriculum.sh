@@ -22,6 +22,19 @@ case "$STAGE" in
     DEFAULT_ACTOR_LR=0.0005
     DEFAULT_CRITIC_LR=0.0005
     ;;
+  stage1b_single)
+    NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
+    MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage1b_single}"
+    LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage1_single_best}"
+    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1b_single_near_goal_sidewall_cases.json"
+    VERSION="multi-agent-curriculum-stage1b-near-goal-sidewall-v1"
+    DEFAULT_MAX_EPOCHS=8
+    DEFAULT_EVAL_EPISODES=32
+    DEFAULT_EXPL_NOISE=0.28
+    DEFAULT_EXPL_MIN=0.06
+    DEFAULT_ACTOR_LR=0.0002
+    DEFAULT_CRITIC_LR=0.0002
+    ;;
   stage2_dense)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_dense_5}"
@@ -50,7 +63,7 @@ case "$STAGE" in
     ;;
   *)
     echo "Unknown curriculum stage: $STAGE"
-    echo "Available stages: stage1_single, stage2_three_dense, stage2_dense"
+    echo "Available stages: stage1_single, stage1b_single, stage2_three_dense, stage2_dense"
     exit 1
     ;;
 esac
