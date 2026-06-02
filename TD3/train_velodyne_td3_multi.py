@@ -182,18 +182,27 @@ class Critic(nn.Module):
 
 
 class TD3(object):
-    def __init__(self, state_dim, action_dim, max_action, log_dir=None, critic_state_dim=None):
+    def __init__(
+        self,
+        state_dim,
+        action_dim,
+        max_action,
+        log_dir=None,
+        critic_state_dim=None,
+        actor_lr=1e-3,
+        critic_lr=1e-3,
+    ):
         self.state_dim = state_dim
         self.critic_state_dim = critic_state_dim or state_dim
         self.actor = Actor(state_dim, action_dim).to(device)
         self.actor_target = Actor(state_dim, action_dim).to(device)
         self.actor_target.load_state_dict(self.actor.state_dict())
-        self.actor_optimizer = torch.optim.Adam(self.actor.parameters())
+        self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=actor_lr)
 
         self.critic = Critic(self.critic_state_dim, action_dim).to(device)
         self.critic_target = Critic(self.critic_state_dim, action_dim).to(device)
         self.critic_target.load_state_dict(self.critic.state_dict())
-        self.critic_optimizer = torch.optim.Adam(self.critic.parameters())
+        self.critic_optimizer = torch.optim.Adam(self.critic.parameters(), lr=critic_lr)
 
         self.max_action = max_action
         self.writer = SummaryWriter(log_dir=log_dir)
@@ -444,9 +453,11 @@ max_ep = 300
 eval_ep = int(os.environ.get("DRL_MULTI_EVAL_EPISODES", "10"))
 max_epochs = env_int("DRL_MULTI_MAX_EPOCHS", 0)
 max_timesteps = 5e6
-expl_noise = 1.0
-expl_decay_steps = 500000
-expl_min = 0.1
+expl_noise = env_float("DRL_MULTI_EXPL_NOISE", 1.0)
+expl_decay_steps = env_int("DRL_MULTI_EXPL_DECAY_STEPS", 500000)
+expl_min = env_float("DRL_MULTI_EXPL_MIN", 0.1)
+actor_lr = env_float("DRL_MULTI_ACTOR_LR", 1e-3)
+critic_lr = env_float("DRL_MULTI_CRITIC_LR", 1e-3)
 batch_size = 40
 discount = 0.99999
 tau = 0.005
@@ -608,6 +619,8 @@ network = TD3(
     max_action,
     log_dir=log_dir,
     critic_state_dim=critic_state_dim,
+    actor_lr=actor_lr,
+    critic_lr=critic_lr,
 )
 replay_buffer = ReplayBuffer(buffer_size, seed)
 
@@ -678,6 +691,11 @@ print("Local critic context dim:", critic_context_dim)
 print("Best metric:", best_metric)
 print("Eval episodes:", eval_ep)
 print("Max epochs:", max_epochs or "unlimited")
+print("Actor learning rate:", actor_lr)
+print("Critic learning rate:", critic_lr)
+print("Exploration noise:", expl_noise)
+print("Exploration min:", expl_min)
+print("Exploration decay steps:", expl_decay_steps)
 print("TensorBoard log dir:", log_dir)
 print("Checkpoint path:", checkpoint_path)
 print("Best checkpoint path:", best_checkpoint_path)

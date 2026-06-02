@@ -1,4 +1,5 @@
 import math
+import json
 import os
 import random
 import subprocess
@@ -115,8 +116,13 @@ class MultiAgentGazeboEnv:
         self.weak_coupling_layout = weak_coupling_layout
         self.active_neighbors_only = active_neighbors_only
         self.scenario_mode = scenario_mode.strip().lower()
-        if self.scenario_mode not in ("standard", "dense"):
-            raise ValueError("scenario_mode must be either 'standard' or 'dense'")
+        if self.scenario_mode not in ("standard", "dense", "curriculum"):
+            raise ValueError(
+                "scenario_mode must be one of: standard, dense, curriculum"
+            )
+        self.curriculum_cases = []
+        self.curriculum_case_index = 0
+        self.current_curriculum_case = None
         self.relocate_successful_done_agents = _env_bool(
             "DRL_MULTI_RELOCATE_SUCCESSFUL_DONE_AGENTS", False
         )
@@ -180,6 +186,12 @@ class MultiAgentGazeboEnv:
         self.dense_goal_max_distance = _env_float(
             "DRL_MULTI_DENSE_GOAL_MAX_DISTANCE", 2.5
         )
+        if self.scenario_mode == "curriculum":
+            self.curriculum_cases = self._load_curriculum_cases()
+            print(
+                "Curriculum scenario enabled: %i cases loaded"
+                % len(self.curriculum_cases)
+            )
 
         self.velodyne_data = {
             name: np.ones(self.environment_dim) * 10 for name in self.agent_names
@@ -261,6 +273,78 @@ class MultiAgentGazeboEnv:
         state.pose.orientation.z = 0.0
         state.pose.orientation.w = 1.0
         return state
+
+    def _load_curriculum_cases(self):
+        cases_path = os.environ.get("DRL_MULTI_CURRICULUM_CASES", "").strip()
+        if not cases_path:
+            raise ValueError(
+                "DRL_MULTI_CURRICULUM_CASES must point to a JSON case file when "
+                "DRL_MULTI_SCENARIO=curriculum"
+            )
+        if not os.path.isabs(cases_path):
+            cases_path = os.path.join(os.getcwd(), cases_path)
+        with open(cases_path, "r", encoding="utf-8") as fh:
+            payload = json.load(fh)
+        cases = payload.get("cases", payload) if isinstance(payload, dict) else payload
+        if not isinstance(cases, list) or not cases:
+            raise ValueError("Curriculum case file must contain a non-empty case list")
+        normalized = []
+        for idx, case in enumerate(cases):
+            if "agents" not in case or not isinstance(case["agents"], dict):
+                raise ValueError(f"Curriculum case {idx} must define an agents object")
+            missing = [name for name in self.agent_names if name not in case["agents"]]
+            if missing:
+                raise ValueError(
+                    f"Curriculum case {idx} is missing agents: {', '.join(missing)}"
+                )
+            normalized.append(case)
+        return normalized
+
+    def _select_curriculum_case(self):
+        mode = os.environ.get("DRL_MULTI_CURRICULUM_SAMPLING", "cycle").strip().lower()
+        if mode == "random":
+            weights = [
+                max(float(case.get("weight", 1.0)), 0.0)
+                for case in self.curriculum_cases
+            ]
+            if sum(weights) <= 0:
+                return random.choice(self.curriculum_cases)
+            return random.choices(self.curriculum_cases, weights=weights, k=1)[0]
+        if mode != "cycle":
+            raise ValueError("DRL_MULTI_CURRICULUM_SAMPLING must be cycle or random")
+        case = self.curriculum_cases[self.curriculum_case_index % len(self.curriculum_cases)]
+        self.curriculum_case_index += 1
+        return case
+
+    def _curriculum_agent_position(self, name, key):
+        value = self.current_curriculum_case["agents"][name][key]
+        if len(value) != 2:
+            raise ValueError(f"{name}.{key} must contain [x, y]")
+        return np.array([float(value[0]), float(value[1])])
+
+    def _apply_curriculum_boxes(self):
+        boxes = self.current_curriculum_case.get("boxes")
+        if boxes is None:
+            self.random_box()
+            return
+        for idx in range(4):
+            box_state = ModelState()
+            box_state.model_name = "cardboard_box_" + str(idx)
+            if idx < len(boxes):
+                box = boxes[idx]
+                if len(box) != 2:
+                    raise ValueError("Each curriculum box must contain [x, y]")
+                box_state.pose.position.x = float(box[0])
+                box_state.pose.position.y = float(box[1])
+            else:
+                box_state.pose.position.x = 20.0 + idx
+                box_state.pose.position.y = 20.0
+            box_state.pose.position.z = 0.0
+            box_state.pose.orientation.x = 0.0
+            box_state.pose.orientation.y = 0.0
+            box_state.pose.orientation.z = 0.0
+            box_state.pose.orientation.w = 1.0
+            self.set_state.publish(box_state)
 
     def _holding_position(self, idx):
         return np.array(
@@ -750,6 +834,10 @@ class MultiAgentGazeboEnv:
             return candidate
 
     def _sample_start_heading(self, name):
+        if self.scenario_mode == "curriculum":
+            agent_case = self.current_curriculum_case["agents"][name]
+            if "heading" in agent_case:
+                return float(agent_case["heading"])
         goal_offset = self.goal_positions[name] - self.robot_positions[name]
         goal_heading = math.atan2(goal_offset[1], goal_offset[0])
         return goal_heading + np.random.uniform(-0.2, 0.2)
@@ -945,6 +1033,8 @@ class MultiAgentGazeboEnv:
         last_error = None
         for reset_attempt in range(20):
             try:
+                if self.scenario_mode == "curriculum":
+                    self.current_curriculum_case = self._select_curriculum_case()
                 spawn_positions = self._sample_robot_positions()
                 for name, position in spawn_positions.items():
                     self.robot_positions[name] = np.array(position)
@@ -974,7 +1064,10 @@ class MultiAgentGazeboEnv:
             state.pose.orientation.w = quaternion.w
             self.set_state.publish(state)
 
-        self.random_box()
+        if self.scenario_mode == "curriculum":
+            self._apply_curriculum_boxes()
+        else:
+            self.random_box()
         self.publish_goal_markers()
 
         rospy.wait_for_service("/gazebo/unpause_physics")
@@ -1003,6 +1096,11 @@ class MultiAgentGazeboEnv:
         return initial_states
 
     def _sample_robot_positions(self, min_clearance=1.2):
+        if self.scenario_mode == "curriculum":
+            return {
+                name: self._curriculum_agent_position(name, "start")
+                for name in self.agent_names
+            }
         if self.scenario_mode == "dense":
             min_clearance = self.dense_robot_clearance
         elif self._uses_capacity_layout():
@@ -1035,6 +1133,11 @@ class MultiAgentGazeboEnv:
         return positions
 
     def _sample_goal_positions(self, min_clearance=1.2):
+        if self.scenario_mode == "curriculum":
+            return {
+                name: self._curriculum_agent_position(name, "goal")
+                for name in self.agent_names
+            }
         if self.scenario_mode == "dense":
             min_clearance = self.dense_goal_clearance
             goal_min_distance = self.dense_goal_min_distance

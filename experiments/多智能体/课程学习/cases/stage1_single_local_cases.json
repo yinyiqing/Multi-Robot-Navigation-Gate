@@ -1,0 +1,66 @@
+{
+  "name": "stage1_single_local_cases",
+  "description": "Single-agent local navigation curriculum cases for wall-separated goals, near-goal capture, and near-obstacle recovery.",
+  "cases": [
+    {
+      "name": "near_goal_capture_front",
+      "agents": {
+        "r1": {
+          "start": [0.0, 0.0],
+          "goal": [0.45, 0.15],
+          "heading": 2.8
+        }
+      }
+    },
+    {
+      "name": "near_goal_capture_side",
+      "agents": {
+        "r1": {
+          "start": [0.2, -0.2],
+          "goal": [0.55, 0.05],
+          "heading": -1.8
+        }
+      }
+    },
+    {
+      "name": "wall_separated_south",
+      "agents": {
+        "r1": {
+          "start": [1.8, -0.5],
+          "goal": [4.2, 0.0],
+          "heading": 0.0
+        }
+      }
+    },
+    {
+      "name": "wall_separated_north",
+      "agents": {
+        "r1": {
+          "start": [1.1, 2.9],
+          "goal": [4.3, 2.8],
+          "heading": 0.0
+        }
+      }
+    },
+    {
+      "name": "near_obstacle_recovery",
+      "agents": {
+        "r1": {
+          "start": [-4.0, 0.9],
+          "goal": [-1.0, 0.9],
+          "heading": 0.0
+        }
+      }
+    },
+    {
+      "name": "offset_goal_approach",
+      "agents": {
+        "r1": {
+          "start": [-0.8, -0.6],
+          "goal": [0.2, -0.1],
+          "heading": 1.8
+        }
+      }
+    }
+  ]
+}
