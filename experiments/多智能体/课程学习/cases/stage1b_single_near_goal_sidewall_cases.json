@@ -1,0 +1,86 @@
+{
+  "name": "stage1b_single_near_goal_sidewall_cases",
+  "description": "Single-agent targeted cases for near-goal capture, side-wall induced oscillation, and goal-adjacent wall recovery.",
+  "cases": [
+    {
+      "name": "near_goal_tangent_left",
+      "agents": {
+        "r1": {
+          "start": [0.10, -0.35],
+          "goal": [0.45, 0.05],
+          "heading": 1.55
+        }
+      }
+    },
+    {
+      "name": "near_goal_tangent_right",
+      "agents": {
+        "r1": {
+          "start": [0.10, 0.35],
+          "goal": [0.45, -0.05],
+          "heading": -1.55
+        }
+      }
+    },
+    {
+      "name": "near_goal_overshoot_return",
+      "agents": {
+        "r1": {
+          "start": [0.78, 0.05],
+          "goal": [0.35, 0.05],
+          "heading": 0.0
+        }
+      }
+    },
+    {
+      "name": "side_wall_goal_south",
+      "agents": {
+        "r1": {
+          "start": [1.4, -0.55],
+          "goal": [4.2, -0.25],
+          "heading": 0.0
+        }
+      }
+    },
+    {
+      "name": "side_wall_goal_north",
+      "agents": {
+        "r1": {
+          "start": [1.2, 2.85],
+          "goal": [4.25, 2.55],
+          "heading": 0.0
+        }
+      }
+    },
+    {
+      "name": "wall_parallel_close_pass",
+      "agents": {
+        "r1": {
+          "start": [-4.0, 0.65],
+          "goal": [-1.0, 0.65],
+          "heading": 0.0
+        }
+      }
+    },
+    {
+      "name": "goal_adjacent_wall_capture",
+      "agents": {
+        "r1": {
+          "start": [-1.25, 0.95],
+          "goal": [-0.65, 0.95],
+          "heading": 2.9
+        }
+      }
+    },
+    {
+      "name": "close_goal_reversal",
+      "agents": {
+        "r1": {
+          "start": [0.55, 0.0],
+          "goal": [0.20, 0.0],
+          "heading": 0.0
+        }
+      }
+    }
+  ]
+}

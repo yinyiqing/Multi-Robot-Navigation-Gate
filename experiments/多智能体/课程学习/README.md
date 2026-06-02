@@ -13,6 +13,7 @@
 | 阶段 | case 文件 | 目的 |
 | --- | --- | --- |
 | Stage 1 | `cases/stage1_single_local_cases.json` | 先用 1 agent 复现并修复目标隔墙、近目标捕获、近障局部停滞 |
+| Stage 1b | `cases/stage1b_single_near_goal_sidewall_cases.json` | 单独复现近目标捕获、侧墙诱发振荡、目标贴墙恢复 |
 | Stage 2a | `cases/stage2_three_dense_cases.json` | 用 3 agents 插入中等密集交互课程，避免从单车直接跳到五车密集 |
 | Stage 2b | `cases/stage2_dense_multi_cases.json` | 用 5 agents 手动制造交错、密集目标、密集起点等多车交互样本 |
 | Stage 3 | 暂未定义 | 如果 Stage 2 在手动密集 case 有提升但随机标准场景不稳，再进入五车随机 fine-tune |
@@ -44,3 +45,5 @@
 ## 当前判断
 
 Z0-M 已经说明，继续盲调 reward/critic 没有稳定超过 baseline。课程学习主线先把问题拆成可复现的局部导航缺陷和多车密集交互缺陷，再逐阶段训练和评估。
+
+Stage 1 单车课程的少量 targeted test 不足以证明基础局部导航缺陷已经解决。Stage 1 best 直接迁移到五车标准随机场景后出现高频左右摆动和超时，因此 Stage 2a 暂停推进，先补 Stage 1b 的近目标和侧墙振荡诊断。
