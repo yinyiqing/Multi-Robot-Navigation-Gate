@@ -61,6 +61,19 @@ case "$STAGE" in
     DEFAULT_ACTOR_LR=0.00005
     DEFAULT_CRITIC_LR=0.00005
     ;;
+  stage1e_single_rescue)
+    NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
+    MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage1e_single_rescue}"
+    LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4}"
+    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1e_single_rescue_cases.json"
+    VERSION="multi-agent-curriculum-stage1e-single-rescue-v1"
+    DEFAULT_MAX_EPOCHS=10
+    DEFAULT_EVAL_EPISODES=48
+    DEFAULT_EXPL_NOISE=0.34
+    DEFAULT_EXPL_MIN=0.06
+    DEFAULT_ACTOR_LR=0.0003
+    DEFAULT_CRITIC_LR=0.0003
+    ;;
   stage2_dense)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_dense_5}"
@@ -89,7 +102,7 @@ case "$STAGE" in
     ;;
   *)
     echo "Unknown curriculum stage: $STAGE"
-    echo "Available stages: stage1_single, stage1b_single, stage1b_hard_only, stage1c_wall_clearance, stage2_three_dense, stage2_dense"
+    echo "Available stages: stage1_single, stage1b_single, stage1b_hard_only, stage1c_wall_clearance, stage1e_single_rescue, stage2_three_dense, stage2_dense"
     exit 1
     ;;
 esac
@@ -113,6 +126,16 @@ WALL_CLEARANCE_SAFE_DISTANCE="${DRL_MULTI_WALL_CLEARANCE_SAFE_DISTANCE:-0.75}"
 WALL_CLEARANCE_PENALTY="${DRL_MULTI_WALL_CLEARANCE_PENALTY:-1.5}"
 WALL_CLEARANCE_SPEED_WEIGHT="${DRL_MULTI_WALL_CLEARANCE_SPEED_WEIGHT:-0.8}"
 WALL_CLEARANCE_TURN_WEIGHT="${DRL_MULTI_WALL_CLEARANCE_TURN_WEIGHT:-0.4}"
+if [[ "$STAGE" == "stage1e_single_rescue" ]]; then
+  LOCAL_NAVIGATION_REWARD="${DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD:-1}"
+else
+  LOCAL_NAVIGATION_REWARD="${DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD:-0}"
+fi
+LOCAL_NAV_HEADING_WEIGHT="${DRL_MULTI_LOCAL_NAV_HEADING_WEIGHT:-0.35}"
+LOCAL_NAV_WRONG_WAY_PENALTY="${DRL_MULTI_LOCAL_NAV_WRONG_WAY_PENALTY:-0.25}"
+LOCAL_NAV_TURN_WEIGHT="${DRL_MULTI_LOCAL_NAV_TURN_WEIGHT:-0.22}"
+LOCAL_NAV_NEAR_GOAL_DISTANCE="${DRL_MULTI_LOCAL_NAV_NEAR_GOAL_DISTANCE:-0.9}"
+LOCAL_NAV_HEADING_ERROR="${DRL_MULTI_LOCAL_NAV_HEADING_ERROR:-0.5}"
 
 mkdir -p "$LOG_DIR"
 
@@ -164,6 +187,12 @@ setsid bash -lc "
   export DRL_MULTI_WALL_CLEARANCE_PENALTY='$WALL_CLEARANCE_PENALTY'
   export DRL_MULTI_WALL_CLEARANCE_SPEED_WEIGHT='$WALL_CLEARANCE_SPEED_WEIGHT'
   export DRL_MULTI_WALL_CLEARANCE_TURN_WEIGHT='$WALL_CLEARANCE_TURN_WEIGHT'
+  export DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD='$LOCAL_NAVIGATION_REWARD'
+  export DRL_MULTI_LOCAL_NAV_HEADING_WEIGHT='$LOCAL_NAV_HEADING_WEIGHT'
+  export DRL_MULTI_LOCAL_NAV_WRONG_WAY_PENALTY='$LOCAL_NAV_WRONG_WAY_PENALTY'
+  export DRL_MULTI_LOCAL_NAV_TURN_WEIGHT='$LOCAL_NAV_TURN_WEIGHT'
+  export DRL_MULTI_LOCAL_NAV_NEAR_GOAL_DISTANCE='$LOCAL_NAV_NEAR_GOAL_DISTANCE'
+  export DRL_MULTI_LOCAL_NAV_HEADING_ERROR='$LOCAL_NAV_HEADING_ERROR'
   export DRL_MULTI_BEST_METRIC=full_success
   export DRL_MULTI_EVAL_EPISODES='$EVAL_EPISODES'
   export DRL_MULTI_MAX_EPOCHS='$MAX_EPOCHS'
@@ -200,4 +229,8 @@ echo "Critic LR: $CRITIC_LR"
 echo "Wall-clearance reward: $WALL_CLEARANCE_REWARD"
 echo "Wall-clearance safe distance: $WALL_CLEARANCE_SAFE_DISTANCE"
 echo "Wall-clearance penalty: $WALL_CLEARANCE_PENALTY"
+echo "Local-navigation reward: $LOCAL_NAVIGATION_REWARD"
+echo "Local-navigation heading weight: $LOCAL_NAV_HEADING_WEIGHT"
+echo "Local-navigation wrong-way penalty: $LOCAL_NAV_WRONG_WAY_PENALTY"
+echo "Local-navigation turn weight: $LOCAL_NAV_TURN_WEIGHT"
 echo "Log: $log_file"

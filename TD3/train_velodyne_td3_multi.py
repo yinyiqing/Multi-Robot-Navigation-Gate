@@ -20,9 +20,11 @@ def evaluate(network, env, epoch, eval_episodes=10):
     previous_mode = env.cooperative_reward
     previous_anti_stagnation = env.anti_stagnation_reward
     previous_wall_clearance = env.wall_clearance_reward
+    previous_local_navigation = env.local_navigation_reward
     env.set_cooperative_reward(False)
     env.set_anti_stagnation_reward(False)
     env.set_wall_clearance_reward(False)
+    env.set_local_navigation_reward(False)
 
     total_reward = 0.0
     total_collisions = 0
@@ -121,6 +123,7 @@ def evaluate(network, env, epoch, eval_episodes=10):
     env.set_cooperative_reward(previous_mode)
     env.set_anti_stagnation_reward(previous_anti_stagnation)
     env.set_wall_clearance_reward(previous_wall_clearance)
+    env.set_local_navigation_reward(previous_local_navigation)
     return {
         "avg_reward": avg_reward,
         "success_rate": success_rate,
@@ -505,6 +508,20 @@ wall_clearance_safe_distance = env_float("DRL_MULTI_WALL_CLEARANCE_SAFE_DISTANCE
 wall_clearance_penalty = env_float("DRL_MULTI_WALL_CLEARANCE_PENALTY", 1.5)
 wall_clearance_speed_weight = env_float("DRL_MULTI_WALL_CLEARANCE_SPEED_WEIGHT", 0.8)
 wall_clearance_turn_weight = env_float("DRL_MULTI_WALL_CLEARANCE_TURN_WEIGHT", 0.4)
+local_navigation_reward = env_flag("DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD", False)
+local_navigation_heading_weight = env_float(
+    "DRL_MULTI_LOCAL_NAV_HEADING_WEIGHT", 0.4
+)
+local_navigation_wrong_way_penalty = env_float(
+    "DRL_MULTI_LOCAL_NAV_WRONG_WAY_PENALTY", 0.25
+)
+local_navigation_turn_weight = env_float("DRL_MULTI_LOCAL_NAV_TURN_WEIGHT", 0.25)
+local_navigation_near_goal_distance = env_float(
+    "DRL_MULTI_LOCAL_NAV_NEAR_GOAL_DISTANCE", 0.9
+)
+local_navigation_heading_error = env_float(
+    "DRL_MULTI_LOCAL_NAV_HEADING_ERROR", 0.5
+)
 base_file_name = "TD3_velodyne_multi_v4"
 file_name = os.environ.get(
     "DRL_MULTI_TRAIN_FILE_NAME",
@@ -608,6 +625,12 @@ env = MultiAgentGazeboEnv(
     wall_clearance_penalty=wall_clearance_penalty,
     wall_clearance_speed_weight=wall_clearance_speed_weight,
     wall_clearance_turn_weight=wall_clearance_turn_weight,
+    local_navigation_reward=local_navigation_reward,
+    local_navigation_heading_weight=local_navigation_heading_weight,
+    local_navigation_wrong_way_penalty=local_navigation_wrong_way_penalty,
+    local_navigation_turn_weight=local_navigation_turn_weight,
+    local_navigation_near_goal_distance=local_navigation_near_goal_distance,
+    local_navigation_heading_error=local_navigation_heading_error,
     robot_safe_distance=0.0,
     weak_coupling_layout=True,
     scenario_mode=scenario_mode,
@@ -699,6 +722,12 @@ print("Wall-clearance safe distance:", wall_clearance_safe_distance)
 print("Wall-clearance penalty:", wall_clearance_penalty)
 print("Wall-clearance speed weight:", wall_clearance_speed_weight)
 print("Wall-clearance turn weight:", wall_clearance_turn_weight)
+print("Local-navigation reward:", local_navigation_reward)
+print("Local-navigation heading weight:", local_navigation_heading_weight)
+print("Local-navigation wrong-way penalty:", local_navigation_wrong_way_penalty)
+print("Local-navigation turn weight:", local_navigation_turn_weight)
+print("Local-navigation near-goal distance:", local_navigation_near_goal_distance)
+print("Local-navigation heading error:", local_navigation_heading_error)
 print("Local critic enabled:", use_local_critic)
 print("Local critic geometry only:", local_critic_geometry_only)
 print("Active neighbors only:", active_neighbors_only)
@@ -900,6 +929,16 @@ while timestep < max_timesteps:
                 if episode_sample_count > 0
                 else 0.0
             )
+            mean_local_navigation_reward_step = (
+                episode_local_navigation_reward_sum / episode_sample_count
+                if episode_sample_count > 0
+                else 0.0
+            )
+            mean_abs_local_navigation_reward_step = (
+                episode_abs_local_navigation_reward_sum / episode_sample_count
+                if episode_sample_count > 0
+                else 0.0
+            )
             mean_context_neighbors, max_context_neighbors = context_stats(
                 episode_last_neighbor_contexts
             )
@@ -918,7 +957,8 @@ while timestep < max_timesteps:
                 "max_active_neighbors_step=%i | interaction_reward=%.4f | "
                 "abs_interaction_reward=%.4f | anti_stag_reward=%.4f | "
                 "abs_anti_stag_reward=%.4f | wall_clear_reward=%.4f | "
-                "abs_wall_clear_reward=%.4f | "
+                "abs_wall_clear_reward=%.4f | local_nav_reward=%.4f | "
+                "abs_local_nav_reward=%.4f | "
                 "context_neighbors_mean=%.2f | context_neighbors_max=%.0f | "
                 "expl_noise=%.4f | "
                 "replay=%i | samples/sec=%.3f"
@@ -953,6 +993,8 @@ while timestep < max_timesteps:
                     mean_abs_anti_stagnation_reward_step,
                     mean_wall_clearance_reward_step,
                     mean_abs_wall_clearance_reward_step,
+                    mean_local_navigation_reward_step,
+                    mean_abs_local_navigation_reward_step,
                     mean_context_neighbors,
                     max_context_neighbors,
                     expl_noise,
@@ -1152,6 +1194,8 @@ while timestep < max_timesteps:
         episode_abs_anti_stagnation_reward_sum = 0.0
         episode_wall_clearance_reward_sum = 0.0
         episode_abs_wall_clearance_reward_sum = 0.0
+        episode_local_navigation_reward_sum = 0.0
+        episode_abs_local_navigation_reward_sum = 0.0
         episode_num += 1
 
     if expl_noise > expl_min:
@@ -1220,6 +1264,11 @@ while timestep < max_timesteps:
         )
         episode_wall_clearance_reward_sum += wall_clearance_reward_step
         episode_abs_wall_clearance_reward_sum += abs(wall_clearance_reward_step)
+        local_navigation_reward_step = float(
+            step_agents[name].get("local_navigation_reward", 0.0)
+        )
+        episode_local_navigation_reward_sum += local_navigation_reward_step
+        episode_abs_local_navigation_reward_sum += abs(local_navigation_reward_step)
 
     truncated = episode_timesteps + 1 == max_ep
     next_active_mask = [

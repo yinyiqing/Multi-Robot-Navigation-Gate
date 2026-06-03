@@ -88,6 +88,12 @@ class MultiAgentGazeboEnv:
         wall_clearance_penalty=1.5,
         wall_clearance_speed_weight=0.8,
         wall_clearance_turn_weight=0.4,
+        local_navigation_reward=False,
+        local_navigation_heading_weight=0.4,
+        local_navigation_wrong_way_penalty=0.25,
+        local_navigation_turn_weight=0.25,
+        local_navigation_near_goal_distance=0.9,
+        local_navigation_heading_error=0.5,
         reward_neighbor_radius=10.0,
         reward_neighbor_fov=np.pi / 2 + 0.03,
         robot_safe_distance=1.0,
@@ -120,6 +126,12 @@ class MultiAgentGazeboEnv:
         self.wall_clearance_penalty = wall_clearance_penalty
         self.wall_clearance_speed_weight = wall_clearance_speed_weight
         self.wall_clearance_turn_weight = wall_clearance_turn_weight
+        self.local_navigation_reward = local_navigation_reward
+        self.local_navigation_heading_weight = local_navigation_heading_weight
+        self.local_navigation_wrong_way_penalty = local_navigation_wrong_way_penalty
+        self.local_navigation_turn_weight = local_navigation_turn_weight
+        self.local_navigation_near_goal_distance = local_navigation_near_goal_distance
+        self.local_navigation_heading_error = local_navigation_heading_error
         self.reward_neighbor_radius = reward_neighbor_radius
         self.reward_neighbor_fov = reward_neighbor_fov
         self.robot_safe_distance = robot_safe_distance
@@ -431,6 +443,7 @@ class MultiAgentGazeboEnv:
                     "interaction_reward": 0.0,
                     "anti_stagnation_reward": 0.0,
                     "wall_clearance_reward": 0.0,
+                    "local_navigation_reward": 0.0,
                     "reward_neighbors": [],
                     "active_visible_neighbor_count": 0,
                     "nearest_active_visible_neighbor_distance": None,
@@ -458,6 +471,9 @@ class MultiAgentGazeboEnv:
 
     def set_wall_clearance_reward(self, enabled):
         self.wall_clearance_reward = enabled
+
+    def set_local_navigation_reward(self, enabled):
+        self.local_navigation_reward = enabled
 
     def wait_for_odom(self, name, timeout=60.0, recover_with_unpause=True):
         if self.last_odom[name] is not None:
@@ -768,6 +784,45 @@ class MultiAgentGazeboEnv:
         )
         return float(self.wall_clearance_penalty) * pressure * motion_scale
 
+    def _compute_local_navigation_bonus(
+        self, target, collision, action, distance, theta, min_laser
+    ):
+        if not self.local_navigation_reward or target or collision:
+            return 0.0
+        if min_laser is not None and min_laser < COLLISION_DIST + 0.03:
+            return 0.0
+
+        linear = max(float(action[0]), 0.0)
+        angular = abs(float(action[1]))
+        heading_alignment = math.cos(float(theta))
+
+        aligned_forward_bonus = (
+            self.local_navigation_heading_weight
+            * linear
+            * max(heading_alignment, 0.0)
+        )
+        wrong_way_penalty = (
+            self.local_navigation_wrong_way_penalty
+            * linear
+            * max(-heading_alignment, 0.0)
+        )
+
+        near_goal_turn_bonus = 0.0
+        if (
+            distance < self.local_navigation_near_goal_distance
+            and abs(theta) > self.local_navigation_heading_error
+        ):
+            turn_need = min(abs(float(theta)) / math.pi, 1.0)
+            low_speed_gate = max(0.0, 1.0 - linear)
+            near_goal_turn_bonus = (
+                self.local_navigation_turn_weight
+                * turn_need
+                * angular
+                * low_speed_gate
+            )
+
+        return float(aligned_forward_bonus + near_goal_turn_bonus - wrong_way_penalty)
+
     def _nearest_robot_distance(self, name):
         origin = self.robot_positions[name]
         distances = []
@@ -928,6 +983,10 @@ class MultiAgentGazeboEnv:
                 target, collision, actions[idx], min_laser
             )
             reward -= wall_clearance_penalty
+            local_navigation_bonus = self._compute_local_navigation_bonus(
+                target, collision, actions[idx], distance, state[-3], min_laser
+            )
+            reward += local_navigation_bonus
             self.previous_distances[name] = distance
             nearest_robot_distance = self._nearest_robot_distance(name)
             if (
@@ -945,6 +1004,7 @@ class MultiAgentGazeboEnv:
                 progress = 0.0
                 anti_stagnation_penalty = 0.0
                 wall_clearance_penalty = 0.0
+                local_navigation_bonus = 0.0
                 nearest_robot_distance = None
 
             next_states.append(state)
@@ -964,6 +1024,7 @@ class MultiAgentGazeboEnv:
                 "interaction_reward": 0.0,
                 "anti_stagnation_reward": -anti_stagnation_penalty,
                 "wall_clearance_reward": -wall_clearance_penalty,
+                "local_navigation_reward": local_navigation_bonus,
                 "reward_neighbors": [],
                 "active_visible_neighbor_count": 0,
                 "nearest_active_visible_neighbor_distance": None,
@@ -1019,6 +1080,11 @@ class MultiAgentGazeboEnv:
             for idx, name in enumerate(self.agent_names)
             if idx < len(active_mask) and active_mask[idx]
         ]
+        local_navigation_rewards = [
+            step_agents_info[name]["local_navigation_reward"]
+            for idx, name in enumerate(self.agent_names)
+            if idx < len(active_mask) and active_mask[idx]
+        ]
         relocated_successful_agents = []
         if self.relocate_successful_done_agents:
             for idx, name in enumerate(self.agent_names):
@@ -1054,6 +1120,11 @@ class MultiAgentGazeboEnv:
             "mean_wall_clearance_reward": (
                 float(np.mean(wall_clearance_rewards))
                 if wall_clearance_rewards
+                else 0.0
+            ),
+            "mean_local_navigation_reward": (
+                float(np.mean(local_navigation_rewards))
+                if local_navigation_rewards
                 else 0.0
             ),
         }

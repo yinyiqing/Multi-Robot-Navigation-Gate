@@ -1,6 +1,6 @@
 # 多智能体动态 Reward 加权版实验计划
 
-> 历史记录：本文档记录早期两车 Weighted08 机制验证。当前论文主线的三车 Weighted08 对照请以 `experiments/多智能体/3智能体/C_Weighted08距离加权奖励对照/README.md`、`三车Weighted08/` 和 `experiments/多智能体/3智能体/三车主线对照总表.md` 为准。
+> 历史记录：本文档记录早期两车 Weighted08 机制验证。当前实验主线的三车 Weighted08 对照请以 `experiments/多智能体/3智能体/C_Weighted08距离加权奖励对照/README.md`、`三车Weighted08/` 和 `experiments/多智能体/3智能体/三车主线对照总表.md` 为准。
 
 ## 目标
 

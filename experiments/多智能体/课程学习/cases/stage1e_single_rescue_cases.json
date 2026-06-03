@@ -1,0 +1,126 @@
+{
+  "name": "stage1e_single_rescue_cases",
+  "description": "Single-agent rescue curriculum for near-goal capture and feasible wall-parallel driving.",
+  "cases": [
+    {
+      "name": "near_goal_tangent_left",
+      "weight": 1.0,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [0.10, -0.35],
+          "goal": [0.45, 0.05],
+          "heading": 1.55
+        }
+      }
+    },
+    {
+      "name": "near_goal_tangent_right",
+      "weight": 1.0,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [0.10, 0.35],
+          "goal": [0.45, -0.05],
+          "heading": -1.55
+        }
+      }
+    },
+    {
+      "name": "near_goal_overshoot_return",
+      "weight": 1.0,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [0.78, 0.05],
+          "goal": [0.35, 0.05],
+          "heading": 0.0
+        }
+      }
+    },
+    {
+      "name": "close_goal_reversal",
+      "weight": 1.0,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [0.55, 0.0],
+          "goal": [0.20, 0.0],
+          "heading": 0.0
+        }
+      }
+    },
+    {
+      "name": "wall_parallel_north_clear_straight",
+      "weight": 1.5,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-4.0, 0.95],
+          "goal": [-1.0, 0.95],
+          "heading": 0.0
+        }
+      }
+    },
+    {
+      "name": "wall_parallel_north_clear_yaw_in",
+      "weight": 1.5,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-4.0, 0.95],
+          "goal": [-1.0, 0.95],
+          "heading": -0.15
+        }
+      }
+    },
+    {
+      "name": "wall_parallel_north_clear_yaw_out",
+      "weight": 1.5,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-4.0, 0.95],
+          "goal": [-1.0, 0.95],
+          "heading": 0.15
+        }
+      }
+    },
+    {
+      "name": "wall_parallel_reverse_clear",
+      "weight": 1.5,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-1.0, 0.95],
+          "goal": [-4.0, 0.95],
+          "heading": 3.14159
+        }
+      }
+    },
+    {
+      "name": "wall_parallel_north_safe_straight",
+      "weight": 1.0,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-4.0, 1.15],
+          "goal": [-1.0, 1.15],
+          "heading": 0.0
+        }
+      }
+    },
+    {
+      "name": "offset_goal_approach",
+      "weight": 0.8,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-0.8, -0.6],
+          "goal": [0.2, -0.1],
+          "heading": 1.8
+        }
+      }
+    }
+  ]
+}
