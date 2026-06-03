@@ -789,6 +789,10 @@ class MultiAgentGazeboEnv:
     ):
         if not self.local_navigation_reward or target or collision:
             return 0.0
+        if self.scenario_mode == "curriculum" and self.current_curriculum_case:
+            case_override = self.current_curriculum_case.get("local_navigation_reward")
+            if case_override is not None and not bool(case_override):
+                return 0.0
         if min_laser is not None and min_laser < COLLISION_DIST + 0.03:
             return 0.0
 

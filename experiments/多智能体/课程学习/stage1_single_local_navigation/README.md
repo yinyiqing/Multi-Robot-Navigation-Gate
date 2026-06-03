@@ -58,6 +58,4 @@ The later training epochs degrade sharply, so Stage 2 should warm-start from `TD
 
 ## Files
 
-- `train_multi_curriculum_stage1_single_detached_20260602_095315.log`
-- `test_multi_curriculum_stage1_single_best_24episodes.raw.log.gz`
-- `test_multi_curriculum_stage1_single_best_24episodes.npy`
+原始训练日志、测试 raw log 和 `.npy` 结果已清理；本目录只保留摘要结论和关键指标。

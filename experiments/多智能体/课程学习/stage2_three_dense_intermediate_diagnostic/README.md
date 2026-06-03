@@ -6,11 +6,7 @@
 - warm-start：`TD3_velodyne_multi_v4_curriculum_stage1_single_best`
 - case 文件：`../cases/stage2_three_dense_cases.json`
 - 机器人数量：3
-- 主要日志：
-  - `train_multi_curriculum_stage2_three_dense_detached_20260602_150440.log`
-  - `train_multi_curriculum_stage2_three_dense_detached_20260602_194330.log`
-- 失败启动日志：
-  - `train_multi_curriculum_stage2_three_dense_detached_20260602_194144.log`
+- 原始运行产物：已清理，仅保留复盘摘要
 
 ## 训练结果
 
@@ -38,4 +34,3 @@
 ## 判断
 
 Stage 2a 暂停继续训练。下一步应先补 Stage 1b，集中复现近目标捕获和侧墙振荡，再考虑回到三车密集中间课程。
-

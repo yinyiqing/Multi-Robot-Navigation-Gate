@@ -9,10 +9,7 @@
   - `wall_parallel_close_pass`
   - `goal_adjacent_wall_capture`
 - 机器人数量：1
-- 主要日志：
-  - `train_multi_curriculum_stage1b_single_detached_20260602_215749.log`
-  - `train_multi_curriculum_stage1b_hard_only_detached_20260602_231108.log`
-  - `test_multi_curriculum_stage1b_hard_only_TD3_velodyne_multi_v4_curriculum_stage1b_hard_only_best_detached_20260603_090928.log`
+- 原始运行产物：已清理，仅保留复盘摘要
 
 ## Stage 1b uniform 训练
 

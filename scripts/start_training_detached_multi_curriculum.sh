@@ -63,8 +63,8 @@ case "$STAGE" in
     ;;
   stage1e_single_rescue)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
-    MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage1e_single_rescue}"
-    LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4}"
+    MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage1e_single_rescue_from_stage1_single}"
+    LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage1_single_best}"
     CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1e_single_rescue_cases.json"
     VERSION="multi-agent-curriculum-stage1e-single-rescue-v1"
     DEFAULT_MAX_EPOCHS=10

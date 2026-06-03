@@ -7,9 +7,7 @@
 - 训练 case：`../cases/stage1c_wall_clearance_cases.json`
 - 后续诊断 case：`../cases/stage1d_wall_feasible_cases.json`
 - 机器人数量：1
-- 主要日志：
-  - `train_multi_curriculum_stage1c_wall_clearance_detached_20260603_094124.log`
-  - `test_multi_curriculum_stage1d_wall_feasible_TD3_velodyne_multi_v4_curriculum_stage1b_single_best_detached_20260603_195224.log`
+- 原始运行产物：已清理，仅保留复盘摘要
 
 ## Stage 1c 训练结果
 

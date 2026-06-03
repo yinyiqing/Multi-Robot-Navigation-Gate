@@ -31,4 +31,4 @@ Stop this run and insert an intermediate `stage2_three_dense` course with 3 agen
 
 ## Files
 
-- `train_multi_curriculum_stage2_dense_detached_20260602_141432.log`
+原始训练日志已清理；本目录只保留中止原因和关键指标摘要。

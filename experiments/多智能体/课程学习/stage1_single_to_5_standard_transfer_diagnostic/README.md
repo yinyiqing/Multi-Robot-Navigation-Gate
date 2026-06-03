@@ -7,7 +7,7 @@
 - 测试场景：`standard`
 - 机器人数量：5
 - 执行方式：同一个 actor 复制给 5 辆车，每辆车只使用自身观测
-- 原始日志：`test_multi_curriculum_stage1_single_best_transfer_5_standard_detached_20260602_203026.log`
+- 原始运行产物：已清理，仅保留复盘摘要
 
 ## 结果
 
@@ -32,4 +32,3 @@
 ## 判断
 
 Stage 1 targeted case 覆盖范围过窄。它能在少量单车 case 上取得较高成功率，但不足以判断基础局部导航缺陷已经解决。后续不应继续直接提高多车密集难度，应先补充更细的局部振荡课程。
-

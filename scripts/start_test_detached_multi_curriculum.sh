@@ -38,7 +38,7 @@ case "$STAGE" in
     ;;
   stage1e_single_rescue)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
-    DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage1e_single_rescue_best"
+    DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage1e_single_rescue_from_stage1_single_best"
     CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1e_single_rescue_cases.json"
     ;;
   stage2_dense)
