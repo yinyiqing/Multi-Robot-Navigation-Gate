@@ -74,6 +74,19 @@ case "$STAGE" in
     DEFAULT_ACTOR_LR=0.0003
     DEFAULT_CRITIC_LR=0.0003
     ;;
+  stage1f_wall_parallel_rescue)
+    NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
+    MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage1f_wall_parallel_rescue_from_stage1e}"
+    LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage1e_single_rescue_from_stage1_single_best}"
+    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1f_wall_parallel_rescue_cases.json"
+    VERSION="multi-agent-curriculum-stage1f-wall-parallel-rescue-v1"
+    DEFAULT_MAX_EPOCHS=8
+    DEFAULT_EVAL_EPISODES=48
+    DEFAULT_EXPL_NOISE=0.14
+    DEFAULT_EXPL_MIN=0.035
+    DEFAULT_ACTOR_LR=0.00012
+    DEFAULT_CRITIC_LR=0.00012
+    ;;
   stage2_dense)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_dense_5}"
@@ -102,7 +115,7 @@ case "$STAGE" in
     ;;
   *)
     echo "Unknown curriculum stage: $STAGE"
-    echo "Available stages: stage1_single, stage1b_single, stage1b_hard_only, stage1c_wall_clearance, stage1e_single_rescue, stage2_three_dense, stage2_dense"
+    echo "Available stages: stage1_single, stage1b_single, stage1b_hard_only, stage1c_wall_clearance, stage1e_single_rescue, stage1f_wall_parallel_rescue, stage2_three_dense, stage2_dense"
     exit 1
     ;;
 esac
@@ -126,7 +139,7 @@ WALL_CLEARANCE_SAFE_DISTANCE="${DRL_MULTI_WALL_CLEARANCE_SAFE_DISTANCE:-0.75}"
 WALL_CLEARANCE_PENALTY="${DRL_MULTI_WALL_CLEARANCE_PENALTY:-1.5}"
 WALL_CLEARANCE_SPEED_WEIGHT="${DRL_MULTI_WALL_CLEARANCE_SPEED_WEIGHT:-0.8}"
 WALL_CLEARANCE_TURN_WEIGHT="${DRL_MULTI_WALL_CLEARANCE_TURN_WEIGHT:-0.4}"
-if [[ "$STAGE" == "stage1e_single_rescue" ]]; then
+if [[ "$STAGE" == "stage1e_single_rescue" || "$STAGE" == "stage1f_wall_parallel_rescue" ]]; then
   LOCAL_NAVIGATION_REWARD="${DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD:-1}"
 else
   LOCAL_NAVIGATION_REWARD="${DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD:-0}"
