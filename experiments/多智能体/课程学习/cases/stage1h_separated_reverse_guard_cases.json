@@ -1,0 +1,162 @@
+{
+  "name": "stage1h_separated_reverse_guard_cases",
+  "description": "Single-agent guard curriculum for north separated-wall and reverse wall-parallel cases.",
+  "cases": [
+    {
+      "name": "wall_separated_north",
+      "weight": 5.0,
+      "local_navigation_reward": false,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [1.1, 2.9],
+          "goal": [4.3, 2.8],
+          "heading": 0.0
+        }
+      }
+    },
+    {
+      "name": "wall_separated_north_yaw_in",
+      "weight": 2.0,
+      "local_navigation_reward": false,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [1.1, 2.9],
+          "goal": [4.3, 2.8],
+          "heading": -0.08
+        }
+      }
+    },
+    {
+      "name": "wall_separated_north_yaw_out",
+      "weight": 2.0,
+      "local_navigation_reward": false,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [1.1, 2.9],
+          "goal": [4.3, 2.8],
+          "heading": 0.08
+        }
+      }
+    },
+    {
+      "name": "wall_parallel_reverse_clear",
+      "weight": 4.0,
+      "local_navigation_reward": true,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-1.0, 0.95],
+          "goal": [-4.0, 0.95],
+          "heading": 3.14159
+        }
+      }
+    },
+    {
+      "name": "wall_parallel_reverse_safe",
+      "weight": 2.0,
+      "local_navigation_reward": true,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-1.0, 1.15],
+          "goal": [-4.0, 1.15],
+          "heading": 3.14159
+        }
+      }
+    },
+    {
+      "name": "wall_parallel_north_safe_yaw_in",
+      "weight": 0.8,
+      "local_navigation_reward": true,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-4.0, 1.15],
+          "goal": [-1.0, 1.15],
+          "heading": -0.15
+        }
+      }
+    },
+    {
+      "name": "wall_parallel_north_safe_straight",
+      "weight": 0.8,
+      "local_navigation_reward": true,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-4.0, 1.15],
+          "goal": [-1.0, 1.15],
+          "heading": 0.0
+        }
+      }
+    },
+    {
+      "name": "wall_parallel_north_clear_yaw_in",
+      "weight": 0.8,
+      "local_navigation_reward": true,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-4.0, 0.95],
+          "goal": [-1.0, 0.95],
+          "heading": -0.15
+        }
+      }
+    },
+    {
+      "name": "wall_parallel_north_clear_straight",
+      "weight": 0.8,
+      "local_navigation_reward": true,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-4.0, 0.95],
+          "goal": [-1.0, 0.95],
+          "heading": 0.0
+        }
+      }
+    },
+    {
+      "name": "near_goal_overshoot_return",
+      "weight": 0.3,
+      "local_navigation_reward": true,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [0.78, 0.05],
+          "goal": [0.35, 0.05],
+          "heading": 0.0
+        }
+      }
+    },
+    {
+      "name": "near_goal_tangent_left",
+      "weight": 0.3,
+      "local_navigation_reward": true,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [0.10, -0.35],
+          "goal": [0.45, 0.05],
+          "heading": 1.55
+        }
+      }
+    },
+    {
+      "name": "offset_goal_approach",
+      "weight": 0.3,
+      "local_navigation_reward": true,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-0.8, -0.6],
+          "goal": [0.2, -0.1],
+          "heading": 1.8
+        }
+      }
+    }
+  ]
+}
