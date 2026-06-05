@@ -1,0 +1,389 @@
+Activated DRL robot navigation Python environment.
+Python: Python 3.8.10
+Venv: /home/jiutian/venvs/drl-robot-nav
+Curriculum scenario enabled: 12 cases loaded
+Roscore launched!
+Unable to register with master node [http://localhost:11448]: master may not be running yet. Will keep trying.
+Gazebo launched!
+[INFO] [1780632128.178558, 0.000000]: Loading model XML from ros parameter robot_description_r1
+[INFO] [1780632128.180938, 0.000000]: Waiting for service /gazebo/spawn_urdf_model
+[INFO] [1780632128.482433, 0.318000]: Calling service /gazebo/spawn_urdf_model
+[INFO] [1780632129.256264, 0.376000]: Spawn status: SpawnModel: Successfully spawned entity
+[WARN] [1780632129.362198277, 0.376000000]: GazeboRosDiffDrive Plugin (ns = ) missing <publishTf>, defaults to 1
+test_velodyne_td3_multi.py:44: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  torch.load("%s/%s_actor.pth" % (directory, filename), map_location=device)
+==============================================
+Test version: multi-agent-eval-v1-headless
+Test process PID: 1636338
+Launchfile: multi_robot_scenario_curriculum_test_stage1h_separated_reverse_guard_1.launch
+Model file: TD3_velodyne_multi_v4_curriculum_stage1i_yaw_reverse_collision_guard_from_stage1g_best
+Scenario mode: curriculum
+Seed: 0
+Device: cuda
+GPU: NVIDIA GeForce RTX 4090
+Agent names: r1
+TensorBoard log dir: runs/test_TD3_velodyne_multi_v4_curriculum_stage1i_yaw_reverse_collision_guard_from_stage1g_best_Jun05_12-02-12_JiuTian-AI4090
+State path: ./checkpoints/TD3_velodyne_multi_v4_curriculum_stage1i_yaw_reverse_collision_guard_from_stage1g_best_stage1h_separated_reverse_guard_test_state.pt
+Resume mode: True
+Starting episode: 0
+Starting env steps: 0
+Starting agent samples: 0
+Target test episodes: 120
+Case-level stats enabled
+==============================================
+Episode 1 complete | case=wall_separated_north | env_steps=26 | agent_samples=26 | episode_env_steps=26 | episode_agent_samples=26 | mean_reward=159.044 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.212 | samples/sec=4.768
+Episode 2 complete | case=wall_separated_north_yaw_in | env_steps=53 | agent_samples=53 | episode_env_steps=27 | episode_agent_samples=27 | mean_reward=156.699 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.261 | samples/sec=4.794
+Episode 3 complete | case=wall_separated_north_yaw_out | env_steps=83 | agent_samples=83 | episode_env_steps=30 | episode_agent_samples=30 | mean_reward=152.279 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.261 | samples/sec=4.731
+Episode 4 complete | case=wall_parallel_reverse_clear | env_steps=114 | agent_samples=114 | episode_env_steps=31 | episode_agent_samples=31 | mean_reward=154.971 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.186 | samples/sec=4.745
+Episode 5 complete | case=wall_parallel_reverse_safe | env_steps=147 | agent_samples=147 | episode_env_steps=33 | episode_agent_samples=33 | mean_reward=151.768 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.280 | samples/sec=4.719
+Episode 6 complete | case=wall_parallel_north_safe_yaw_in | env_steps=209 | agent_samples=209 | episode_env_steps=62 | episode_agent_samples=62 | mean_reward=155.941 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.288 | samples/sec=4.763
+Episode 7 complete | case=wall_parallel_north_safe_straight | env_steps=272 | agent_samples=272 | episode_env_steps=63 | episode_agent_samples=63 | mean_reward=157.289 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.256 | samples/sec=4.757
+Episode 8 complete | case=wall_parallel_north_clear_yaw_in | env_steps=334 | agent_samples=334 | episode_env_steps=62 | episode_agent_samples=62 | mean_reward=159.579 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.259 | samples/sec=4.772
+Episode 9 complete | case=wall_parallel_north_clear_straight | env_steps=395 | agent_samples=395 | episode_env_steps=61 | episode_agent_samples=61 | mean_reward=158.881 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.238 | samples/sec=4.775
+Episode 10 complete | case=near_goal_overshoot_return | env_steps=418 | agent_samples=418 | episode_env_steps=23 | episode_agent_samples=23 | mean_reward=98.518 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.222 | samples/sec=4.810
+Recent 10 episodes | avg_reward=150.497 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_episode_rate=0.000 | total_success=10 | total_collision=0 | total_unresolved=0 | total_full_success=10 | timeout_episodes=0 | success_hist=[0, 10] | collision_hist=[10, 0]
+Case summary:
+  near_goal_overshoot_return | episodes=1 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=23.0 | avg_final_distance=0.222
+  wall_parallel_north_clear_straight | episodes=1 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=61.0 | avg_final_distance=0.238
+  wall_parallel_north_clear_yaw_in | episodes=1 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=62.0 | avg_final_distance=0.259
+  wall_parallel_north_safe_straight | episodes=1 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=63.0 | avg_final_distance=0.256
+  wall_parallel_north_safe_yaw_in | episodes=1 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=62.0 | avg_final_distance=0.288
+  wall_parallel_reverse_clear | episodes=1 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=31.0 | avg_final_distance=0.186
+  wall_parallel_reverse_safe | episodes=1 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=33.0 | avg_final_distance=0.280
+  wall_separated_north | episodes=1 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=26.0 | avg_final_distance=0.212
+  wall_separated_north_yaw_in | episodes=1 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=27.0 | avg_final_distance=0.261
+  wall_separated_north_yaw_out | episodes=1 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=30.0 | avg_final_distance=0.261
+Episode 11 complete | case=near_goal_tangent_left | env_steps=422 | agent_samples=422 | episode_env_steps=4 | episode_agent_samples=4 | mean_reward=102.878 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.234 | samples/sec=4.735
+Episode 12 complete | case=offset_goal_approach | env_steps=433 | agent_samples=433 | episode_env_steps=11 | episode_agent_samples=11 | mean_reward=116.866 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.259 | samples/sec=4.830
+Episode 13 complete | case=wall_separated_north | env_steps=462 | agent_samples=462 | episode_env_steps=29 | episode_agent_samples=29 | mean_reward=158.032 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.195 | samples/sec=4.763
+Episode 14 complete | case=wall_separated_north_yaw_in | env_steps=489 | agent_samples=489 | episode_env_steps=27 | episode_agent_samples=27 | mean_reward=157.114 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.248 | samples/sec=4.793
+Episode 15 complete | case=wall_separated_north_yaw_out | env_steps=516 | agent_samples=516 | episode_env_steps=27 | episode_agent_samples=27 | mean_reward=159.632 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.152 | samples/sec=4.744
+Episode 16 complete | case=wall_parallel_reverse_clear | env_steps=547 | agent_samples=547 | episode_env_steps=31 | episode_agent_samples=31 | mean_reward=150.686 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.249 | samples/sec=4.769
+Episode 17 complete | case=wall_parallel_reverse_safe | env_steps=583 | agent_samples=583 | episode_env_steps=36 | episode_agent_samples=36 | mean_reward=155.815 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.169 | samples/sec=4.792
+Episode 18 complete | case=wall_parallel_north_safe_yaw_in | env_steps=644 | agent_samples=644 | episode_env_steps=61 | episode_agent_samples=61 | mean_reward=158.680 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.183 | samples/sec=4.758
+Episode 19 complete | case=wall_parallel_north_safe_straight | env_steps=704 | agent_samples=704 | episode_env_steps=60 | episode_agent_samples=60 | mean_reward=157.471 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.262 | samples/sec=4.770
+Episode 20 complete | case=wall_parallel_north_clear_yaw_in | env_steps=763 | agent_samples=763 | episode_env_steps=59 | episode_agent_samples=59 | mean_reward=159.811 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.293 | samples/sec=4.778
+Recent 10 episodes | avg_reward=147.699 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_episode_rate=0.000 | total_success=20 | total_collision=0 | total_unresolved=0 | total_full_success=20 | timeout_episodes=0 | success_hist=[0, 20] | collision_hist=[20, 0]
+Case summary:
+  near_goal_overshoot_return | episodes=1 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=23.0 | avg_final_distance=0.222
+  near_goal_tangent_left | episodes=1 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=4.0 | avg_final_distance=0.234
+  offset_goal_approach | episodes=1 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=11.0 | avg_final_distance=0.259
+  wall_parallel_north_clear_straight | episodes=1 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=61.0 | avg_final_distance=0.238
+  wall_parallel_north_clear_yaw_in | episodes=2 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=60.5 | avg_final_distance=0.276
+  wall_parallel_north_safe_straight | episodes=2 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=61.5 | avg_final_distance=0.259
+  wall_parallel_north_safe_yaw_in | episodes=2 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=61.5 | avg_final_distance=0.235
+  wall_parallel_reverse_clear | episodes=2 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=31.0 | avg_final_distance=0.217
+  wall_parallel_reverse_safe | episodes=2 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=34.5 | avg_final_distance=0.225
+  wall_separated_north | episodes=2 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=27.5 | avg_final_distance=0.204
+  wall_separated_north_yaw_in | episodes=2 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=27.0 | avg_final_distance=0.254
+  wall_separated_north_yaw_out | episodes=2 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=28.5 | avg_final_distance=0.206
+Episode 21 complete | case=wall_parallel_north_clear_straight | env_steps=825 | agent_samples=825 | episode_env_steps=62 | episode_agent_samples=62 | mean_reward=161.072 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.281 | samples/sec=4.789
+Episode 22 complete | case=near_goal_overshoot_return | env_steps=845 | agent_samples=845 | episode_env_steps=20 | episode_agent_samples=20 | mean_reward=99.197 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.180 | samples/sec=4.792
+Episode 23 complete | case=near_goal_tangent_left | env_steps=852 | agent_samples=852 | episode_env_steps=7 | episode_agent_samples=7 | mean_reward=103.776 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.154 | samples/sec=4.785
+Episode 24 complete | case=offset_goal_approach | env_steps=870 | agent_samples=870 | episode_env_steps=18 | episode_agent_samples=18 | mean_reward=115.897 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.267 | samples/sec=4.733
+Episode 25 complete | case=wall_separated_north | env_steps=897 | agent_samples=897 | episode_env_steps=27 | episode_agent_samples=27 | mean_reward=159.700 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.191 | samples/sec=4.759
+Episode 26 complete | case=wall_separated_north_yaw_in | env_steps=911 | agent_samples=911 | episode_env_steps=14 | episode_agent_samples=14 | mean_reward=-94.011 | success=0/1 | collision=1/1 | unresolved=0/1 | full_success=0 | timeout=0 | mean_final_distance=2.603 | samples/sec=4.720
+Episode 27 complete | case=wall_separated_north_yaw_out | env_steps=924 | agent_samples=924 | episode_env_steps=13 | episode_agent_samples=13 | mean_reward=-93.067 | success=0/1 | collision=1/1 | unresolved=0/1 | full_success=0 | timeout=0 | mean_final_distance=2.565 | samples/sec=4.752
+Episode 28 complete | case=wall_parallel_reverse_clear | env_steps=953 | agent_samples=953 | episode_env_steps=29 | episode_agent_samples=29 | mean_reward=154.033 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.245 | samples/sec=4.794
+Episode 29 complete | case=wall_parallel_reverse_safe | env_steps=982 | agent_samples=982 | episode_env_steps=29 | episode_agent_samples=29 | mean_reward=-72.637 | success=0/1 | collision=1/1 | unresolved=0/1 | full_success=0 | timeout=0 | mean_final_distance=1.413 | samples/sec=4.772
+Episode 30 complete | case=wall_parallel_north_safe_yaw_in | env_steps=1043 | agent_samples=1043 | episode_env_steps=61 | episode_agent_samples=61 | mean_reward=157.084 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.256 | samples/sec=4.761
+Recent 10 episodes | avg_reward=69.105 | success_rate=0.700 | collision_rate=0.300 | unresolved_rate=0.000 | full_success_rate=0.700 | timeout_episode_rate=0.000 | total_success=27 | total_collision=3 | total_unresolved=0 | total_full_success=27 | timeout_episodes=0 | success_hist=[3, 27] | collision_hist=[27, 3]
+Case summary:
+  near_goal_overshoot_return | episodes=2 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=21.5 | avg_final_distance=0.201
+  near_goal_tangent_left | episodes=2 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=5.5 | avg_final_distance=0.194
+  offset_goal_approach | episodes=2 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=14.5 | avg_final_distance=0.263
+  wall_parallel_north_clear_straight | episodes=2 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=61.5 | avg_final_distance=0.259
+  wall_parallel_north_clear_yaw_in | episodes=2 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=60.5 | avg_final_distance=0.276
+  wall_parallel_north_safe_straight | episodes=2 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=61.5 | avg_final_distance=0.259
+  wall_parallel_north_safe_yaw_in | episodes=3 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=61.3 | avg_final_distance=0.242
+  wall_parallel_reverse_clear | episodes=3 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=30.3 | avg_final_distance=0.227
+  wall_parallel_reverse_safe | episodes=3 | success_rate=0.667 | collision_rate=0.333 | unresolved_rate=0.000 | full_success_rate=0.667 | timeout_rate=0.000 | avg_env_steps=32.7 | avg_final_distance=0.621
+  wall_separated_north | episodes=3 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=27.3 | avg_final_distance=0.199
+  wall_separated_north_yaw_in | episodes=3 | success_rate=0.667 | collision_rate=0.333 | unresolved_rate=0.000 | full_success_rate=0.667 | timeout_rate=0.000 | avg_env_steps=22.7 | avg_final_distance=1.037
+  wall_separated_north_yaw_out | episodes=3 | success_rate=0.667 | collision_rate=0.333 | unresolved_rate=0.000 | full_success_rate=0.667 | timeout_rate=0.000 | avg_env_steps=23.3 | avg_final_distance=0.993
+Episode 31 complete | case=wall_parallel_north_safe_straight | env_steps=1107 | agent_samples=1107 | episode_env_steps=64 | episode_agent_samples=64 | mean_reward=154.989 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.279 | samples/sec=4.770
+Episode 32 complete | case=wall_parallel_north_clear_yaw_in | env_steps=1170 | agent_samples=1170 | episode_env_steps=63 | episode_agent_samples=63 | mean_reward=160.274 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.260 | samples/sec=4.789
+Episode 33 complete | case=wall_parallel_north_clear_straight | env_steps=1228 | agent_samples=1228 | episode_env_steps=58 | episode_agent_samples=58 | mean_reward=161.914 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.242 | samples/sec=4.801
+Episode 34 complete | case=near_goal_overshoot_return | env_steps=1243 | agent_samples=1243 | episode_env_steps=15 | episode_agent_samples=15 | mean_reward=99.305 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.268 | samples/sec=4.795
+Episode 35 complete | case=near_goal_tangent_left | env_steps=1247 | agent_samples=1247 | episode_env_steps=4 | episode_agent_samples=4 | mean_reward=103.426 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.245 | samples/sec=4.726
+Episode 36 complete | case=offset_goal_approach | env_steps=1258 | agent_samples=1258 | episode_env_steps=11 | episode_agent_samples=11 | mean_reward=116.984 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.138 | samples/sec=4.778
+Episode 37 complete | case=wall_separated_north | env_steps=1271 | agent_samples=1271 | episode_env_steps=13 | episode_agent_samples=13 | mean_reward=-91.013 | success=0/1 | collision=1/1 | unresolved=0/1 | full_success=0 | timeout=0 | mean_final_distance=2.465 | samples/sec=4.755
+Episode 38 complete | case=wall_separated_north_yaw_in | env_steps=1300 | agent_samples=1300 | episode_env_steps=29 | episode_agent_samples=29 | mean_reward=156.354 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.260 | samples/sec=4.745
+Episode 39 complete | case=wall_separated_north_yaw_out | env_steps=1325 | agent_samples=1325 | episode_env_steps=25 | episode_agent_samples=25 | mean_reward=157.389 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.241 | samples/sec=4.751
+Episode 40 complete | case=wall_parallel_reverse_clear | env_steps=1354 | agent_samples=1354 | episode_env_steps=29 | episode_agent_samples=29 | mean_reward=155.251 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.213 | samples/sec=4.758
+Recent 10 episodes | avg_reward=117.487 | success_rate=0.900 | collision_rate=0.100 | unresolved_rate=0.000 | full_success_rate=0.900 | timeout_episode_rate=0.000 | total_success=36 | total_collision=4 | total_unresolved=0 | total_full_success=36 | timeout_episodes=0 | success_hist=[4, 36] | collision_hist=[36, 4]
+Case summary:
+  near_goal_overshoot_return | episodes=3 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=19.3 | avg_final_distance=0.223
+  near_goal_tangent_left | episodes=3 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=5.0 | avg_final_distance=0.211
+  offset_goal_approach | episodes=3 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=13.3 | avg_final_distance=0.221
+  wall_parallel_north_clear_straight | episodes=3 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=60.3 | avg_final_distance=0.254
+  wall_parallel_north_clear_yaw_in | episodes=3 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=61.3 | avg_final_distance=0.271
+  wall_parallel_north_safe_straight | episodes=3 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=62.3 | avg_final_distance=0.266
+  wall_parallel_north_safe_yaw_in | episodes=3 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=61.3 | avg_final_distance=0.242
+  wall_parallel_reverse_clear | episodes=4 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=30.0 | avg_final_distance=0.223
+  wall_parallel_reverse_safe | episodes=3 | success_rate=0.667 | collision_rate=0.333 | unresolved_rate=0.000 | full_success_rate=0.667 | timeout_rate=0.000 | avg_env_steps=32.7 | avg_final_distance=0.621
+  wall_separated_north | episodes=4 | success_rate=0.750 | collision_rate=0.250 | unresolved_rate=0.000 | full_success_rate=0.750 | timeout_rate=0.000 | avg_env_steps=23.8 | avg_final_distance=0.766
+  wall_separated_north_yaw_in | episodes=4 | success_rate=0.750 | collision_rate=0.250 | unresolved_rate=0.000 | full_success_rate=0.750 | timeout_rate=0.000 | avg_env_steps=24.2 | avg_final_distance=0.843
+  wall_separated_north_yaw_out | episodes=4 | success_rate=0.750 | collision_rate=0.250 | unresolved_rate=0.000 | full_success_rate=0.750 | timeout_rate=0.000 | avg_env_steps=23.8 | avg_final_distance=0.805
+Episode 41 complete | case=wall_parallel_reverse_safe | env_steps=1385 | agent_samples=1385 | episode_env_steps=31 | episode_agent_samples=31 | mean_reward=153.772 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.226 | samples/sec=4.744
+Episode 42 complete | case=wall_parallel_north_safe_yaw_in | env_steps=1455 | agent_samples=1455 | episode_env_steps=70 | episode_agent_samples=70 | mean_reward=153.313 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.299 | samples/sec=4.753
+Episode 43 complete | case=wall_parallel_north_safe_straight | env_steps=1517 | agent_samples=1517 | episode_env_steps=62 | episode_agent_samples=62 | mean_reward=156.367 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.245 | samples/sec=4.795
+Episode 44 complete | case=wall_parallel_north_clear_yaw_in | env_steps=1578 | agent_samples=1578 | episode_env_steps=61 | episode_agent_samples=61 | mean_reward=158.822 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.263 | samples/sec=4.777
+Episode 45 complete | case=wall_parallel_north_clear_straight | env_steps=1635 | agent_samples=1635 | episode_env_steps=57 | episode_agent_samples=57 | mean_reward=161.399 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.191 | samples/sec=4.771
+Episode 46 complete | case=near_goal_overshoot_return | env_steps=1653 | agent_samples=1653 | episode_env_steps=18 | episode_agent_samples=18 | mean_reward=99.577 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.270 | samples/sec=4.743
+Episode 47 complete | case=near_goal_tangent_left | env_steps=1657 | agent_samples=1657 | episode_env_steps=4 | episode_agent_samples=4 | mean_reward=103.070 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.252 | samples/sec=4.652
+Episode 48 complete | case=offset_goal_approach | env_steps=1667 | agent_samples=1667 | episode_env_steps=10 | episode_agent_samples=10 | mean_reward=115.799 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.220 | samples/sec=4.724
+Episode 49 complete | case=wall_separated_north | env_steps=1679 | agent_samples=1679 | episode_env_steps=12 | episode_agent_samples=12 | mean_reward=-93.216 | success=0/1 | collision=1/1 | unresolved=0/1 | full_success=0 | timeout=0 | mean_final_distance=2.607 | samples/sec=4.830
+Episode 50 complete | case=wall_separated_north_yaw_in | env_steps=1706 | agent_samples=1706 | episode_env_steps=27 | episode_agent_samples=27 | mean_reward=154.960 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.253 | samples/sec=4.772
+Recent 10 episodes | avg_reward=116.386 | success_rate=0.900 | collision_rate=0.100 | unresolved_rate=0.000 | full_success_rate=0.900 | timeout_episode_rate=0.000 | total_success=45 | total_collision=5 | total_unresolved=0 | total_full_success=45 | timeout_episodes=0 | success_hist=[5, 45] | collision_hist=[45, 5]
+Case summary:
+  near_goal_overshoot_return | episodes=4 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=19.0 | avg_final_distance=0.235
+  near_goal_tangent_left | episodes=4 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=4.8 | avg_final_distance=0.221
+  offset_goal_approach | episodes=4 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=12.5 | avg_final_distance=0.221
+  wall_parallel_north_clear_straight | episodes=4 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=59.5 | avg_final_distance=0.238
+  wall_parallel_north_clear_yaw_in | episodes=4 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=61.2 | avg_final_distance=0.269
+  wall_parallel_north_safe_straight | episodes=4 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=62.2 | avg_final_distance=0.260
+  wall_parallel_north_safe_yaw_in | episodes=4 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=63.5 | avg_final_distance=0.257
+  wall_parallel_reverse_clear | episodes=4 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=30.0 | avg_final_distance=0.223
+  wall_parallel_reverse_safe | episodes=4 | success_rate=0.750 | collision_rate=0.250 | unresolved_rate=0.000 | full_success_rate=0.750 | timeout_rate=0.000 | avg_env_steps=32.2 | avg_final_distance=0.522
+  wall_separated_north | episodes=5 | success_rate=0.600 | collision_rate=0.400 | unresolved_rate=0.000 | full_success_rate=0.600 | timeout_rate=0.000 | avg_env_steps=21.4 | avg_final_distance=1.134
+  wall_separated_north_yaw_in | episodes=5 | success_rate=0.800 | collision_rate=0.200 | unresolved_rate=0.000 | full_success_rate=0.800 | timeout_rate=0.000 | avg_env_steps=24.8 | avg_final_distance=0.725
+  wall_separated_north_yaw_out | episodes=4 | success_rate=0.750 | collision_rate=0.250 | unresolved_rate=0.000 | full_success_rate=0.750 | timeout_rate=0.000 | avg_env_steps=23.8 | avg_final_distance=0.805
+Episode 51 complete | case=wall_separated_north_yaw_out | env_steps=1732 | agent_samples=1732 | episode_env_steps=26 | episode_agent_samples=26 | mean_reward=156.147 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.238 | samples/sec=4.773
+Episode 52 complete | case=wall_parallel_reverse_clear | env_steps=1763 | agent_samples=1763 | episode_env_steps=31 | episode_agent_samples=31 | mean_reward=156.188 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.274 | samples/sec=4.744
+Episode 53 complete | case=wall_parallel_reverse_safe | env_steps=1795 | agent_samples=1795 | episode_env_steps=32 | episode_agent_samples=32 | mean_reward=158.205 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.146 | samples/sec=4.774
+Episode 54 complete | case=wall_parallel_north_safe_yaw_in | env_steps=1858 | agent_samples=1858 | episode_env_steps=63 | episode_agent_samples=63 | mean_reward=156.181 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.280 | samples/sec=4.794
+Episode 55 complete | case=wall_parallel_north_safe_straight | env_steps=1924 | agent_samples=1924 | episode_env_steps=66 | episode_agent_samples=66 | mean_reward=157.815 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.289 | samples/sec=4.788
+Episode 56 complete | case=wall_parallel_north_clear_yaw_in | env_steps=1982 | agent_samples=1982 | episode_env_steps=58 | episode_agent_samples=58 | mean_reward=160.905 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.274 | samples/sec=4.788
+Episode 57 complete | case=wall_parallel_north_clear_straight | env_steps=2046 | agent_samples=2046 | episode_env_steps=64 | episode_agent_samples=64 | mean_reward=161.348 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.195 | samples/sec=4.761
+Episode 58 complete | case=near_goal_overshoot_return | env_steps=2064 | agent_samples=2064 | episode_env_steps=18 | episode_agent_samples=18 | mean_reward=99.868 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.297 | samples/sec=4.801
+Episode 59 complete | case=near_goal_tangent_left | env_steps=2068 | agent_samples=2068 | episode_env_steps=4 | episode_agent_samples=4 | mean_reward=102.758 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.259 | samples/sec=4.737
+Episode 60 complete | case=offset_goal_approach | env_steps=2079 | agent_samples=2079 | episode_env_steps=11 | episode_agent_samples=11 | mean_reward=115.355 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.271 | samples/sec=4.735
+Recent 10 episodes | avg_reward=142.477 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_episode_rate=0.000 | total_success=55 | total_collision=5 | total_unresolved=0 | total_full_success=55 | timeout_episodes=0 | success_hist=[5, 55] | collision_hist=[55, 5]
+Case summary:
+  near_goal_overshoot_return | episodes=5 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=18.8 | avg_final_distance=0.247
+  near_goal_tangent_left | episodes=5 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=4.6 | avg_final_distance=0.229
+  offset_goal_approach | episodes=5 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=12.2 | avg_final_distance=0.231
+  wall_parallel_north_clear_straight | episodes=5 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=60.4 | avg_final_distance=0.229
+  wall_parallel_north_clear_yaw_in | episodes=5 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=60.6 | avg_final_distance=0.270
+  wall_parallel_north_safe_straight | episodes=5 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=63.0 | avg_final_distance=0.266
+  wall_parallel_north_safe_yaw_in | episodes=5 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=63.4 | avg_final_distance=0.261
+  wall_parallel_reverse_clear | episodes=5 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=30.2 | avg_final_distance=0.233
+  wall_parallel_reverse_safe | episodes=5 | success_rate=0.800 | collision_rate=0.200 | unresolved_rate=0.000 | full_success_rate=0.800 | timeout_rate=0.000 | avg_env_steps=32.2 | avg_final_distance=0.447
+  wall_separated_north | episodes=5 | success_rate=0.600 | collision_rate=0.400 | unresolved_rate=0.000 | full_success_rate=0.600 | timeout_rate=0.000 | avg_env_steps=21.4 | avg_final_distance=1.134
+  wall_separated_north_yaw_in | episodes=5 | success_rate=0.800 | collision_rate=0.200 | unresolved_rate=0.000 | full_success_rate=0.800 | timeout_rate=0.000 | avg_env_steps=24.8 | avg_final_distance=0.725
+  wall_separated_north_yaw_out | episodes=5 | success_rate=0.800 | collision_rate=0.200 | unresolved_rate=0.000 | full_success_rate=0.800 | timeout_rate=0.000 | avg_env_steps=24.2 | avg_final_distance=0.691
+Episode 61 complete | case=wall_separated_north | env_steps=2107 | agent_samples=2107 | episode_env_steps=28 | episode_agent_samples=28 | mean_reward=158.235 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.236 | samples/sec=4.746
+Episode 62 complete | case=wall_separated_north_yaw_in | env_steps=2134 | agent_samples=2134 | episode_env_steps=27 | episode_agent_samples=27 | mean_reward=157.966 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.221 | samples/sec=4.759
+Episode 63 complete | case=wall_separated_north_yaw_out | env_steps=2160 | agent_samples=2160 | episode_env_steps=26 | episode_agent_samples=26 | mean_reward=157.005 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.246 | samples/sec=4.779
+Episode 64 complete | case=wall_parallel_reverse_clear | env_steps=2189 | agent_samples=2189 | episode_env_steps=29 | episode_agent_samples=29 | mean_reward=152.107 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.261 | samples/sec=4.794
+Episode 65 complete | case=wall_parallel_reverse_safe | env_steps=2217 | agent_samples=2217 | episode_env_steps=28 | episode_agent_samples=28 | mean_reward=-73.314 | success=0/1 | collision=1/1 | unresolved=0/1 | full_success=0 | timeout=0 | mean_final_distance=1.487 | samples/sec=4.747
+Episode 66 complete | case=wall_parallel_north_safe_yaw_in | env_steps=2283 | agent_samples=2283 | episode_env_steps=66 | episode_agent_samples=66 | mean_reward=157.490 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.178 | samples/sec=4.758
+Episode 67 complete | case=wall_parallel_north_safe_straight | env_steps=2345 | agent_samples=2345 | episode_env_steps=62 | episode_agent_samples=62 | mean_reward=158.950 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.175 | samples/sec=4.768
+Episode 68 complete | case=wall_parallel_north_clear_yaw_in | env_steps=2404 | agent_samples=2404 | episode_env_steps=59 | episode_agent_samples=59 | mean_reward=156.588 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.297 | samples/sec=4.775
+Episode 69 complete | case=wall_parallel_north_clear_straight | env_steps=2439 | agent_samples=2439 | episode_env_steps=35 | episode_agent_samples=35 | mean_reward=-96.105 | success=0/1 | collision=1/1 | unresolved=0/1 | full_success=0 | timeout=0 | mean_final_distance=2.780 | samples/sec=4.756
+Episode 70 complete | case=near_goal_overshoot_return | env_steps=2457 | agent_samples=2457 | episode_env_steps=18 | episode_agent_samples=18 | mean_reward=99.465 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.226 | samples/sec=4.747
+Recent 10 episodes | avg_reward=102.839 | success_rate=0.800 | collision_rate=0.200 | unresolved_rate=0.000 | full_success_rate=0.800 | timeout_episode_rate=0.000 | total_success=63 | total_collision=7 | total_unresolved=0 | total_full_success=63 | timeout_episodes=0 | success_hist=[7, 63] | collision_hist=[63, 7]
+Case summary:
+  near_goal_overshoot_return | episodes=6 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=18.7 | avg_final_distance=0.244
+  near_goal_tangent_left | episodes=5 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=4.6 | avg_final_distance=0.229
+  offset_goal_approach | episodes=5 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=12.2 | avg_final_distance=0.231
+  wall_parallel_north_clear_straight | episodes=6 | success_rate=0.833 | collision_rate=0.167 | unresolved_rate=0.000 | full_success_rate=0.833 | timeout_rate=0.000 | avg_env_steps=56.2 | avg_final_distance=0.655
+  wall_parallel_north_clear_yaw_in | episodes=6 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=60.3 | avg_final_distance=0.274
+  wall_parallel_north_safe_straight | episodes=6 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=62.8 | avg_final_distance=0.251
+  wall_parallel_north_safe_yaw_in | episodes=6 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=63.8 | avg_final_distance=0.247
+  wall_parallel_reverse_clear | episodes=6 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=30.0 | avg_final_distance=0.238
+  wall_parallel_reverse_safe | episodes=6 | success_rate=0.667 | collision_rate=0.333 | unresolved_rate=0.000 | full_success_rate=0.667 | timeout_rate=0.000 | avg_env_steps=31.5 | avg_final_distance=0.620
+  wall_separated_north | episodes=6 | success_rate=0.667 | collision_rate=0.333 | unresolved_rate=0.000 | full_success_rate=0.667 | timeout_rate=0.000 | avg_env_steps=22.5 | avg_final_distance=0.984
+  wall_separated_north_yaw_in | episodes=6 | success_rate=0.833 | collision_rate=0.167 | unresolved_rate=0.000 | full_success_rate=0.833 | timeout_rate=0.000 | avg_env_steps=25.2 | avg_final_distance=0.641
+  wall_separated_north_yaw_out | episodes=6 | success_rate=0.833 | collision_rate=0.167 | unresolved_rate=0.000 | full_success_rate=0.833 | timeout_rate=0.000 | avg_env_steps=24.5 | avg_final_distance=0.617
+Episode 71 complete | case=near_goal_tangent_left | env_steps=2461 | agent_samples=2461 | episode_env_steps=4 | episode_agent_samples=4 | mean_reward=103.440 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.209 | samples/sec=4.770
+Episode 72 complete | case=offset_goal_approach | env_steps=2472 | agent_samples=2472 | episode_env_steps=11 | episode_agent_samples=11 | mean_reward=116.703 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.159 | samples/sec=4.794
+Episode 73 complete | case=wall_separated_north | env_steps=2500 | agent_samples=2500 | episode_env_steps=28 | episode_agent_samples=28 | mean_reward=154.096 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.294 | samples/sec=4.767
+Episode 74 complete | case=wall_separated_north_yaw_in | env_steps=2527 | agent_samples=2527 | episode_env_steps=27 | episode_agent_samples=27 | mean_reward=158.563 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.204 | samples/sec=4.698
+Episode 75 complete | case=wall_separated_north_yaw_out | env_steps=2554 | agent_samples=2554 | episode_env_steps=27 | episode_agent_samples=27 | mean_reward=158.011 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.286 | samples/sec=4.691
+Episode 76 complete | case=wall_parallel_reverse_clear | env_steps=2580 | agent_samples=2580 | episode_env_steps=26 | episode_agent_samples=26 | mean_reward=157.456 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.155 | samples/sec=4.804
+Episode 77 complete | case=wall_parallel_reverse_safe | env_steps=2613 | agent_samples=2613 | episode_env_steps=33 | episode_agent_samples=33 | mean_reward=154.505 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.201 | samples/sec=4.766
+Episode 78 complete | case=wall_parallel_north_safe_yaw_in | env_steps=2673 | agent_samples=2673 | episode_env_steps=60 | episode_agent_samples=60 | mean_reward=157.026 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.264 | samples/sec=4.791
+Episode 79 complete | case=wall_parallel_north_safe_straight | env_steps=2735 | agent_samples=2735 | episode_env_steps=62 | episode_agent_samples=62 | mean_reward=157.855 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.216 | samples/sec=4.751
+Episode 80 complete | case=wall_parallel_north_clear_yaw_in | env_steps=2795 | agent_samples=2795 | episode_env_steps=60 | episode_agent_samples=60 | mean_reward=161.888 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.161 | samples/sec=4.752
+Recent 10 episodes | avg_reward=147.954 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_episode_rate=0.000 | total_success=73 | total_collision=7 | total_unresolved=0 | total_full_success=73 | timeout_episodes=0 | success_hist=[7, 73] | collision_hist=[73, 7]
+Case summary:
+  near_goal_overshoot_return | episodes=6 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=18.7 | avg_final_distance=0.244
+  near_goal_tangent_left | episodes=6 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=4.5 | avg_final_distance=0.225
+  offset_goal_approach | episodes=6 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=12.0 | avg_final_distance=0.219
+  wall_parallel_north_clear_straight | episodes=6 | success_rate=0.833 | collision_rate=0.167 | unresolved_rate=0.000 | full_success_rate=0.833 | timeout_rate=0.000 | avg_env_steps=56.2 | avg_final_distance=0.655
+  wall_parallel_north_clear_yaw_in | episodes=7 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=60.3 | avg_final_distance=0.258
+  wall_parallel_north_safe_straight | episodes=7 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=62.7 | avg_final_distance=0.246
+  wall_parallel_north_safe_yaw_in | episodes=7 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=63.3 | avg_final_distance=0.250
+  wall_parallel_reverse_clear | episodes=7 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=29.4 | avg_final_distance=0.226
+  wall_parallel_reverse_safe | episodes=7 | success_rate=0.714 | collision_rate=0.286 | unresolved_rate=0.000 | full_success_rate=0.714 | timeout_rate=0.000 | avg_env_steps=31.7 | avg_final_distance=0.560
+  wall_separated_north | episodes=7 | success_rate=0.714 | collision_rate=0.286 | unresolved_rate=0.000 | full_success_rate=0.714 | timeout_rate=0.000 | avg_env_steps=23.3 | avg_final_distance=0.886
+  wall_separated_north_yaw_in | episodes=7 | success_rate=0.857 | collision_rate=0.143 | unresolved_rate=0.000 | full_success_rate=0.857 | timeout_rate=0.000 | avg_env_steps=25.4 | avg_final_distance=0.579
+  wall_separated_north_yaw_out | episodes=7 | success_rate=0.857 | collision_rate=0.143 | unresolved_rate=0.000 | full_success_rate=0.857 | timeout_rate=0.000 | avg_env_steps=24.9 | avg_final_distance=0.570
+Episode 81 complete | case=wall_parallel_north_clear_straight | env_steps=2862 | agent_samples=2862 | episode_env_steps=67 | episode_agent_samples=67 | mean_reward=159.020 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.255 | samples/sec=4.779
+Episode 82 complete | case=near_goal_overshoot_return | env_steps=2884 | agent_samples=2884 | episode_env_steps=22 | episode_agent_samples=22 | mean_reward=98.787 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.209 | samples/sec=4.749
+Episode 83 complete | case=near_goal_tangent_left | env_steps=2890 | agent_samples=2890 | episode_env_steps=6 | episode_agent_samples=6 | mean_reward=103.732 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.187 | samples/sec=4.702
+Episode 84 complete | case=offset_goal_approach | env_steps=2907 | agent_samples=2907 | episode_env_steps=17 | episode_agent_samples=17 | mean_reward=113.728 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.282 | samples/sec=4.773
+Episode 85 complete | case=wall_separated_north | env_steps=2936 | agent_samples=2936 | episode_env_steps=29 | episode_agent_samples=29 | mean_reward=157.699 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.291 | samples/sec=4.782
+Episode 86 complete | case=wall_separated_north_yaw_in | env_steps=2962 | agent_samples=2962 | episode_env_steps=26 | episode_agent_samples=26 | mean_reward=157.330 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.233 | samples/sec=4.687
+Episode 87 complete | case=wall_separated_north_yaw_out | env_steps=2990 | agent_samples=2990 | episode_env_steps=28 | episode_agent_samples=28 | mean_reward=157.728 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.176 | samples/sec=4.809
+Episode 88 complete | case=wall_parallel_reverse_clear | env_steps=3016 | agent_samples=3016 | episode_env_steps=26 | episode_agent_samples=26 | mean_reward=153.873 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.265 | samples/sec=4.822
+Episode 89 complete | case=wall_parallel_reverse_safe | env_steps=3048 | agent_samples=3048 | episode_env_steps=32 | episode_agent_samples=32 | mean_reward=154.991 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.178 | samples/sec=4.771
+Episode 90 complete | case=wall_parallel_north_safe_yaw_in | env_steps=3110 | agent_samples=3110 | episode_env_steps=62 | episode_agent_samples=62 | mean_reward=158.119 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.247 | samples/sec=4.796
+Recent 10 episodes | avg_reward=141.501 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_episode_rate=0.000 | total_success=83 | total_collision=7 | total_unresolved=0 | total_full_success=83 | timeout_episodes=0 | success_hist=[7, 83] | collision_hist=[83, 7]
+Case summary:
+  near_goal_overshoot_return | episodes=7 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=19.1 | avg_final_distance=0.239
+  near_goal_tangent_left | episodes=7 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=4.7 | avg_final_distance=0.220
+  offset_goal_approach | episodes=7 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=12.7 | avg_final_distance=0.228
+  wall_parallel_north_clear_straight | episodes=7 | success_rate=0.857 | collision_rate=0.143 | unresolved_rate=0.000 | full_success_rate=0.857 | timeout_rate=0.000 | avg_env_steps=57.7 | avg_final_distance=0.598
+  wall_parallel_north_clear_yaw_in | episodes=7 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=60.3 | avg_final_distance=0.258
+  wall_parallel_north_safe_straight | episodes=7 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=62.7 | avg_final_distance=0.246
+  wall_parallel_north_safe_yaw_in | episodes=8 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=63.1 | avg_final_distance=0.249
+  wall_parallel_reverse_clear | episodes=8 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=29.0 | avg_final_distance=0.231
+  wall_parallel_reverse_safe | episodes=8 | success_rate=0.750 | collision_rate=0.250 | unresolved_rate=0.000 | full_success_rate=0.750 | timeout_rate=0.000 | avg_env_steps=31.8 | avg_final_distance=0.513
+  wall_separated_north | episodes=8 | success_rate=0.750 | collision_rate=0.250 | unresolved_rate=0.000 | full_success_rate=0.750 | timeout_rate=0.000 | avg_env_steps=24.0 | avg_final_distance=0.812
+  wall_separated_north_yaw_in | episodes=8 | success_rate=0.875 | collision_rate=0.125 | unresolved_rate=0.000 | full_success_rate=0.875 | timeout_rate=0.000 | avg_env_steps=25.5 | avg_final_distance=0.535
+  wall_separated_north_yaw_out | episodes=8 | success_rate=0.875 | collision_rate=0.125 | unresolved_rate=0.000 | full_success_rate=0.875 | timeout_rate=0.000 | avg_env_steps=25.2 | avg_final_distance=0.521
+Episode 91 complete | case=wall_parallel_north_safe_straight | env_steps=3168 | agent_samples=3168 | episode_env_steps=58 | episode_agent_samples=58 | mean_reward=158.655 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.222 | samples/sec=4.739
+Episode 92 complete | case=wall_parallel_north_clear_yaw_in | env_steps=3229 | agent_samples=3229 | episode_env_steps=61 | episode_agent_samples=61 | mean_reward=159.703 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.219 | samples/sec=4.782
+Episode 93 complete | case=wall_parallel_north_clear_straight | env_steps=3287 | agent_samples=3287 | episode_env_steps=58 | episode_agent_samples=58 | mean_reward=158.166 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.249 | samples/sec=4.772
+Episode 94 complete | case=near_goal_overshoot_return | env_steps=3309 | agent_samples=3309 | episode_env_steps=22 | episode_agent_samples=22 | mean_reward=99.343 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.220 | samples/sec=4.737
+Episode 95 complete | case=near_goal_tangent_left | env_steps=3314 | agent_samples=3314 | episode_env_steps=5 | episode_agent_samples=5 | mean_reward=103.153 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.239 | samples/sec=4.781
+Episode 96 complete | case=offset_goal_approach | env_steps=3331 | agent_samples=3331 | episode_env_steps=17 | episode_agent_samples=17 | mean_reward=114.617 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.236 | samples/sec=4.807
+Episode 97 complete | case=wall_separated_north | env_steps=3358 | agent_samples=3358 | episode_env_steps=27 | episode_agent_samples=27 | mean_reward=155.043 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.268 | samples/sec=4.764
+Episode 98 complete | case=wall_separated_north_yaw_in | env_steps=3383 | agent_samples=3383 | episode_env_steps=25 | episode_agent_samples=25 | mean_reward=155.488 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.285 | samples/sec=4.806
+Episode 99 complete | case=wall_separated_north_yaw_out | env_steps=3409 | agent_samples=3409 | episode_env_steps=26 | episode_agent_samples=26 | mean_reward=157.538 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.222 | samples/sec=4.781
+Episode 100 complete | case=wall_parallel_reverse_clear | env_steps=3434 | agent_samples=3434 | episode_env_steps=25 | episode_agent_samples=25 | mean_reward=156.961 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.155 | samples/sec=4.729
+Recent 10 episodes | avg_reward=141.867 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_episode_rate=0.000 | total_success=93 | total_collision=7 | total_unresolved=0 | total_full_success=93 | timeout_episodes=0 | success_hist=[7, 93] | collision_hist=[93, 7]
+Case summary:
+  near_goal_overshoot_return | episodes=8 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=19.5 | avg_final_distance=0.237
+  near_goal_tangent_left | episodes=8 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=4.8 | avg_final_distance=0.222
+  offset_goal_approach | episodes=8 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=13.2 | avg_final_distance=0.229
+  wall_parallel_north_clear_straight | episodes=8 | success_rate=0.875 | collision_rate=0.125 | unresolved_rate=0.000 | full_success_rate=0.875 | timeout_rate=0.000 | avg_env_steps=57.8 | avg_final_distance=0.554
+  wall_parallel_north_clear_yaw_in | episodes=8 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=60.4 | avg_final_distance=0.253
+  wall_parallel_north_safe_straight | episodes=8 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=62.1 | avg_final_distance=0.243
+  wall_parallel_north_safe_yaw_in | episodes=8 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=63.1 | avg_final_distance=0.249
+  wall_parallel_reverse_clear | episodes=9 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=28.6 | avg_final_distance=0.223
+  wall_parallel_reverse_safe | episodes=8 | success_rate=0.750 | collision_rate=0.250 | unresolved_rate=0.000 | full_success_rate=0.750 | timeout_rate=0.000 | avg_env_steps=31.8 | avg_final_distance=0.513
+  wall_separated_north | episodes=9 | success_rate=0.778 | collision_rate=0.222 | unresolved_rate=0.000 | full_success_rate=0.778 | timeout_rate=0.000 | avg_env_steps=24.3 | avg_final_distance=0.751
+  wall_separated_north_yaw_in | episodes=9 | success_rate=0.889 | collision_rate=0.111 | unresolved_rate=0.000 | full_success_rate=0.889 | timeout_rate=0.000 | avg_env_steps=25.4 | avg_final_distance=0.508
+  wall_separated_north_yaw_out | episodes=9 | success_rate=0.889 | collision_rate=0.111 | unresolved_rate=0.000 | full_success_rate=0.889 | timeout_rate=0.000 | avg_env_steps=25.3 | avg_final_distance=0.487
+Episode 101 complete | case=wall_parallel_reverse_safe | env_steps=3464 | agent_samples=3464 | episode_env_steps=30 | episode_agent_samples=30 | mean_reward=154.328 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.236 | samples/sec=4.684
+Episode 102 complete | case=wall_parallel_north_safe_yaw_in | env_steps=3535 | agent_samples=3535 | episode_env_steps=71 | episode_agent_samples=71 | mean_reward=156.472 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.219 | samples/sec=4.750
+Episode 103 complete | case=wall_parallel_north_safe_straight | env_steps=3598 | agent_samples=3598 | episode_env_steps=63 | episode_agent_samples=63 | mean_reward=158.029 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.254 | samples/sec=4.779
+Episode 104 complete | case=wall_parallel_north_clear_yaw_in | env_steps=3663 | agent_samples=3663 | episode_env_steps=65 | episode_agent_samples=65 | mean_reward=160.734 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.253 | samples/sec=4.769
+Episode 105 complete | case=wall_parallel_north_clear_straight | env_steps=3720 | agent_samples=3720 | episode_env_steps=57 | episode_agent_samples=57 | mean_reward=159.362 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.243 | samples/sec=4.770
+Episode 106 complete | case=near_goal_overshoot_return | env_steps=3740 | agent_samples=3740 | episode_env_steps=20 | episode_agent_samples=20 | mean_reward=99.737 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.247 | samples/sec=4.741
+Episode 107 complete | case=near_goal_tangent_left | env_steps=3745 | agent_samples=3745 | episode_env_steps=5 | episode_agent_samples=5 | mean_reward=103.991 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.165 | samples/sec=4.779
+Episode 108 complete | case=offset_goal_approach | env_steps=3756 | agent_samples=3756 | episode_env_steps=11 | episode_agent_samples=11 | mean_reward=117.046 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.248 | samples/sec=4.781
+Episode 109 complete | case=wall_separated_north | env_steps=3782 | agent_samples=3782 | episode_env_steps=26 | episode_agent_samples=26 | mean_reward=157.110 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.248 | samples/sec=4.769
+Episode 110 complete | case=wall_separated_north_yaw_in | env_steps=3809 | agent_samples=3809 | episode_env_steps=27 | episode_agent_samples=27 | mean_reward=156.776 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.228 | samples/sec=4.775
+Recent 10 episodes | avg_reward=142.359 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_episode_rate=0.000 | total_success=103 | total_collision=7 | total_unresolved=0 | total_full_success=103 | timeout_episodes=0 | success_hist=[7, 103] | collision_hist=[103, 7]
+Case summary:
+  near_goal_overshoot_return | episodes=9 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=19.6 | avg_final_distance=0.238
+  near_goal_tangent_left | episodes=9 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=4.8 | avg_final_distance=0.216
+  offset_goal_approach | episodes=9 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=13.0 | avg_final_distance=0.231
+  wall_parallel_north_clear_straight | episodes=9 | success_rate=0.889 | collision_rate=0.111 | unresolved_rate=0.000 | full_success_rate=0.889 | timeout_rate=0.000 | avg_env_steps=57.7 | avg_final_distance=0.519
+  wall_parallel_north_clear_yaw_in | episodes=9 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=60.9 | avg_final_distance=0.253
+  wall_parallel_north_safe_straight | episodes=9 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=62.2 | avg_final_distance=0.244
+  wall_parallel_north_safe_yaw_in | episodes=9 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=64.0 | avg_final_distance=0.246
+  wall_parallel_reverse_clear | episodes=9 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=28.6 | avg_final_distance=0.223
+  wall_parallel_reverse_safe | episodes=9 | success_rate=0.778 | collision_rate=0.222 | unresolved_rate=0.000 | full_success_rate=0.778 | timeout_rate=0.000 | avg_env_steps=31.6 | avg_final_distance=0.482
+  wall_separated_north | episodes=10 | success_rate=0.800 | collision_rate=0.200 | unresolved_rate=0.000 | full_success_rate=0.800 | timeout_rate=0.000 | avg_env_steps=24.5 | avg_final_distance=0.701
+  wall_separated_north_yaw_in | episodes=10 | success_rate=0.900 | collision_rate=0.100 | unresolved_rate=0.000 | full_success_rate=0.900 | timeout_rate=0.000 | avg_env_steps=25.6 | avg_final_distance=0.480
+  wall_separated_north_yaw_out | episodes=9 | success_rate=0.889 | collision_rate=0.111 | unresolved_rate=0.000 | full_success_rate=0.889 | timeout_rate=0.000 | avg_env_steps=25.3 | avg_final_distance=0.487
+Episode 111 complete | case=wall_separated_north_yaw_out | env_steps=3837 | agent_samples=3837 | episode_env_steps=28 | episode_agent_samples=28 | mean_reward=156.693 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.276 | samples/sec=4.788
+Episode 112 complete | case=wall_parallel_reverse_clear | env_steps=3860 | agent_samples=3860 | episode_env_steps=23 | episode_agent_samples=23 | mean_reward=-63.516 | success=0/1 | collision=1/1 | unresolved=0/1 | full_success=0 | timeout=0 | mean_final_distance=1.155 | samples/sec=4.738
+Episode 113 complete | case=wall_parallel_reverse_safe | env_steps=3889 | agent_samples=3889 | episode_env_steps=29 | episode_agent_samples=29 | mean_reward=154.543 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.220 | samples/sec=4.778
+Episode 114 complete | case=wall_parallel_north_safe_yaw_in | env_steps=3973 | agent_samples=3973 | episode_env_steps=84 | episode_agent_samples=84 | mean_reward=155.826 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.275 | samples/sec=4.757
+Episode 115 complete | case=wall_parallel_north_safe_straight | env_steps=4031 | agent_samples=4031 | episode_env_steps=58 | episode_agent_samples=58 | mean_reward=161.824 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.238 | samples/sec=4.762
+Episode 116 complete | case=wall_parallel_north_clear_yaw_in | env_steps=4092 | agent_samples=4092 | episode_env_steps=61 | episode_agent_samples=61 | mean_reward=159.912 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.269 | samples/sec=4.724
+Episode 117 complete | case=wall_parallel_north_clear_straight | env_steps=4153 | agent_samples=4153 | episode_env_steps=61 | episode_agent_samples=61 | mean_reward=160.365 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.247 | samples/sec=4.797
+Episode 118 complete | case=near_goal_overshoot_return | env_steps=4174 | agent_samples=4174 | episode_env_steps=21 | episode_agent_samples=21 | mean_reward=99.343 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.276 | samples/sec=4.761
+Episode 119 complete | case=near_goal_tangent_left | env_steps=4179 | agent_samples=4179 | episode_env_steps=5 | episode_agent_samples=5 | mean_reward=102.683 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.238 | samples/sec=4.800
+Episode 120 complete | case=offset_goal_approach | env_steps=4198 | agent_samples=4198 | episode_env_steps=19 | episode_agent_samples=19 | mean_reward=115.314 | success=1/1 | collision=0/1 | unresolved=0/1 | full_success=1 | timeout=0 | mean_final_distance=0.279 | samples/sec=4.732
+Recent 10 episodes | avg_reward=120.299 | success_rate=0.900 | collision_rate=0.100 | unresolved_rate=0.000 | full_success_rate=0.900 | timeout_episode_rate=0.000 | total_success=112 | total_collision=8 | total_unresolved=0 | total_full_success=112 | timeout_episodes=0 | success_hist=[8, 112] | collision_hist=[112, 8]
+Case summary:
+  near_goal_overshoot_return | episodes=10 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=19.7 | avg_final_distance=0.242
+  near_goal_tangent_left | episodes=10 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=4.8 | avg_final_distance=0.218
+  offset_goal_approach | episodes=10 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=13.6 | avg_final_distance=0.236
+  wall_parallel_north_clear_straight | episodes=10 | success_rate=0.900 | collision_rate=0.100 | unresolved_rate=0.000 | full_success_rate=0.900 | timeout_rate=0.000 | avg_env_steps=58.0 | avg_final_distance=0.492
+  wall_parallel_north_clear_yaw_in | episodes=10 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=60.9 | avg_final_distance=0.255
+  wall_parallel_north_safe_straight | episodes=10 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=61.8 | avg_final_distance=0.244
+  wall_parallel_north_safe_yaw_in | episodes=10 | success_rate=1.000 | collision_rate=0.000 | unresolved_rate=0.000 | full_success_rate=1.000 | timeout_rate=0.000 | avg_env_steps=66.0 | avg_final_distance=0.249
+  wall_parallel_reverse_clear | episodes=10 | success_rate=0.900 | collision_rate=0.100 | unresolved_rate=0.000 | full_success_rate=0.900 | timeout_rate=0.000 | avg_env_steps=28.0 | avg_final_distance=0.316
+  wall_parallel_reverse_safe | episodes=10 | success_rate=0.800 | collision_rate=0.200 | unresolved_rate=0.000 | full_success_rate=0.800 | timeout_rate=0.000 | avg_env_steps=31.3 | avg_final_distance=0.456
+  wall_separated_north | episodes=10 | success_rate=0.800 | collision_rate=0.200 | unresolved_rate=0.000 | full_success_rate=0.800 | timeout_rate=0.000 | avg_env_steps=24.5 | avg_final_distance=0.701
+  wall_separated_north_yaw_in | episodes=10 | success_rate=0.900 | collision_rate=0.100 | unresolved_rate=0.000 | full_success_rate=0.900 | timeout_rate=0.000 | avg_env_steps=25.6 | avg_final_distance=0.480
+  wall_separated_north_yaw_out | episodes=10 | success_rate=0.900 | collision_rate=0.100 | unresolved_rate=0.000 | full_success_rate=0.900 | timeout_rate=0.000 | avg_env_steps=25.6 | avg_final_distance=0.466
+Target test episodes reached | episode_num=120 | target=120
+[INFO] [1780632128.241621821]: Finished loading Gazebo ROS API Plugin.
+[INFO] [1780632128.241904103]: waitForService: Service [/gazebo/set_physics_properties] has not been advertised, waiting...
+[INFO] [1780632128.363823606, 0.203000000]: waitForService: Service [/gazebo/set_physics_properties] is now available.
+[INFO] [1780632128.369116301, 0.208000000]: Physics dynamic reconfigure ready.
+[INFO] [1780632128.634098328, 0.376000000]: Laser Plugin: The 'robotNamespace' param was empty
+[INFO] [1780632128.634122077, 0.376000000]: Starting Laser Plugin (ns = r1)
+[INFO] [1780632128.634502648, 0.376000000]: Laser Plugin (ns = r1)  <tf_prefix_>, set to ""
+[INFO] [1780632129.256971415, 0.376000000]: Velodyne laser plugin missing <min_intensity>, defaults to no clipping
+[INFO] [1780632129.258168135, 0.376000000]: Velodyne laser plugin ready, 16 lasers
+[INFO] [1780632129.361554465, 0.376000000]: Starting plugin DiffDrive(ns = /r1/)
+[INFO] [1780632129.361603575, 0.376000000]: DiffDrive(ns = /r1/): <rosDebugLevel> = Debug
+[INFO] [1780632129.362012505, 0.376000000]: DiffDrive(ns = /r1/): <tf_prefix> = 
+[DEBUG] [1780632129.362033657, 0.376000000]: DiffDrive(ns = /r1/): <commandTopic> = cmd_vel
+[DEBUG] [1780632129.362039201, 0.376000000]: DiffDrive(ns = /r1/): <odometryTopic> = odom
+[DEBUG] [1780632129.362044605, 0.376000000]: DiffDrive(ns = /r1/): <odometryFrame> = odom
+[DEBUG] [1780632129.362050216, 0.376000000]: DiffDrive(ns = /r1/): <robotBaseFrame> = base_link
+[DEBUG] [1780632129.362069743, 0.376000000]: DiffDrive(ns = /r1/): <publishWheelTF> = false
+[DEBUG] [1780632129.362075105, 0.376000000]: DiffDrive(ns = /r1/): <publishOdomTF> = false
+[DEBUG] [1780632129.362080439, 0.376000000]: DiffDrive(ns = /r1/): <publishWheelJointState> = true
+[DEBUG] [1780632129.362113804, 0.376000000]: DiffDrive(ns = /r1/): <wheelSeparation> = 0.29999999999999999
+[DEBUG] [1780632129.362120603, 0.376000000]: DiffDrive(ns = /r1/): <wheelDiameter> = 0.17999999999999999
+[DEBUG] [1780632129.362127168, 0.376000000]: DiffDrive(ns = /r1/): <wheelAcceleration> = 1.8
+[DEBUG] [1780632129.362133807, 0.376000000]: DiffDrive(ns = /r1/): <wheelTorque> = 20
+[DEBUG] [1780632129.362139834, 0.376000000]: DiffDrive(ns = /r1/): <updateRate> = 50
+[DEBUG] [1780632129.362165082, 0.376000000]: DiffDrive(ns = /r1/): <odometrySource> = world := 1
+[DEBUG] [1780632129.362180296, 0.376000000]: DiffDrive(ns = /r1/): <leftJoint> = left_hub_joint
+[DEBUG] [1780632129.362187533, 0.376000000]: DiffDrive(ns = /r1/): <rightJoint> = right_hub_joint
+[INFO] [1780632129.362595736, 0.376000000]: DiffDrive(ns = /r1/): Advertise joint_states
+[INFO] [1780632129.362895406, 0.376000000]: DiffDrive(ns = /r1/): Try to subscribe to cmd_vel
+[INFO] [1780632129.364258877, 0.376000000]: DiffDrive(ns = /r1/): Subscribe to cmd_vel
+[INFO] [1780632129.364596911, 0.376000000]: DiffDrive(ns = /r1/): Advertise odom on odom 
+[INFO] [1780632129.370138213, 0.376000000]: GazeboRosJointStatePublisher is going to publish joint: chassis_swivel_joint
+[INFO] [1780632129.370155948, 0.376000000]: GazeboRosJointStatePublisher is going to publish joint: swivel_wheel_joint
+[INFO] [1780632129.370169884, 0.376000000]: GazeboRosJointStatePublisher is going to publish joint: left_hub_joint
+[INFO] [1780632129.370179403, 0.376000000]: GazeboRosJointStatePublisher is going to publish joint: right_hub_joint
+[INFO] [1780632129.370192079, 0.376000000]: Starting GazeboRosJointStatePublisher Plugin (ns = /r1/)!, parent name: r1
+[DEBUG] [1780632129.398592555, 0.396000000]: Trying to publish message of type [nav_msgs/Odometry/cd5e73d190d741a2f92e81eda573aca7] on a publisher with type [nav_msgs/Odometry/cd5e73d190d741a2f92e81eda573aca7]
+[DEBUG] [1780632129.398625019, 0.397000000]: Trying to publish message of type [sensor_msgs/JointState/3066dcd76a6cfaef579bd0f34173e9fd] on a publisher with type [sensor_msgs/JointState/3066dcd76a6cfaef579bd0f34173e9fd]
+... logging to /home/jiutian/.ros/log/51ccc882-6093-11f1-836a-bd1fee3d6233/roslaunch-JiuTian-AI4090-1636448.log
+Checking log directory for disk usage. This may take a while.
+Press Ctrl-C to interrupt
+Done checking log file disk usage. Usage is <1GB.
+]2;/home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3/assets/multi_robot_scenario_curriculum_test_stage1h_separated_reverse_guard_1.launch
+[1mstarted roslaunch server http://localhost:34439/[0m
+
+SUMMARY
+========
+
+PARAMETERS
+ * /robot_description_r1: <?xml version="1....
+ * /rosdistro: noetic
+ * /rosversion: 1.17.4
+ * /use_sim_time: True
+
+NODES
+  /
+    gazebo (gazebo_ros/gzserver)
+    urdf_spawner_r1 (gazebo_ros/spawn_model)
+
+[1mROS_MASTER_URI=http://localhost:11448/[0m
+]2;/home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3/assets/multi_robot_scenario_curriculum_test_stage1h_separated_reverse_guard_1.launch http://localhost:11448/
+[1mprocess[gazebo-1]: started with pid [1636497][0m
+[1mprocess[urdf_spawner_r1-2]: started with pid [1636501][0m
+[1m[urdf_spawner_r1-2] process has finished cleanly
+log file: /home/jiutian/.ros/log/51ccc882-6093-11f1-836a-bd1fee3d6233/urdf_spawner_r1-2*.log[0m
+[gazebo-1] killing on exit
+shutting down processing monitor...
+... shutting down processing monitor complete
+[1mdone[0m

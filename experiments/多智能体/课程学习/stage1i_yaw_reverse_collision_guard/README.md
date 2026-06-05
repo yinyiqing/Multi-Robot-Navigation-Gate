@@ -47,6 +47,34 @@ Compare only the best checkpoint on:
 
 If it does not beat stage1g best without forgetting solved cases, keep stage1g best as the current single-agent baseline.
 
+## Hard-Suite Retest
+
+Model: `TD3_velodyne_multi_v4_curriculum_stage1i_yaw_reverse_collision_guard_from_stage1g_best`
+
+Test suite: `stage1h_separated_reverse_guard`, 120 episodes.
+
+| metric | value |
+| --- | ---: |
+| total_success | 112 / 120 |
+| total_collision | 8 / 120 |
+| total_unresolved | 0 / 120 |
+| timeout_episodes | 0 / 120 |
+| success_rate | 0.933 |
+| collision_rate | 0.067 |
+
+Compared with stage1g best on the same suite (`105/120`, 15 collisions), stage1i best improves the hard-suite result by 7 successes and removes no-timeout regressions. The remaining failures are still collision tails, mainly:
+
+| case | success | collision |
+| --- | ---: | ---: |
+| `wall_parallel_reverse_safe` | 8 / 10 | 2 / 10 |
+| `wall_separated_north` | 8 / 10 | 2 / 10 |
+| `wall_parallel_north_clear_straight` | 9 / 10 | 1 / 10 |
+| `wall_parallel_reverse_clear` | 9 / 10 | 1 / 10 |
+| `wall_separated_north_yaw_in` | 9 / 10 | 1 / 10 |
+| `wall_separated_north_yaw_out` | 9 / 10 | 1 / 10 |
+
+Next check is the `stage1e_single_rescue` comprehensive suite. Stage1i best should only replace stage1g best if it keeps the broad single-agent result near or above stage1g's `117/120`.
+
 ## Logs
 
 - `logs/train/`
