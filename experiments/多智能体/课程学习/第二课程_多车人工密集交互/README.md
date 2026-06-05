@@ -11,14 +11,53 @@
 
 ## 当前阶段
 
-第二课程内部采用难度递进，而不是再拆出很多新的大课程。
+第二课程先把主线复位到 2 车。第一课程只负责补单车局部导航能力，不能直接替代主线；因此第二课程的第一步不是继续堆更难人工 case，而是检查“第一课程 best + 2 车共享 policy 基线”是否能恢复旧主线的基本水平。
 
 | 阶段 | 中文说明 | 状态 | 说明 |
 | --- | --- | --- | --- |
+| `stage1_to_2a_shared` | 主线复位：2车A共享Policy | active | 从第一课程 `stage1g best` warm-start，关闭动态 reward、距离加权和局部 critic，回到旧 2 车 A 口径。 |
 | `stage2_pairwise_diagnostic` | 诊断：双车交互拆解 | completed | 已完成 `stage1g best` 与双车预热 best 对照，定位剩余短板。 |
 | `stage2_pre_pairwise_warmup` | 预热：双车基础交互 | completed / weak | 2 车会车、交叉、同向超车、目标区轻聚集；未形成稳定提升。 |
-| `stage2_main_pairwise_repair` | 主线：双车让行修复 | active | 回到共享 policy、动态 reward、距离加权 reward、局部邻域 critic 的主线机制。 |
+| `stage2_main_pairwise_repair` | 过早尝试：双车让行修复 | paused | 在复位检查前直接上主线修复，路线不够清晰，先暂停归档。 |
 | `stage2a_manual_dense_crossing` | 正式：三车人工密集交互 | paused | 直接从第一课程进入该阶段过难，先降回预热。 |
+
+## 当前主线复位实验
+
+`stage1_to_2a_shared` 对应旧 2 车 A 实验，但模型从第一课程 best 接上：
+
+- agents: 2
+- scenario: `standard` 2 车主线场景
+- warm-start: `TD3_velodyne_multi_v4_curriculum_stage1g_collision_guard_from_stage1f_best`
+- train model: `TD3_velodyne_multi_v4_curriculum_stage2_2a_shared_from_stage1g`
+- dynamic reward: off
+- distance-weighted reward: off
+- local critic: off
+- local-navigation reward: off
+- wall-clearance reward: off
+- actor lr: `0.00008`
+- critic lr: `0.00008`
+- exploration noise: `0.10`
+- exploration min: `0.03`
+- max epochs: 12
+- eval episodes: 40
+- best metric: `success`
+
+判断标准：
+
+- 如果它能接近旧 2 车 A 的训练评估水平，说明第一课程能力能接回主线；下一步跑 2 车 D，也就是共享 policy + 动态 reward + 距离加权 + 局部邻域 critic。
+- 如果它明显低于旧 2 车 A，说明问题不是三车或五车交互，而是 Stage1 warm-start 到随机 2 车分布出现迁移断层，需要先比较 `stage1g`、`stage1i` 和旧单车模型的 2 车迁移。
+
+运行命令：
+
+```bash
+scripts/start_training_detached_multi_stage1_to_2a_shared.sh
+```
+
+停止命令：
+
+```bash
+scripts/stop_training_detached_multi_stage1_to_2a_shared.sh
+```
 
 ## 直接三车密集尝试
 
