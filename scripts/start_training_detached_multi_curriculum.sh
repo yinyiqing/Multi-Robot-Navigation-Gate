@@ -35,32 +35,6 @@ case "$STAGE" in
     DEFAULT_ACTOR_LR=0.0002
     DEFAULT_CRITIC_LR=0.0002
     ;;
-  stage1b_hard_only)
-    NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
-    MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage1b_hard_only}"
-    LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage1b_single_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1b_hard_only_cases.json"
-    VERSION="multi-agent-curriculum-stage1b-hard-only-v1"
-    DEFAULT_MAX_EPOCHS=6
-    DEFAULT_EVAL_EPISODES=32
-    DEFAULT_EXPL_NOISE=0.16
-    DEFAULT_EXPL_MIN=0.04
-    DEFAULT_ACTOR_LR=0.0001
-    DEFAULT_CRITIC_LR=0.0001
-    ;;
-  stage1c_wall_clearance)
-    NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
-    MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage1c_wall_clearance}"
-    LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage1b_single_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1c_wall_clearance_cases.json"
-    VERSION="multi-agent-curriculum-stage1c-wall-clearance-v1"
-    DEFAULT_MAX_EPOCHS=10
-    DEFAULT_EVAL_EPISODES=48
-    DEFAULT_EXPL_NOISE=0.10
-    DEFAULT_EXPL_MIN=0.03
-    DEFAULT_ACTOR_LR=0.00005
-    DEFAULT_CRITIC_LR=0.00005
-    ;;
   stage1e_single_rescue)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage1e_single_rescue_from_stage1_single}"
@@ -154,7 +128,7 @@ case "$STAGE" in
     ;;
   *)
     echo "Unknown curriculum stage: $STAGE"
-    echo "Available stages: stage1_single, stage1b_single, stage1b_hard_only, stage1c_wall_clearance, stage1e_single_rescue, stage1f_wall_parallel_rescue, stage1g_collision_guard, stage1h_separated_reverse_guard, stage1i_yaw_reverse_collision_guard, stage2_three_dense, stage2_dense"
+    echo "Available stages: stage1_single, stage1b_single, stage1e_single_rescue, stage1f_wall_parallel_rescue, stage1g_collision_guard, stage1h_separated_reverse_guard, stage1i_yaw_reverse_collision_guard, stage2_three_dense, stage2_dense"
     exit 1
     ;;
 esac
@@ -169,7 +143,7 @@ EXPL_NOISE="${DRL_MULTI_EXPL_NOISE:-$DEFAULT_EXPL_NOISE}"
 EXPL_MIN="${DRL_MULTI_EXPL_MIN:-$DEFAULT_EXPL_MIN}"
 ACTOR_LR="${DRL_MULTI_ACTOR_LR:-$DEFAULT_ACTOR_LR}"
 CRITIC_LR="${DRL_MULTI_CRITIC_LR:-$DEFAULT_CRITIC_LR}"
-if [[ "$STAGE" == "stage1c_wall_clearance" || "$STAGE" == "stage1g_collision_guard" || "$STAGE" == "stage1h_separated_reverse_guard" || "$STAGE" == "stage1i_yaw_reverse_collision_guard" ]]; then
+if [[ "$STAGE" == "stage1g_collision_guard" || "$STAGE" == "stage1h_separated_reverse_guard" || "$STAGE" == "stage1i_yaw_reverse_collision_guard" ]]; then
   WALL_CLEARANCE_REWARD="${DRL_MULTI_USE_WALL_CLEARANCE_REWARD:-1}"
 else
   WALL_CLEARANCE_REWARD="${DRL_MULTI_USE_WALL_CLEARANCE_REWARD:-0}"
