@@ -15,3 +15,6 @@
 
 - `三车密集共享PolicyBaseline/`
 
+## 日志
+
+- `三车密集共享PolicyBaseline/logs/failed/test_multi_dense_baseline_3_best_detached_20260524_205319.aborted_resume.log`

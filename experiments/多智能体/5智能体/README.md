@@ -29,6 +29,23 @@
 
 当前 Z0/A/B/C/D2/E/F/G/H/I/J/M 已补齐，可用于判断五车训练是否真正改善 warm-start，以及五车 D2 下降主要来自 reward 设计、critic 结构还是 inactive/done 邻居污染。K/L/M 进一步把问题从“成功车挡路”收窄到“活跃机器人近障局部停滞以及基础局部导航缺陷”。
 
+## 日志归档
+
+旧的根目录 `logs/archived/completed_5agent/` 和 `logs/aborted/` 已清理。五车相关日志现在归到具体实验目录：
+
+| 编号 | 目录 | 日志位置 |
+| --- | --- | --- |
+| A | `A_共享PolicyBaseline/五车共享PolicyBaseline/` | `logs/failed/` |
+| H | `H_Weighted09Active邻居过滤对照/五车Weighted09Active/` | `logs/train/`, `logs/test/` |
+| I | `I_InteractionOnlyActive局部交互奖励对照/五车InteractionOnlyActive/` | `logs/train/`, `logs/test/` |
+| J | `J_IndividualActiveProbe纯个体奖励诊断/五车IndividualActiveProbe/` | `logs/train/`, `logs/test/` |
+| K | `K_DoneAgentRelocate成功车移出消融/五车DoneAgentRelocate/` | `logs/test/` |
+| L | `L_TimeoutTrace局部停滞诊断/五车TimeoutTrace/` | `logs/test/` |
+| M | `M_IndividualAntiStagnation停滞惩罚诊断/五车IndividualAntiStagnation/` | `logs/train/`, `logs/test/` |
+| Z0 | `Z0_原始WarmStart五车ZeroShot/五车ZeroShotWarmStart/` | `logs/failed/` |
+
+根目录 `/logs/` 只保留当前运行的实时入口，不再存放历史五车日志。
+
 ## 当前结果
 
 | 编号 | 方法 | success_rate | collision_rate | full_success_rate | 状态 |

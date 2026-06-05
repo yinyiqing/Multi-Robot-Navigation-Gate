@@ -1,0 +1,844 @@
+Activated DRL robot navigation Python environment.
+Python: Python 3.8.10
+Venv: /home/jiutian/venvs/drl-robot-nav
+Roscore launched!
+Gazebo launched!
+[31mRLException: roscore cannot run as another roscore/master is already running. 
+Please kill other roscore/master processes before relaunching.
+The ROS_MASTER_URI is http://localhost:11355/[0m
+[31mThe traceback for the exception was written to the log file[0m
+... logging to /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/roslaunch-JiuTian-AI4090-2492924.log
+Checking log directory for disk usage. This may take a while.
+Press Ctrl-C to interrupt
+Done checking log file disk usage. Usage is <1GB.
+]2;roscore
+[1mstarted roslaunch server http://localhost:45511/[0m
+ros_comm version 1.17.4
+
+
+SUMMARY
+========
+
+PARAMETERS
+ * /rosdistro: noetic
+ * /rosversion: 1.17.4
+
+NODES
+
+[ERROR] [1779630540.087683, 0.000000]: Spawn service failed. Exiting.
+[INFO] [1779630540.081182, 0.000000]: Loading model XML from ros parameter robot_description_r4
+[INFO] [1779630540.083706, 0.000000]: Waiting for service /gazebo/spawn_urdf_model
+[INFO] [1779630540.084589, 0.000000]: Calling service /gazebo/spawn_urdf_model
+[INFO] [1779630540.087306, 0.000000]: Spawn status: SpawnModel: Failure - entity already exists.
+[ERROR] [1779630540.187457, 0.000000]: Spawn service failed. Exiting.
+[INFO] [1779630540.177945, 0.000000]: Loading model XML from ros parameter robot_description_r2
+[INFO] [1779630540.181896, 0.000000]: Waiting for service /gazebo/spawn_urdf_model
+[INFO] [1779630540.182946, 0.000000]: Calling service /gazebo/spawn_urdf_model
+[INFO] [1779630540.186975, 0.000000]: Spawn status: SpawnModel: Failure - entity already exists.
+[ERROR] [1779630540.189725, 0.000000]: Spawn service failed. Exiting.
+[INFO] [1779630540.178399, 0.000000]: Loading model XML from ros parameter robot_description_r3
+[INFO] [1779630540.183522, 0.000000]: Waiting for service /gazebo/spawn_urdf_model
+[INFO] [1779630540.185358, 0.000000]: Calling service /gazebo/spawn_urdf_model
+[INFO] [1779630540.189256, 0.000000]: Spawn status: SpawnModel: Failure - entity already exists.
+[ERROR] [1779630540.191266, 0.000000]: Spawn service failed. Exiting.
+[INFO] [1779630540.177418, 0.000000]: Loading model XML from ros parameter robot_description_r1
+[INFO] [1779630540.183838, 0.000000]: Waiting for service /gazebo/spawn_urdf_model
+[INFO] [1779630540.186216, 0.000000]: Calling service /gazebo/spawn_urdf_model
+[INFO] [1779630540.190728, 0.000000]: Spawn status: SpawnModel: Failure - entity already exists.
+[ERROR] [1779630540.194494, 0.000000]: Spawn service failed. Exiting.
+[INFO] [1779630540.183845, 0.000000]: Loading model XML from ros parameter robot_description_r5
+[INFO] [1779630540.189898, 0.000000]: Waiting for service /gazebo/spawn_urdf_model
+[INFO] [1779630540.191186, 0.000000]: Calling service /gazebo/spawn_urdf_model
+[INFO] [1779630540.194009, 0.000000]: Spawn status: SpawnModel: Failure - entity already exists.
+train_velodyne_td3_multi.py:323: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  torch.load("%s/%s_actor.pth" % (directory, filename), map_location=device)
+train_velodyne_td3_multi.py:326: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  torch.load("%s/%s_critic.pth" % (directory, filename), map_location=device)
+Loaded initial model parameters from: TD3_velodyne_multi_v4
+==============================================
+Training version: multi-agent-shared-policy-baseline-5-v1
+Training process PID: 2492492
+Launchfile: multi_robot_scenario_baseline_5.launch
+Scenario mode: standard
+Device: cuda
+GPU: NVIDIA GeForce RTX 4090
+Agent names: r1, r2, r3, r4, r5
+Cooperative reward: False
+Cooperative reward self weight: None
+Distance-weighted reward: False
+Distance reward sigma: 2.0
+Local critic enabled: False
+Local critic geometry only: False
+Actor state dim: 24
+Critic state dim: 24
+Local critic max neighbors: 9
+Local critic context dim: 63
+Eval episodes: 20
+Max epochs: 20
+TensorBoard log dir: runs/multi_May24_21-49-03_JiuTian-AI4090
+Checkpoint path: ./checkpoints/TD3_velodyne_multi_v4_shared_policy_5_latest.pt
+Best checkpoint path: ./checkpoints/TD3_velodyne_multi_v4_shared_policy_5_best.pt
+Model prefix: TD3_velodyne_multi_v4_shared_policy_5
+Checkpoint interval episodes: 10
+Resume mode: True
+Starting agent samples: 0
+Starting env steps: 0
+Starting epoch: 1
+==============================================
+[31m[gazebo-1] process has died [pid 2493509, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2493887, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[urdf_spawner_r4-5] process has died [pid 2493520, exit code 1, cmd /opt/ros/noetic/lib/gazebo_ros/spawn_model -urdf -model r4 -param robot_description_r4 -x -1.80 -y 0.90 -z 0.01 -R 0 -P 0 -Y 0.0 __name:=urdf_spawner_r4 __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/urdf_spawner_r4-5.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/urdf_spawner_r4-5*.log[0m
+[31m[urdf_spawner_r1-2] process has died [pid 2493514, exit code 1, cmd /opt/ros/noetic/lib/gazebo_ros/spawn_model -urdf -model r1 -param robot_description_r1 -x -1.80 -y -0.90 -z 0.01 -R 0 -P 0 -Y 0.0 __name:=urdf_spawner_r1 __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/urdf_spawner_r1-2.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/urdf_spawner_r1-2*.log[0m
+[31m[urdf_spawner_r2-3] process has died [pid 2493517, exit code 1, cmd /opt/ros/noetic/lib/gazebo_ros/spawn_model -urdf -model r2 -param robot_description_r2 -x 0.00 -y -0.90 -z 0.01 -R 0 -P 0 -Y 0.0 __name:=urdf_spawner_r2 __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/urdf_spawner_r2-3.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/urdf_spawner_r2-3*.log[0m
+[31m[urdf_spawner_r3-4] process has died [pid 2493518, exit code 1, cmd /opt/ros/noetic/lib/gazebo_ros/spawn_model -urdf -model r3 -param robot_description_r3 -x 1.80 -y -0.90 -z 0.01 -R 0 -P 0 -Y 0.0 __name:=urdf_spawner_r3 __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/urdf_spawner_r3-4.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/urdf_spawner_r3-4*.log[0m
+[31m[urdf_spawner_r5-6] process has died [pid 2493521, exit code 1, cmd /opt/ros/noetic/lib/gazebo_ros/spawn_model -urdf -model r5 -param robot_description_r5 -x 0.00 -y 0.90 -z 0.01 -R 0 -P 0 -Y 0.0 __name:=urdf_spawner_r5 __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/urdf_spawner_r5-6.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/urdf_spawner_r5-6*.log[0m
+[31m[gazebo-1] process has died [pid 2494047, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2494180, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2494323, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2494468, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2494626, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2494768, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2494910, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2495070, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2495219, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2495370, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2495529, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2495675, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2495822, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2495979, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2496137, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2496297, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2496448, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2496606, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2496760, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2496911, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2497067, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2497217, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2497374, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2497527, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2497684, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2497838, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2497986, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2498147, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2498303, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2498455, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2498629, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2498779, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2498936, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2499086, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2499244, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2499395, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2499541, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2499740, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2499889, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2500048, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2500205, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2500362, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2500514, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2500671, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2500829, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2500981, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2501136, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2501287, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2501432, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2501584, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2501746, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2501901, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2502054, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2502211, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2502365, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2502512, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2502667, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2502829, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2502984, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2503135, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2503293, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2503446, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2503600, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2503759, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2503908, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2504059, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2504214, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2504374, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2504525, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+... logging to /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/roslaunch-JiuTian-AI4090-2492978.log
+Checking log directory for disk usage. This may take a while.
+Press Ctrl-C to interrupt
+Done checking log file disk usage. Usage is <1GB.
+]2;/home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3/assets/multi_robot_scenario_baseline_5.launch
+[1mstarted roslaunch server http://localhost:37373/[0m
+
+SUMMARY
+========
+
+PARAMETERS
+ * /robot_description_r1: <?xml version="1....
+ * /robot_description_r2: <?xml version="1....
+ * /robot_description_r3: <?xml version="1....
+ * /robot_description_r4: <?xml version="1....
+ * /robot_description_r5: <?xml version="1....
+ * /rosdistro: noetic
+ * /rosversion: 1.17.4
+ * /use_sim_time: True
+
+NODES
+  /
+    gazebo (gazebo_ros/gzserver)
+    urdf_spawner_r1 (gazebo_ros/spawn_model)
+    urdf_spawner_r2 (gazebo_ros/spawn_model)
+    urdf_spawner_r3 (gazebo_ros/spawn_model)
+    urdf_spawner_r4 (gazebo_ros/spawn_model)
+    urdf_spawner_r5 (gazebo_ros/spawn_model)
+
+[1mROS_MASTER_URI=http://localhost:11355/[0m
+]2;/home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3/assets/multi_robot_scenario_baseline_5.launch http://localhost:11355/
+[1mprocess[gazebo-1]: started with pid [2493509][0m
+[1mprocess[urdf_spawner_r1-2]: started with pid [2493514][0m
+[1mprocess[urdf_spawner_r2-3]: started with pid [2493517][0m
+[1mprocess[urdf_spawner_r3-4]: started with pid [2493518][0m
+[1mprocess[urdf_spawner_r4-5]: started with pid [2493520][0m
+[1mprocess[urdf_spawner_r5-6]: started with pid [2493521][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2493887][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2494047][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2494180][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2494323][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2494468][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2494626][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2494768][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2494910][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2495070][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2495219][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2495370][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2495529][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2495675][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2495822][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2495979][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2496137][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2496297][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2496448][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2496606][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2496760][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2496911][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2497067][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2497217][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2497374][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2497527][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2497684][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2497838][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2497986][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2498147][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2498303][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2498455][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2498629][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2498779][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2498936][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2499086][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2499244][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2499395][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2499541][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2499740][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2499889][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2500048][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2500205][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2500362][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2500514][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2500671][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2500829][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2500981][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2501136][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2501287][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2501432][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2501584][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2501746][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2501901][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2502054][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2502211][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2502365][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2502512][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2502667][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2502829][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2502984][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2503135][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2503293][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2503446][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2503600][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2503759][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2503908][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2504059][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2504214][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2504374][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2504525][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2504672][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2504842][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2505006][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2505180][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2505358][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2505531][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2505709][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2505874][0m
+[gazebo-1] restarting process
+[31m[gazebo-1] process has died [pid 2504672, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2504842, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2505006, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2505180, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2505358, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2505531, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2505709, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2505874, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2506059, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2506236, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2506407, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2506585, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2506762, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2506940, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2507120, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2507295, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2507479, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2507659, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2507839, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2508013, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2508190, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2508376, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2508553, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2508728, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2508922, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2509099, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+Episode 1 complete | agent_samples=184 | env_steps=116 | episode_env_steps=116 | episode_agent_samples=184 | mean_reward=36.481 | success=3/5 | collision=2/5 | mean_final_distance=0.620 | mean_progress=0.0018 | min_laser=0.319 | mean_lin=0.364 | mean_ang=-0.200 | mean_robot_dist=3.465 | raw_reward=-20.000 | adjusted_reward=-20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | context_neighbors_mean=0.00 | context_neighbors_max=0 | expl_noise=0.9998 | replay=184 | samples/sec=7.254
+[31m[gazebo-1] process has died [pid 2509279, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2509461, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2509633, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2509812, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2509991, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2510178, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2510358, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2510534, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2510720, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2510895, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2511071, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2511250, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2511430, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2511604, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2511778, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2511962, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2512142, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2512321, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2512502, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2512679, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2512859, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2513036, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2513220, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2513396, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2513573, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2513756, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+Episode 2 complete | agent_samples=311 | env_steps=159 | episode_env_steps=43 | episode_agent_samples=127 | mean_reward=-6.574 | success=2/5 | collision=3/5 | mean_final_distance=0.991 | mean_progress=0.0081 | min_laser=0.338 | mean_lin=0.477 | mean_ang=-0.070 | mean_robot_dist=5.694 | raw_reward=20.000 | adjusted_reward=20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | context_neighbors_mean=0.00 | context_neighbors_max=0 | expl_noise=0.9997 | replay=311 | samples/sec=8.946
+[31m[gazebo-1] process has died [pid 2513936, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2514118, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2514301, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2514479, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2514665, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2514845, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2515028, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2515208, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2515391, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2515573, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2515745, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2515925, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2516108, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2516288, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2516467, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2516693, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2516868, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2517047, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2517221, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2517403, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2517586, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2517738, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2517924, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2518098, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2518267, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2518452, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2518630, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2518805, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2518976, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2519158, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2519322, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2519499, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2519687, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2519859, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2520040, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2520217, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2520396, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2520572, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2520747, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2520929, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2521108, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2521288, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2521469, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2521644, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2521820, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2522000, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2522176, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2522355, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2522540, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2522719, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[31m[gazebo-1] process has died [pid 2522900, exit code 255, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode TD3.world __name:=gazebo __log:=/home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1.log].
+log file: /home/jiutian/.ros/log/f803e0a8-5776-11f1-836a-bd1fee3d6233/gazebo-1*.log[0m
+[1mprocess[gazebo-1]: started with pid [2506059][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2506236][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2506407][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2506585][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2506762][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2506940][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2507120][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2507295][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2507479][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2507659][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2507839][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2508013][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2508190][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2508376][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2508553][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2508728][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2508922][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2509099][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2509279][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2509461][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2509633][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2509812][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2509991][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2510178][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2510358][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2510534][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2510720][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2510895][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2511071][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2511250][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2511430][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2511604][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2511778][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2511962][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2512142][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2512321][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2512502][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2512679][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2512859][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2513036][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2513220][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2513396][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2513573][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2513756][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2513936][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2514118][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2514301][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2514479][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2514665][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2514845][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2515028][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2515208][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2515391][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2515573][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2515745][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2515925][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2516108][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2516288][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2516467][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2516693][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2516868][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2517047][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2517221][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2517403][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2517586][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2517738][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2517924][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2518098][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2518267][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2518452][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2518630][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2518805][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2518976][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2519158][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2519322][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2519499][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2519687][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2519859][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2520040][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2520217][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2520396][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2520572][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2520747][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2520929][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2521108][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2521288][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2521469][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2521644][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2521820][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2522000][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2522176][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2522355][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2522540][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2522719][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2522900][0m
+[gazebo-1] restarting process
+[1mprocess[gazebo-1]: started with pid [2523080][0m
+[gazebo-1] killing on exit
+shutting down processing monitor...
+... shutting down processing monitor complete
+[1mdone[0m
+Traceback (most recent call last):
+  File "train_velodyne_td3_multi.py", line 970, in <module>
+    next_states, rewards, dones, targets, collisions = env.step(
+  File "/home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3/multi_agent_velodyne_env.py", line 571, in step
+    rospy.wait_for_service("/gazebo/pause_physics")
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/impl/tcpros_service.py", line 166, in wait_for_service
+    raise ROSInterruptException("rospy shutdown")
+rospy.exceptions.ROSInterruptException: rospy shutdown

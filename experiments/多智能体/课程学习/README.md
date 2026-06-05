@@ -1,6 +1,8 @@
 # 多机器人课程学习实验总账
 
-本目录归档课程学习相关实验。每个实验目录包含目的、配置、关键结果和归档日志；`cases/` 只放可复用的 case 定义。
+本目录归档课程学习相关实验。每个实验目录包含目的、配置、关键结果和日志去向；`cases/` 只放可复用的 case 定义。
+
+这里的口径是“课程学习线总账”，不是全项目日志池。旧的五车标准场景、密集场景和容量验证日志已经放在各自实验目录下，不混入本目录。
 
 ## 当前主线
 
@@ -13,6 +15,21 @@
 | `stage1g_collision_guard/` | current baseline | 当前最可信单车候选 | `TD3_velodyne_multi_v4_curriculum_stage1g_collision_guard_from_stage1f_best` |
 | `stage1h_separated_reverse_guard/` | superseded / test suite | 训练效果不佳，但保留为难例评估集 | `stage1h` best 不作为主模型 |
 | `stage1i_yaw_reverse_collision_guard/` | active | 正在压缩 yaw/reverse collision 尾巴 | `TD3_velodyne_multi_v4_curriculum_stage1i_yaw_reverse_collision_guard_from_stage1g` |
+
+## 完整实验索引
+
+| 目录 | 类型 | raw log 状态 | 说明 |
+| --- | --- | --- | --- |
+| `stage1_single_local_navigation/` | completed | 仅保留摘要 | 第一版单车局部导航课程，best 在 epoch 4；后续发现覆盖不够。 |
+| `stage1b_near_goal_sidewall_diagnostic/` | diagnostic | 仅保留摘要 | 诊断出 `wall_parallel_close_pass` 和 `goal_adjacent_wall_capture` 不稳。 |
+| `stage1_single_to_5_standard_transfer_diagnostic/` | diagnostic | 仅保留摘要 | 单车 best 直接迁移到五车标准场景会出现摆动、超时和低 full success。 |
+| `stage2_three_dense_intermediate_diagnostic/` | paused diagnostic | 仅保留摘要 | 三车密集训练暴露底层局部导航仍不稳，因此暂停。 |
+| `aborted/stage2_dense_too_hard_20260602/` | aborted | 仅保留摘要 | 五车 dense 过早，epoch 1 已显示难度过高。 |
+| `stage1e_single_rescue/` | completed | `logs/` 已归档 | 修复近目标、目标贴墙和基础墙边缺陷。 |
+| `stage1f_wall_parallel_rescue/` | completed | `logs/` 已归档 | 继续补墙边平行通行和 yaw-in。 |
+| `stage1g_collision_guard/` | current baseline | `logs/` 已归档 | 当前最可信单车 baseline，targeted test 为 `120/120`。 |
+| `stage1h_separated_reverse_guard/` | superseded / test suite | `logs/` 已归档 | 训练不采用，但保留为 hard suite。 |
+| `stage1i_yaw_reverse_collision_guard/` | active | active train log 已归档并软链接到根 `logs/` | 从 stage1g best 继续压 yaw/reverse collision tail。 |
 
 ## 暂停或诊断项
 
@@ -30,6 +47,7 @@
 - `logs/failed/`：启动失败或无效测试。
 - `logs/superseded/`：已复盘但不作为主线模型的训练。
 - 根目录 `/logs/` 只保留当前运行日志的软链接，方便实时查看。
+- 早期已清理 raw log 的目录必须在本 README 和各自 README 中说明“仅保留摘要”，避免误判为实验缺失。
 
 ## 当前判断
 
