@@ -1,0 +1,62 @@
+{
+  "name": "stage2_pre_pairwise_warmup_cases",
+  "description": "Second curriculum warm-up: two-agent basic interaction cases before the three-agent dense manual suite.",
+  "cases": [
+    {
+      "name": "pair_head_on_center_easy",
+      "agents": {
+        "r1": {"start": [-1.8, 0.0], "goal": [1.8, 0.0]},
+        "r2": {"start": [1.8, 0.0], "goal": [-1.8, 0.0]}
+      }
+    },
+    {
+      "name": "pair_head_on_center_offset",
+      "agents": {
+        "r1": {"start": [-1.8, -0.25], "goal": [1.8, 0.25]},
+        "r2": {"start": [1.8, 0.25], "goal": [-1.8, -0.25]}
+      }
+    },
+    {
+      "name": "pair_perpendicular_cross_easy",
+      "agents": {
+        "r1": {"start": [-1.7, 0.0], "goal": [1.7, 0.0]},
+        "r2": {"start": [0.0, -1.7], "goal": [0.0, 1.7]}
+      }
+    },
+    {
+      "name": "pair_same_direction_overtake_easy",
+      "agents": {
+        "r1": {"start": [-1.8, -0.25], "goal": [1.7, -0.25]},
+        "r2": {"start": [-1.1, 0.25], "goal": [1.8, 0.25]}
+      }
+    },
+    {
+      "name": "pair_goal_area_merge_easy",
+      "agents": {
+        "r1": {"start": [-1.8, -0.7], "goal": [-0.2, 0.05]},
+        "r2": {"start": [1.8, 0.7], "goal": [0.2, 0.05]}
+      }
+    },
+    {
+      "name": "pair_wall_side_meet_easy",
+      "agents": {
+        "r1": {"start": [1.05, -0.35], "goal": [4.25, 0.0]},
+        "r2": {"start": [4.35, 0.2], "goal": [1.15, -0.25]}
+      }
+    },
+    {
+      "name": "pair_wall_parallel_same_direction",
+      "agents": {
+        "r1": {"start": [1.0, 2.75], "goal": [4.2, 2.75]},
+        "r2": {"start": [1.7, 3.25], "goal": [4.4, 3.25]}
+      }
+    },
+    {
+      "name": "pair_near_goal_staggered",
+      "agents": {
+        "r1": {"start": [-1.4, 0.35], "goal": [-0.15, 0.1]},
+        "r2": {"start": [1.4, -0.35], "goal": [0.25, -0.05]}
+      }
+    }
+  ]
+}

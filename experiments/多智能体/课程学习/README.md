@@ -9,7 +9,7 @@
 | 课程目录 | 状态 | 作用 | 当前口径 |
 | --- | --- | --- | --- |
 | `第一课程_单车局部导航/` | completed | 先把单车局部导航补稳 | 保守基准用 `stage1g best`，hard-suite 候选用 `stage1i best` |
-| `第二课程_多车人工密集交互/` | active | 人工设计 3 车密集、交错、靠近 case | `stage2a_manual_dense_crossing` 从 `stage1g best` warm-start |
+| `第二课程_多车人工密集交互/` | active | 先双车预热，再三车人工密集交互 | `stage2_pre_pairwise_warmup` 从 `stage1g best` warm-start |
 | `诊断记录/` | archived | 记录为什么要补某些 case | 只保留复盘摘要 |
 | `废弃分支/` | archived | 记录过早或过难的分支 | 只保留复盘摘要 |
 
@@ -26,15 +26,15 @@
 
 ## 第二课程计划
 
-第二课程不是继续让单车单独背 case，而是把第一课程的局部导航能力带进多车场景。这里手工设计 3 车起点和目标点，故意制造中心交叉、近距离会车、起点聚集、目标聚集、墙边会车和窄路超车。
+第二课程不是继续让单车单独背 case，而是把第一课程的局部导航能力带进多车场景。当前先做双车基础交互预热，再回到三车人工密集交互。
 
 切换时不直接继承第一课程末期的极低探索状态。当前配置是：
 
-- agents: 3
-- actor lr / critic lr: `0.00005`
-- exploration noise: `0.055`
-- exploration min: `0.018`
-- max epochs: 8
+- agents: 2
+- actor lr / critic lr: `0.00004`
+- exploration noise: `0.045`
+- exploration min: `0.015`
+- max epochs: 6
 - eval episodes: 48
 - local-navigation reward: on
 - wall-clearance reward: off by default

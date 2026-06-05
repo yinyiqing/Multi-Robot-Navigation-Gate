@@ -2,7 +2,7 @@
 
 ## 目的
 
-第二课程从第一课程的单车 best warm-start，不再继续单独补墙边 case，而是手工设计多车起点和目标点，故意制造交错、靠近、会车、同区域目标聚集等交互压力。
+第二课程从第一课程的单车 best warm-start，不再继续单独补墙边 case，而是让同一个 policy 开始处理多车交错、靠近、会车、目标区域聚集等交互压力。
 
 这一步要回答两个问题：
 
@@ -11,57 +11,55 @@
 
 ## 当前阶段
 
-| 阶段 | 状态 | 说明 |
-| --- | --- | --- |
-| `stage2a_manual_dense_crossing` | ready | 3 车手工密集交互课程，先从 `stage1g best` warm-start。 |
+第二课程内部采用难度递进，而不是再拆出很多新的大课程。
 
-## 训练口径
+| 阶段 | 中文说明 | 状态 | 说明 |
+| --- | --- | --- | --- |
+| `stage2_pre_pairwise_warmup` | 预热：双车基础交互 | active | 2 车会车、交叉、同向超车、目标区轻聚集。 |
+| `stage2a_manual_dense_crossing` | 正式：三车人工密集交互 | paused | 直接从第一课程进入该阶段过难，先降回预热。 |
 
-- agents: 3
-- case file: `../cases/stage2a_manual_dense_crossing_cases.json`
-- warm-start A: `TD3_velodyne_multi_v4_curriculum_stage1g_collision_guard_from_stage1f_best`
-- warm-start B: `TD3_velodyne_multi_v4_curriculum_stage1i_yaw_reverse_collision_guard_from_stage1g_best`
-- actor lr: `0.00005`
-- critic lr: `0.00005`
-- exploration noise: `0.055`
-- exploration min: `0.018`
-- max epochs: 8
+## 直接三车密集尝试
+
+`stage2a_manual_dense_crossing` 从 `stage1g best` warm-start 后，前 4 个 eval 没有形成上升趋势：
+
+| epoch | success_rate | collision_rate | full_success_rate | timeout_episode_rate |
+| ---: | ---: | ---: | ---: | ---: |
+| 1 | 0.521 | 0.389 | 0.208 | 0.125 |
+| 2 | 0.465 | 0.521 | 0.125 | 0.083 |
+| 3 | 0.403 | 0.590 | 0.125 | 0.062 |
+| 4 | 0.507 | 0.486 | 0.083 | 0.083 |
+
+结论：直接进入三车密集交互跨度太大，当前结果作为“过难尝试”保留，不作为主线继续训练。
+
+日志：
+
+- `logs/too_hard/train_multi_curriculum_stage2a_manual_dense_crossing_detached_20260605_152613.log`
+
+## 预热训练口径
+
+- agents: 2
+- case file: `../cases/stage2_pre_pairwise_warmup_cases.json`
+- warm-start: `TD3_velodyne_multi_v4_curriculum_stage1g_collision_guard_from_stage1f_best`
+- actor lr: `0.00004`
+- critic lr: `0.00004`
+- exploration noise: `0.045`
+- exploration min: `0.015`
+- max epochs: 6
 - eval episodes: 48
+- local-navigation reward: on
+- dynamic interaction reward: light `interaction_only`
 
-## 切换原则
-
-从第一课程切到第二课程时，不直接继承末期极低探索状态。第二课程重新设置较小但非零的探索噪声，学习率低于早期单车训练，避免把已经学到的局部导航能力冲坏。
-
-第一组先跑 stage1g best，因为它综合单车集最稳。随后用 stage1i best 做对照，如果它在多车密集交互里明显减少墙边碰撞，再考虑把 stage1i 作为后续候选。
-
-## Case 设计
-
-| case 类型 | 目的 |
-| --- | --- |
-| 中心交叉 | 制造多车同时穿越同一区域。 |
-| 偏移交叉 | 避免只学对称交叉，加入轻微角度偏差。 |
-| 起点聚集、目标分散 | 检查密集起步时是否互相碰撞。 |
-| 起点分散、目标聚集 | 检查近目标区域是否会堵住或互撞。 |
-| 墙边会车 | 检查第一课程的墙边能力在交互压力下是否保持。 |
-| 窄通道对向/超车 | 制造近距离避让和让行压力。 |
+这里的交互 reward 只作为轻量防撞压力，不改变 actor 输入维度；目标是先让模型在简单双车交互中学会减速、绕开、错峰接近目标，再回到三车人工密集。
 
 ## 运行命令
 
-保守 warm-start：
-
 ```bash
-scripts/start_training_detached_multi_curriculum.sh stage2a_manual_dense_crossing
+scripts/start_training_detached_multi_curriculum.sh stage2_pre_pairwise_warmup
 ```
 
-stage1i 对照：
+预热稳定后再回到三车密集：
 
 ```bash
-DRL_MULTI_TRAIN_FILE_NAME=TD3_velodyne_multi_v4_curriculum_stage2a_manual_dense_crossing_from_stage1i \
-DRL_MULTI_LOAD_MODEL_NAME=TD3_velodyne_multi_v4_curriculum_stage1i_yaw_reverse_collision_guard_from_stage1g_best \
+DRL_MULTI_LOAD_MODEL_NAME=TD3_velodyne_multi_v4_curriculum_stage2_pre_pairwise_warmup_from_stage1g_best \
 scripts/start_training_detached_multi_curriculum.sh stage2a_manual_dense_crossing
 ```
-
-## 日志
-
-- `logs/train/`
-- `logs/test/`
