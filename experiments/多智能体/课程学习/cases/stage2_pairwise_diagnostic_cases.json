@@ -1,0 +1,118 @@
+{
+  "name": "stage2_pairwise_diagnostic_cases",
+  "description": "Second curriculum diagnostic: two-agent cases split by interaction type.",
+  "cases": [
+    {
+      "name": "same_direction_far_lane_a",
+      "agents": {
+        "r1": {"start": [-1.8, -0.65], "goal": [1.8, -0.65]},
+        "r2": {"start": [-1.8, 0.65], "goal": [1.8, 0.65]}
+      }
+    },
+    {
+      "name": "same_direction_far_lane_b",
+      "agents": {
+        "r1": {"start": [-1.6, 0.75], "goal": [1.6, 0.75]},
+        "r2": {"start": [-1.9, -0.75], "goal": [1.9, -0.75]}
+      }
+    },
+    {
+      "name": "same_direction_overtake_light",
+      "agents": {
+        "r1": {"start": [-1.8, -0.25], "goal": [1.8, -0.25]},
+        "r2": {"start": [-1.15, 0.35], "goal": [1.65, 0.35]}
+      }
+    },
+    {
+      "name": "same_direction_wall_parallel",
+      "agents": {
+        "r1": {"start": [1.0, 2.75], "goal": [4.25, 2.75]},
+        "r2": {"start": [1.65, 3.25], "goal": [4.35, 3.25]}
+      }
+    },
+    {
+      "name": "offset_cross_easy_a",
+      "agents": {
+        "r1": {"start": [-1.8, -0.55], "goal": [1.8, 0.55]},
+        "r2": {"start": [0.55, -1.8], "goal": [-0.55, 1.8]}
+      }
+    },
+    {
+      "name": "offset_cross_easy_b",
+      "agents": {
+        "r1": {"start": [-1.8, 0.55], "goal": [1.8, -0.55]},
+        "r2": {"start": [-0.55, -1.8], "goal": [0.55, 1.8]}
+      }
+    },
+    {
+      "name": "perpendicular_cross_center",
+      "agents": {
+        "r1": {"start": [-1.7, 0.0], "goal": [1.7, 0.0]},
+        "r2": {"start": [0.0, -1.7], "goal": [0.0, 1.7]}
+      }
+    },
+    {
+      "name": "perpendicular_cross_staggered",
+      "agents": {
+        "r1": {"start": [-1.9, -0.25], "goal": [1.7, 0.25]},
+        "r2": {"start": [0.35, -1.8], "goal": [-0.35, 1.8]}
+      }
+    },
+    {
+      "name": "head_on_symmetric_center",
+      "agents": {
+        "r1": {"start": [-1.8, 0.0], "goal": [1.8, 0.0]},
+        "r2": {"start": [1.8, 0.0], "goal": [-1.8, 0.0]}
+      }
+    },
+    {
+      "name": "head_on_offset_lane",
+      "agents": {
+        "r1": {"start": [-1.8, -0.25], "goal": [1.8, 0.25]},
+        "r2": {"start": [1.8, 0.25], "goal": [-1.8, -0.25]}
+      }
+    },
+    {
+      "name": "head_on_wall_side",
+      "agents": {
+        "r1": {"start": [1.05, -0.35], "goal": [4.25, 0.0]},
+        "r2": {"start": [4.35, 0.2], "goal": [1.15, -0.25]}
+      }
+    },
+    {
+      "name": "head_on_wall_offset",
+      "agents": {
+        "r1": {"start": [1.0, 3.0], "goal": [4.35, 3.25]},
+        "r2": {"start": [4.35, 3.65], "goal": [1.0, 3.4]}
+      }
+    },
+    {
+      "name": "goal_merge_easy_a",
+      "agents": {
+        "r1": {"start": [-1.8, -0.7], "goal": [-0.25, 0.05]},
+        "r2": {"start": [1.8, 0.7], "goal": [0.35, 0.05]}
+      }
+    },
+    {
+      "name": "goal_merge_easy_b",
+      "agents": {
+        "r1": {"start": [-1.7, 0.7], "goal": [-0.25, 0.15]},
+        "r2": {"start": [1.7, -0.7], "goal": [0.35, -0.15]}
+      }
+    },
+    {
+      "name": "goal_merge_wall_a",
+      "agents": {
+        "r1": {"start": [0.85, 3.55], "goal": [1.45, 2.75]},
+        "r2": {"start": [4.55, 3.55], "goal": [3.75, 2.85]}
+      }
+    },
+    {
+      "name": "goal_merge_close_center",
+      "agents": {
+        "r1": {"start": [-1.45, 0.35], "goal": [-0.15, 0.1]},
+        "r2": {"start": [1.45, -0.35], "goal": [0.25, -0.05]}
+      }
+    }
+  ]
+}

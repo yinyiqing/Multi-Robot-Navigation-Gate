@@ -15,6 +15,7 @@
 
 | 阶段 | 中文说明 | 状态 | 说明 |
 | --- | --- | --- | --- |
+| `stage2_pairwise_diagnostic` | 诊断：双车交互拆解 | next | 分 case 测 `stage1g best` 和双车预热 best，先定位失败类型。 |
 | `stage2_pre_pairwise_warmup` | 预热：双车基础交互 | completed / weak | 2 车会车、交叉、同向超车、目标区轻聚集；未形成稳定提升。 |
 | `stage2a_manual_dense_crossing` | 正式：三车人工密集交互 | paused | 直接从第一课程进入该阶段过难，先降回预热。 |
 
@@ -70,6 +71,19 @@
 
 - valid: `logs/train/train_multi_curriculum_stage2_pre_pairwise_warmup_detached_20260605_170738.log`
 - failed startup: `logs/failed/train_multi_curriculum_stage2_pre_pairwise_warmup_detached_20260605_170534.log`
+
+## 双车诊断计划
+
+双车预热里 collision 仍偏高，因此下一步先测、不训练。诊断集会把双车交互拆成同向、轻交叉、正面对穿和目标区合流，分别测试 `stage1g best` 与双车预热 best。
+
+case file: `../cases/stage2_pairwise_diagnostic_cases.json`
+
+判断口径：
+
+- 简单双车同向也差：优先排查环境、多车 reset 或碰撞判定。
+- 同向可以但正面对穿差：重点处理对称死局和交互 reward。
+- 目标区合流差：重点处理近目标多车冲突。
+- 双车预热 best 比 `stage1g best` 更差：说明训练把策略带坏。
 
 ## 运行命令
 
