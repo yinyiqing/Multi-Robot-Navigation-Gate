@@ -16,8 +16,9 @@
 | 主线步骤 | 状态 | 作用 |
 | --- | --- | --- |
 | 1. `stage1_to_2a_shared` | completed | 第一课程 best 接回 2车A，共享 policy 普通测试优于旧 2车A。 |
-| 2. `stage2_2d_local_critic_from_2a_gentle` | active | 从 2车A best 接 2车D；保留 actor、重置 critic，轻微重置学习率和探索噪声，晚一点、慢一点更新 actor。 |
-| 3. 三车密集交互 | pending | 等 2车D 稳定后再推进。 |
+| 2. `stage2_2d_local_critic_from_2a_gentle` | completed | 从 2车A best 接 2车D；best 在 epoch 5，后续 actor 更新让性能下降。 |
+| 3. `stage2_2d_local_critic_from_2a_gentle_best` 固定测试 | active | 只测试 best，不测试 latest；判断它能不能作为 2D 主线节点。 |
+| 4. 三车密集交互 | pending | 等 2车D 固定测试稳定后再推进。 |
 
 旁路记录不作为当前主线继续：
 
@@ -213,7 +214,7 @@ scripts/stop_training_detached_multi_stage1_to_2a_shared.sh
 
 判断：前 3 个 epoch 好，说明 2车A actor 本身可以接到 D；第 4 个 epoch 开始崩，正好发生在 actor 解冻之后，说明 actor 更新仍然太强。
 
-### 2D 温和接入：当前正在跑
+### 2D 温和接入：已完成
 
 `stage2_2d_local_critic_from_2a_gentle` 只做轻微重置，不推倒重来：
 
@@ -235,6 +236,38 @@ scripts/stop_training_detached_multi_stage1_to_2a_shared.sh
 | exploration noise | `0.12` | `0.10` | 回到接近 2车A 的水平，不额外扰动太多 |
 | max epochs | `12` | `10` | 先验证，不长时间硬训 |
 
+结果：
+
+| epoch | success_rate | collision_rate | unresolved_rate | full_success_rate | timeout_episode_rate |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 0.887 | 0.100 | 0.025 | 0.775 | 0.050 |
+| 2 | 0.863 | 0.113 | 0.037 | 0.750 | 0.075 |
+| 3 | 0.925 | 0.037 | 0.037 | 0.850 | 0.075 |
+| 4 | 0.863 | 0.113 | 0.037 | 0.725 | 0.075 |
+| 5 | 0.963 | 0.025 | 0.025 | 0.925 | 0.050 |
+| 6 | 0.787 | 0.100 | 0.113 | 0.625 | 0.225 |
+| 7 | 0.787 | 0.138 | 0.075 | 0.625 | 0.150 |
+| 8 | 0.825 | 0.075 | 0.100 | 0.675 | 0.200 |
+| 9 | 0.713 | 0.175 | 0.113 | 0.500 | 0.225 |
+| 10 | 0.662 | 0.212 | 0.125 | 0.450 | 0.250 |
+
+关键判断：
+
+- 这次确实用到了第一课程：`stage1g best -> stage2_2a_shared_from_stage1g_best -> stage2_2d_local_critic_from_2a_gentle`。
+- epoch 5 是 best，`full_success_rate=0.925`，明显强于训练末尾。
+- epoch 6 以后开始下降，说明继续让新 local critic 更新 actor 会损伤原来 2车A actor。
+- 这不是 2车A 负面影响，而是 D 阶段的 critic/actor 切换仍然不稳。
+- 后续只用 `TD3_velodyne_multi_v4_curriculum_stage2_2d_local_critic_from_2a_gentle_best` 做固定测试，不用 latest。
+
+checkpoint:
+
+- `TD3/checkpoints/TD3_velodyne_multi_v4_curriculum_stage2_2d_local_critic_from_2a_gentle_best.pt`
+- `TD3/pytorch_models/TD3_velodyne_multi_v4_curriculum_stage2_2d_local_critic_from_2a_gentle_best_actor.pth`
+
+日志：
+
+- `logs/train/train_multi_stage2_2d_local_critic_from_2a_gentle_detached_20260606_171206.log`
+
 运行命令：
 
 ```bash
@@ -245,6 +278,18 @@ scripts/start_training_detached_multi_stage2_2d_local_critic_from_2a_gentle.sh
 
 ```bash
 scripts/stop_training_detached_multi_stage2_2d_local_critic_from_2a_gentle.sh
+```
+
+固定测试命令：
+
+```bash
+scripts/start_test_detached_multi_stage2_2d_local_critic_from_2a_gentle.sh
+```
+
+停止测试命令：
+
+```bash
+scripts/stop_test_detached_multi_stage2_2d_local_critic_from_2a_gentle.sh
 ```
 
 ## 直接三车密集尝试
