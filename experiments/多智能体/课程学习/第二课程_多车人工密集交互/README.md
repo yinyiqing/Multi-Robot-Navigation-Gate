@@ -16,7 +16,8 @@
 | 阶段 | 中文说明 | 状态 | 说明 |
 | --- | --- | --- | --- |
 | `stage1_to_2a_shared` | 主线复位：2车A共享Policy | completed | 从第一课程 `stage1g best` warm-start，关闭动态 reward、距离加权和局部 critic，已确认能接回旧 2 车 A 口径。 |
-| `stage2_2d_local_critic_from_2a` | 主线推进：2车D局部邻域Critic | active | 从 `stage1_to_2a_shared best` warm-start actor，启用动态 reward、距离加权和局部邻域 critic。 |
+| `stage2_2d_local_critic_from_2a` | 主线推进：2车D局部邻域Critic | paused / failed | 从 `stage1_to_2a_shared best` warm-start actor 后效果明显差，先归档，不继续沿这个激进接法训练。 |
+| `stage2_2d_local_critic_from_2a_guarded` | 主线推进：2车D保守接入 | active | 仍从 `stage1_to_2a_shared best` warm-start actor，但先延迟 actor 更新，让新 local critic 预热。 |
 | `stage2_pairwise_diagnostic` | 诊断：双车交互拆解 | completed | 已完成 `stage1g best` 与双车预热 best 对照，定位剩余短板。 |
 | `stage2_pre_pairwise_warmup` | 预热：双车基础交互 | completed / weak | 2 车会车、交叉、同向超车、目标区轻聚集；未形成稳定提升。 |
 | `stage2_main_pairwise_repair` | 过早尝试：双车让行修复 | paused | 在复位检查前直接上主线修复，路线不够清晰，先暂停归档。 |
@@ -143,16 +144,72 @@ scripts/stop_training_detached_multi_stage1_to_2a_shared.sh
 
 启用局部邻域 critic 后 critic 输入维度改变，因此只 warm-start actor，critic 重新初始化。
 
+这次训练不是从旧 baseline 接上，而是从当前更好的 2 车 A best 接上：
+
+- actor warm-start: `TD3_velodyne_multi_v4_curriculum_stage2_2a_shared_from_stage1g_best`
+- local critic: 因为 critic 输入维度改变，重新初始化
+- dynamic reward: on
+- distance-weighted reward: on
+- local critic: on
+
+失败现象与 RViz 观察一致：
+
+- 直直朝目标冲，遇到交互或障碍时不让行。
+- 掠过目标或围着目标转圈，说明近目标动作没有稳定收敛。
+- 局部摆动，说明 actor 被新 critic 的早期不稳定梯度影响。
+
+训练内评估：
+
+| epoch | success_rate | collision_rate | unresolved_rate | full_success_rate | timeout_episode_rate |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 0.025 | 0.825 | 0.150 | 0.000 | 0.300 |
+| 2 | 0.412 | 0.575 | 0.013 | 0.150 | 0.025 |
+| 3 | 0.350 | 0.487 | 0.163 | 0.100 | 0.300 |
+| 4 | 0.512 | 0.400 | 0.100 | 0.275 | 0.175 |
+| 5 | 0.475 | 0.500 | 0.025 | 0.200 | 0.050 |
+| 6 | 0.637 | 0.325 | 0.037 | 0.375 | 0.075 |
+| 7 | 0.637 | 0.312 | 0.062 | 0.350 | 0.125 |
+
+和旧 2 车 D 的差异不是“有没有从 A 接上”这么简单。旧 D 也是 actor warm-start、local critic 重初始化、动态 reward 和距离加权开启；但旧 D 用基础 actor 加高探索，从较差策略重新摸索到较好策略。当前新 D 用已经很强的 2 车 A actor，探索噪声较小，又立刻让随机初始化的 local critic 更新 actor，容易把原本强烈的“直接去目标”偏置放大，导致碰撞、绕圈和摆动。
+
+因此这次结果不说明新 2 车 A 不好；相反，2 车 A 已经验证明显好于旧 A。问题在于 D 机制接入太激进，应该让 local critic 先用真实交互样本预热，再逐步更新 actor。
+
+失败日志：
+
+- `logs/failed/train_multi_stage2_2d_local_critic_from_2a_detached_20260606_101512.log`
+
+## 主线推进：2车D保守接入
+
+`stage2_2d_local_critic_from_2a_guarded` 保持主线机制不变，但加一个保护：
+
+- actor warm-start: `TD3_velodyne_multi_v4_curriculum_stage2_2a_shared_from_stage1g_best`
+- train model: `TD3_velodyne_multi_v4_curriculum_stage2_2d_local_critic_from_2a_guarded`
+- local critic: on，重新初始化
+- dynamic reward: on
+- distance-weighted reward: on
+- actor update delay: `15000` agent samples
+- actor lr: `0.00002`
+- critic lr: `0.00008`
+- exploration noise: `0.12`
+- exploration min: `0.03`
+- best metric: `full_success`
+
+判断标准：
+
+- 前 2 个 eval 不应再出现 `collision_rate > 0.5` 的崩盘。
+- 6 个 epoch 左右至少应接近旧 D 的早期水平：`success_rate >= 0.80` 或 `full_success_rate >= 0.60`。
+- 如果仍然直冲、绕圈、摆动，下一步不是继续训，而是把 dynamic reward 和 local critic 分开做消融。
+
 运行命令：
 
 ```bash
-scripts/start_training_detached_multi_stage2_2d_local_critic_from_2a.sh
+scripts/start_training_detached_multi_stage2_2d_local_critic_from_2a_guarded.sh
 ```
 
 停止命令：
 
 ```bash
-scripts/stop_training_detached_multi_stage2_2d_local_critic_from_2a.sh
+scripts/stop_training_detached_multi_stage2_2d_local_critic_from_2a_guarded.sh
 ```
 
 ## 直接三车密集尝试

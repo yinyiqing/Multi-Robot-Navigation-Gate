@@ -302,6 +302,7 @@ class TD3(object):
         policy_noise=0.2,
         noise_clip=0.5,
         policy_freq=2,
+        update_actor=True,
     ):
         av_Q = 0
         max_Q = -inf
@@ -343,19 +344,20 @@ class TD3(object):
             self.critic_optimizer.step()
 
             if it % policy_freq == 0:
-                actor_action = self.actor(state)
-                actor_grad, _ = self.critic(critic_state, actor_action)
-                actor_grad = -actor_grad.mean()
-                self.actor_optimizer.zero_grad()
-                actor_grad.backward()
-                self.actor_optimizer.step()
+                if update_actor:
+                    actor_action = self.actor(state)
+                    actor_grad, _ = self.critic(critic_state, actor_action)
+                    actor_grad = -actor_grad.mean()
+                    self.actor_optimizer.zero_grad()
+                    actor_grad.backward()
+                    self.actor_optimizer.step()
 
-                for param, target_param in zip(
-                    self.actor.parameters(), self.actor_target.parameters()
-                ):
-                    target_param.data.copy_(
-                        tau * param.data + (1 - tau) * target_param.data
-                    )
+                    for param, target_param in zip(
+                        self.actor.parameters(), self.actor_target.parameters()
+                    ):
+                        target_param.data.copy_(
+                            tau * param.data + (1 - tau) * target_param.data
+                        )
 
                 for param, target_param in zip(
                     self.critic.parameters(), self.critic_target.parameters()
@@ -464,6 +466,9 @@ expl_decay_steps = env_int("DRL_MULTI_EXPL_DECAY_STEPS", 500000)
 expl_min = env_float("DRL_MULTI_EXPL_MIN", 0.1)
 actor_lr = env_float("DRL_MULTI_ACTOR_LR", 1e-3)
 critic_lr = env_float("DRL_MULTI_CRITIC_LR", 1e-3)
+local_critic_actor_update_delay_steps = env_int(
+    "DRL_MULTI_LOCAL_CRITIC_ACTOR_UPDATE_DELAY_STEPS", 0
+)
 batch_size = 40
 discount = 0.99999
 tau = 0.005
@@ -740,6 +745,10 @@ print("Eval episodes:", eval_ep)
 print("Max epochs:", max_epochs or "unlimited")
 print("Actor learning rate:", actor_lr)
 print("Critic learning rate:", critic_lr)
+print(
+    "Local critic actor update delay steps:",
+    local_critic_actor_update_delay_steps if use_local_critic else 0,
+)
 print("Exploration noise:", expl_noise)
 print("Exploration min:", expl_min)
 print("Exploration decay steps:", expl_decay_steps)
@@ -828,6 +837,7 @@ while timestep < max_timesteps:
                     policy_noise,
                     noise_clip,
                     policy_freq,
+                    timestep >= local_critic_actor_update_delay_steps,
                 )
             else:
                 network.train(
