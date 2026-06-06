@@ -17,8 +17,8 @@
 | --- | --- | --- |
 | 1. `stage1_to_2a_shared` | completed | 第一课程 best 接回 2车A，共享 policy 普通测试优于旧 2车A。 |
 | 2. `stage2_2d_local_critic_from_2a_gentle` | completed | 从 2车A best 接 2车D；best 在 epoch 5，后续 actor 更新让性能下降。 |
-| 3. `stage2_2d_local_critic_from_2a_gentle_best` 固定测试 | active | 只测试 best，不测试 latest；判断它能不能作为 2D 主线节点。 |
-| 4. 三车密集交互 | pending | 等 2车D 固定测试稳定后再推进。 |
+| 3. `stage2_2d_local_critic_from_2a_gentle_best` 固定测试 | completed | 300 集普通测试略好于 2车A best，可以作为当前 2D 主线节点。 |
+| 4. 三车密集交互 | pending | 从 2D gentle best 继续推进，但要先测复杂诊断集，不直接盲训。 |
 
 旁路记录不作为当前主线继续：
 
@@ -291,6 +291,35 @@ scripts/start_test_detached_multi_stage2_2d_local_critic_from_2a_gentle.sh
 ```bash
 scripts/stop_test_detached_multi_stage2_2d_local_critic_from_2a_gentle.sh
 ```
+
+固定测试：
+
+- model: `TD3_velodyne_multi_v4_curriculum_stage2_2d_local_critic_from_2a_gentle_best`
+- scenario: `standard`
+- launchfile: `multi_robot_scenario_multi_2.launch`
+- episodes: 300
+- agent success: `540 / 600 = 0.900`
+- agent collision: `42 / 600 = 0.070`
+- agent unresolved: `20 / 600 = 0.033`
+- full success: `244 / 300 = 0.813`
+- timeout episode: `20 / 300 = 0.067`
+
+与当前 2车A best 的 300 集普通测试对比：
+
+| 模型 | agent success | agent collision | full success | 说明 |
+| --- | ---: | ---: | ---: | --- |
+| `stage2_2a_shared_from_stage1g_best` | `531 / 600 = 0.885` | `43 / 600 = 0.072` | `235 / 300 = 0.783` | 第一课程接回 2车A |
+| `stage2_2d_local_critic_from_2a_gentle_best` | `540 / 600 = 0.900` | `42 / 600 = 0.070` | `244 / 300 = 0.813` | 2车D gentle best |
+
+结论：
+
+- 2D gentle best 在普通 2 车测试上没有破坏 2A，反而略好。
+- 这说明“从 2A 接 D”这一步可以成立，但必须用 best checkpoint，不能用 latest。
+- 训练中后段下降仍然是问题：local critic 继续更新 actor 会带来退化，所以后续推进三车前要先做复杂诊断集。
+
+测试日志：
+
+- `logs/test/test_multi_stage2_2d_local_critic_from_2a_gentle_TD3_velodyne_multi_v4_curriculum_stage2_2d_local_critic_from_2a_gentle_best_detached_20260606_214358.log`
 
 ## 直接三车密集尝试
 
