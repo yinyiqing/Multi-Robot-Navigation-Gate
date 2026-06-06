@@ -16,6 +16,7 @@
 | 阶段 | 中文说明 | 状态 | 说明 |
 | --- | --- | --- | --- |
 | `stage1_to_2a_shared` | 主线复位：2车A共享Policy | completed | 从第一课程 `stage1g best` warm-start，关闭动态 reward、距离加权和局部 critic，已确认能接回旧 2 车 A 口径。 |
+| `stage2_2d_local_critic_from_2a` | 主线推进：2车D局部邻域Critic | active | 从 `stage1_to_2a_shared best` warm-start actor，启用动态 reward、距离加权和局部邻域 critic。 |
 | `stage2_pairwise_diagnostic` | 诊断：双车交互拆解 | completed | 已完成 `stage1g best` 与双车预热 best 对照，定位剩余短板。 |
 | `stage2_pre_pairwise_warmup` | 预热：双车基础交互 | completed / weak | 2 车会车、交叉、同向超车、目标区轻聚集；未形成稳定提升。 |
 | `stage2_main_pairwise_repair` | 过早尝试：双车让行修复 | paused | 在复位检查前直接上主线修复，路线不够清晰，先暂停归档。 |
@@ -101,6 +102,43 @@ scripts/start_training_detached_multi_stage1_to_2a_shared.sh
 
 ```bash
 scripts/stop_training_detached_multi_stage1_to_2a_shared.sh
+```
+
+## 主线推进：2车D
+
+`stage2_2d_local_critic_from_2a` 是当前真正回到主线机制的一步：
+
+- agents: 2
+- scenario: `standard`
+- actor warm-start: `TD3_velodyne_multi_v4_curriculum_stage2_2a_shared_from_stage1g_best`
+- train model: `TD3_velodyne_multi_v4_curriculum_stage2_2d_local_critic_from_2a`
+- dynamic reward: on
+- reward mode: `average`
+- reward self weight: `0.8`
+- distance-weighted reward: on
+- local critic: on
+- local critic geometry only: off
+- active neighbors only: on
+- actor lr: `0.00006`
+- critic lr: `0.00008`
+- exploration noise: `0.08`
+- exploration min: `0.025`
+- max epochs: 16
+- eval episodes: 40
+- best metric: `success`
+
+启用局部邻域 critic 后 critic 输入维度改变，因此只 warm-start actor，critic 重新初始化。
+
+运行命令：
+
+```bash
+scripts/start_training_detached_multi_stage2_2d_local_critic_from_2a.sh
+```
+
+停止命令：
+
+```bash
+scripts/stop_training_detached_multi_stage2_2d_local_critic_from_2a.sh
 ```
 
 ## 直接三车密集尝试
