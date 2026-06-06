@@ -16,7 +16,7 @@
 | 主线步骤 | 状态 | 作用 |
 | --- | --- | --- |
 | 1. `stage1_to_2a_shared` | completed | 第一课程 best 接回 2车A，共享 policy 普通测试优于旧 2车A。 |
-| 2. `stage2_2d_local_critic_from_2a_guarded` | active | 从 2车A best 接 2车D；保留 actor、重置 critic、调学习率和探索噪声，先冻结 actor。 |
+| 2. `stage2_2d_local_critic_from_2a_gentle` | active | 从 2车A best 接 2车D；保留 actor、重置 critic，轻微重置学习率和探索噪声，晚一点、慢一点更新 actor。 |
 | 3. 三车密集交互 | pending | 等 2车D 稳定后再推进。 |
 
 旁路记录不作为当前主线继续：
@@ -24,6 +24,7 @@
 | 记录 | 结论 |
 | --- | --- |
 | `stage2_2d_local_critic_from_2a` | 直接接 2车D 失败，原因是新 critic 还没稳定就立刻更新 actor。 |
+| `stage2_2d_local_critic_from_2a_guarded` | 冻结 actor 前 3 个 epoch 很好，解冻后崩，说明 actor 更新太强。 |
 | `stage2_pairwise_diagnostic` | 诊断集，只用于定位双车交互短板。 |
 | `stage2_pre_pairwise_warmup` | 有一点效果但不稳定，collision 偏高，不作为主线继续。 |
 | `stage2_main_pairwise_repair` | 路线复位前的过早尝试，暂停。 |
@@ -169,7 +170,7 @@ scripts/stop_training_detached_multi_stage1_to_2a_shared.sh
 
 - `logs/failed/train_multi_stage2_2d_local_critic_from_2a_detached_20260606_101512.log`
 
-### 2D 保守接入：当前正在跑
+### 2D 保守接入 v1：失败
 
 `stage2_2d_local_critic_from_2a_guarded` 的核心是：**保留 actor，重置 critic，重新调学习率和探索噪声，并先冻结 actor。**
 
@@ -199,16 +200,51 @@ scripts/stop_training_detached_multi_stage1_to_2a_shared.sh
 - 6 个 epoch 左右希望达到 `success_rate >= 0.80` 或 `full_success_rate >= 0.60`。
 - 如果仍然直冲、绕圈、摆动，就不继续硬训，改做 dynamic reward / local critic 消融。
 
+结果：
+
+| epoch | success_rate | collision_rate | full_success_rate |
+| ---: | ---: | ---: | ---: |
+| 1 | 0.912 | 0.062 | 0.825 |
+| 2 | 0.900 | 0.087 | 0.800 |
+| 3 | 0.875 | 0.087 | 0.750 |
+| 4 | 0.225 | 0.775 | 0.025 |
+| 5 | 0.062 | 0.887 | 0.000 |
+| 8 | 0.250 | 0.750 | 0.050 |
+
+判断：前 3 个 epoch 好，说明 2车A actor 本身可以接到 D；第 4 个 epoch 开始崩，正好发生在 actor 解冻之后，说明 actor 更新仍然太强。
+
+### 2D 温和接入：当前正在跑
+
+`stage2_2d_local_critic_from_2a_gentle` 只做轻微重置，不推倒重来：
+
+- actor warm-start: `stage2_2a_shared_from_stage1g_best`
+- critic: 重新初始化
+- actor update delay: `25000` agent samples
+- actor lr: `0.000002`
+- critic lr: `0.00008`
+- exploration noise: `0.10`
+- exploration min: `0.03`
+- best metric: `full_success`
+
+相对 v1 guarded 的变化：
+
+| 变量 | v1 guarded | v2 gentle | 意图 |
+| --- | ---: | ---: | --- |
+| actor lr | `0.00002` | `0.000002` | actor 更新再慢一个量级 |
+| actor update delay | `15000` | `25000` | critic 预热更久 |
+| exploration noise | `0.12` | `0.10` | 回到接近 2车A 的水平，不额外扰动太多 |
+| max epochs | `12` | `10` | 先验证，不长时间硬训 |
+
 运行命令：
 
 ```bash
-scripts/start_training_detached_multi_stage2_2d_local_critic_from_2a_guarded.sh
+scripts/start_training_detached_multi_stage2_2d_local_critic_from_2a_gentle.sh
 ```
 
 停止命令：
 
 ```bash
-scripts/stop_training_detached_multi_stage2_2d_local_critic_from_2a_guarded.sh
+scripts/stop_training_detached_multi_stage2_2d_local_critic_from_2a_gentle.sh
 ```
 
 ## 直接三车密集尝试
