@@ -139,6 +139,19 @@ case "$STAGE" in
     DEFAULT_ACTOR_LR=0.00002
     DEFAULT_CRITIC_LR=0.00003
     ;;
+  stage2b_three_light_dense)
+    NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-3}"
+    MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage2b_three_light_dense_from_2d_gentle}"
+    LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_2d_local_critic_from_2a_gentle_best}"
+    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2b_three_light_dense_cases.json"
+    VERSION="multi-agent-curriculum-stage2b-three-light-dense-v1"
+    DEFAULT_MAX_EPOCHS=8
+    DEFAULT_EVAL_EPISODES=48
+    DEFAULT_EXPL_NOISE=0.06
+    DEFAULT_EXPL_MIN=0.018
+    DEFAULT_ACTOR_LR=0.000008
+    DEFAULT_CRITIC_LR=0.00004
+    ;;
   stage2_dense)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_dense_5}"
@@ -167,7 +180,7 @@ case "$STAGE" in
     ;;
   *)
     echo "Unknown curriculum stage: $STAGE"
-    echo "Available stages: stage1_single, stage1b_single, stage1e_single_rescue, stage1f_wall_parallel_rescue, stage1g_collision_guard, stage1h_separated_reverse_guard, stage1i_yaw_reverse_collision_guard, stage2_pre_pairwise_warmup, stage2_main_pairwise_repair, stage2a_manual_dense_crossing, stage2_three_dense, stage2_dense"
+    echo "Available stages: stage1_single, stage1b_single, stage1e_single_rescue, stage1f_wall_parallel_rescue, stage1g_collision_guard, stage1h_separated_reverse_guard, stage1i_yaw_reverse_collision_guard, stage2_pre_pairwise_warmup, stage2_main_pairwise_repair, stage2a_manual_dense_crossing, stage2b_three_light_dense, stage2_three_dense, stage2_dense"
     exit 1
     ;;
 esac
@@ -209,7 +222,7 @@ WALL_CLEARANCE_SPEED_WEIGHT="${DRL_MULTI_WALL_CLEARANCE_SPEED_WEIGHT:-$DEFAULT_W
 WALL_CLEARANCE_TURN_WEIGHT="${DRL_MULTI_WALL_CLEARANCE_TURN_WEIGHT:-$DEFAULT_WALL_CLEARANCE_TURN_WEIGHT}"
 if [[ "$STAGE" == "stage1e_single_rescue" || "$STAGE" == "stage1f_wall_parallel_rescue" || "$STAGE" == "stage1g_collision_guard" || "$STAGE" == "stage1h_separated_reverse_guard" || "$STAGE" == "stage1i_yaw_reverse_collision_guard" ]]; then
   LOCAL_NAVIGATION_REWARD="${DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD:-1}"
-elif [[ "$STAGE" == "stage2a_manual_dense_crossing" || "$STAGE" == "stage2_pre_pairwise_warmup" || "$STAGE" == "stage2_main_pairwise_repair" ]]; then
+elif [[ "$STAGE" == "stage2a_manual_dense_crossing" || "$STAGE" == "stage2_pre_pairwise_warmup" || "$STAGE" == "stage2_main_pairwise_repair" || "$STAGE" == "stage2b_three_light_dense" ]]; then
   LOCAL_NAVIGATION_REWARD="${DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD:-1}"
 else
   LOCAL_NAVIGATION_REWARD="${DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD:-0}"
@@ -220,7 +233,7 @@ if [[ "$STAGE" == "stage2_pre_pairwise_warmup" ]]; then
   DEFAULT_INTERACTION_SAFE_DISTANCE=0.9
   DEFAULT_INTERACTION_CLOSE_PENALTY=0.25
   DEFAULT_INTERACTION_STAGNATION_PENALTY=0.02
-elif [[ "$STAGE" == "stage2_main_pairwise_repair" ]]; then
+elif [[ "$STAGE" == "stage2_main_pairwise_repair" || "$STAGE" == "stage2b_three_light_dense" ]]; then
   DEFAULT_DYNAMIC_REWARD=1
   DEFAULT_REWARD_MODE="average"
   DEFAULT_INTERACTION_SAFE_DISTANCE=0.9
@@ -238,7 +251,7 @@ REWARD_MODE="${DRL_MULTI_REWARD_MODE:-$DEFAULT_REWARD_MODE}"
 INTERACTION_SAFE_DISTANCE="${DRL_MULTI_INTERACTION_SAFE_DISTANCE:-$DEFAULT_INTERACTION_SAFE_DISTANCE}"
 INTERACTION_CLOSE_PENALTY="${DRL_MULTI_INTERACTION_CLOSE_PENALTY:-$DEFAULT_INTERACTION_CLOSE_PENALTY}"
 INTERACTION_STAGNATION_PENALTY="${DRL_MULTI_INTERACTION_STAGNATION_PENALTY:-$DEFAULT_INTERACTION_STAGNATION_PENALTY}"
-if [[ "$STAGE" == "stage2_main_pairwise_repair" ]]; then
+if [[ "$STAGE" == "stage2_main_pairwise_repair" || "$STAGE" == "stage2b_three_light_dense" ]]; then
   DEFAULT_DISTANCE_WEIGHTED_REWARD=1
   DEFAULT_REWARD_SELF_WEIGHT=0.8
   DEFAULT_LOCAL_CRITIC=1

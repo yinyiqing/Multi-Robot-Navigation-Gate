@@ -11,14 +11,16 @@
 
 ## 当前阶段
 
-第二课程当前只保留一条主线：先确认第一课程能接回 2车A，再从 2车A 接 2车D，稳定后再进入三车密集。
+第二课程分成两段。A 段是“主线接回”，确认第一课程能接回 2车A 和 2车D；B 段才是“多车手工密集交互”，用手工起点和目标点制造交叉、靠近、汇合、会车。
 
 | 主线步骤 | 状态 | 作用 |
 | --- | --- | --- |
 | 1. `stage1_to_2a_shared` | completed | 第一课程 best 接回 2车A，共享 policy 普通测试优于旧 2车A。 |
 | 2. `stage2_2d_local_critic_from_2a_gentle` | completed | 从 2车A best 接 2车D；best 在 epoch 5，后续 actor 更新让性能下降。 |
 | 3. `stage2_2d_local_critic_from_2a_gentle_best` 固定测试 | completed | 300 集普通测试略好于 2车A best，可以作为当前 2D 主线节点。 |
-| 4. 三车密集交互 | pending | 从 2D gentle best 继续推进，但要先测复杂诊断集，不直接盲训。 |
+| 4. `stage2b_three_light_dense` 诊断 | active | 从 2D gentle best 测三车轻密集手工 case，先测不盲训。 |
+| 5. `stage2b_three_light_dense` 训练 | pending | 如果诊断不是全崩，再用同一批轻密集 case 训练。 |
+| 6. 三车中/强密集和随机测试 | pending | B 段训练后同时测手工密集和随机三车。 |
 
 旁路记录不作为当前主线继续：
 
@@ -30,6 +32,32 @@
 | `stage2_pre_pairwise_warmup` | 有一点效果但不稳定，collision 偏高，不作为主线继续。 |
 | `stage2_main_pairwise_repair` | 路线复位前的过早尝试，暂停。 |
 | `stage2a_manual_dense_crossing` | 直接上三车太难，暂停。 |
+
+## 第二课程B：三车轻密集
+
+第二课程B不直接上最难三车。当前先做 `stage2b_three_light_dense`，它是三车轻密集诊断集：
+
+- 三车轻交叉：中心交叉但错开一点。
+- 三车轻对穿：对穿但横向留距。
+- 目标轻汇合：目标靠近但不完全重叠。
+- 起点轻聚集：起点靠近，目标分散。
+- 同向轻追越：同向移动但有错峰。
+- 靠墙轻会车：靠墙区域有会车压力但不贴死。
+
+当前动作：先用 `TD3_velodyne_multi_v4_curriculum_stage2_2d_local_critic_from_2a_gentle_best` 做诊断测试。诊断能告诉我们三车轻密集是“可训练入口”，还是仍然需要二车到三车之间的更小过渡。
+
+诊断命令：
+
+```bash
+DRL_MULTI_TEST_TARGET_EPISODES=120 \
+scripts/start_test_detached_multi_curriculum.sh stage2b_three_light_dense
+```
+
+如果诊断可接受，再启动训练：
+
+```bash
+scripts/start_training_detached_multi_curriculum.sh stage2b_three_light_dense
+```
 
 ## 主线复位实验结果
 
