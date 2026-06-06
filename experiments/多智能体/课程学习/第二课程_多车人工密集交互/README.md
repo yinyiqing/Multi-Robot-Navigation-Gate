@@ -84,6 +84,20 @@
 
 这个测试与旧 2 车 A 的普通测试口径一致，不是人工复杂 case；复杂 case 仍看 `stage2_pairwise_diagnostic`。
 
+与旧 2 车 A 的 300 集普通测试对比：
+
+| 模型 | agent success | agent collision | full success | 说明 |
+| --- | ---: | ---: | ---: | --- |
+| 旧 2 车 A | `475 / 600 = 0.792` | `70 / 600 = 0.117` | `181 / 300 = 0.603` | 原始共享 policy 基线 |
+| `stage1_to_2a_shared` | `531 / 600 = 0.885` | `43 / 600 = 0.072` | `235 / 300 = 0.783` | 第一课程 best 接回 2 车 A |
+
+纵向结论：
+
+- 第一课程 warm-start 后的 2 车 A 不只是“能接回主线”，而是普通 2 车测试明显好于旧 2 车 A。
+- 提升主要体现在 full success，从 `0.603` 提到 `0.783`，说明两车同时完成任务的比例提高。
+- collision 从 `0.117` 降到 `0.072`，说明第一课程补到的局部导航能力对普通 2 车也有正向迁移。
+- 这支持下一步进入 2 车 D 主线机制，而不是继续在 2 车 A 上加练。
+
 测试日志：
 
 - `logs/test/test_multi_stage1_to_2a_shared_TD3_velodyne_multi_v4_curriculum_stage2_2a_shared_from_stage1g_best_detached_20260606_091850.log`
