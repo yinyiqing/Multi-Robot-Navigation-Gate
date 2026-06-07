@@ -21,7 +21,7 @@
 | 4. `stage2b_three_light_dense` 诊断 | completed | 三车轻密集整体碰撞很高，不能直接训练。 |
 | 5. `stage2_to_3a_shared_from_2d_gentle` | stopped | 普通 3车A 已能从 0 接起来，但 RViz 观察到掠过目标、远离目标，说明目标收敛能力被破坏。 |
 | 6. `stage2_to_3a_shared_from_2d_gentle_guarded` | completed | epoch 4 best 正式 300 集测试通过，可作为当前 3A 节点。 |
-| 7. 三车D或三车密集课程 | pending | 基于 3A guarded best 接 3D，或进入手工密集课程。 |
+| 7. `stage2_to_3d_local_critic_from_3a_guarded` | running | 基于 3A guarded best 接 3D；actor 继承，local critic 新训，actor 延迟解冻。 |
 
 旁路记录不作为当前主线继续：
 
@@ -91,6 +91,39 @@
 - collision hist `[263, 35, 2, 0]`
 
 结论：`3A guarded best` 可以作为当前三车普通场景节点。它说明前面课程学到的 actor 可以迁移到 3车；问题不在 warm-start 本身，而在解冻后的 actor 更新会破坏策略。
+
+## 当前训练：3A guarded best 接 3D
+
+这一步不是另开新课程，而是在第二课程里把三车主线从 A 接到 D。
+
+当前训练：
+
+- model: `TD3_velodyne_multi_v4_curriculum_stage2_to_3d_local_critic_from_3a_guarded`
+- warm start: `TD3_velodyne_multi_v4_curriculum_stage2_to_3a_shared_from_2d_gentle_guarded_best`
+- log: `logs/train_multi_stage2_to_3d_local_critic_from_3a_guarded_detached_20260607_171330.log`
+- actor: 从 3A guarded best 加载
+- critic: 重新初始化
+- local critic: on
+- dynamic reward: on
+- distance-weighted reward: on
+- actor update delay: `40000`
+- actor lr: `0.000001`
+- critic lr: `0.00008`
+- exploration noise: `0.03`
+- exploration min: `0.015`
+
+为什么 critic 不继承：
+
+- 3A 不用 local critic，3D 用 local critic，critic 输入维度从普通 state 变成 `state + 邻居上下文`。
+- reward 也从普通三车 A 变成 dynamic reward + distance-weighted reward。
+- 旧 critic 对新输入和新 reward 的估值不可靠；如果马上拿它更新 actor，很容易把已经能到目标的 actor 带偏。
+- 所以这次只继承 actor，让 critic 先在新机制下重新学；actor 延迟解冻并用很小学习率。
+
+观察重点：
+
+- 解冻前如果 full success 高，说明 3A actor 能迁移到 3D。
+- 解冻后如果再次明显下降，说明问题仍是新 critic 更新 actor 太强，不应继续硬训 latest。
+- 如果 3D 原版 local critic 不稳定，下一步再做 D2 几何邻域 critic，而不是直接进入更难密集场景。
 
 ## 第二课程B：三车轻密集
 
