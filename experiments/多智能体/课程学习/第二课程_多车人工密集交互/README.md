@@ -21,7 +21,7 @@
 | 4. `stage2b_three_light_dense` 诊断 | completed | 三车轻密集整体碰撞很高，不能直接训练。 |
 | 5. `stage2_to_3a_shared_from_2d_gentle` | stopped | 普通 3车A 已能从 0 接起来，但 RViz 观察到掠过目标、远离目标，说明目标收敛能力被破坏。 |
 | 6. `stage2_to_3a_shared_from_2d_gentle_guarded` | completed | epoch 4 best 正式 300 集测试通过，可作为当前 3A 节点。 |
-| 7. `stage2_to_3d_local_critic_from_3a_guarded` | running | 基于 3A guarded best 接 3D；actor 继承，local critic 新训，actor 延迟解冻。 |
+| 7. `stage2_to_3d_local_critic_from_3a_guarded` | completed | 基于 3A guarded best 接 3D；best 仍在 actor 解冻前，解冻后未崩但低于 frozen best。 |
 
 旁路记录不作为当前主线继续：
 
@@ -92,15 +92,15 @@
 
 结论：`3A guarded best` 可以作为当前三车普通场景节点。它说明前面课程学到的 actor 可以迁移到 3车；问题不在 warm-start 本身，而在解冻后的 actor 更新会破坏策略。
 
-## 当前训练：3A guarded best 接 3D
+## 3A guarded best 接 3D
 
 这一步不是另开新课程，而是在第二课程里把三车主线从 A 接到 D。
 
-当前训练：
+训练设置：
 
 - model: `TD3_velodyne_multi_v4_curriculum_stage2_to_3d_local_critic_from_3a_guarded`
 - warm start: `TD3_velodyne_multi_v4_curriculum_stage2_to_3a_shared_from_2d_gentle_guarded_best`
-- log: `logs/train_multi_stage2_to_3d_local_critic_from_3a_guarded_detached_20260607_171330.log`
+- log: `logs/train/train_multi_stage2_to_3d_local_critic_from_3a_guarded_detached_20260607_171330.log`
 - actor: 从 3A guarded best 加载
 - critic: 重新初始化
 - local critic: on
@@ -111,6 +111,24 @@
 - critic lr: `0.00008`
 - exploration noise: `0.03`
 - exploration min: `0.015`
+
+训练结果：
+
+| epoch | agent samples | full success | agent success | collision | avg final distance | 判断 |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| 1 | `5001` | `0.850` | `0.950` | `0.033` | `0.267` | frozen actor |
+| 5 | `25119` | `0.875` | `0.950` | `0.042` | `0.223` | frozen actor |
+| 6 | `30041` | `0.900` | `0.958` | `0.033` | `0.223` | best, frozen actor |
+| 8 | `40016` | `0.750` | `0.900` | `0.067` | `0.277` | 解冻边界 |
+| 9 | `45077` | `0.850` | `0.950` | `0.025` | `0.248` | 解冻后最好 |
+| 12 | `60004` | `0.700` | `0.875` | `0.092` | `0.307` | latest 退化 |
+
+结论：
+
+- 最高 best 是 epoch 6，发生在 `40000` samples 解冻前，所以它主要证明 `3A guarded best actor` 在 3D 配置下仍然很强。
+- 解冻后没有立刻崩：epoch 9 仍有 full success `0.850`、collision `0.025`。这说明长 critic warmup + 极小 actor lr 没有马上毁掉 policy。
+- 但解冻后没有超过 frozen best，latest 到 epoch 12 退化到 full success `0.700`。所以不能说原版 3D 已经让 policy 明显变强。
+- 后续不能把 frozen best 冒充“3D 学成”。要么正式测试 epoch 6 best 作为 frozen/guarded 对照，要么跑 soft-unfreeze 版本，专门保存解冻后 best。
 
 为什么 critic 不继承：
 
@@ -124,6 +142,11 @@
 - 解冻前如果 full success 高，说明 3A actor 能迁移到 3D。
 - 解冻后如果再次明显下降，说明问题仍是新 critic 更新 actor 太强，不应继续硬训 latest。
 - 如果 3D 原版 local critic 不稳定，下一步再做 D2 几何邻域 critic，而不是直接进入更难密集场景。
+
+下一步判断：
+
+- 若要做正式结果，优先测试 `TD3_velodyne_multi_v4_curriculum_stage2_to_3d_local_critic_from_3a_guarded_best`，但报告里必须写清楚 best 在解冻前。
+- 若要证明 D 阶段真的改善了 policy，应跑 soft-unfreeze：不要长冻结 actor，而是从早期开始低频、小学习率更新 actor，并单独保存解冻后 best。
 
 ## 第二课程B：三车轻密集
 
