@@ -18,9 +18,10 @@
 | 1. `stage1_to_2a_shared` | completed | 第一课程 best 接回 2车A，共享 policy 普通测试优于旧 2车A。 |
 | 2. `stage2_2d_local_critic_from_2a_gentle` | completed | 从 2车A best 接 2车D；best 在 epoch 5，后续 actor 更新让性能下降。 |
 | 3. `stage2_2d_local_critic_from_2a_gentle_best` 固定测试 | completed | 300 集普通测试略好于 2车A best，可以作为当前 2D 主线节点。 |
-| 4. `stage2b_three_light_dense` 诊断 | active | 从 2D gentle best 测三车轻密集手工 case，先测不盲训。 |
-| 5. `stage2b_three_light_dense` 训练 | pending | 如果诊断不是全崩，再用同一批轻密集 case 训练。 |
-| 6. 三车中/强密集和随机测试 | pending | B 段训练后同时测手工密集和随机三车。 |
+| 4. `stage2b_three_light_dense` 诊断 | completed | 三车轻密集整体碰撞很高，不能直接训练。 |
+| 5. `stage2b_three_transition` 训练 | active | 更小过渡：两车冲突 + 第三车轻参与，先适应三车输入和邻域。 |
+| 6. `stage2b_three_light_dense` 复测/训练 | pending | 过渡训练后再回到三车轻密集。 |
+| 7. 三车中/强密集和随机测试 | pending | B 段训练后同时测手工密集和随机三车。 |
 
 旁路记录不作为当前主线继续：
 
@@ -44,7 +45,28 @@
 - 同向轻追越：同向移动但有错峰。
 - 靠墙轻会车：靠墙区域有会车压力但不贴死。
 
-当前动作：先用 `TD3_velodyne_multi_v4_curriculum_stage2_2d_local_critic_from_2a_gentle_best` 做诊断测试。诊断能告诉我们三车轻密集是“可训练入口”，还是仍然需要二车到三车之间的更小过渡。
+诊断结果：`stage2b_three_light_dense` 不是合适的直接训练入口。它能完成目标轻汇合，但在三车交叉、同向错峰、起点聚集上几乎都是碰撞。
+
+120 集诊断整体：
+
+- agent success: `163 / 360 = 0.453`
+- agent collision: `198 / 360 = 0.550`
+- agent unresolved: `2 / 360 = 0.006`
+- full success: `24 / 120 = 0.200`
+- timeout: `2 / 120 = 0.017`
+
+分 case 结果：
+
+| case | success | collision | full success | 判断 |
+| --- | ---: | ---: | ---: | --- |
+| 三车目标汇合_轻聚集 | 0.967 | 0.083 | 0.900 | 已会，可保留少量防退化 |
+| 三车靠墙会车_轻错位 | 0.567 | 0.400 | 0.150 | 部分可用但不稳 |
+| 三车轻对穿_横向留距 | 0.467 | 0.533 | 0.150 | 碰撞偏高 |
+| 三车起点聚集_分散目标 | 0.383 | 0.617 | 0.000 | 失败 |
+| 三车轻交叉_中心错位 | 0.183 | 0.817 | 0.000 | 失败 |
+| 三车同向错峰_轻追越 | 0.150 | 0.850 | 0.000 | 失败 |
+
+结论：从 2D gentle best 直接进入三车轻密集仍然太难。下一步不是硬训 `stage2b_three_light_dense`，而是先做 `stage2b_three_transition`：两车有冲突，第三车只轻参与，让模型先适应三车输入、三车邻域和轻交互压力。
 
 诊断命令：
 
@@ -53,10 +75,14 @@ DRL_MULTI_TEST_TARGET_EPISODES=120 \
 scripts/start_test_detached_multi_curriculum.sh stage2b_three_light_dense
 ```
 
-如果诊断可接受，再启动训练：
+诊断日志：
+
+- `logs/test/test_multi_curriculum_stage2b_three_light_dense_TD3_velodyne_multi_v4_curriculum_stage2_2d_local_critic_from_2a_gentle_best_detached_20260606_224522.log`
+
+当前训练命令：
 
 ```bash
-scripts/start_training_detached_multi_curriculum.sh stage2b_three_light_dense
+scripts/start_training_detached_multi_curriculum.sh stage2b_three_transition
 ```
 
 ## 主线复位实验结果
