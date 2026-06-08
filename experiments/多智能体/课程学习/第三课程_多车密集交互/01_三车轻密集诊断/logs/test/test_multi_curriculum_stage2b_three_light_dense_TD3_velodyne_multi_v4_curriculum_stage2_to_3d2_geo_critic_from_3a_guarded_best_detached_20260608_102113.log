@@ -1,0 +1,414 @@
+Activated DRL robot navigation Python environment.
+Python: Python 3.8.10
+Venv: /home/jiutian/venvs/drl-robot-nav
+Curriculum scenario enabled: 6 cases loaded
+Roscore launched!
+Unable to register with master node [http://localhost:11368]: master may not be running yet. Will keep trying.
+Gazebo launched!
+[INFO] [1780885275.962988, 0.000000]: Loading model XML from ros parameter robot_description_r1
+[INFO] [1780885275.965894, 0.000000]: Waiting for service /gazebo/spawn_urdf_model
+[INFO] [1780885276.267540, 0.311000]: Calling service /gazebo/spawn_urdf_model
+[INFO] [1780885277.042869, 0.368000]: Spawn status: SpawnModel: Successfully spawned entity
+[WARN] [1780885277.156155314, 0.368000000]: GazeboRosDiffDrive Plugin (ns = ) missing <publishTf>, defaults to 1
+[INFO] [1780885276.027203664]: Finished loading Gazebo ROS API Plugin.
+[INFO] [1780885276.027562079]: waitForService: Service [/gazebo/set_physics_properties] has not been advertised, waiting...
+[INFO] [1780885276.150354594]: waitForService: Service [/gazebo/set_physics_properties] is now available.
+[INFO] [1780885276.159241655, 0.207000000]: Physics dynamic reconfigure ready.
+[INFO] [1780885276.435627387, 0.368000000]: Laser Plugin: The 'robotNamespace' param was empty
+[INFO] [1780885276.435646133, 0.368000000]: Starting Laser Plugin (ns = r1)
+[INFO] [1780885276.436110529, 0.368000000]: Laser Plugin (ns = r1)  <tf_prefix_>, set to ""
+[INFO] [1780885277.047128931, 0.368000000]: Velodyne laser plugin missing <min_intensity>, defaults to no clipping
+[INFO] [1780885277.048200455, 0.368000000]: Velodyne laser plugin ready, 16 lasers
+[INFO] [1780885277.155400846, 0.368000000]: Starting plugin DiffDrive(ns = /r1/)
+[INFO] [1780885277.155475154, 0.368000000]: DiffDrive(ns = /r1/): <rosDebugLevel> = Debug
+[INFO] [1780885277.155850688, 0.368000000]: DiffDrive(ns = /r1/): <tf_prefix> = 
+[DEBUG] [1780885277.155892088, 0.368000000]: DiffDrive(ns = /r1/): <commandTopic> = cmd_vel
+[DEBUG] [1780885277.155901838, 0.368000000]: DiffDrive(ns = /r1/): <odometryTopic> = odom
+[DEBUG] [1780885277.155913810, 0.368000000]: DiffDrive(ns = /r1/): <odometryFrame> = odom
+[DEBUG] [1780885277.155926120, 0.368000000]: DiffDrive(ns = /r1/): <robotBaseFrame> = base_link
+[DEBUG] [1780885277.155959436, 0.368000000]: DiffDrive(ns = /r1/): <publishWheelTF> = false
+[DEBUG] [1780885277.155970885, 0.368000000]: DiffDrive(ns = /r1/): <publishOdomTF> = false
+[DEBUG] [1780885277.155979368, 0.368000000]: DiffDrive(ns = /r1/): <publishWheelJointState> = true
+[DEBUG] [1780885277.156014888, 0.368000000]: DiffDrive(ns = /r1/): <wheelSeparation> = 0.29999999999999999
+[DEBUG] [1780885277.156028536, 0.368000000]: DiffDrive(ns = /r1/): <wheelDiameter> = 0.17999999999999999
+[DEBUG] [1780885277.156040511, 0.368000000]: DiffDrive(ns = /r1/): <wheelAcceleration> = 1.8
+[DEBUG] [1780885277.156051342, 0.368000000]: DiffDrive(ns = /r1/): <wheelTorque> = 20
+[DEBUG] [1780885277.156062290, 0.368000000]: DiffDrive(ns = /r1/): <updateRate> = 50
+[DEBUG] [1780885277.156107220, 0.368000000]: DiffDrive(ns = /r1/): <odometrySource> = world := 1
+[DEBUG] [1780885277.156127570, 0.368000000]: DiffDrive(ns = /r1/): <leftJoint> = left_hub_joint
+[DEBUG] [1780885277.156137510, 0.368000000]: DiffDrive(ns = /r1/): <rightJoint> = right_hub_joint
+[INFO] [1780885277.156552878, 0.368000000]: DiffDrive(ns = /r1/): Advertise joint_states
+[INFO] [1780885277.156846628, 0.368000000]: DiffDrive(ns = /r1/): Try to subscribe to cmd_vel
+[INFO] [1780885277.157760115, 0.368000000]: DiffDrive(ns = /r1/): Subscribe to cmd_vel
+[INFO] [1780885277.158250000, 0.368000000]: DiffDrive(ns = /r1/): Advertise odom on odom 
+[INFO] [1780885277.161512467, 0.368000000]: GazeboRosJointStatePublisher is going to publish joint: chassis_swivel_joint
+[INFO] [1780885277.161519511, 0.368000000]: GazeboRosJointStatePublisher is going to publish joint: swivel_wheel_joint
+[INFO] [1780885277.161523349, 0.368000000]: GazeboRosJointStatePublisher is going to publish joint: left_hub_joint
+[INFO] [1780885277.161526534, 0.368000000]: GazeboRosJointStatePublisher is going to publish joint: right_hub_joint
+[INFO] [1780885277.161530278, 0.368000000]: Starting GazeboRosJointStatePublisher Plugin (ns = /r1/)!, parent name: r1
+[DEBUG] [1780885277.187216433, 0.389000000]: Trying to publish message of type [nav_msgs/Odometry/cd5e73d190d741a2f92e81eda573aca7] on a publisher with type [nav_msgs/Odometry/cd5e73d190d741a2f92e81eda573aca7]
+[DEBUG] [1780885277.187254311, 0.389000000]: Trying to publish message of type [sensor_msgs/JointState/3066dcd76a6cfaef579bd0f34173e9fd] on a publisher with type [sensor_msgs/JointState/3066dcd76a6cfaef579bd0f34173e9fd]
+[INFO] [1780885277.441586814, 0.557000000]: Laser Plugin: The 'robotNamespace' param was empty
+[INFO] [1780885277.441610239, 0.557000000]: Starting Laser Plugin (ns = r2)
+[INFO] [1780885277.441970177, 0.557[WARN] [1780885278.060456711, 0.557000000]: GazeboRosDiffDrive Plugin (ns = ) missing <publishTf>, defaults to 1
+[INFO] [1780885275.964181, 0.000000]: Loading model XML from ros parameter robot_description_r2
+[INFO] [1780885275.966769, 0.000000]: Waiting for service /gazebo/spawn_urdf_model
+[INFO] [1780885276.268764, 0.312000]: Calling service /gazebo/spawn_urdf_model
+[INFO] [1780885278.060032, 0.557000]: Spawn status: SpawnModel: Successfully spawned entity
+000000]: Laser Plugin (ns = r2)  <tf_prefix_>, set to ""
+[INFO] [1780885278.058782287, 0.557000000]: Velodyne laser plugin missing <min_intensity>, defaults to no clipping
+[INFO] [1780885278.059348191, 0.557000000]: Velodyne laser plugin ready, 16 lasers
+[INFO] [1780885278.060109076, 0.557000000]: Starting plugin DiffDrive(ns = /r2/)
+[DEBUG] [1780885278.060118358, 0.557000000]: DiffDrive(ns = /r2/): <rosDebugLevel> = Debug
+[INFO] [1780885278.060128598, 0.557000000]: DiffDrive(ns = /r2/): <rosDebugLevel> = Debug
+[INFO] [1780885278.060289821, 0.557000000]: DiffDrive(ns = /r2/): <tf_prefix> = 
+[DEBUG] [1780885278.060305440, 0.557000000]: DiffDrive(ns = /r2/): <commandTopic> = cmd_vel
+[DEBUG] [1780885278.060315465, 0.557000000]: DiffDrive(ns = /r2/): <odometryTopic> = odom
+[DEBUG] [1780885278.060325572, 0.557000000]: DiffDrive(ns = /r2/): <odometryFrame> = odom
+[DEBUG] [1780885278.060333741, 0.557000000]: DiffDrive(ns = /r2/): <robotBaseFrame> = base_link
+[DEBUG] [1780885278.060343346, 0.557000000]: DiffDrive(ns = /r2/): <publishWheelTF> = false
+[DEBUG] [1780885278.060352298, 0.557000000]: DiffDrive(ns = /r2/): <publishOdomTF> = false
+[DEBUG] [1780885278.060360572, 0.557000000]: DiffDrive(ns = /r2/): <publishWheelJointState> = true
+[DEBUG] [1780885278.060375564, 0.557000000]: DiffDrive(ns = /r2/): <wheelSeparation> = 0.29999999999999999
+[DEBUG] [1780885278.060386413, 0.557000000]: DiffDrive(ns = /r2/): <wheelDiameter> = 0.17999999999999999
+[DEBUG] [1780885278.060396818, 0.557000000]: DiffDrive(ns = /r2/): <wheelAcceleration> = 1.8
+[DEBUG] [1780885278.060407490, 0.557000000]: DiffDrive(ns = /r2/): <wheelTorque> = 20
+[DEBUG] [1780885278.060418066, 0.557000000]: DiffDrive(ns = /r2/): <updateRate> = 50
+[DEBUG] [1780885278.060428700, 0.557000000]: DiffDrive(ns = /r2/): <odometrySource> = world := 1
+[DEBUG] [1780885278.060436709, 0.557000000]: DiffDrive(ns = /r2/): <leftJoint> = left_hub_joint
+[DEBUG] [1780885278.060445768, 0.557000000]: DiffDrive(ns = /r2/): <rightJoint> = right_hub_joint
+[INFO] [1780885278.060639282, 0.557000000]: DiffDrive(ns = /r2/): Advertise joint_states
+[INFO] [1780885278.060651848, 0.557000000]: DiffDrive(ns = /r2/): Try to subscribe to cmd_vel
+[INFO] [1780885278.061316707, 0.557000000]: DiffDrive(ns = /r2/): Subscribe to cmd_vel
+[INFO] [1780885278.061735470, 0.557000000]: DiffDrive(ns = /r2/): Advertise odom on odom 
+[INFO] [1780885278.061822900, 0.557000000]: GazeboRosJointStatePublisher is going to publish joint: chassis_swivel_joint
+[INFO] [1780885278.061832661, 0.557000000]: GazeboRosJointStatePublisher is going to publish joint: swivel_wheel_joint
+[INFO] [1780885278.061841135, 0.557000000]: GazeboRosJointStatePublisher is going to publish joint: left_hub_joint
+[INFO] [1780885278.061849369, 0.557000000]: GazeboRosJointStatePublisher is going to publish joint: right_hub_joint
+[INFO] [1780885278.061856826, 0.557000000]: Starting GazeboRosJointStatePublisher Plugin (ns = /r2/)!, parent name: r2
+[INFO] [1780885278.345395211, 0.732000000]: Laser Plugin: The 'robotNamespace' param was empty
+[INFO] [1780885278.345418090, 0.732000000]: Starting Laser Plugin (ns = r3)
+[INFO] [1780885278.345890021, 0.732000000]: Laser Plugin (ns = r3)  <tf_prefix_>, set to ""
+[INFO] [1780885278.972286743, 0.732000000]: Velodyne laser plugin missing <min_intensity>, defaults to no clipping
+[INFO] [1780885278.972881428, 0.732000000]: Velodyne laser plugin ready, 16 lasers
+[INFO] [1780885278.974547496, 0.732000000]: Starting plugin DiffDrive(ns = /r3/)
+[DEBUG] [1780885278.974557382, 0.732000000]: DiffDrive(ns = /r3/): <rosDebugLevel> = Debug
+[INFO] [1780885278.974567864, 0.732000000]: DiffDrive(ns = /r3/): <rosDebugLevel> = Debug
+[INFO] [1780885278.974756766, 0.732000000]: DiffDrive(ns = /r3/): <tf_prefix> = 
+[DEBUG] [1780885278.974761278, 0.732000000]: DiffDrive(ns = /r3/): <commandTopic> = cmd_vel
+[DEBUG] [1780885278.974765291, 0.732000000]: DiffDrive(ns = /r3/): <odometryTopic> = odom
+[DEBUG] [1780885278.974770488, 0.732000000]: DiffDrive(ns = /r3/): <odometryFrame> = odom
+[DEBUG] [1780885278.974775024, 0.732000000]: DiffDrive([WARN] [1780885278.974847386, 0.732000000]: GazeboRosDiffDrive Plugin (ns = ) missing <publishTf>, defaults to 1
+[INFO] [1780885275.965222, 0.000000]: Loading model XML from ros parameter robot_description_r3
+[INFO] [1780885275.967572, 0.000000]: Waiting for service /gazebo/spawn_urdf_model
+[INFO] [1780885276.269358, 0.313000]: Calling service /gazebo/spawn_urdf_model
+[INFO] [1780885278.974462, 0.732000]: Spawn status: SpawnModel: Successfully spawned entity
+test_velodyne_td3_multi.py:44: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  torch.load("%s/%s_actor.pth" % (directory, filename), map_location=device)
+==============================================
+Test version: multi-agent-eval-v1-headless
+Test process PID: 471621
+Launchfile: multi_robot_scenario_curriculum_test_stage2b_three_light_dense_3.launch
+Model file: TD3_velodyne_multi_v4_curriculum_stage2_to_3d2_geo_critic_from_3a_guarded_best
+Scenario mode: curriculum
+Seed: 0
+Device: cuda
+GPU: NVIDIA GeForce RTX 4090
+Agent names: r1, r2, r3
+TensorBoard log dir: runs/test_TD3_velodyne_multi_v4_curriculum_stage2_to_3d2_geo_critic_from_3a_guarded_best_Jun08_10-21-20_JiuTian-AI4090
+State path: ./checkpoints/TD3_velodyne_multi_v4_curriculum_stage2_to_3d2_geo_critic_from_3a_guarded_best_stage2b_three_light_dense_test_state.pt
+Resume mode: True
+Starting episode: 0
+Starting env steps: 0
+Starting agent samples: 0
+Target test episodes: 120
+Case-level stats enabled
+==============================================
+Episode 1 complete | case=三车轻交叉_中心错位 | env_steps=11 | agent_samples=32 | episode_env_steps=11 | episode_agent_samples=32 | mean_reward=-76.625 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.674 | samples/sec=13.453
+Episode 2 complete | case=三车轻对穿_横向留距 | env_steps=34 | agent_samples=85 | episode_env_steps=23 | episode_agent_samples=53 | mean_reward=77.645 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.819 | samples/sec=11.014
+Episode 3 complete | case=三车目标汇合_轻聚集 | env_steps=57 | agent_samples=131 | episode_env_steps=23 | episode_agent_samples=46 | mean_reward=119.746 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.266 | samples/sec=9.484
+Episode 4 complete | case=三车起点聚集_分散目标 | env_steps=67 | agent_samples=144 | episode_env_steps=10 | episode_agent_samples=13 | mean_reward=-24.319 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.385 | samples/sec=6.220
+Episode 5 complete | case=三车同向错峰_轻追越 | env_steps=74 | agent_samples=159 | episode_env_steps=7 | episode_agent_samples=15 | mean_reward=-89.623 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=2.372 | samples/sec=10.042
+Episode 6 complete | case=三车靠墙会车_轻错位 | env_steps=126 | agent_samples=261 | episode_env_steps=52 | episode_agent_samples=102 | mean_reward=0.856 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.369 | samples/sec=9.237
+Episode 7 complete | case=三车轻交叉_中心错位 | env_steps=142 | agent_samples=293 | episode_env_steps=16 | episode_agent_samples=32 | mean_reward=-77.280 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.684 | samples/sec=9.432
+Episode 8 complete | case=三车轻对穿_横向留距 | env_steps=155 | agent_samples=323 | episode_env_steps=13 | episode_agent_samples=30 | mean_reward=-81.034 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.982 | samples/sec=10.897
+Episode 9 complete | case=三车目标汇合_轻聚集 | env_steps=177 | agent_samples=369 | episode_env_steps=22 | episode_agent_samples=46 | mean_reward=53.937 | success=2/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.252 | samples/sec=9.899
+Episode 10 complete | case=三车起点聚集_分散目标 | env_steps=199 | agent_samples=407 | episode_env_steps=22 | episode_agent_samples=38 | mean_reward=55.273 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.705 | samples/sec=8.139
+Recent 10 episodes | avg_reward=-4.142 | success_rate=0.367 | collision_rate=0.667 | unresolved_rate=0.000 | full_success_rate=0.100 | timeout_episode_rate=0.000 | total_success=11 | total_collision=20 | total_unresolved=0 | total_full_success=1 | timeout_episodes=0 | success_hist=[4, 2, 3, 1] | collision_hist=[1, 2, 3, 4]
+Case summary:
+  三车同向错峰_轻追越 | episodes=1 | success_rate=0.000 | collision_rate=1.000 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=7.0 | avg_final_distance=2.372
+  三车目标汇合_轻聚集 | episodes=2 | success_rate=0.833 | collision_rate=0.333 | unresolved_rate=0.000 | full_success_rate=0.500 | timeout_rate=0.000 | avg_env_steps=22.5 | avg_final_distance=0.259
+  三车起点聚集_分散目标 | episodes=2 | success_rate=0.500 | collision_rate=0.500 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=16.0 | avg_final_distance=1.045
+  三车轻交叉_中心错位 | episodes=2 | success_rate=0.000 | collision_rate=1.000 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=13.5 | avg_final_distance=1.679
+  三车轻对穿_横向留距 | episodes=2 | success_rate=0.333 | collision_rate=0.667 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=18.0 | avg_final_distance=1.401
+  三车靠墙会车_轻错位 | episodes=1 | success_rate=0.333 | collision_rate=0.667 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=52.0 | avg_final_distance=1.369
+Episode 11 complete | case=三车同向错峰_轻追越 | env_steps=222 | agent_samples=432 | episode_env_steps=23 | episode_agent_samples=25 | mean_reward=-15.284 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=2.078 | samples/sec=5.039
+Episode 12 complete | case=三车靠墙会车_轻错位 | env_steps=254 | agent_samples=486 | episode_env_steps=32 | episode_agent_samples=54 | mean_reward=-1.536 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.395 | samples/sec=7.994
+Episode 13 complete | case=三车轻交叉_中心错位 | env_steps=278 | agent_samples=541 | episode_env_steps=24 | episode_agent_samples=55 | mean_reward=75.285 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.773 | samples/sec=10.948
+Episode 14 complete | case=三车轻对穿_横向留距 | env_steps=578 | agent_samples=894 | episode_env_steps=300 | episode_agent_samples=353 | mean_reward=126.529 | success=2/3 | collision=0/3 | unresolved=1/3 | full_success=0 | timeout=1 | mean_final_distance=0.295 | samples/sec=5.557
+Episode 15 complete | case=三车目标汇合_轻聚集 | env_steps=605 | agent_samples=945 | episode_env_steps=27 | episode_agent_samples=51 | mean_reward=119.693 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.212 | samples/sec=9.032
+Episode 16 complete | case=三车起点聚集_分散目标 | env_steps=615 | agent_samples=958 | episode_env_steps=10 | episode_agent_samples=13 | mean_reward=-24.823 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.410 | samples/sec=6.163
+Episode 17 complete | case=三车同向错峰_轻追越 | env_steps=645 | agent_samples=997 | episode_env_steps=30 | episode_agent_samples=39 | mean_reward=-12.346 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.858 | samples/sec=6.191
+Episode 18 complete | case=三车靠墙会车_轻错位 | env_steps=743 | agent_samples=1133 | episode_env_steps=98 | episode_agent_samples=136 | mean_reward=78.116 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.963 | samples/sec=6.557
+Episode 19 complete | case=三车轻交叉_中心错位 | env_steps=754 | agent_samples=1164 | episode_env_steps=11 | episode_agent_samples=31 | mean_reward=-77.981 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.727 | samples/sec=13.158
+Episode 20 complete | case=三车轻对穿_横向留距 | env_steps=781 | agent_samples=1239 | episode_env_steps=27 | episode_agent_samples=75 | mean_reward=156.837 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.240 | samples/sec=13.172
+Recent 10 episodes | avg_reward=42.449 | success_rate=0.533 | collision_rate=0.433 | unresolved_rate=0.033 | full_success_rate=0.200 | timeout_episode_rate=0.100 | total_success=27 | total_collision=33 | total_unresolved=1 | total_full_success=3 | timeout_episodes=1 | success_hist=[5, 6, 6, 3] | collision_hist=[4, 4, 7, 5]
+Case summary:
+  三车同向错峰_轻追越 | episodes=3 | success_rate=0.222 | collision_rate=0.778 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=20.0 | avg_final_distance=2.102
+  三车目标汇合_轻聚集 | episodes=3 | success_rate=0.889 | collision_rate=0.222 | unresolved_rate=0.000 | full_success_rate=0.667 | timeout_rate=0.000 | avg_env_steps=24.0 | avg_final_distance=0.244
+  三车起点聚集_分散目标 | episodes=3 | success_rate=0.444 | collision_rate=0.556 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=14.0 | avg_final_distance=1.167
+  三车轻交叉_中心错位 | episodes=4 | success_rate=0.167 | collision_rate=0.833 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=15.5 | avg_final_distance=1.465
+  三车轻对穿_横向留距 | episodes=4 | success_rate=0.583 | collision_rate=0.333 | unresolved_rate=0.083 | full_success_rate=0.250 | timeout_rate=0.250 | avg_env_steps=90.8 | avg_final_distance=0.834
+  三车靠墙会车_轻错位 | episodes=3 | success_rate=0.444 | collision_rate=0.556 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=60.7 | avg_final_distance=1.242
+Episode 21 complete | case=三车目标汇合_轻聚集 | env_steps=792 | agent_samples=1266 | episode_env_steps=11 | episode_agent_samples=27 | mean_reward=120.569 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.295 | samples/sec=11.451
+Episode 22 complete | case=三车起点聚集_分散目标 | env_steps=803 | agent_samples=1280 | episode_env_steps=11 | episode_agent_samples=14 | mean_reward=-24.002 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.346 | samples/sec=6.086
+Episode 23 complete | case=三车同向错峰_轻追越 | env_steps=821 | agent_samples=1308 | episode_env_steps=18 | episode_agent_samples=28 | mean_reward=-9.101 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.734 | samples/sec=7.255
+Episode 24 complete | case=三车靠墙会车_轻错位 | env_steps=889 | agent_samples=1428 | episode_env_steps=68 | episode_agent_samples=120 | mean_reward=85.169 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.574 | samples/sec=8.269
+Episode 25 complete | case=三车轻交叉_中心错位 | env_steps=903 | agent_samples=1465 | episode_env_steps=14 | episode_agent_samples=37 | mean_reward=-75.555 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.564 | samples/sec=12.572
+Episode 26 complete | case=三车轻对穿_横向留距 | env_steps=944 | agent_samples=1545 | episode_env_steps=41 | episode_agent_samples=80 | mean_reward=-60.197 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.943 | samples/sec=9.198
+Episode 27 complete | case=三车目标汇合_轻聚集 | env_steps=955 | agent_samples=1575 | episode_env_steps=11 | episode_agent_samples=30 | mean_reward=54.132 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.311 | samples/sec=12.914
+Episode 28 complete | case=三车起点聚集_分散目标 | env_steps=965 | agent_samples=1588 | episode_env_steps=10 | episode_agent_samples=13 | mean_reward=-24.545 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.384 | samples/sec=6.087
+Episode 29 complete | case=三车同向错峰_轻追越 | env_steps=972 | agent_samples=1603 | episode_env_steps=7 | episode_agent_samples=15 | mean_reward=-89.258 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=2.357 | samples/sec=10.065
+Episode 30 complete | case=三车靠墙会车_轻错位 | env_steps=1041 | agent_samples=1721 | episode_env_steps=69 | episode_agent_samples=118 | mean_reward=11.172 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.846 | samples/sec=8.086
+Recent 10 episodes | avg_reward=-1.162 | success_rate=0.367 | collision_rate=0.633 | unresolved_rate=0.000 | full_success_rate=0.100 | timeout_episode_rate=0.000 | total_success=38 | total_collision=52 | total_unresolved=1 | total_full_success=4 | timeout_episodes=1 | success_hist=[8, 10, 8, 4] | collision_hist=[5, 6, 11, 8]
+Case summary:
+  三车同向错峰_轻追越 | episodes=5 | success_rate=0.200 | collision_rate=0.800 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=17.0 | avg_final_distance=2.080
+  三车目标汇合_轻聚集 | episodes=5 | success_rate=0.867 | collision_rate=0.200 | unresolved_rate=0.000 | full_success_rate=0.600 | timeout_rate=0.000 | avg_env_steps=18.8 | avg_final_distance=0.267
+  三车起点聚集_分散目标 | episodes=5 | success_rate=0.400 | collision_rate=0.600 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=12.6 | avg_final_distance=1.246
+  三车轻交叉_中心错位 | episodes=5 | success_rate=0.133 | collision_rate=0.867 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=15.2 | avg_final_distance=1.485
+  三车轻对穿_横向留距 | episodes=5 | success_rate=0.467 | collision_rate=0.467 | unresolved_rate=0.067 | full_success_rate=0.200 | timeout_rate=0.200 | avg_env_steps=80.8 | avg_final_distance=0.856
+  三车靠墙会车_轻错位 | episodes=5 | success_rate=0.467 | collision_rate=0.533 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=63.8 | avg_final_distance=1.029
+Episode 31 complete | case=三车轻交叉_中心错位 | env_steps=1062 | agent_samples=1762 | episode_env_steps=21 | episode_agent_samples=41 | mean_reward=-1.575 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.241 | samples/sec=9.283
+Episode 32 complete | case=三车轻对穿_横向留距 | env_steps=1086 | agent_samples=1804 | episode_env_steps=24 | episode_agent_samples=42 | mean_reward=-1.588 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.425 | samples/sec=8.242
+Episode 33 complete | case=三车目标汇合_轻聚集 | env_steps=1109 | agent_samples=1851 | episode_env_steps=23 | episode_agent_samples=47 | mean_reward=52.244 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.340 | samples/sec=9.672
+Episode 34 complete | case=三车起点聚集_分散目标 | env_steps=1127 | agent_samples=1882 | episode_env_steps=18 | episode_agent_samples=31 | mean_reward=54.672 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.767 | samples/sec=8.147
+Episode 35 complete | case=三车同向错峰_轻追越 | env_steps=1181 | agent_samples=1939 | episode_env_steps=54 | episode_agent_samples=57 | mean_reward=-15.210 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=2.000 | samples/sec=4.974
+Episode 36 complete | case=三车靠墙会车_轻错位 | env_steps=1481 | agent_samples=2266 | episode_env_steps=300 | episode_agent_samples=327 | mean_reward=-84.935 | success=0/3 | collision=2/3 | unresolved=1/3 | full_success=0 | timeout=1 | mean_final_distance=2.261 | samples/sec=5.149
+Episode 37 complete | case=三车轻交叉_中心错位 | env_steps=1493 | agent_samples=2297 | episode_env_steps=12 | episode_agent_samples=31 | mean_reward=-80.782 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.849 | samples/sec=12.289
+Episode 38 complete | case=三车轻对穿_横向留距 | env_steps=1518 | agent_samples=2360 | episode_env_steps=25 | episode_agent_samples=63 | mean_reward=0.798 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.204 | samples/sec=11.858
+Episode 39 complete | case=三车目标汇合_轻聚集 | env_steps=1539 | agent_samples=2398 | episode_env_steps=21 | episode_agent_samples=38 | mean_reward=119.997 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.230 | samples/sec=8.588
+Episode 40 complete | case=三车起点聚集_分散目标 | env_steps=1550 | agent_samples=2411 | episode_env_steps=11 | episode_agent_samples=13 | mean_reward=-24.254 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.390 | samples/sec=5.569
+Recent 10 episodes | avg_reward=1.937 | success_rate=0.400 | collision_rate=0.567 | unresolved_rate=0.033 | full_success_rate=0.100 | timeout_episode_rate=0.100 | total_success=50 | total_collision=69 | total_unresolved=2 | total_full_success=5 | timeout_episodes=2 | success_hist=[10, 15, 10, 5] | collision_hist=[6, 8, 17, 9]
+Case summary:
+  三车同向错峰_轻追越 | episodes=6 | success_rate=0.222 | collision_rate=0.778 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=23.2 | avg_final_distance=2.066
+  三车目标汇合_轻聚集 | episodes=7 | success_rate=0.857 | collision_rate=0.190 | unresolved_rate=0.000 | full_success_rate=0.571 | timeout_rate=0.000 | avg_env_steps=19.7 | avg_final_distance=0.272
+  三车起点聚集_分散目标 | episodes=7 | success_rate=0.429 | collision_rate=0.571 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=13.1 | avg_final_distance=1.198
+  三车轻交叉_中心错位 | episodes=7 | success_rate=0.143 | collision_rate=0.857 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=15.6 | avg_final_distance=1.502
+  三车轻对穿_横向留距 | episodes=7 | success_rate=0.429 | collision_rate=0.524 | unresolved_rate=0.048 | full_success_rate=0.143 | timeout_rate=0.143 | avg_env_steps=64.7 | avg_final_distance=0.987
+  三车靠墙会车_轻错位 | episodes=6 | success_rate=0.389 | collision_rate=0.556 | unresolved_rate=0.056 | full_success_rate=0.000 | timeout_rate=0.167 | avg_env_steps=103.2 | avg_final_distance=1.235
+Episode 41 complete | case=三车同向错峰_轻追越 | env_steps=1556 | agent_samples=2423 | episode_env_steps=6 | episode_agent_samples=12 | mean_reward=-94.615 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=2.614 | samples/sec=9.648
+Episode 42 complete | case=三车靠墙会车_轻错位 | env_steps=1624 | agent_samples=2530 | episode_env_steps=68 | episode_agent_samples=107 | mean_reward=11.254 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.858 | samples/sec=7.424
+Episode 43 complete | case=三车轻交叉_中心错位 | env_steps=1638 | agent_samples=2564 | episode_env_steps=14 | episode_agent_samples=34 | mean_reward=-76.253 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.657 | samples/sec=11.611
+Episode 44 complete | case=三车轻对穿_横向留距 | env_steps=1662 | agent_samples=2618 | episode_env_steps=24 | episode_agent_samples=54 | mean_reward=76.352 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.900 | samples/sec=10.598
+Episode 45 complete | case=三车目标汇合_轻聚集 | env_steps=1703 | agent_samples=2681 | episode_env_steps=41 | episode_agent_samples=63 | mean_reward=118.141 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.262 | samples/sec=7.337
+Episode 46 complete | case=三车起点聚集_分散目标 | env_steps=1715 | agent_samples=2700 | episode_env_steps=12 | episode_agent_samples=19 | mean_reward=-24.839 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.429 | samples/sec=7.328
+Episode 47 complete | case=三车同向错峰_轻追越 | env_steps=1749 | agent_samples=2742 | episode_env_steps=34 | episode_agent_samples=42 | mean_reward=-13.109 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.874 | samples/sec=5.887
+Episode 48 complete | case=三车靠墙会车_轻错位 | env_steps=1821 | agent_samples=2863 | episode_env_steps=72 | episode_agent_samples=121 | mean_reward=86.715 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.558 | samples/sec=7.956
+Episode 49 complete | case=三车轻交叉_中心错位 | env_steps=1841 | agent_samples=2913 | episode_env_steps=20 | episode_agent_samples=50 | mean_reward=-1.942 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.192 | samples/sec=11.811
+Episode 50 complete | case=三车轻对穿_横向留距 | env_steps=1866 | agent_samples=2985 | episode_env_steps=25 | episode_agent_samples=72 | mean_reward=157.129 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.243 | samples/sec=13.615
+Recent 10 episodes | avg_reward=23.883 | success_rate=0.467 | collision_rate=0.533 | unresolved_rate=0.000 | full_success_rate=0.200 | timeout_episode_rate=0.000 | total_success=64 | total_collision=85 | total_unresolved=2 | total_full_success=7 | timeout_episodes=2 | success_hist=[12, 19, 12, 7] | collision_hist=[8, 10, 21, 11]
+Case summary:
+  三车同向错峰_轻追越 | episodes=8 | success_rate=0.208 | collision_rate=0.792 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=22.4 | avg_final_distance=2.111
+  三车目标汇合_轻聚集 | episodes=8 | success_rate=0.875 | collision_rate=0.167 | unresolved_rate=0.000 | full_success_rate=0.625 | timeout_rate=0.000 | avg_env_steps=22.4 | avg_final_distance=0.271
+  三车起点聚集_分散目标 | episodes=8 | success_rate=0.417 | collision_rate=0.583 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=13.0 | avg_final_distance=1.227
+  三车轻交叉_中心错位 | episodes=9 | success_rate=0.148 | collision_rate=0.852 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=15.9 | avg_final_distance=1.485
+  三车轻对穿_横向留距 | episodes=9 | success_rate=0.519 | collision_rate=0.444 | unresolved_rate=0.037 | full_success_rate=0.222 | timeout_rate=0.111 | avg_env_steps=55.8 | avg_final_distance=0.895
+  三车靠墙会车_轻错位 | episodes=8 | success_rate=0.417 | collision_rate=0.542 | unresolved_rate=0.042 | full_success_rate=0.000 | timeout_rate=0.125 | avg_env_steps=94.9 | avg_final_distance=1.103
+Episode 51 complete | case=三车目标汇合_轻聚集 | env_steps=1884 | agent_samples=3017 | episode_env_steps=18 | episode_agent_samples=32 | mean_reward=119.548 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.281 | samples/sec=8.443
+Episode 52 complete | case=三车起点聚集_分散目标 | env_steps=1897 | agent_samples=3032 | episode_env_steps=13 | episode_agent_samples=15 | mean_reward=-24.506 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.377 | samples/sec=5.486
+Episode 53 complete | case=三车同向错峰_轻追越 | env_steps=1904 | agent_samples=3047 | episode_env_steps=7 | episode_agent_samples=15 | mean_reward=-90.275 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=2.419 | samples/sec=10.251
+Episode 54 complete | case=三车靠墙会车_轻错位 | env_steps=2172 | agent_samples=3369 | episode_env_steps=268 | episode_agent_samples=322 | mean_reward=35.726 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.644 | samples/sec=5.681
+Episode 55 complete | case=三车轻交叉_中心错位 | env_steps=2207 | agent_samples=3437 | episode_env_steps=35 | episode_agent_samples=68 | mean_reward=72.707 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.802 | samples/sec=9.267
+Episode 56 complete | case=三车轻对穿_横向留距 | env_steps=2229 | agent_samples=3477 | episode_env_steps=22 | episode_agent_samples=40 | mean_reward=-0.795 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.328 | samples/sec=8.646
+Episode 57 complete | case=三车目标汇合_轻聚集 | env_steps=2250 | agent_samples=3517 | episode_env_steps=21 | episode_agent_samples=40 | mean_reward=120.813 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.278 | samples/sec=9.021
+Episode 58 complete | case=三车起点聚集_分散目标 | env_steps=2262 | agent_samples=3532 | episode_env_steps=12 | episode_agent_samples=15 | mean_reward=-24.084 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.350 | samples/sec=5.930
+Episode 59 complete | case=三车同向错峰_轻追越 | env_steps=2269 | agent_samples=3547 | episode_env_steps=7 | episode_agent_samples=15 | mean_reward=-90.014 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=2.409 | samples/sec=10.144
+Episode 60 complete | case=三车靠墙会车_轻错位 | env_steps=2317 | agent_samples=3653 | episode_env_steps=48 | episode_agent_samples=106 | mean_reward=72.039 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.150 | samples/sec=10.440
+Recent 10 episodes | avg_reward=19.116 | success_rate=0.500 | collision_rate=0.500 | unresolved_rate=0.000 | full_success_rate=0.200 | timeout_episode_rate=0.000 | total_success=79 | total_collision=100 | total_unresolved=2 | total_full_success=9 | timeout_episodes=2 | success_hist=[14, 22, 15, 9] | collision_hist=[10, 13, 24, 13]
+Case summary:
+  三车同向错峰_轻追越 | episodes=10 | success_rate=0.167 | collision_rate=0.833 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=19.3 | avg_final_distance=2.171
+  三车目标汇合_轻聚集 | episodes=10 | success_rate=0.900 | collision_rate=0.133 | unresolved_rate=0.000 | full_success_rate=0.700 | timeout_rate=0.000 | avg_env_steps=21.8 | avg_final_distance=0.273
+  三车起点聚集_分散目标 | episodes=10 | success_rate=0.400 | collision_rate=0.600 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=12.9 | avg_final_distance=1.254
+  三车轻交叉_中心错位 | episodes=10 | success_rate=0.200 | collision_rate=0.800 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=17.8 | avg_final_distance=1.416
+  三车轻对穿_横向留距 | episodes=10 | success_rate=0.500 | collision_rate=0.467 | unresolved_rate=0.033 | full_success_rate=0.200 | timeout_rate=0.100 | avg_env_steps=52.4 | avg_final_distance=0.938
+  三车靠墙会车_轻错位 | episodes=10 | success_rate=0.467 | collision_rate=0.500 | unresolved_rate=0.033 | full_success_rate=0.000 | timeout_rate=0.100 | avg_env_steps=107.5 | avg_final_distance=1.162
+Episode 61 complete | case=三车轻交叉_中心错位 | env_steps=2328 | agent_samples=3684 | episode_env_steps=11 | episode_agent_samples=31 | mean_reward=-77.242 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.715 | samples/sec=13.533
+Episode 62 complete | case=三车轻对穿_横向留距 | env_steps=2356 | agent_samples=3730 | episode_env_steps=28 | episode_agent_samples=46 | mean_reward=-0.746 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.373 | samples/sec=7.636
+Episode 63 complete | case=三车目标汇合_轻聚集 | env_steps=2375 | agent_samples=3772 | episode_env_steps=19 | episode_agent_samples=42 | mean_reward=119.846 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.273 | samples/sec=10.566
+Episode 64 complete | case=三车起点聚集_分散目标 | env_steps=2385 | agent_samples=3786 | episode_env_steps=10 | episode_agent_samples=14 | mean_reward=-24.175 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.355 | samples/sec=6.590
+Episode 65 complete | case=三车同向错峰_轻追越 | env_steps=2403 | agent_samples=3821 | episode_env_steps=18 | episode_agent_samples=35 | mean_reward=-6.656 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.607 | samples/sec=9.261
+Episode 66 complete | case=三车靠墙会车_轻错位 | env_steps=2446 | agent_samples=3915 | episode_env_steps=43 | episode_agent_samples=94 | mean_reward=-4.288 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.585 | samples/sec=10.305
+Episode 67 complete | case=三车轻交叉_中心错位 | env_steps=2455 | agent_samples=3940 | episode_env_steps=9 | episode_agent_samples=25 | mean_reward=-79.321 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.752 | samples/sec=13.197
+Episode 68 complete | case=三车轻对穿_横向留距 | env_steps=2476 | agent_samples=3975 | episode_env_steps=21 | episode_agent_samples=35 | mean_reward=-4.325 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.546 | samples/sec=7.906
+Episode 69 complete | case=三车目标汇合_轻聚集 | env_steps=2487 | agent_samples=4002 | episode_env_steps=11 | episode_agent_samples=27 | mean_reward=121.477 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.222 | samples/sec=11.715
+Episode 70 complete | case=三车起点聚集_分散目标 | env_steps=2499 | agent_samples=4016 | episode_env_steps=12 | episode_agent_samples=14 | mean_reward=-24.554 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.376 | samples/sec=5.525
+Recent 10 episodes | avg_reward=2.002 | success_rate=0.400 | collision_rate=0.600 | unresolved_rate=0.000 | full_success_rate=0.200 | timeout_episode_rate=0.000 | total_success=91 | total_collision=118 | total_unresolved=2 | total_full_success=11 | timeout_episodes=2 | success_hist=[16, 28, 15, 11] | collision_hist=[12, 13, 30, 15]
+Case summary:
+  三车同向错峰_轻追越 | episodes=11 | success_rate=0.182 | collision_rate=0.818 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=19.2 | avg_final_distance=2.120
+  三车目标汇合_轻聚集 | episodes=12 | success_rate=0.917 | collision_rate=0.111 | unresolved_rate=0.000 | full_success_rate=0.750 | timeout_rate=0.000 | avg_env_steps=20.7 | avg_final_distance=0.269
+  三车起点聚集_分散目标 | episodes=12 | success_rate=0.389 | collision_rate=0.611 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=12.6 | avg_final_distance=1.273
+  三车轻交叉_中心错位 | episodes=12 | success_rate=0.167 | collision_rate=0.833 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=16.5 | avg_final_distance=1.469
+  三车轻对穿_横向留距 | episodes=12 | success_rate=0.472 | collision_rate=0.500 | unresolved_rate=0.028 | full_success_rate=0.167 | timeout_rate=0.083 | avg_env_steps=47.8 | avg_final_distance=1.025
+  三车靠墙会车_轻错位 | episodes=11 | success_rate=0.455 | collision_rate=0.515 | unresolved_rate=0.030 | full_success_rate=0.000 | timeout_rate=0.091 | avg_env_steps=101.6 | avg_final_distance=1.200
+Episode 71 complete | case=三车同向错峰_轻追越 | env_steps=2505 | agent_samples=4029 | episode_env_steps=6 | episode_agent_samples=13 | mean_reward=-91.987 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=2.483 | samples/sec=10.260
+Episode 72 complete | case=三车靠墙会车_轻错位 | env_steps=2553 | agent_samples=4128 | episode_env_steps=48 | episode_agent_samples=99 | mean_reward=-1.895 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.408 | samples/sec=9.732
+Episode 73 complete | case=三车轻交叉_中心错位 | env_steps=2607 | agent_samples=4204 | episode_env_steps=54 | episode_agent_samples=76 | mean_reward=-2.171 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.184 | samples/sec=6.606
+Episode 74 complete | case=三车轻对穿_横向留距 | env_steps=2638 | agent_samples=4278 | episode_env_steps=31 | episode_agent_samples=74 | mean_reward=155.709 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.255 | samples/sec=11.140
+Episode 75 complete | case=三车目标汇合_轻聚集 | env_steps=2656 | agent_samples=4317 | episode_env_steps=18 | episode_agent_samples=39 | mean_reward=120.335 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.262 | samples/sec=10.249
+Episode 76 complete | case=三车起点聚集_分散目标 | env_steps=2666 | agent_samples=4330 | episode_env_steps=10 | episode_agent_samples=13 | mean_reward=-25.078 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.414 | samples/sec=6.176
+Episode 77 complete | case=三车同向错峰_轻追越 | env_steps=2693 | agent_samples=4365 | episode_env_steps=27 | episode_agent_samples=35 | mean_reward=-13.152 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.906 | samples/sec=6.133
+Episode 78 complete | case=三车靠墙会车_轻错位 | env_steps=2763 | agent_samples=4488 | episode_env_steps=70 | episode_agent_samples=123 | mean_reward=159.496 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.231 | samples/sec=8.305
+Episode 79 complete | case=三车轻交叉_中心错位 | env_steps=2790 | agent_samples=4545 | episode_env_steps=27 | episode_agent_samples=57 | mean_reward=74.798 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.750 | samples/sec=10.021
+Episode 80 complete | case=三车轻对穿_横向留距 | env_steps=2815 | agent_samples=4603 | episode_env_steps=25 | episode_agent_samples=58 | mean_reward=74.848 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.908 | samples/sec=11.056
+Recent 10 episodes | avg_reward=45.090 | success_rate=0.567 | collision_rate=0.433 | unresolved_rate=0.000 | full_success_rate=0.300 | timeout_episode_rate=0.000 | total_success=108 | total_collision=131 | total_unresolved=2 | total_full_success=14 | timeout_episodes=2 | success_hist=[17, 32, 17, 14] | collision_hist=[15, 15, 34, 16]
+Case summary:
+  三车同向错峰_轻追越 | episodes=13 | success_rate=0.179 | collision_rate=0.821 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=18.8 | avg_final_distance=2.132
+  三车目标汇合_轻聚集 | episodes=13 | success_rate=0.923 | collision_rate=0.103 | unresolved_rate=0.000 | full_success_rate=0.769 | timeout_rate=0.000 | avg_env_steps=20.5 | avg_final_distance=0.268
+  三车起点聚集_分散目标 | episodes=13 | success_rate=0.385 | collision_rate=0.615 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=12.4 | avg_final_distance=1.284
+  三车轻交叉_中心错位 | episodes=14 | success_rate=0.214 | collision_rate=0.786 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=19.9 | avg_final_distance=1.397
+  三车轻对穿_横向留距 | episodes=14 | success_rate=0.524 | collision_rate=0.452 | unresolved_rate=0.024 | full_success_rate=0.214 | timeout_rate=0.071 | avg_env_steps=44.9 | avg_final_distance=0.962
+  三车靠墙会车_轻错位 | episodes=13 | success_rate=0.487 | collision_rate=0.487 | unresolved_rate=0.026 | full_success_rate=0.077 | timeout_rate=0.077 | avg_env_steps=95.1 | avg_final_distance=1.142
+Episode 81 complete | case=三车目标汇合_轻聚集 | env_steps=2848 | agent_samples=4665 | episode_env_steps=33 | episode_agent_samples=62 | mean_reward=51.027 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.315 | samples/sec=8.898
+Episode 82 complete | case=三车起点聚集_分散目标 | env_steps=2860 | agent_samples=4686 | episode_env_steps=12 | episode_agent_samples=21 | mean_reward=-22.034 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.254 | samples/sec=8.292
+Episode 83 complete | case=三车同向错峰_轻追越 | env_steps=2868 | agent_samples=4702 | episode_env_steps=8 | episode_agent_samples=16 | mean_reward=-89.217 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=2.351 | samples/sec=9.425
+Episode 84 complete | case=三车靠墙会车_轻错位 | env_steps=2917 | agent_samples=4816 | episode_env_steps=49 | episode_agent_samples=114 | mean_reward=67.894 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.252 | samples/sec=10.932
+Episode 85 complete | case=三车轻交叉_中心错位 | env_steps=2927 | agent_samples=4845 | episode_env_steps=10 | episode_agent_samples=29 | mean_reward=-78.402 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.748 | samples/sec=13.611
+Episode 86 complete | case=三车轻对穿_横向留距 | env_steps=2953 | agent_samples=4916 | episode_env_steps=26 | episode_agent_samples=71 | mean_reward=155.274 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.242 | samples/sec=13.029
+Episode 87 complete | case=三车目标汇合_轻聚集 | env_steps=2970 | agent_samples=4950 | episode_env_steps=17 | episode_agent_samples=34 | mean_reward=120.302 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.284 | samples/sec=9.378
+Episode 88 complete | case=三车起点聚集_分散目标 | env_steps=2997 | agent_samples=4990 | episode_env_steps=27 | episode_agent_samples=40 | mean_reward=53.835 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.782 | samples/sec=7.008
+Episode 89 complete | case=三车同向错峰_轻追越 | env_steps=3010 | agent_samples=5016 | episode_env_steps=13 | episode_agent_samples=26 | mean_reward=-81.115 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.964 | samples/sec=9.518
+Episode 90 complete | case=三车靠墙会车_轻错位 | env_steps=3167 | agent_samples=5228 | episode_env_steps=157 | episode_agent_samples=212 | mean_reward=159.330 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.247 | samples/sec=6.385
+Recent 10 episodes | avg_reward=33.689 | success_rate=0.533 | collision_rate=0.467 | unresolved_rate=0.000 | full_success_rate=0.300 | timeout_episode_rate=0.000 | total_success=124 | total_collision=145 | total_unresolved=2 | total_full_success=17 | timeout_episodes=2 | success_hist=[20, 33, 20, 17] | collision_hist=[18, 18, 35, 19]
+Case summary:
+  三车同向错峰_轻追越 | episodes=15 | success_rate=0.156 | collision_rate=0.844 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=17.7 | avg_final_distance=2.135
+  三车目标汇合_轻聚集 | episodes=15 | success_rate=0.911 | collision_rate=0.111 | unresolved_rate=0.000 | full_success_rate=0.733 | timeout_rate=0.000 | avg_env_steps=21.1 | avg_final_distance=0.272
+  三车起点聚集_分散目标 | episodes=15 | success_rate=0.400 | collision_rate=0.600 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=13.3 | avg_final_distance=1.248
+  三车轻交叉_中心错位 | episodes=15 | success_rate=0.200 | collision_rate=0.800 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=19.3 | avg_final_distance=1.421
+  三车轻对穿_横向留距 | episodes=15 | success_rate=0.556 | collision_rate=0.422 | unresolved_rate=0.022 | full_success_rate=0.267 | timeout_rate=0.067 | avg_env_steps=43.7 | avg_final_distance=0.914
+  三车靠墙会车_轻错位 | episodes=15 | success_rate=0.533 | collision_rate=0.444 | unresolved_rate=0.022 | full_success_rate=0.133 | timeout_rate=0.067 | avg_env_steps=96.1 | avg_final_distance=1.089
+Episode 91 complete | case=三车轻交叉_中心错位 | env_steps=3190 | agent_samples=5269 | episode_env_steps=23 | episode_agent_samples=41 | mean_reward=-4.611 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.414 | samples/sec=8.344
+Episode 92 complete | case=三车轻对穿_横向留距 | env_steps=3221 | agent_samples=5353 | episode_env_steps=31 | episode_agent_samples=84 | mean_reward=155.961 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.203 | samples/sec=12.815
+Episode 93 complete | case=三车目标汇合_轻聚集 | env_steps=3242 | agent_samples=5399 | episode_env_steps=21 | episode_agent_samples=46 | mean_reward=120.405 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.224 | samples/sec=10.087
+Episode 94 complete | case=三车起点聚集_分散目标 | env_steps=3248 | agent_samples=5412 | episode_env_steps=6 | episode_agent_samples=13 | mean_reward=-95.154 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.540 | samples/sec=10.290
+Episode 95 complete | case=三车同向错峰_轻追越 | env_steps=3275 | agent_samples=5447 | episode_env_steps=27 | episode_agent_samples=35 | mean_reward=-11.181 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.810 | samples/sec=6.031
+Episode 96 complete | case=三车靠墙会车_轻错位 | env_steps=3326 | agent_samples=5554 | episode_env_steps=51 | episode_agent_samples=107 | mean_reward=75.613 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.038 | samples/sec=9.848
+Episode 97 complete | case=三车轻交叉_中心错位 | env_steps=3368 | agent_samples=5617 | episode_env_steps=42 | episode_agent_samples=63 | mean_reward=-4.247 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.299 | samples/sec=7.080
+Episode 98 complete | case=三车轻对穿_横向留距 | env_steps=3394 | agent_samples=5661 | episode_env_steps=26 | episode_agent_samples=44 | mean_reward=0.529 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.337 | samples/sec=7.933
+Episode 99 complete | case=三车目标汇合_轻聚集 | env_steps=3406 | agent_samples=5689 | episode_env_steps=12 | episode_agent_samples=28 | mean_reward=121.531 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.276 | samples/sec=11.066
+Episode 100 complete | case=三车起点聚集_分散目标 | env_steps=3418 | agent_samples=5705 | episode_env_steps=12 | episode_agent_samples=16 | mean_reward=-24.167 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.390 | samples/sec=6.199
+Recent 10 episodes | avg_reward=33.468 | success_rate=0.533 | collision_rate=0.467 | unresolved_rate=0.000 | full_success_rate=0.300 | timeout_episode_rate=0.000 | total_success=140 | total_collision=159 | total_unresolved=2 | total_full_success=20 | timeout_episodes=2 | success_hist=[21, 38, 21, 20] | collision_hist=[21, 19, 40, 20]
+Case summary:
+  三车同向错峰_轻追越 | episodes=16 | success_rate=0.167 | collision_rate=0.833 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=18.2 | avg_final_distance=2.115
+  三车目标汇合_轻聚集 | episodes=17 | success_rate=0.922 | collision_rate=0.098 | unresolved_rate=0.000 | full_success_rate=0.765 | timeout_rate=0.000 | avg_env_steps=20.5 | avg_final_distance=0.270
+  三车起点聚集_分散目标 | episodes=17 | success_rate=0.373 | collision_rate=0.627 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=12.8 | avg_final_distance=1.274
+  三车轻交叉_中心错位 | episodes=17 | success_rate=0.216 | collision_rate=0.784 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=20.8 | avg_final_distance=1.413
+  三车轻对穿_横向留距 | episodes=17 | success_rate=0.569 | collision_rate=0.412 | unresolved_rate=0.020 | full_success_rate=0.294 | timeout_rate=0.059 | avg_env_steps=41.9 | avg_final_distance=0.897
+  三车靠墙会车_轻错位 | episodes=16 | success_rate=0.542 | collision_rate=0.438 | unresolved_rate=0.021 | full_success_rate=0.125 | timeout_rate=0.062 | avg_env_steps=93.3 | avg_final_distance=1.086
+Episode 101 complete | case=三车同向错峰_轻追越 | env_steps=3424 | agent_samples=5718 | episode_env_steps=6 | episode_agent_samples=13 | mean_reward=-91.875 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=2.495 | samples/sec=10.245
+Episode 102 complete | case=三车靠墙会车_轻错位 | env_steps=3475 | agent_samples=5805 | episode_env_steps=51 | episode_agent_samples=87 | mean_reward=-6.264 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.718 | samples/sec=8.083
+Episode 103 complete | case=三车轻交叉_中心错位 | env_steps=3531 | agent_samples=5880 | episode_env_steps=56 | episode_agent_samples=75 | mean_reward=-1.516 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.248 | samples/sec=6.391
+Episode 104 complete | case=三车轻对穿_横向留距 | env_steps=3567 | agent_samples=5954 | episode_env_steps=36 | episode_agent_samples=74 | mean_reward=11.110 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.807 | samples/sec=9.757
+Episode 105 complete | case=三车目标汇合_轻聚集 | env_steps=3593 | agent_samples=6017 | episode_env_steps=26 | episode_agent_samples=63 | mean_reward=-16.490 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.374 | samples/sec=11.473
+Episode 106 complete | case=三车起点聚集_分散目标 | env_steps=3604 | agent_samples=6032 | episode_env_steps=11 | episode_agent_samples=15 | mean_reward=-24.643 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.394 | samples/sec=6.448
+Episode 107 complete | case=三车同向错峰_轻追越 | env_steps=3633 | agent_samples=6085 | episode_env_steps=29 | episode_agent_samples=53 | mean_reward=-5.896 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.578 | samples/sec=8.576
+Episode 108 complete | case=三车靠墙会车_轻错位 | env_steps=3746 | agent_samples=6248 | episode_env_steps=113 | episode_agent_samples=163 | mean_reward=85.737 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.543 | samples/sec=6.849
+Episode 109 complete | case=三车轻交叉_中心错位 | env_steps=3764 | agent_samples=6298 | episode_env_steps=18 | episode_agent_samples=50 | mean_reward=-74.022 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.423 | samples/sec=13.109
+Episode 110 complete | case=三车轻对穿_横向留距 | env_steps=3794 | agent_samples=6366 | episode_env_steps=30 | episode_agent_samples=68 | mean_reward=85.035 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.459 | samples/sec=10.741
+Recent 10 episodes | avg_reward=-3.882 | success_rate=0.333 | collision_rate=0.667 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_episode_rate=0.000 | total_success=150 | total_collision=179 | total_unresolved=2 | total_full_success=20 | timeout_episodes=2 | success_hist=[23, 44, 23, 20] | collision_hist=[21, 21, 46, 22]
+Case summary:
+  三车同向错峰_轻追越 | episodes=18 | success_rate=0.167 | collision_rate=0.833 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=18.2 | avg_final_distance=2.106
+  三车目标汇合_轻聚集 | episodes=18 | success_rate=0.889 | collision_rate=0.130 | unresolved_rate=0.000 | full_success_rate=0.722 | timeout_rate=0.000 | avg_env_steps=20.8 | avg_final_distance=0.276
+  三车起点聚集_分散目标 | episodes=18 | success_rate=0.370 | collision_rate=0.630 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=12.7 | avg_final_distance=1.280
+  三车轻交叉_中心错位 | episodes=19 | success_rate=0.211 | collision_rate=0.789 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=22.5 | avg_final_distance=1.405
+  三车轻对穿_横向留距 | episodes=19 | success_rate=0.561 | collision_rate=0.421 | unresolved_rate=0.018 | full_success_rate=0.263 | timeout_rate=0.053 | avg_env_steps=40.9 | avg_final_distance=0.869
+  三车靠墙会车_轻错位 | episodes=18 | success_rate=0.537 | collision_rate=0.444 | unresolved_rate=0.019 | full_success_rate=0.111 | timeout_rate=0.056 | avg_env_steps=92.1 | avg_final_distance=1.091
+Episode 111 complete | case=三车目标汇合_轻聚集 | env_steps=3814 | agent_samples=6404 | episode_env_steps=20 | episode_agent_samples=38 | mean_reward=120.121 | success=3/3 | collision=0/3 | unresolved=0/3 | full_success=1 | timeout=0 | mean_final_distance=0.282 | samples/sec=9.026
+Episode 112 complete | case=三车起点聚集_分散目标 | env_steps=3825 | agent_samples=6418 | episode_env_steps=11 | episode_agent_samples=14 | mean_reward=-24.571 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.408 | samples/sec=6.041
+Episode 113 complete | case=三车同向错峰_轻追越 | env_steps=3856 | agent_samples=6458 | episode_env_steps=31 | episode_agent_samples=40 | mean_reward=-11.585 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.845 | samples/sec=6.119
+Episode 114 complete | case=三车靠墙会车_轻错位 | env_steps=3905 | agent_samples=6559 | episode_env_steps=49 | episode_agent_samples=101 | mean_reward=0.561 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.414 | samples/sec=9.688
+Episode 115 complete | case=三车轻交叉_中心错位 | env_steps=3915 | agent_samples=6588 | episode_env_steps=10 | episode_agent_samples=29 | mean_reward=-77.942 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.708 | samples/sec=13.736
+Episode 116 complete | case=三车轻对穿_横向留距 | env_steps=3937 | agent_samples=6627 | episode_env_steps=22 | episode_agent_samples=39 | mean_reward=-2.833 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.405 | samples/sec=8.393
+Episode 117 complete | case=三车目标汇合_轻聚集 | env_steps=3950 | agent_samples=6657 | episode_env_steps=13 | episode_agent_samples=30 | mean_reward=54.706 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.297 | samples/sec=10.883
+Episode 118 complete | case=三车起点聚集_分散目标 | env_steps=3960 | agent_samples=6669 | episode_env_steps=10 | episode_agent_samples=12 | mean_reward=-25.151 | success=1/3 | collision=2/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=1.429 | samples/sec=5.647
+Episode 119 complete | case=三车同向错峰_轻追越 | env_steps=3967 | agent_samples=6684 | episode_env_steps=7 | episode_agent_samples=15 | mean_reward=-89.843 | success=0/3 | collision=3/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=2.394 | samples/sec=10.099
+Episode 120 complete | case=三车靠墙会车_轻错位 | env_steps=4028 | agent_samples=6818 | episode_env_steps=61 | episode_agent_samples=134 | mean_reward=75.397 | success=2/3 | collision=1/3 | unresolved=0/3 | full_success=0 | timeout=0 | mean_final_distance=0.958 | samples/sec=10.397
+Recent 10 episodes | avg_reward=1.886 | success_rate=0.400 | collision_rate=0.600 | unresolved_rate=0.000 | full_success_rate=0.100 | timeout_episode_rate=0.000 | total_success=162 | total_collision=197 | total_unresolved=2 | total_full_success=21 | timeout_episodes=2 | success_hist=[25, 49, 25, 21] | collision_hist=[22, 23, 51, 24]
+Case summary:
+  三车同向错峰_轻追越 | episodes=20 | success_rate=0.167 | collision_rate=0.833 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=18.2 | avg_final_distance=2.107
+  三车目标汇合_轻聚集 | episodes=20 | success_rate=0.883 | collision_rate=0.133 | unresolved_rate=0.000 | full_success_rate=0.700 | timeout_rate=0.000 | avg_env_steps=20.4 | avg_final_distance=0.277
+  三车起点聚集_分散目标 | episodes=20 | success_rate=0.367 | collision_rate=0.633 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=12.5 | avg_final_distance=1.294
+  三车轻交叉_中心错位 | episodes=20 | success_rate=0.200 | collision_rate=0.800 | unresolved_rate=0.000 | full_success_rate=0.000 | timeout_rate=0.000 | avg_env_steps=21.9 | avg_final_distance=1.420
+  三车轻对穿_横向留距 | episodes=20 | success_rate=0.550 | collision_rate=0.433 | unresolved_rate=0.017 | full_success_rate=0.250 | timeout_rate=0.050 | avg_env_steps=40.0 | avg_final_distance=0.896
+  三车靠墙会车_轻错位 | episodes=20 | success_rate=0.533 | collision_rate=0.450 | unresolved_rate=0.017 | full_success_rate=0.100 | timeout_rate=0.050 | avg_env_steps=88.3 | avg_final_distance=1.101
+Target test episodes reached | episode_num=120 | target=120
+... logging to /home/jiutian/.ros/log/b971a5a8-62e0-11f1-836a-bd1fee3d6233/roslaunch-JiuTian-AI4090-471738.log
+Checking log directory for disk usage. This may take a while.
+Press Ctrl-C to interrupt
+Done checking log file disk usage. Usage is <1GB.
+]2;/home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3/assets/multi_robot_scenario_curriculum_test_stage2b_three_light_dense_3.launch
+[1mstarted roslaunch server http://localhost:42995/[0m
+
+SUMMARY
+========
+
+PARAMETERS
+ * /robot_description_r1: <?xml version="1....
+ * /robot_description_r2: <?xml version="1....
+ * /robot_description_r3: <?xml version="1....
+ * /rosdistro: noetic
+ * /rosversion: 1.17.4
+ * /use_sim_time: True
+
+NODES
+  /
+    gazebo (gazebo_ros/gzserver)
+    urdf_spawner_r1 (gazebo_ros/spawn_model)
+    urdf_spawner_r2 (gazebo_ros/spawn_model)
+    urdf_spawner_r3 (gazebo_ros/spawn_model)
+
+[1mROS_MASTER_URI=http://localhost:11368/[0m
+]2;/home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3/assets/multi_robot_scenario_curriculum_test_stage2b_three_light_dense_3.launch http://localhost:11368/
+[1mprocess[gazebo-1]: started with pid [471891][0m
+[1mprocess[urdf_spawner_r1-2]: started with pid [471894][0m
+[1mprocess[urdf_spawner_r2-3]: started with pid [471897][0m
+[1mprocess[urdf_spawner_r3-4]: started with pid [471898][0m
+[1m[urdf_spawner_r1-2] process has finished cleanly
+log file: /home/jiutian/.ros/log/b971a5a8-62e0-11f1-836a-bd1fee3d6233/urdf_spawner_r1-2*.log[0m
+[1m[urdf_spawner_r2-3] process has finished cleanly
+log file: /home/jiutian/.ros/log/b971a5a8-62e0-11f1-836a-bd1fee3d6233/urdf_spawner_r2-3*.log[0m
+[1m[urdf_spawner_r3-4] process has finished cleanly
+log file: /home/jiutian/.ros/log/b971a5a8-62e0-11f1-836a-bd1fee3d6233/urdf_spawner_r3-4*.log[0m
+[gazebo-1] killing on exit
+shutting down processing monitor...
+... shutting down processing monitor complete
+[1mdone[0m
+... logging to /home/jiutian/.ros/log/b971a5a8-62e0-11f1-836a-bd1fee3d6233/roslaunch-JiuTian-AI4090-471708.log
+Checking log directory for disk usage. This may take a while.
+Press Ctrl-C to interrupt
+Done checking log file disk usage. Usage is <1GB.
+]2;roscore
+[1mstarted roslaunch server http://localhost:42181/[0m
+ros_comm version 1.17.4
+
+
+SUMMARY
+========
+
+PARAMETERS
+ * /rosdistro: noetic
+ * /rosversion: 1.17.4
+
+NODES
+
+auto-starting new master
+[1mprocess[master]: started with pid [471718][0m
+[1mROS_MASTER_URI=http://localhost:11368/[0m
+]2;roscore http://localhost:11368/
+[1msetting /run_id to b971a5a8-62e0-11f1-836a-bd1fee3d6233[0m
+[1mprocess[rosout-1]: started with pid [471729][0m
+started core service [/rosout]
+[rosout-1] killing on exit
+[master] killing on exit
+shutting down processing monitor...
+... shutting down processing monitor complete
+[1mdone[0m
