@@ -54,11 +54,26 @@
 当前有效训练日志：
 
 - `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260609_202936.log`
+- `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260609_210249.log`
+- `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260609_214533.log`
 
 补充判断：
 
 - 第一版 `stage3_asym_three_5` 虽然已经去掉强对称，但三车同时进入冲突区的程度仍然偏高
 - 因此后续把第二级进一步改成“主冲突双车 + 第三车弱介入”的 softer 版本，再重新训练
+
+后续两次实验结论：
+
+- `20260609_210249`：
+  - actor 长时间未解冻
+  - 训练大部分时间仍在沿用旧策略
+  - 说明这个版本无法判断第三课程是否真的学得动
+
+- `20260609_214533`：
+  - 提前解冻 actor 后，训练前段尚能维持 `2/5`、`3/5`
+  - actor 解冻后很快退化为大量 `0/5`、`1/5`
+  - `Eval Epoch 1` 下降到 success `0.021`、collision `0.787`、full success `0.000`
+  - 说明当前主要问题已经不是 case 是否还不够非对称，而是 actor 在 `pair -> three` 阶段更新时快速退化
 
 ## 当前结论
 
@@ -68,3 +83,13 @@
 2. 再决定是否需要进一步逼近对称强冲突
 
 也就是说，对称 hardest case 更适合作为边界测试，而不是课程起点。
+
+## 当前下一步
+
+第三课程的下一步不再是继续加难 case，也不再直接推进更强对称密集。
+
+当前唯一主线问题是：
+
+- 如何让 actor 在 `stage3_asym_three_5` 中更新而不快速遗忘 `stage3_asym_pair_5` 的已有能力
+
+因此下一步应只围绕“actor 更新稳定性”做实验，而不是继续扩展 case 难度。
