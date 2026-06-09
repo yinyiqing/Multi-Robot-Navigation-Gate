@@ -1,0 +1,72 @@
+{
+  "name": "stage2_pairwise_to_dense_5_cases",
+  "description": "Second curriculum restart: five-agent environment with only two or three active conflict participants, asymmetric timing by geometry, and non-conflicting retention paths for the rest.",
+  "cases": [
+    {
+      "name": "pair_offset_head_on_with_far_retention",
+      "weight": 1.4,
+      "agents": {
+        "r1": {"start": [-1.9, -0.35], "goal": [1.7, -0.05]},
+        "r2": {"start": [1.45, 0.30], "goal": [-1.8, 0.05]},
+        "r3": {"start": [-1.8, 1.65], "goal": [-0.6, 1.65]},
+        "r4": {"start": [1.8, -1.65], "goal": [0.6, -1.65]},
+        "r5": {"start": [0.0, 2.1], "goal": [0.0, 1.2]}
+      }
+    },
+    {
+      "name": "pair_perpendicular_staggered_with_retention",
+      "weight": 1.4,
+      "agents": {
+        "r1": {"start": [-1.9, -0.20], "goal": [1.8, -0.20]},
+        "r2": {"start": [0.25, -1.35], "goal": [0.25, 1.85]},
+        "r3": {"start": [-1.7, 1.55], "goal": [-0.5, 1.55]},
+        "r4": {"start": [1.7, -1.55], "goal": [0.5, -1.55]},
+        "r5": {"start": [1.9, 1.15], "goal": [0.8, 1.15]}
+      }
+    },
+    {
+      "name": "pair_goal_merge_offset_with_retention",
+      "weight": 1.2,
+      "agents": {
+        "r1": {"start": [-1.9, -0.85], "goal": [-0.25, 0.10]},
+        "r2": {"start": [1.55, 0.75], "goal": [0.45, 0.10]},
+        "r3": {"start": [-1.7, 1.55], "goal": [-0.7, 1.55]},
+        "r4": {"start": [1.8, -1.55], "goal": [0.7, -1.55]},
+        "r5": {"start": [0.0, 2.05], "goal": [0.0, 1.25]}
+      }
+    },
+    {
+      "name": "pair_wall_parallel_offset_with_retention",
+      "weight": 1.2,
+      "agents": {
+        "r1": {"start": [1.05, 2.75], "goal": [4.15, 2.75]},
+        "r2": {"start": [1.95, 3.25], "goal": [4.35, 3.25]},
+        "r3": {"start": [-1.6, -0.9], "goal": [-0.4, -0.9]},
+        "r4": {"start": [-1.7, 1.35], "goal": [-0.6, 1.35]},
+        "r5": {"start": [0.5, -1.7], "goal": [1.5, -1.7]}
+      }
+    },
+    {
+      "name": "three_way_light_asymmetric",
+      "weight": 0.9,
+      "agents": {
+        "r1": {"start": [-1.9, -0.30], "goal": [1.8, -0.10]},
+        "r2": {"start": [1.35, 0.35], "goal": [-1.75, 0.10]},
+        "r3": {"start": [0.40, -1.55], "goal": [0.40, 1.75]},
+        "r4": {"start": [-1.8, 1.65], "goal": [-0.7, 1.65]},
+        "r5": {"start": [1.8, -1.65], "goal": [0.7, -1.65]}
+      }
+    },
+    {
+      "name": "three_goal_cluster_light_asymmetric",
+      "weight": 0.8,
+      "agents": {
+        "r1": {"start": [-1.8, -0.9], "goal": [-0.35, 0.15]},
+        "r2": {"start": [1.6, -0.65], "goal": [0.35, 0.15]},
+        "r3": {"start": [0.25, 1.65], "goal": [0.0, 0.75]},
+        "r4": {"start": [-1.8, 1.65], "goal": [-0.8, 1.65]},
+        "r5": {"start": [1.8, 1.45], "goal": [0.9, 1.45]}
+      }
+    }
+  ]
+}
