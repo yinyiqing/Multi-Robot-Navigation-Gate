@@ -324,6 +324,17 @@ class MultiAgentGazeboEnv:
                 raise ValueError(
                     f"Curriculum case {idx} is missing agents: {', '.join(missing)}"
                 )
+            for name in self.agent_names:
+                for key in ("start", "goal"):
+                    pos = case["agents"][name].get(key)
+                    if not isinstance(pos, list) or len(pos) != 2:
+                        raise ValueError(
+                            f"Curriculum case {idx} agent {name} {key} must be [x, y]"
+                        )
+                    if not check_pos(float(pos[0]), float(pos[1])):
+                        raise ValueError(
+                            f"Curriculum case {idx} agent {name} {key}={pos} is invalid in the map"
+                        )
             normalized.append(case)
         return normalized
 
