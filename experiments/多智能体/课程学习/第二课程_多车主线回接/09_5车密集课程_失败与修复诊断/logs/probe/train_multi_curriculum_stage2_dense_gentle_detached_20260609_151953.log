@@ -1,0 +1,384 @@
+Activated DRL robot navigation Python environment.
+Python: Python 3.8.10
+Venv: /home/jiutian/venvs/drl-robot-nav
+Curriculum scenario enabled: 4 cases loaded
+Roscore launched!
+Gazebo launched!
+[31mRLException: roscore cannot run as another roscore/master is already running. 
+Please kill other roscore/master processes before relaunching.
+The ROS_MASTER_URI is http://localhost:11391/[0m
+[31mThe traceback for the exception was written to the log file[0m
+... logging to /home/jiutian/.ros/log/029e24d6-5fb7-11f1-836a-bd1fee3d6233/roslaunch-JiuTian-AI4090-3389547.log
+Checking log directory for disk usage. This may take a while.
+Press Ctrl-C to interrupt
+Done checking log file disk usage. Usage is <1GB.
+]2;roscore
+[1mstarted roslaunch server http://localhost:38371/[0m
+ros_comm version 1.17.4
+
+
+SUMMARY
+========
+
+PARAMETERS
+ * /rosdistro: noetic
+ * /rosversion: 1.17.4
+
+NODES
+
+INFO: cannot create a symlink to latest log directory: [Errno 2] No such file or directory: '/home/jiutian/.ros/log/latest'
+INFO: cannot create a symlink to latest log directory: [Errno 2] No such file or directory: '/home/jiutian/.ros/log/latest'
+INFO: cannot create a symlink to latest log directory
+[WARN] [1780989595.741302, 0.000000]: wait_for_service(/gazebo/spawn_urdf_model): failed to contact, will keep trying
+[INFO] [1780989595.736760, 0.000000]: Loading model XML from ros parameter robot_description_r2
+[INFO] [1780989595.739727, 0.000000]: Waiting for service /gazebo/spawn_urdf_model
+[INFO] [1780989596.042194, 0.218000]: wait_for_service(/gazebo/spawn_urdf_model): finally were able to contact [rosrpc://localhost:51089]
+[INFO] [1780989596.042626, 0.219000]: Calling service /gazebo/spawn_urdf_model
+[INFO] [1780989596.895584, 0.366000]: Spawn status: SpawnModel: Successfully spawned entity
+[WARN] [1780989597.006599969, 0.366000000]: GazeboRosDiffDrive Plugin (ns = ) missing <publishTf>, defaults to 1
+[INFO] [1780989595.897324066]: Finished loading Gazebo ROS API Plugin.
+[INFO] [1780989595.897840055]: waitForService: Service [/gazebo/set_physics_properties] has not been advertised, waiting...
+[INFO] [1780989596.020661614]: waitForService: Service [/gazebo/set_physics_properties] is now available.
+[INFO] [1780989596.030528788, 0.207000000]: Physics dynamic reconfigure ready.
+[INFO] [1780989596.297294385, 0.366000000]: Laser Plugin: The 'robotNamespace' param was empty
+[INFO] [1780989596.297312003, 0.366000000]: Starting Laser Plugin (ns = r2)
+[INFO] [1780989596.298326888, 0.366000000]: Laser Plugin (ns = r2)  <tf_prefix_>, set to ""
+[INFO] [1780989596.897106280, 0.366000000]: Velodyne laser plugin missing <min_intensity>, defaults to no clipping
+[INFO] [1780989596.897994626, 0.366000000]: Velodyne laser plugin ready, 16 lasers
+[INFO] [1780989597.006236814, 0.366000000]: Starting plugin DiffDrive(ns = /r2/)
+[INFO] [1780989597.006276746, 0.366000000]: DiffDrive(ns = /r2/): <rosDebugLevel> = Debug
+[INFO] [1780989597.006465362, 0.366000000]: DiffDrive(ns = /r2/): <tf_prefix> = 
+[DEBUG] [1780989597.006481464, 0.366000000]: DiffDrive(ns = /r2/): <commandTopic> = cmd_vel
+[DEBUG] [1780989597.006485876, 0.366000000]: DiffDrive(ns = /r2/): <odometryTopic> = odom
+[DEBUG] [1780989597.006490149, 0.366000000]: DiffDrive(ns = /r2/): <odometryFrame> = odom
+[DEBUG] [1780989597.006494804, 0.366000000]: DiffDrive(ns = /r2/): <robotBaseFrame> = base_link
+[DEBUG] [1780989597.006510686, 0.366000000]: DiffDrive(ns = /r2/): <publishWheelTF> = false
+[DEBUG] [1780989597.006514931, 0.366000000]: DiffDrive(ns = /r2/): <publishOdomTF> = false
+[DEBUG] [1780989597.006518242, 0.366000000]: DiffDrive(ns = /r2/): <publishWheelJointState> = true
+[DEBUG] [1780989597.006537469, 0.366000000]: DiffDrive(ns = /r2/): <wheelSeparation> = 0.29999999999999999
+[DEBUG] [1780989597.006542756, 0.366000000]: DiffDrive(ns = /r2/): <wheelDiameter> = 0.17999999999999999
+[DEBUG] [1780989597.006548029, 0.366000000]: DiffDrive(ns = /r2/): <wheelAcceleration> = 1.8
+[DEBUG] [1780989597.006553140, 0.366000000]: DiffDrive(ns = /r2/): <wheelTorque> = 20
+[DEBUG] [1780989597.006557715, 0.366000000]: DiffDrive(ns = /r2/): <updateRate> = 50
+[DEBUG] [1780989597.006575938, 0.366000000]: DiffDrive(ns = /r2/): <odometrySource> = world := 1
+[DEBUG] [1780989597.006587167, 0.366000000]: DiffDrive(ns = /r2/): <leftJoint> = left_hub_joint
+[DEBUG] [1780989597.006592057, 0.366000000]: DiffDrive(ns = /r2/): <rightJoint> = right_hub_joint
+[INFO] [1780989597.006789625, 0.366000000]: DiffDrive(ns = /r2/): Advertise joint_states
+[INFO] [1780989597.006927703, 0.366000000]: DiffDrive(ns = /r2/): Try to subscribe to cmd_vel
+[INFO] [1780989597.007408034, 0.366000000]: DiffDrive(ns = /r2/): Subscribe to cmd_vel
+[INFO] [1780989597.007594145, 0.366000000]: DiffDrive(ns = /r2/): Advertise odom on odom 
+[INFO] [1780989597.011724592, 0.366000000]: GazeboRosJointStatePublisher is going to publish joint: chassis_swivel_joint
+[INFO] [1780989597.011738961, 0.366000000]: GazeboRosJointStatePublisher is going to publish joint: swivel_wheel_joint
+[INFO] [1780989597.011747311, 0.366000000]: GazeboRosJointStatePublisher is going to publish joint: left_hub_joint
+[INFO] [1780989597.011755634, 0.366000000]: GazeboRosJointStatePublisher is going to publish joint: right_hub_joint
+[INFO] [1780989597.011769218, 0.366000000]: Starting GazeboRosJointStatePublisher Plugin (ns = /r2/)!, parent name: r2
+[DEBUG] [1780989597.037260519, 0.386000000]: Trying to publish message of type [nav_msgs/Odometry/cd5e73d190d741a2f92e81eda573aca7] on a publisher with type [nav_msgs/Odometry/cd5e73d190d741a2f92e81eda573aca7]
+[DEBUG] [1780989597.037292331, 0.387000000]: Trying to publish message of type [sensor_msgs/JointState/3066dcd76a6cfaef579bd0f34173e9fd] on a publisher with type [sensor_msgs/JointState/3066dcd76a6cfaef579bd0f34173e9fd]
+[INFO] [1780989597.291000675, 0.556000000]: Laser Plugin: The 'robotNamespace' param was empty
+[INFO] [1780989597.291016558, 0.556000000]: Starting Laser Plugin (ns = r4)
+[INFO] [1780989597.291631455, 0.556[WARN] [1780989597.899678888, 0.556000000]: GazeboRosDiffDrive Plugin (ns = ) missing <publishTf>, defaults to 1
+[WARN] [1780989595.744688, 0.000000]: wait_for_service(/gazebo/spawn_urdf_model): failed to contact, will keep trying
+[INFO] [1780989595.737473, 0.000000]: Loading model XML from ros parameter robot_description_r4
+[INFO] [1780989595.742934, 0.000000]: Waiting for service /gazebo/spawn_urdf_model
+[INFO] [1780989596.045835, 0.222000]: wait_for_service(/gazebo/spawn_urdf_model): finally were able to contact [rosrpc://localhost:51089]
+[INFO] [1780989596.046379, 0.222000]: Calling service /gazebo/spawn_urdf_model
+[INFO] [1780989597.899085, 0.556000]: Spawn status: SpawnModel: Successfully spawned entity
+000000]: Laser Plugin (ns = r4)  <tf_prefix_>, set to ""
+[INFO] [1780989597.897300502, 0.556000000]: Velodyne laser plugin missing <min_intensity>, defaults to no clipping
+[INFO] [1780989597.897983013, 0.556000000]: Velodyne laser plugin ready, 16 lasers
+[INFO] [1780989597.899222498, 0.556000000]: Starting plugin DiffDrive(ns = /r4/)
+[DEBUG] [1780989597.899230973, 0.556000000]: DiffDrive(ns = /r4/): <rosDebugLevel> = Debug
+[INFO] [1780989597.899240291, 0.556000000]: DiffDrive(ns = /r4/): <rosDebugLevel> = Debug
+[INFO] [1780989597.899595640, 0.556000000]: DiffDrive(ns = /r4/): <tf_prefix> = 
+[DEBUG] [1780989597.899606294, 0.556000000]: DiffDrive(ns = /r4/): <commandTopic> = cmd_vel
+[DEBUG] [1780989597.899611018, 0.556000000]: DiffDrive(ns = /r4/): <odometryTopic> = odom
+[DEBUG] [1780989597.899614676, 0.556000000]: DiffDrive(ns = /r4/): <odometryFrame> = odom
+[DEBUG] [1780989597.899618252, 0.556000000]: DiffDrive(ns = /r4/): <robotBaseFrame> = base_link
+[DEBUG] [1780989597.899622845, 0.556000000]: DiffDrive(ns = /r4/): <publishWheelTF> = false
+[DEBUG] [1780989597.899627987, 0.556000000]: DiffDrive(ns = /r4/): <publishOdomTF> = false
+[DEBUG] [1780989597.899631305, 0.556000000]: DiffDrive(ns = /r4/): <publishWheelJointState> = true
+[DEBUG] [1780989597.899639758, 0.556000000]: DiffDrive(ns = /r4/): <wheelSeparation> = 0.29999999999999999
+[DEBUG] [1780989597.899644344, 0.556000000]: DiffDrive(ns = /r4/): <wheelDiameter> = 0.17999999999999999
+[DEBUG] [1780989597.899648870, 0.556000000]: DiffDrive(ns = /r4/): <wheelAcceleration> = 1.8
+[DEBUG] [1780989597.899653170, 0.556000000]: DiffDrive(ns = /r4/): <wheelTorque> = 20
+[DEBUG] [1780989597.899657863, 0.556000000]: DiffDrive(ns = /r4/): <updateRate> = 50
+[DEBUG] [1780989597.899664826, 0.556000000]: DiffDrive(ns = /r4/): <odometrySource> = world := 1
+[DEBUG] [1780989597.899668818, 0.556000000]: DiffDrive(ns = /r4/): <leftJoint> = left_hub_joint
+[DEBUG] [1780989597.899673132, 0.556000000]: DiffDrive(ns = /r4/): <rightJoint> = right_hub_joint
+[INFO] [1780989597.899863803, 0.556000000]: DiffDrive(ns = /r4/): Advertise joint_states
+[INFO] [1780989597.899881659, 0.556000000]: DiffDrive(ns = /r4/): Try to subscribe to cmd_vel
+[INFO] [1780989597.900541039, 0.556000000]: DiffDrive(ns = /r4/): Subscribe to cmd_vel
+[INFO] [1780989597.900773822, 0.556000000]: DiffDrive(ns = /r4/): Advertise odom on odom 
+[INFO] [1780989597.900837887, 0.556000000]: GazeboRosJointStatePublisher is going to publish joint: chassis_swivel_joint
+[INFO] [1780989597.900841969, 0.556000000]: GazeboRosJointStatePublisher is going to publish joint: swivel_wheel_joint
+[INFO] [1780989597.900846549, 0.556000000]: GazeboRosJointStatePublisher is going to publish joint: left_hub_joint
+[INFO] [1780989597.900850439, 0.556000000]: GazeboRosJointStatePublisher is going to publish joint: right_hub_joint
+[INFO] [1780989597.900854659, 0.556000000]: Starting GazeboRosJointStatePublisher Plugin (ns = /r4/)!, parent name: r4
+[INFO] [1780989598.180553680, 0.725000000]: Laser Plugin: The 'robotNamespace' param was empty
+[INFO] [1780989598.180575613, 0.725000000]: Starting Laser Plugin (ns = r1)
+[INFO] [1780989598.180987210, 0.725000000]: Laser Plugin (ns = r1)  <tf_prefix_>, set to ""
+[INFO] [1780989598.787652875, 0.725000000]: Velodyne laser plugin missing <min_intensity>, defaults to no clipping
+[INFO] [1780989598.788222478, 0.725000000]: Velodyne laser plugin ready, 16 lasers
+[INFO] [1780989598.789692385, 0.725000000]: Starting plugin DiffDrive(ns = /r1/)
+[DEBUG] [1780989598.789702536, 0.725000000]: DiffDrive(ns = /r1/): <rosDebugLevel> = Debug
+[INFO] [1780989598.789712568, 0.725000000]: DiffDrive(ns = /r1/): <rosDebugLevel> = Debug
+[INFO] [1780989598.789889302, 0.725000000]: DiffDrive(ns = /r1/): <tf_prefix> = 
+[DEBUG] [1780989598.789894390, 0.725000000]: DiffDrive(ns = /r1/): <commandTopic> = cmd_vel
+[DEBUG] [1780989598.789898389, 0.725000000]: DiffDrive(ns = /r1/): <odometryTopic> = odom
+[DEBUG] [1780989598.789903765, 0.725000000]: DiffDrive(ns = /r1/): <odometryFrame> = odom
+[DEBUG] [1780989598.789907969, 0.725000000]: DiffDrive([WARN] [1780989598.789982839, 0.725000000]: GazeboRosDiffDrive Plugin (ns = ) missing <publishTf>, defaults to 1
+[WARN] [1780989595.847379, 0.000000]: wait_for_service(/gazebo/spawn_urdf_model): failed to contact, will keep trying
+[INFO] [1780989595.840834, 0.000000]: Loading model XML from ros parameter robot_description_r1
+[INFO] [1780989595.845946, 0.000000]: Waiting for service /gazebo/spawn_urdf_model
+[INFO] [1780989596.151318, 0.324000]: wait_for_service(/gazebo/spawn_urdf_model): finally were able to contact [rosrpc://localhost:51089]
+[INFO] [1780989596.155312, 0.328000]: Calling service /gazebo/spawn_urdf_model
+[INFO] [1780989598.789753, 0.725000]: Spawn status: SpawnModel: Successfully spawned entity
+ns = /r1/): <robotBaseFrame> = base_link
+[DEBUG] [1780989598.789925736, 0.725000000]: DiffDrive(ns = /r1/): <publishWheelTF> = false
+[DEBUG] [1780989598.789929893, 0.725000000]: DiffDrive(ns = /r1/): <publishOdomTF> = false
+[DEBUG] [1780989598.789934936, 0.725000000]: DiffDrive(ns = /r1/): <publishWheelJointState> = true
+[DEBUG] [1780989598.789941965, 0.725000000]: DiffDrive(ns = /r1/): <wheelSeparation> = 0.29999999999999999
+[DEBUG] [1780989598.789947077, 0.725000000]: DiffDrive(ns = /r1/): <wheelDiameter> = 0.17999999999999999
+[DEBUG] [1780989598.789952104, 0.725000000]: DiffDrive(ns = /r1/): <wheelAcceleration> = 1.8
+[DEBUG] [1780989598.789956749, 0.725000000]: DiffDrive(ns = /r1/): <wheelTorque> = 20
+[DEBUG] [1780989598.789961325, 0.725000000]: DiffDrive(ns = /r1/): <updateRate> = 50
+[DEBUG] [1780989598.789967642, 0.725000000]: DiffDrive(ns = /r1/): <odometrySource> = world := 1
+[DEBUG] [1780989598.789973014, 0.725000000]: DiffDrive(ns = /r1/): <leftJoint> = left_hub_joint
+[DEBUG] [1780989598.789977046, 0.725000000]: DiffDrive(ns = /r1/): <rightJoint> = right_hub_joint
+[INFO] [1780989598.790444653, 0.725000000]: DiffDrive(ns = /r1/): Advertise joint_states
+[INFO] [1780989598.790452783, 0.725000000]: DiffDrive(ns = /r1/): Try to subscribe to cmd_vel
+[INFO] [1780989598.792285034, 0.725000000]: DiffDrive(ns = /r1/): Subscribe to cmd_vel
+[INFO] [1780989598.792443237, 0.725000000]: DiffDrive(ns = /r1/): Advertise odom on odom 
+[INFO] [1780989598.792502509, 0.725000000]: GazeboRosJointStatePublisher is going to publish joint: chassis_swivel_joint
+[INFO] [1780989598.792506830, 0.725000000]: GazeboRosJointStatePublisher is going to publish joint: swivel_wheel_joint
+[INFO] [1780989598.792511497, 0.725000000]: GazeboRosJointStatePublisher is going to publish joint: left_hub_joint
+[INFO] [1780989598.792514808, 0.725000000]: GazeboRosJointStatePublisher is going to publish joint: right_hub_joint
+[INFO] [1780989598.792519264, 0.725000000]: Starting GazeboRosJointStatePublisher Plugin (ns = /r1/)!, parent name: r1
+[INFO] [1780989599.079074862, 0.863000000]: Laser Plugin: The 'robotNamespace' param was empty
+[INFO] [1780989599.079098567, 0.863000000]: Starting Laser Plugin (ns = r3)
+[INFO] [1780989599.079553293, 0.863000000]: Laser Plugin (ns = r3)  <tf_prefix_>, set to ""
+[INFO] [1780989599.695338810, 0.863000000]: Velodyne laser plugin missing <min_intensity>, defaults to no clipping
+[INFO] [1780989599.696104155, 0.863000000]: Velodyne laser plugin ready, 16 lasers
+[INFO] [1780989599.697211843, 0.863000000]: Starting plugin DiffDrive(ns = /r3/)
+[DEBUG] [1780989599.697221851, 0.863000000]: DiffDrive(ns = /r3/): <rosDebugLevel> = Debug
+[INFO] [1780989599.697233309, 0.863000000]: DiffDrive(ns = /r3/): <rosDebugLevel> = Debug
+[INFO] [1780989599.697508827, 0.863000000]: DiffDrive(ns = /r3/): <tf_prefix> = 
+[DEBUG] [1780989599.697520013, 0.863000000]: DiffDrive(ns = /r3/): <commandTopic> = cmd_vel
+[DEBUG] [1780989599.697525922, 0.863000000]: DiffDrive(ns = /r3/): <odometryTopic> = odom
+[DEBUG] [1780989599.697530109, 0.863000000]: DiffDrive(ns = /r3/): <odometryFrame> = odom
+[DEBUG] [1780989599.697534036, 0.863000000]: DiffDrive(ns = /r3/): <robotBaseFrame> = base_link
+[DEBUG] [1780989599.697540285, 0.863000000]: DiffDrive(ns = /r3/): <publishWheelTF> = false
+[DEBUG] [1780989599.697545428, 0.863000000]: DiffDrive(ns = /r3/): <publishOdomTF> = false
+[DEBUG] [1780989599.697550314, 0.863000000]: DiffDrive(ns = /r3/): <publishWheelJointState> = true
+[DEBUG] [1780989599.697559556, 0.863000000]: DiffDrive(ns = /r3/): <wheelSeparation> = 0.29999999999999999
+[DEBUG] [1780989599.697565434, 0.863000000]: DiffDrive(ns = /r3/): <wheelDiameter> = 0.17999999999999999
+[DEBUG] [1780989599.697571101, 0.863000000]: DiffDrive(ns = /r3/): <wheelAcceleration> = 1.8
+[DEBUG] [1780989599.697576373, 0.863000000]: DiffDrive(ns = /r3/): <wheelTorque> = 20
+[DEBUG] [1780989599.697581522, 0.863000000]: DiffDrive(ns = /r3/): <updateRate> = 50
+[DEBUG] [1780989599.697589021, 0.863000000]: DiffDrive(ns = /r3/): <odometrySource> = world := 1
+[DEBUG] [1780989599.697594075[WARN] [1780989599.697623649, 0.863000000]: GazeboRosDiffDrive Plugin (ns = ) missing <publishTf>, defaults to 1
+[WARN] [1780989595.849023, 0.000000]: wait_for_service(/gazebo/spawn_urdf_model): failed to contact, will keep trying
+[INFO] [1780989595.838497, 0.000000]: Loading model XML from ros parameter robot_description_r3
+[INFO] [1780989595.846838, 0.000000]: Waiting for service /gazebo/spawn_urdf_model
+[INFO] [1780989596.151733, 0.324000]: wait_for_service(/gazebo/spawn_urdf_model): finally were able to contact [rosrpc://localhost:51089]
+[INFO] [1780989596.157065, 0.329000]: Calling service /gazebo/spawn_urdf_model
+[INFO] [1780989599.697159, 0.863000]: Spawn status: SpawnModel: Successfully spawned entity
+train_velodyne_td3_multi.py:391: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  actor_state = torch.load(
+Loaded initial actor parameters from: TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best
+Critic is newly initialized because actor-only warm start was requested.
+==============================================
+Training version: multi-agent-curriculum-stage2-dense-gentle-5-from-5a-v1
+Training process PID: 3389419
+Launchfile: multi_robot_scenario_curriculum_stage2_dense_gentle_5.launch
+Scenario mode: curriculum
+Seed: 0
+Device: cuda
+GPU: NVIDIA GeForce RTX 4090
+Agent names: r1, r2, r3, r4, r5
+Cooperative reward: True
+Cooperative reward mode: average_plus_interaction
+Cooperative reward self weight: 0.85
+Distance-weighted reward: True
+Distance reward sigma: 2.0
+Interaction safe distance: 0.9
+Interaction close penalty: 0.35
+Interaction stagnation penalty: 0.02
+Anti-stagnation reward: False
+Anti-stagnation penalty: 0.2
+Anti-stagnation linear threshold: 0.05
+Anti-stagnation progress threshold: 0.005
+Anti-stagnation min laser: 0.35
+Wall-clearance reward: False
+Wall-clearance safe distance: 0.75
+Wall-clearance penalty: 1.5
+Wall-clearance speed weight: 0.8
+Wall-clearance turn weight: 0.4
+Local-navigation reward: True
+Local-navigation heading weight: 0.35
+Local-navigation wrong-way penalty: 0.25
+Local-navigation turn weight: 0.22
+Local-navigation near-goal distance: 0.9
+Local-navigation heading error: 0.5
+Local critic enabled: False
+Local critic geometry only: False
+Active neighbors only: True
+Actor state dim: 24
+Critic state dim: 24
+Local critic max neighbors: 9
+Local critic context dim: 63
+Best metric: full_success
+Eval episodes: 16
+Max epochs: 1
+Actor learning rate: 3e-06
+Critic learning rate: 2.5e-05
+Actor update delay steps: 15000
+Exploration noise: 0.035
+Exploration min: 0.012
+Exploration decay steps: 500000
+TensorBoard log dir: runs/multi_coop_Jun09_15-19-59_JiuTian-AI4090
+Checkpoint path: ./checkpoints/TD3_velodyne_multi_v4_curriculum_stage2_dense_gentle_reward_probe_from_5a_latest.pt
+Best checkpoint path: ./checkpoints/TD3_velodyne_multi_v4_curriculum_stage2_dense_gentle_reward_probe_from_5a_best.pt
+Model prefix: TD3_velodyne_multi_v4_curriculum_stage2_dense_gentle_reward_probe_from_5a
+Checkpoint interval episodes: 10
+Resume mode: True
+Starting agent samples: 0
+Starting env steps: 0
+Starting epoch: 1
+==============================================
+[WARN] [1780989600.606164611, 0.999000000]: GazeboRosDiffDrive Plugin (ns = ) missing <publishTf>, defaults to 1
+[WARN] [1780989595.848636, 0.000000]: wait_for_service(/gazebo/spawn_urdf_model): failed to contact, will keep trying
+[INFO] [1780989595.841302, 0.000000]: Loading model XML from ros parameter robot_description_r5
+[INFO] [1780989595.846118, 0.000000]: Waiting for service /gazebo/spawn_urdf_model
+[INFO] [1780989596.152557, 0.324000]: wait_for_service(/gazebo/spawn_urdf_model): finally were able to contact [rosrpc://localhost:51089]
+[INFO] [1780989596.157234, 0.329000]: Calling service /gazebo/spawn_urdf_model
+[INFO] [1780989600.605566, 0.999000]: Spawn status: SpawnModel: Successfully spawned entity
+, 0.863000000]: DiffDrive(ns = /r3/): <leftJoint> = left_hub_joint
+[DEBUG] [1780989599.697616374, 0.863000000]: DiffDrive(ns = /r3/): <rightJoint> = right_hub_joint
+[INFO] [1780989599.697929695, 0.863000000]: DiffDrive(ns = /r3/): Advertise joint_states
+[INFO] [1780989599.697949396, 0.863000000]: DiffDrive(ns = /r3/): Try to subscribe to cmd_vel
+[INFO] [1780989599.698881723, 0.863000000]: DiffDrive(ns = /r3/): Subscribe to cmd_vel
+[INFO] [1780989599.699150257, 0.863000000]: DiffDrive(ns = /r3/): Advertise odom on odom 
+[INFO] [1780989599.699221138, 0.863000000]: GazeboRosJointStatePublisher is going to publish joint: chassis_swivel_joint
+[INFO] [1780989599.699227174, 0.863000000]: GazeboRosJointStatePublisher is going to publish joint: swivel_wheel_joint
+[INFO] [1780989599.699231335, 0.863000000]: GazeboRosJointStatePublisher is going to publish joint: left_hub_joint
+[INFO] [1780989599.699234834, 0.863000000]: GazeboRosJointStatePublisher is going to publish joint: right_hub_joint
+[INFO] [1780989599.699238071, 0.863000000]: Starting GazeboRosJointStatePublisher Plugin (ns = /r3/)!, parent name: r3
+[INFO] [1780989599.982508026, 0.999000000]: Laser Plugin: The 'robotNamespace' param was empty
+[INFO] [1780989599.982533482, 0.999000000]: Starting Laser Plugin (ns = r5)
+[INFO] [1780989599.982887682, 0.999000000]: Laser Plugin (ns = r5)  <tf_prefix_>, set to ""
+[INFO] [1780989600.604336123, 0.999000000]: Velodyne laser plugin missing <min_intensity>, defaults to no clipping
+[INFO] [1780989600.604905143, 0.999000000]: Velodyne laser plugin ready, 16 lasers
+[INFO] [1780989600.605740325, 0.999000000]: Starting plugin DiffDrive(ns = /r5/)
+[DEBUG] [1780989600.605750064, 0.999000000]: DiffDrive(ns = /r5/): <rosDebugLevel> = Debug
+[INFO] [1780989600.605760536, 0.999000000]: DiffDrive(ns = /r5/): <rosDebugLevel> = Debug
+[INFO] [1780989600.606083167, 0.999000000]: DiffDrive(ns = /r5/): <tf_prefix> = 
+[DEBUG] [1780989600.606087680, 0.999000000]: DiffDrive(ns = /r5/): <commandTopic> = cmd_vel
+[DEBUG] [1780989600.606092349, 0.999000000]: DiffDrive(ns = /r5/): <odometryTopic> = odom
+[DEBUG] [1780989600.606095856, 0.999000000]: DiffDrive(ns = /r5/): <odometryFrame> = odom
+[DEBUG] [1780989600.606101747, 0.999000000]: DiffDrive(ns = /r5/): <robotBaseFrame> = base_link
+[DEBUG] [1780989600.606107558, 0.999000000]: DiffDrive(ns = /r5/): <publishWheelTF> = false
+[DEBUG] [1780989600.606111443, 0.999000000]: DiffDrive(ns = /r5/): <publishOdomTF> = false
+[DEBUG] [1780989600.606116877, 0.999000000]: DiffDrive(ns = /r5/): <publishWheelJointState> = true
+[DEBUG] [1780989600.606123882, 0.999000000]: DiffDrive(ns = /r5/): <wheelSeparation> = 0.29999999999999999
+[DEBUG] [1780989600.606129052, 0.999000000]: DiffDrive(ns = /r5/): <wheelDiameter> = 0.17999999999999999
+[DEBUG] [1780989600.606134211, 0.999000000]: DiffDrive(ns = /r5/): <wheelAcceleration> = 1.8
+[DEBUG] [1780989600.606139176, 0.999000000]: DiffDrive(ns = /r5/): <wheelTorque> = 20
+[DEBUG] [1780989600.606144126, 0.999000000]: DiffDrive(ns = /r5/): <updateRate> = 50
+[DEBUG] [1780989600.606150296, 0.999000000]: DiffDrive(ns = /r5/): <odometrySource> = world := 1
+[DEBUG] [1780989600.606154640, 0.999000000]: DiffDrive(ns = /r5/): <leftJoint> = left_hub_joint
+[DEBUG] [1780989600.606159011, 0.999000000]: DiffDrive(ns = /r5/): <rightJoint> = right_hub_joint
+[INFO] [1780989600.606338586, 0.999000000]: DiffDrive(ns = /r5/): Advertise joint_states
+[INFO] [1780989600.606346286, 0.999000000]: DiffDrive(ns = /r5/): Try to subscribe to cmd_vel
+[INFO] [1780989600.607703657, 0.999000000]: DiffDrive(ns = /r5/): Subscribe to cmd_vel
+[INFO] [1780989600.607887634, 0.999000000]: DiffDrive(ns = /r5/): Advertise odom on odom 
+[INFO] [1780989600.607943910, 0.999000000]: GazeboRosJointStatePublisher is going to publish joint: chassis_swivel_joint
+[INFO] [1780989600.607948308, 0.999000000]: GazeboRosJointStatePublisher is going to publish joint: swivel_wheel_joint
+[INFO] [1780989600.607954174, 0.999000000]: GazeboRosJointStatePublisher is going to publish joint: left_hub_joint
+[INFO] [1780989600.607957698, 0.999000000]: GEpisode 1 complete | agent_samples=111 | env_steps=55 | episode_env_steps=55 | episode_agent_samples=111 | mean_reward=-24.620 | success=1/5 | collision=4/5 | mean_final_distance=2.357 | mean_progress=0.0041 | min_laser=0.300 | mean_lin=0.549 | mean_ang=-0.404 | mean_robot_dist=1.318 | raw_reward=20.000 | adjusted_reward=20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.676 | mean_active_neighbors_step=2.315 | max_active_neighbors_step=4 | interaction_reward=-0.0111 | abs_interaction_reward=0.0111 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.2433 | abs_local_nav_reward=0.2433 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0349 | replay=111 | samples/sec=8.700
+Episode 2 complete | agent_samples=186 | env_steps=96 | episode_env_steps=41 | episode_agent_samples=75 | mean_reward=1.613 | success=2/5 | collision=3/5 | mean_final_distance=1.375 | mean_progress=0.0145 | min_laser=0.300 | mean_lin=0.800 | mean_ang=0.194 | mean_robot_dist=2.086 | raw_reward=20.000 | adjusted_reward=20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.360 | mean_active_neighbors_step=1.160 | max_active_neighbors_step=4 | interaction_reward=-0.0071 | abs_interaction_reward=0.0071 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.2220 | abs_local_nav_reward=0.2220 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0348 | replay=186 | samples/sec=8.547
+Episode 3 complete | agent_samples=259 | env_steps=121 | episode_env_steps=25 | episode_agent_samples=73 | mean_reward=85.087 | success=4/5 | collision=2/5 | mean_final_distance=0.277 | mean_progress=0.0025 | min_laser=0.300 | mean_lin=0.848 | mean_ang=0.731 | mean_robot_dist=0.636 | raw_reward=-20.000 | adjusted_reward=-20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.863 | mean_active_neighbors_step=2.836 | max_active_neighbors_step=4 | interaction_reward=-0.0008 | abs_interaction_reward=0.0008 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.2489 | abs_local_nav_reward=0.2489 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0348 | replay=259 | samples/sec=9.489
+Episode 4 complete | agent_samples=390 | env_steps=162 | episode_env_steps=41 | episode_agent_samples=131 | mean_reward=6.709 | success=2/5 | collision=3/5 | mean_final_distance=1.577 | mean_progress=-0.0037 | min_laser=0.313 | mean_lin=0.696 | mean_ang=-0.070 | mean_robot_dist=2.718 | raw_reward=-20.000 | adjusted_reward=-20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.786 | mean_active_neighbors_step=2.053 | max_active_neighbors_step=4 | interaction_reward=-0.0053 | abs_interaction_reward=0.0053 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.1743 | abs_local_nav_reward=0.1932 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0347 | replay=390 | samples/sec=10.738
+Episode 5 complete | agent_samples=524 | env_steps=230 | episode_env_steps=68 | episode_agent_samples=134 | mean_reward=-15.027 | success=1/5 | collision=4/5 | mean_final_distance=1.949 | mean_progress=0.0077 | min_laser=0.307 | mean_lin=0.345 | mean_ang=-0.987 | mean_robot_dist=1.448 | raw_reward=20.000 | adjusted_reward=20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.619 | mean_active_neighbors_step=2.164 | max_active_neighbors_step=4 | interaction_reward=-0.0067 | abs_interaction_reward=0.0067 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.2269 | abs_local_nav_reward=0.2269 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0345 | replay=524 | samples/sec=10.225
+Status | epoch=1 | next_eval_in=4476 agent_samples | checkpoint_every=10 episodes | checkpoint=./checkpoints/TD3_velodyne_multi_v4_curriculum_stage2_dense_gentle_reward_probe_from_5a_latest.pt | model=TD3_velodyne_multi_v4_curriculum_stage2_dense_gentle_reward_probe_from_5a
+Episode 6 complete | agent_samples=576 | env_steps=250 | episode_env_steps=20 | episode_agent_samples=52 | mean_reward=-0.092 | success=2/5 | collision=3/5 | mean_final_distance=1.376 | mean_progress=0.0249 | min_laser=0.300 | mean_lin=0.436 | mean_ang=-0.270 | mean_robot_dist=1.470 | raw_reward=20.000 | adjusted_reward=20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.462 | mean_active_neighbors_step=1.231 | max_active_neighbors_step=4 | interaction_reward=-0.0131 | abs_interaction_reward=0.0131 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.2818 | abs_local_nav_reward=0.2818 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0345 | replay=576 | samples/sec=10.337
+Episode 7 complete | agent_samples=649 | env_steps=277 | episode_env_steps=27 | episode_agent_samples=73 | mean_reward=126.443 | success=5/5 | collision=0/5 | mean_final_distance=0.275 | mean_progress=0.0130 | min_laser=0.363 | mean_lin=0.786 | mean_ang=0.433 | mean_robot_dist=0.602 | raw_reward=20.000 | adjusted_reward=20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.822 | mean_active_neighbors_step=2.712 | max_active_neighbors_step=4 | interaction_reward=-0.0009 | abs_interaction_reward=0.0009 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.2504 | abs_local_nav_reward=0.2504 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0345 | replay=649 | samples/sec=10.514
+Episode 8 complete | agent_samples=755 | env_steps=314 | episode_env_steps=37 | episode_agent_samples=106 | mean_reward=14.972 | success=2/5 | collision=3/5 | mean_final_distance=1.298 | mean_progress=0.0185 | min_laser=0.300 | mean_lin=0.996 | mean_ang=0.541 | mean_robot_dist=1.168 | raw_reward=20.000 | adjusted_reward=20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.840 | mean_active_neighbors_step=2.311 | max_active_neighbors_step=4 | interaction_reward=-0.0051 | abs_interaction_reward=0.0051 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.2434 | abs_local_nav_reward=0.2434 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0344 | replay=755 | samples/sec=10.820
+Episode 9 complete | agent_samples=816 | env_steps=330 | episode_env_steps=16 | episode_agent_samples=61 | mean_reward=-76.843 | success=0/5 | collision=5/5 | mean_final_distance=2.759 | mean_progress=0.0226 | min_laser=0.300 | mean_lin=0.995 | mean_ang=-0.137 | mean_robot_dist=0.424 | raw_reward=-20.000 | adjusted_reward=-20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.984 | mean_active_neighbors_step=3.443 | max_active_neighbors_step=4 | interaction_reward=-0.0141 | abs_interaction_reward=0.0141 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.2901 | abs_local_nav_reward=0.2901 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0343 | replay=816 | samples/sec=11.115
+Episode 10 complete | agent_samples=879 | env_steps=355 | episode_env_steps=25 | episode_agent_samples=63 | mean_reward=4.658 | success=2/5 | collision=3/5 | mean_final_distance=1.426 | mean_progress=0.0048 | min_laser=0.315 | mean_lin=0.612 | mean_ang=-0.557 | mean_robot_dist=1.972 | raw_reward=20.000 | adjusted_reward=20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.333 | mean_active_neighbors_step=0.794 | max_active_neighbors_step=4 | interaction_reward=-0.0052 | abs_interaction_reward=0.0052 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.2232 | abs_local_nav_reward=0.2232 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0343 | replay=879 | samples/sec=11.132
+Status | epoch=1 | next_eval_in=4121 agent_samples | checkpoint_every=10 episodes | checkpoint=./checkpoints/TD3_velodyne_multi_v4_curriculum_stage2_dense_gentle_reward_probe_from_5a_latest.pt | model=TD3_velodyne_multi_v4_curriculum_stage2_dense_gentle_reward_probe_from_5a
+Checkpoint saved: ./checkpoints/TD3_velodyne_multi_v4_curriculum_stage2_dense_gentle_reward_probe_from_5a_latest.pt
+Episode 11 complete | agent_samples=947 | env_steps=375 | episode_env_steps=20 | episode_agent_samples=68 | mean_reward=87.419 | success=4/5 | collision=3/5 | mean_final_distance=0.270 | mean_progress=0.0140 | min_laser=0.318 | mean_lin=0.407 | mean_ang=0.574 | mean_robot_dist=0.606 | raw_reward=20.000 | adjusted_reward=20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.956 | mean_active_neighbors_step=2.868 | max_active_neighbors_step=4 | interaction_reward=-0.0009 | abs_interaction_reward=0.0009 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.2579 | abs_local_nav_reward=0.2579 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0343 | replay=947 | samples/sec=11.354
+Episode 12 complete | agent_samples=1280 | env_steps=503 | episode_env_steps=128 | episode_agent_samples=333 | mean_reward=72.568 | success=3/5 | collision=2/5 | mean_final_distance=0.723 | mean_progress=0.0138 | min_laser=0.330 | mean_lin=0.595 | mean_ang=-0.222 | mean_robot_dist=1.299 | raw_reward=20.000 | adjusted_reward=20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.709 | mean_active_neighbors_step=1.288 | max_active_neighbors_step=4 | interaction_reward=-0.0051 | abs_interaction_reward=0.0051 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.1417 | abs_local_nav_reward=0.1529 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0340 | replay=1280 | samples/sec=11.505
+Episode 13 complete | agent_samples=1434 | env_steps=597 | episode_env_steps=94 | episode_agent_samples=154 | mean_reward=-17.686 | success=1/5 | collision=4/5 | mean_final_distance=2.100 | mean_progress=0.0260 | min_laser=0.300 | mean_lin=0.790 | mean_ang=-0.994 | mean_robot_dist=1.812 | raw_reward=20.000 | adjusted_reward=20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.481 | mean_active_neighbors_step=1.429 | max_active_neighbors_step=4 | interaction_reward=-0.0065 | abs_interaction_reward=0.0065 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.1845 | abs_local_nav_reward=0.1848 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0338 | replay=1434 | samples/sec=10.894
+Episode 14 complete | agent_samples=1516 | env_steps=638 | episode_env_steps=41 | episode_agent_samples=82 | mean_reward=7.277 | success=2/5 | collision=3/5 | mean_final_distance=1.353 | mean_progress=0.0193 | min_laser=0.314 | mean_lin=0.595 | mean_ang=-0.599 | mean_robot_dist=2.042 | raw_reward=20.000 | adjusted_reward=20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.329 | mean_active_neighbors_step=0.939 | max_active_neighbors_step=4 | interaction_reward=-0.0094 | abs_interaction_reward=0.0094 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.1954 | abs_local_nav_reward=0.1954 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0337 | replay=1516 | samples/sec=10.780
+Episode 15 complete | agent_samples=1598 | env_steps=671 | episode_env_steps=33 | episode_agent_samples=82 | mean_reward=88.070 | success=4/5 | collision=1/5 | mean_final_distance=0.286 | mean_progress=0.0003 | min_laser=0.323 | mean_lin=0.602 | mean_ang=-0.193 | mean_robot_dist=0.679 | raw_reward=20.000 | adjusted_reward=20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.805 | mean_active_neighbors_step=2.500 | max_active_neighbors_step=4 | interaction_reward=-0.0003 | abs_interaction_reward=0.0003 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.2272 | abs_local_nav_reward=0.2272 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0337 | replay=1598 | samples/sec=10.805
+Status | epoch=1 | next_eval_in=3402 agent_samples | checkpoint_every=10 episodes | checkpoint=./checkpoints/TD3_velodyne_multi_v4_curriculum_stage2_dense_gentle_reward_probe_from_5a_latest.pt | model=TD3_velodyne_multi_v4_curriculum_stage2_dense_gentle_reward_probe_from_5a
+Episode 16 complete | agent_samples=1783 | env_steps=758 | episode_env_steps=87 | episode_agent_samples=185 | mean_reward=109.716 | success=4/5 | collision=1/5 | mean_final_distance=0.698 | mean_progress=0.0077 | min_laser=0.344 | mean_lin=0.992 | mean_ang=0.196 | mean_robot_dist=1.463 | raw_reward=20.000 | adjusted_reward=20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.551 | mean_active_neighbors_step=1.416 | max_active_neighbors_step=4 | interaction_reward=-0.0031 | abs_interaction_reward=0.0031 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.1932 | abs_local_nav_reward=0.2040 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0335 | replay=1783 | samples/sec=10.693
+Episode 17 complete | agent_samples=1853 | env_steps=784 | episode_env_steps=26 | episode_agent_samples=70 | mean_reward=-74.862 | success=0/5 | collision=5/5 | mean_final_distance=2.707 | mean_progress=0.0071 | min_laser=0.301 | mean_lin=0.808 | mean_ang=-0.437 | mean_robot_dist=0.566 | raw_reward=-20.000 | adjusted_reward=-20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.814 | mean_active_neighbors_step=2.857 | max_active_neighbors_step=4 | interaction_reward=-0.0060 | abs_interaction_reward=0.0060 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.2336 | abs_local_nav_reward=0.2336 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0335 | replay=1853 | samples/sec=10.745
+Episode 18 complete | agent_samples=1891 | env_steps=799 | episode_env_steps=15 | episode_agent_samples=38 | mean_reward=-46.922 | success=1/5 | collision=4/5 | mean_final_distance=1.732 | mean_progress=0.0111 | min_laser=0.323 | mean_lin=0.517 | mean_ang=-0.157 | mean_robot_dist=1.996 | raw_reward=20.000 | adjusted_reward=20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.605 | mean_active_neighbors_step=1.947 | max_active_neighbors_step=4 | interaction_reward=-0.0184 | abs_interaction_reward=0.0184 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.2333 | abs_local_nav_reward=0.2333 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0334 | replay=1891 | samples/sec=10.760
+Episode 19 complete | agent_samples=1965 | env_steps=825 | episode_env_steps=26 | episode_agent_samples=74 | mean_reward=88.402 | success=4/5 | collision=3/5 | mean_final_distance=0.243 | mean_progress=0.0191 | min_laser=0.314 | mean_lin=0.599 | mean_ang=0.204 | mean_robot_dist=0.634 | raw_reward=20.000 | adjusted_reward=20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.851 | mean_active_neighbors_step=2.824 | max_active_neighbors_step=4 | interaction_reward=-0.0006 | abs_interaction_reward=0.0006 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.2572 | abs_local_nav_reward=0.2572 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0334 | replay=1965 | samples/sec=10.826
+Episode 20 complete | agent_samples=2199 | env_steps=960 | episode_env_steps=135 | episode_agent_samples=234 | mean_reward=61.223 | success=3/5 | collision=2/5 | mean_final_distance=0.958 | mean_progress=0.0111 | min_laser=0.302 | mean_lin=0.792 | mean_ang=-0.184 | mean_robot_dist=1.133 | raw_reward=20.000 | adjusted_reward=20.000 | coop_agents=0/5 | mean_coop_neighbors=0.00 | active_neighbor_step_rate=0.474 | mean_active_neighbors_step=1.252 | max_active_neighbors_step=4 | interaction_reward=-0.0029 | abs_interaction_reward=0.0029 | anti_stag_reward=0.0000 | abs_anti_stag_reward=0.0000 | wall_clear_reward=0.0000 | abs_wall_clear_reward=0.0000 | local_nav_reward=0.1605 | abs_local_nav_reward=0.1765 | context_neighbors_mean=0.00 | context_neighbors_max=0 | context_step_mean=0.00 | context_step_max=0 | actor_unlocked=0 | expl_noise=0.0331 | replay=2199 | samples/sec=10.430
+Status | epoch=1 | next_eval_in=2801 agent_samples | checkpoint_every=10 episodes | checkpoint=./checkpoints/TD3_velodyne_multi_v4_curriculum_stage2_dense_gentle_reward_probe_from_5a_latest.pt | model=TD3_velodyne_multi_v4_curriculum_stage2_dense_gentle_reward_probe_from_5a
+Checkpoint saved: ./checkpoints/TD3_velodyne_multi_v4_curriculum_stage2_dense_gentle_reward_probe_from_5a_latest.pt
+azeboRosJointStatePublisher is going to publish joint: right_hub_joint
+[INFO] [1780989600.607969940, 0.999000000]: Starting GazeboRosJointStatePublisher Plugin (ns = /r5/)!, parent name: r5
+... logging to /home/jiutian/.ros/log/029e24d6-5fb7-11f1-836a-bd1fee3d6233/roslaunch-JiuTian-AI4090-3389558.log
+Checking log directory for disk usage. This may take a while.
+Press Ctrl-C to interrupt
+Done checking log file disk usage. Usage is <1GB.
+]2;/home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3/assets/multi_robot_scenario_curriculum_stage2_dense_gentle_5.launch
+[1mstarted roslaunch server http://localhost:46659/[0m
+
+SUMMARY
+========
+
+PARAMETERS
+ * /robot_description_r1: <?xml version="1....
+ * /robot_description_r2: <?xml version="1....
+ * /robot_description_r3: <?xml version="1....
+ * /robot_description_r4: <?xml version="1....
+ * /robot_description_r5: <?xml version="1....
+ * /rosdistro: noetic
+ * /rosversion: 1.17.4
+ * /use_sim_time: True
+
+NODES
+  /
+    gazebo (gazebo_ros/gzserver)
+    urdf_spawner_r1 (gazebo_ros/spawn_model)
+    urdf_spawner_r2 (gazebo_ros/spawn_model)
+    urdf_spawner_r3 (gazebo_ros/spawn_model)
+    urdf_spawner_r4 (gazebo_ros/spawn_model)
+    urdf_spawner_r5 (gazebo_ros/spawn_model)
+
+[1mROS_MASTER_URI=http://localhost:11391/[0m
+]2;/home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3/assets/multi_robot_scenario_curriculum_stage2_dense_gentle_5.launch http://localhost:11391/
+[1mprocess[gazebo-1]: started with pid [3389746][0m
+[1mprocess[urdf_spawner_r1-2]: started with pid [3389750][0m
+[1mprocess[urdf_spawner_r2-3]: started with pid [3389752][0m
+[1mprocess[urdf_spawner_r3-4]: started with pid [3389753][0m
+[1mprocess[urdf_spawner_r4-5]: started with pid [3389754][0m
+[1mprocess[urdf_spawner_r5-6]: started with pid [3389755][0m
+[1m[urdf_spawner_r2-3] process has finished cleanly
+log file: /home/jiutian/.ros/log/029e24d6-5fb7-11f1-836a-bd1fee3d6233/urdf_spawner_r2-3*.log[0m
+[1m[urdf_spawner_r4-5] process has finished cleanly
+log file: /home/jiutian/.ros/log/029e24d6-5fb7-11f1-836a-bd1fee3d6233/urdf_spawner_r4-5*.log[0m
+[1m[urdf_spawner_r1-2] process has finished cleanly
+log file: /home/jiutian/.ros/log/029e24d6-5fb7-11f1-836a-bd1fee3d6233/urdf_spawner_r1-2*.log[0m
+[1m[urdf_spawner_r3-4] process has finished cleanly
+log file: /home/jiutian/.ros/log/029e24d6-5fb7-11f1-836a-bd1fee3d6233/urdf_spawner_r3-4*.log[0m
+[1m[urdf_spawner_r5-6] process has finished cleanly
+log file: /home/jiutian/.ros/log/029e24d6-5fb7-11f1-836a-bd1fee3d6233/urdf_spawner_r5-6*.log[0m
+[gazebo-1] killing on exit
+shutting down processing monitor...
+... shutting down processing monitor complete
+[1mdone[0m
+Traceback (most recent call last):
+  File "train_velodyne_td3_multi.py", line 1284, in <module>
+    next_states, rewards, dones, targets, collisions = env.step(
+  File "/home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3/multi_agent_velodyne_env.py", line 970, in step
+    rospy.wait_for_service("/gazebo/pause_physics")
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/impl/tcpros_service.py", line 166, in wait_for_service
+    raise ROSInterruptException("rospy shutdown")
+rospy.exceptions.ROSInterruptException: rospy shutdown

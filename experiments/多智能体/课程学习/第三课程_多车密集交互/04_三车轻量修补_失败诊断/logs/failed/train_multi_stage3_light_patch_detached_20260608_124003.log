@@ -1,0 +1,268 @@
+Activated DRL robot navigation Python environment.
+Python: Python 3.8.10
+Venv: /home/jiutian/venvs/drl-robot-nav
+Curriculum scenario enabled: 3 cases loaded
+Roscore launched!
+Unable to register with master node [http://localhost:11383]: master may not be running yet. Will keep trying.
+Gazebo launched!
+INFO: cannot create a symlink to latest log directory: [Errno 17] File exists: '/home/jiutian/.ros/log/1e5b47f4-62f4-11f1-836a-bd1fee3d6233' -> '/home/jiutian/.ros/log/latest'
+[INFO] [1780893605.688956, 0.000000]: Loading model XML from ros parameter robot_description_r3
+[INFO] [1780893605.691932, 0.000000]: Waiting for service /gazebo/spawn_urdf_model
+[INFO] [1780893605.994687, 0.316000]: Calling service /gazebo/spawn_urdf_model
+[INFO] [1780893606.764678, 0.373000]: Spawn status: SpawnModel: Successfully spawned entity
+[WARN] [1780893606.882081077, 0.373000000]: GazeboRosDiffDrive Plugin (ns = ) missing <publishTf>, defaults to 1
+[INFO] [1780893605.754065720]: Finished loading Gazebo ROS API Plugin.
+[INFO] [1780893605.754499303]: waitForService: Service [/gazebo/set_physics_properties] has not been advertised, waiting...
+[INFO] [1780893605.876656939, 0.202000000]: waitForService: Service [/gazebo/set_physics_properties] is now available.
+[INFO] [1780893605.888548161, 0.214000000]: Physics dynamic reconfigure ready.
+[INFO] [1780893606.153959258, 0.373000000]: Laser Plugin: The 'robotNamespace' param was empty
+[INFO] [1780893606.153977100, 0.373000000]: Starting Laser Plugin (ns = r3)
+[INFO] [1780893606.154433028, 0.373000000]: Laser Plugin (ns = r3)  <tf_prefix_>, set to ""
+[INFO] [1780893606.768421574, 0.373000000]: Velodyne laser plugin missing <min_intensity>, defaults to no clipping
+[INFO] [1780893606.769698466, 0.373000000]: Velodyne laser plugin ready, 16 lasers
+[INFO] [1780893606.880544447, 0.373000000]: Starting plugin DiffDrive(ns = /r3/)
+[INFO] [1780893606.880677635, 0.373000000]: DiffDrive(ns = /r3/): <rosDebugLevel> = Debug
+[INFO] [1780893606.881651657, 0.373000000]: DiffDrive(ns = /r3/): <tf_prefix> = 
+[DEBUG] [1780893606.881715681, 0.373000000]: DiffDrive(ns = /r3/): <commandTopic> = cmd_vel
+[DEBUG] [1780893606.881727407, 0.373000000]: DiffDrive(ns = /r3/): <odometryTopic> = odom
+[DEBUG] [1780893606.881738286, 0.373000000]: DiffDrive(ns = /r3/): <odometryFrame> = odom
+[DEBUG] [1780893606.881750323, 0.373000000]: DiffDrive(ns = /r3/): <robotBaseFrame> = base_link
+[DEBUG] [1780893606.881795970, 0.373000000]: DiffDrive(ns = /r3/): <publishWheelTF> = false
+[DEBUG] [1780893606.881815686, 0.373000000]: DiffDrive(ns = /r3/): <publishOdomTF> = false
+[DEBUG] [1780893606.881828283, 0.373000000]: DiffDrive(ns = /r3/): <publishWheelJointState> = true
+[DEBUG] [1780893606.881884308, 0.373000000]: DiffDrive(ns = /r3/): <wheelSeparation> = 0.29999999999999999
+[DEBUG] [1780893606.881901138, 0.373000000]: DiffDrive(ns = /r3/): <wheelDiameter> = 0.17999999999999999
+[DEBUG] [1780893606.881916348, 0.373000000]: DiffDrive(ns = /r3/): <wheelAcceleration> = 1.8
+[DEBUG] [1780893606.881931122, 0.373000000]: DiffDrive(ns = /r3/): <wheelTorque> = 20
+[DEBUG] [1780893606.881943551, 0.373000000]: DiffDrive(ns = /r3/): <updateRate> = 50
+[DEBUG] [1780893606.882001778, 0.373000000]: DiffDrive(ns = /r3/): <odometrySource> = world := 1
+[DEBUG] [1780893606.882040170, 0.373000000]: DiffDrive(ns = /r3/): <leftJoint> = left_hub_joint
+[DEBUG] [1780893606.882056893, 0.373000000]: DiffDrive(ns = /r3/): <rightJoint> = right_hub_joint
+[INFO] [1780893606.883202628, 0.373000000]: DiffDrive(ns = /r3/): Advertise joint_states
+[INFO] [1780893606.884005000, 0.373000000]: DiffDrive(ns = /r3/): Try to subscribe to cmd_vel
+[INFO] [1780893606.886258091, 0.373000000]: DiffDrive(ns = /r3/): Subscribe to cmd_vel
+[INFO] [1780893606.886369955, 0.373000000]: DiffDrive(ns = /r3/): Advertise odom on odom 
+[INFO] [1780893606.888751527, 0.373000000]: GazeboRosJointStatePublisher is going to publish joint: chassis_swivel_joint
+[INFO] [1780893606.888757632, 0.373000000]: GazeboRosJointStatePublisher is going to publish joint: swivel_wheel_joint
+[INFO] [1780893606.888761272, 0.373000000]: GazeboRosJointStatePublisher is going to publish joint: left_hub_joint
+[INFO] [1780893606.888764296, 0.373000000]: GazeboRosJointStatePublisher is going to publish joint: right_hub_joint
+[INFO] [1780893606.888768212, 0.373000000]: Starting GazeboRosJointStatePublisher Plugin (ns = /r3/)!, parent name: r3
+[DEBUG] [1780893606.915106257, 0.394000000]: Trying to publish message of type [nav_msgs/Odometry/cd5e73d190d741a2f92e81eda573aca7] on a publisher with type [nav_msgs/Odometry/cd5e73d190d741a2f92e81eda573aca7]
+[DEBUG] [1780893606.918813314, 0.394000000]: Trying to publish message of type [sensor_msgs/JointState/3066dcd76a6cfaef579bd0f34173e9fd] on a publisher with type [sensor_msgs/JointState/3066dcd76a6cfaef579bd0f34173e9fd]
+[INFO] [1780893607.170528760, 0.559000000]: Laser Plugin: The 'robotNamespace' param was empty
+[INFO] [1780893607.170543524, 0.559000000]: Starting Laser Plugin (ns = r1)
+[INFO] [1780893607.171[WARN] [1780893607.795746984, 0.559000000]: GazeboRosDiffDrive Plugin (ns = ) missing <publishTf>, defaults to 1
+[INFO] [1780893605.689420, 0.000000]: Loading model XML from ros parameter robot_description_r1
+[INFO] [1780893605.692060, 0.000000]: Waiting for service /gazebo/spawn_urdf_model
+[INFO] [1780893605.995102, 0.316000]: Calling service /gazebo/spawn_urdf_model
+[INFO] [1780893607.795441, 0.559000]: Spawn status: SpawnModel: Successfully spawned entity
+020332, 0.559000000]: Laser Plugin (ns = r1)  <tf_prefix_>, set to ""
+[INFO] [1780893607.793922073, 0.559000000]: Velodyne laser plugin missing <min_intensity>, defaults to no clipping
+[INFO] [1780893607.794481574, 0.559000000]: Velodyne laser plugin ready, 16 lasers
+[INFO] [1780893607.795512648, 0.559000000]: Starting plugin DiffDrive(ns = /r1/)
+[DEBUG] [1780893607.795522435, 0.559000000]: DiffDrive(ns = /r1/): <rosDebugLevel> = Debug
+[INFO] [1780893607.795532124, 0.559000000]: DiffDrive(ns = /r1/): <rosDebugLevel> = Debug
+[INFO] [1780893607.795669542, 0.559000000]: DiffDrive(ns = /r1/): <tf_prefix> = 
+[DEBUG] [1780893607.795674318, 0.559000000]: DiffDrive(ns = /r1/): <commandTopic> = cmd_vel
+[DEBUG] [1780893607.795678345, 0.559000000]: DiffDrive(ns = /r1/): <odometryTopic> = odom
+[DEBUG] [1780893607.795683077, 0.559000000]: DiffDrive(ns = /r1/): <odometryFrame> = odom
+[DEBUG] [1780893607.795686531, 0.559000000]: DiffDrive(ns = /r1/): <robotBaseFrame> = base_link
+[DEBUG] [1780893607.795692052, 0.559000000]: DiffDrive(ns = /r1/): <publishWheelTF> = false
+[DEBUG] [1780893607.795695219, 0.559000000]: DiffDrive(ns = /r1/): <publishOdomTF> = false
+[DEBUG] [1780893607.795700253, 0.559000000]: DiffDrive(ns = /r1/): <publishWheelJointState> = true
+[DEBUG] [1780893607.795706539, 0.559000000]: DiffDrive(ns = /r1/): <wheelSeparation> = 0.29999999999999999
+[DEBUG] [1780893607.795711712, 0.559000000]: DiffDrive(ns = /r1/): <wheelDiameter> = 0.17999999999999999
+[DEBUG] [1780893607.795717043, 0.559000000]: DiffDrive(ns = /r1/): <wheelAcceleration> = 1.8
+[DEBUG] [1780893607.795722297, 0.559000000]: DiffDrive(ns = /r1/): <wheelTorque> = 20
+[DEBUG] [1780893607.795726810, 0.559000000]: DiffDrive(ns = /r1/): <updateRate> = 50
+[DEBUG] [1780893607.795732639, 0.559000000]: DiffDrive(ns = /r1/): <odometrySource> = world := 1
+[DEBUG] [1780893607.795737091, 0.559000000]: DiffDrive(ns = /r1/): <leftJoint> = left_hub_joint
+[DEBUG] [1780893607.795741423, 0.559000000]: DiffDrive(ns = /r1/): <rightJoint> = right_hub_joint
+[INFO] [1780893607.796150551, 0.559000000]: DiffDrive(ns = /r1/): Advertise joint_states
+[INFO] [1780893607.796167511, 0.559000000]: DiffDrive(ns = /r1/): Try to subscribe to cmd_vel
+[INFO] [1780893607.797540177, 0.559000000]: DiffDrive(ns = /r1/): Subscribe to cmd_vel
+[INFO] [1780893607.797752464, 0.559000000]: DiffDrive(ns = /r1/): Advertise odom on odom 
+[INFO] [1780893607.797841325, 0.559000000]: GazeboRosJointStatePublisher is going to publish joint: chassis_swivel_joint
+[INFO] [1780893607.797851418, 0.559000000]: GazeboRosJointStatePublisher is going to publish joint: swivel_wheel_joint
+[INFO] [1780893607.797859973, 0.559000000]: GazeboRosJointStatePublisher is going to publish joint: left_hub_joint
+[INFO] [1780893607.797868090, 0.559000000]: GazeboRosJointStatePublisher is going to publish joint: right_hub_joint
+[INFO] [1780893607.797875949, 0.559000000]: Starting GazeboRosJointStatePublisher Plugin (ns = /r1/)!, parent name: r1
+[INFO] [1780893608.079432886, 0.740000000]: Laser Plugin: The 'robotNamespace' param was empty
+[INFO] [1780893608.079455128, 0.740000000]: Starting Laser Plugin (ns = r2)
+[INFO] [1780893608.079923414, 0.740000000]: Laser Plugin (ns = r2)  <tf_prefix_>, set to ""
+[INFO] [1780893608.699102661, 0.740000000]: Velodyne laser plugin missing <min_intensity>, defaults to no clipping
+[INFO] [1780893608.699844587, 0.740000000]: Velodyne laser plugin ready, 16 lasers
+[INFO] [1780893608.700853298, 0.740000000]: Starting plugin DiffDrive(ns = /r2/)
+[DEBUG] [1780893608.700862707, 0.740000000]: DiffDrive(ns = /r2/): <rosDebugLevel> = Debug
+[INFO] [1780893608.700871990, 0.740000000]: DiffDrive(ns = /r2/): <rosDebugLevel> = Debug
+[INFO] [1780893608.701191437, 0.740000000]: DiffDrive(ns = /r2/): <tf_prefix> = 
+[DEBUG] [1780893608.701202006, 0.740000000]: DiffDrive(ns = /r2/): <commandTopic> = cmd_vel
+[DEBUG] [1780893608.701205949, 0.740000000]: DiffDrive(ns = /r2/): <odometryTopic> = odom
+[DEBUG] [1780893608.701209113, 0.740000000]: DiffDrive(ns = /r2/): <odometryFrame> = odom
+[DEBUG] [1780893608.701212963, 0.740000000[WARN] [1780893608.701282773, 0.740000000]: GazeboRosDiffDrive Plugin (ns = ) missing <publishTf>, defaults to 1
+[INFO] [1780893605.691116, 0.000000]: Loading model XML from ros parameter robot_description_r2
+[INFO] [1780893605.693521, 0.000000]: Waiting for service /gazebo/spawn_urdf_model
+[INFO] [1780893605.997246, 0.316000]: Calling service /gazebo/spawn_urdf_model
+[INFO] [1780893608.700753, 0.740000]: Spawn status: SpawnModel: Successfully spawned entity
+train_velodyne_td3_multi.py:613: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  return torch.load(checkpoint_path, map_location="cpu")
+Resumed multi-agent training from checkpoint: ./checkpoints/TD3_velodyne_multi_v4_curriculum_stage3_light_patch_from_stage2_3d2_latest.pt
+==============================================
+Training version: stage3-light-patch-from-stage2-3d2-v1
+Training process PID: 785574
+Launchfile: multi_robot_scenario_curriculum_stage3_light_patch_3.launch
+Scenario mode: curriculum
+Seed: 0
+Device: cuda
+GPU: NVIDIA GeForce RTX 4090
+Agent names: r1, r2, r3
+Cooperative reward: True
+Cooperative reward mode: average
+Cooperative reward self weight: 0.8
+Distance-weighted reward: True
+Distance reward sigma: 2.0
+Interaction safe distance: 0.9
+Interaction close penalty: 0.35
+Interaction stagnation penalty: 0.02
+Anti-stagnation reward: False
+Anti-stagnation penalty: 0.2
+Anti-stagnation linear threshold: 0.05
+Anti-stagnation progress threshold: 0.005
+Anti-stagnation min laser: 0.35
+Wall-clearance reward: False
+Wall-clearance safe distance: 0.75
+Wall-clearance penalty: 1.5
+Wall-clearance speed weight: 0.8
+Wall-clearance turn weight: 0.4
+Local-navigation reward: True
+Local-navigation heading weight: 0.35
+Local-navigation wrong-way penalty: 0.25
+Local-navigation turn weight: 0.22
+Local-navigation near-goal distance: 0.9
+Local-navigation heading error: 0.5
+Local critic enabled: True
+Local critic geometry only: True
+Active neighbors only: True
+Actor state dim: 24
+Critic state dim: 69
+Local critic max neighbors: 9
+Local critic context dim: 45
+Best metric: full_success
+Eval episodes: 24
+Max epochs: 4
+Actor learning rate: 1e-06
+Critic learning rate: 2e-05
+Actor update delay steps: 7000
+Exploration noise: 0.011999895999995035
+Exploration min: 0.012
+Exploration decay steps: 500000
+TensorBoard log dir: runs/multi_coop_Jun08_10-52-58_JiuTian-AI4090
+Checkpoint path: ./checkpoints/TD3_velodyne_multi_v4_curriculum_stage3_light_patch_from_stage2_3d2_latest.pt
+Best checkpoint path: ./checkpoints/TD3_velodyne_multi_v4_curriculum_stage3_light_patch_from_stage2_3d2_best.pt
+Model prefix: TD3_velodyne_multi_v4_curriculum_stage3_light_patch_from_stage2_3d2
+Checkpoint interval episodes: 10
+Resume mode: True
+Starting agent samples: 24062
+Starting env steps: 14695
+Starting epoch: 5
+==============================================
+]: DiffDrive(ns = /r2/): <robotBaseFrame> = base_link
+[DEBUG] [1780893608.701233327, 0.740000000]: DiffDrive(ns = /r2/): <publishWheelTF> = false
+[DEBUG] [1780893608.701236828, 0.740000000]: DiffDrive(ns = /r2/): <publishOdomTF> = false
+[DEBUG] [1780893608.701240402, 0.740000000]: DiffDrive(ns = /r2/): <publishWheelJointState> = true
+[DEBUG] [1780893608.701248221, 0.740000000]: DiffDrive(ns = /r2/): <wheelSeparation> = 0.29999999999999999
+[DEBUG] [1780893608.701252514, 0.740000000]: DiffDrive(ns = /r2/): <wheelDiameter> = 0.17999999999999999
+[DEBUG] [1780893608.701256870, 0.740000000]: DiffDrive(ns = /r2/): <wheelAcceleration> = 1.8
+[DEBUG] [1780893608.701261080, 0.740000000]: DiffDrive(ns = /r2/): <wheelTorque> = 20
+[DEBUG] [1780893608.701264841, 0.740000000]: DiffDrive(ns = /r2/): <updateRate> = 50
+[DEBUG] [1780893608.701270001, 0.740000000]: DiffDrive(ns = /r2/): <odometrySource> = world := 1
+[DEBUG] [1780893608.701273439, 0.740000000]: DiffDrive(ns = /r2/): <leftJoint> = left_hub_joint
+[DEBUG] [1780893608.701277234, 0.740000000]: DiffDrive(ns = /r2/): <rightJoint> = right_hub_joint
+[INFO] [1780893608.701537938, 0.740000000]: DiffDrive(ns = /r2/): Advertise joint_states
+[INFO] [1780893608.701554418, 0.740000000]: DiffDrive(ns = /r2/): Try to subscribe to cmd_vel
+[INFO] [1780893608.702705994, 0.740000000]: DiffDrive(ns = /r2/): Subscribe to cmd_vel
+[INFO] [1780893608.702907940, 0.740000000]: DiffDrive(ns = /r2/): Advertise odom on odom 
+[INFO] [1780893608.702968915, 0.740000000]: GazeboRosJointStatePublisher is going to publish joint: chassis_swivel_joint
+[INFO] [1780893608.702973349, 0.740000000]: GazeboRosJointStatePublisher is going to publish joint: swivel_wheel_joint
+[INFO] [1780893608.702977003, 0.740000000]: GazeboRosJointStatePublisher is going to publish joint: left_hub_joint
+[INFO] [1780893608.702981686, 0.740000000]: GazeboRosJointStatePublisher is going to publish joint: right_hub_joint
+[INFO] [1780893608.702985486, 0.740000000]: Starting GazeboRosJointStatePublisher Plugin (ns = /r2/)!, parent name: r2
+... logging to /home/jiutian/.ros/log/1e5b47f4-62f4-11f1-836a-bd1fee3d6233/roslaunch-JiuTian-AI4090-785722.log
+Checking log directory for disk usage. This may take a while.
+Press Ctrl-C to interrupt
+Done checking log file disk usage. Usage is <1GB.
+]2;/home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3/assets/multi_robot_scenario_curriculum_stage3_light_patch_3.launch
+[1mstarted roslaunch server http://localhost:34617/[0m
+
+SUMMARY
+========
+
+PARAMETERS
+ * /robot_description_r1: <?xml version="1....
+ * /robot_description_r2: <?xml version="1....
+ * /robot_description_r3: <?xml version="1....
+ * /rosdistro: noetic
+ * /rosversion: 1.17.4
+ * /use_sim_time: True
+
+NODES
+  /
+    gazebo (gazebo_ros/gzserver)
+    urdf_spawner_r1 (gazebo_ros/spawn_model)
+    urdf_spawner_r2 (gazebo_ros/spawn_model)
+    urdf_spawner_r3 (gazebo_ros/spawn_model)
+
+[1mROS_MASTER_URI=http://localhost:11383/[0m
+]2;/home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3/assets/multi_robot_scenario_curriculum_stage3_light_patch_3.launch http://localhost:11383/
+[1mprocess[gazebo-1]: started with pid [785857][0m
+[1mprocess[urdf_spawner_r1-2]: started with pid [785860][0m
+[1mprocess[urdf_spawner_r2-3]: started with pid [785863][0m
+[1mprocess[urdf_spawner_r3-4]: started with pid [785864][0m
+[1m[urdf_spawner_r3-4] process has finished cleanly
+log file: /home/jiutian/.ros/log/1e5b47f4-62f4-11f1-836a-bd1fee3d6233/urdf_spawner_r3-4*.log[0m
+[1m[urdf_spawner_r1-2] process has finished cleanly
+log file: /home/jiutian/.ros/log/1e5b47f4-62f4-11f1-836a-bd1fee3d6233/urdf_spawner_r1-2*.log[0m
+[1m[urdf_spawner_r2-3] process has finished cleanly
+log file: /home/jiutian/.ros/log/1e5b47f4-62f4-11f1-836a-bd1fee3d6233/urdf_spawner_r2-3*.log[0m
+[gazebo-1] killing on exit
+shutting down processing monitor...
+... shutting down processing monitor complete
+[1mdone[0m
+... logging to /home/jiutian/.ros/log/1e5b47f4-62f4-11f1-836a-bd1fee3d6233/roslaunch-JiuTian-AI4090-785694.log
+Checking log directory for disk usage. This may take a while.
+Press Ctrl-C to interrupt
+Done checking log file disk usage. Usage is <1GB.
+]2;roscore
+[1mstarted roslaunch server http://localhost:38017/[0m
+ros_comm version 1.17.4
+
+
+SUMMARY
+========
+
+PARAMETERS
+ * /rosdistro: noetic
+ * /rosversion: 1.17.4
+
+NODES
+
+auto-starting new master
+[1mprocess[master]: started with pid [785710][0m
+[1mROS_MASTER_URI=http://localhost:11383/[0m
+]2;roscore http://localhost:11383/
+[1msetting /run_id to 1e5b47f4-62f4-11f1-836a-bd1fee3d6233[0m
+[1mprocess[rosout-1]: started with pid [785723][0m
+started core service [/rosout]
+[rosout-1] killing on exit
+[master] killing on exit
+shutting down processing monitor...
+... shutting down processing monitor complete
+[1mdone[0m
+Traceback (most recent call last):
+  File "train_velodyne_td3_multi.py", line 1284, in <module>
+    next_states, rewards, dones, targets, collisions = env.step(
+  File "/home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3/multi_agent_velodyne_env.py", line 957, in step
+    rospy.wait_for_service("/gazebo/pause_physics")
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/impl/tcpros_service.py", line 166, in wait_for_service
+    raise ROSInterruptException("rospy shutdown")
+rospy.exceptions.ROSInterruptException: rospy shutdown

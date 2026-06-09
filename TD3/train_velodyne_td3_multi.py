@@ -538,6 +538,9 @@ file_name = os.environ.get(
 save_model = True
 load_model = env_flag("DRL_MULTI_LOAD_MODEL", False)
 load_actor_only = env_flag("DRL_MULTI_LOAD_ACTOR_ONLY", False)
+load_full_model_with_local_critic = env_flag(
+    "DRL_MULTI_LOAD_FULL_MODEL_WITH_LOCAL_CRITIC", False
+)
 load_model_name = os.environ.get("DRL_MULTI_LOAD_MODEL_NAME", file_name)
 random_near_obstacle = False
 resume_training = True
@@ -675,7 +678,10 @@ if checkpoint:
     print("Resumed multi-agent training from checkpoint:", checkpoint_path)
 elif load_model:
     try:
-        if use_local_critic or load_actor_only:
+        if use_local_critic and load_full_model_with_local_critic:
+            network.load(load_model_name, "./pytorch_models")
+            print("Loaded initial actor and local-critic parameters from:", load_model_name)
+        elif use_local_critic or load_actor_only:
             network.load_actor(load_model_name, "./pytorch_models")
             print("Loaded initial actor parameters from:", load_model_name)
             if use_local_critic:
@@ -789,6 +795,16 @@ def context_stats(contexts):
     ]
     counts = [float(np.sum(mask)) for mask in masks]
     return float(np.mean(counts)), float(np.max(counts))
+
+
+def context_count(context):
+    if context is None:
+        return 0.0
+    mask_offset = local_critic_feature_dim - 1
+    mask = np.array(context, dtype=np.float32)[
+        mask_offset::local_critic_feature_dim
+    ]
+    return float(np.sum(mask))
 
 
 def is_better_eval(candidate, current_best):
@@ -960,6 +976,11 @@ while timestep < max_timesteps:
             mean_context_neighbors, max_context_neighbors = context_stats(
                 episode_last_neighbor_contexts
             )
+            mean_context_neighbors_step = (
+                episode_context_neighbor_count_sum / episode_sample_count
+                if episode_sample_count > 0
+                else 0.0
+            )
             coop_active_agents = sum(1 for count in coop_neighbor_counts if count > 0)
             mean_raw_reward = float(np.mean(raw_rewards))
             mean_adjusted_reward = float(np.mean(adjusted_rewards))
@@ -978,6 +999,8 @@ while timestep < max_timesteps:
                 "abs_wall_clear_reward=%.4f | local_nav_reward=%.4f | "
                 "abs_local_nav_reward=%.4f | "
                 "context_neighbors_mean=%.2f | context_neighbors_max=%.0f | "
+                "context_step_mean=%.2f | context_step_max=%.0f | "
+                "actor_unlocked=%i | "
                 "expl_noise=%.4f | "
                 "replay=%i | samples/sec=%.3f"
                 % (
@@ -1015,6 +1038,9 @@ while timestep < max_timesteps:
                     mean_abs_local_navigation_reward_step,
                     mean_context_neighbors,
                     max_context_neighbors,
+                    mean_context_neighbors_step,
+                    episode_context_neighbor_max,
+                    int(timestep >= actor_update_delay_steps),
                     expl_noise,
                     replay_buffer.size(),
                     steps_per_sec,
@@ -1206,6 +1232,8 @@ while timestep < max_timesteps:
         episode_active_neighbor_agent_steps = 0
         episode_active_neighbor_count_sum = 0.0
         episode_active_neighbor_max = 0
+        episode_context_neighbor_count_sum = 0.0
+        episode_context_neighbor_max = 0.0
         episode_interaction_reward_sum = 0.0
         episode_abs_interaction_reward_sum = 0.0
         episode_anti_stagnation_reward_sum = 0.0
@@ -1261,6 +1289,12 @@ while timestep < max_timesteps:
     for idx, name in enumerate(agent_names):
         if not active_mask[idx]:
             continue
+        if use_local_critic:
+            context_neighbor_count = context_count(neighbor_contexts[idx])
+            episode_context_neighbor_count_sum += context_neighbor_count
+            episode_context_neighbor_max = max(
+                episode_context_neighbor_max, context_neighbor_count
+            )
         active_neighbor_count = int(
             step_agents[name].get("active_visible_neighbor_count", 0)
         )

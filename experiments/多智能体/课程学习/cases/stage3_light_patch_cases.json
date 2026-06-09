@@ -1,0 +1,30 @@
+{
+  "name": "stage3_light_patch_cases",
+  "description": "Third curriculum light patch: only the easiest hand-designed three-agent interaction cases, used as a small mainline repair before harder dense interaction training.",
+  "cases": [
+    {
+      "name": "三车目标汇合_轻聚集",
+      "agents": {
+        "r1": {"start": [-1.65, -0.75], "goal": [-0.35, 0.05]},
+        "r2": {"start": [1.65, -0.65], "goal": [0.35, 0.10]},
+        "r3": {"start": [0.00, 1.55], "goal": [0.00, 0.60]}
+      }
+    },
+    {
+      "name": "三车轻对穿_横向留距",
+      "agents": {
+        "r1": {"start": [-1.55, -0.45], "goal": [1.45, -0.15]},
+        "r2": {"start": [1.55, 0.15], "goal": [-1.45, 0.45]},
+        "r3": {"start": [-0.15, 1.45], "goal": [0.15, -1.35]}
+      }
+    },
+    {
+      "name": "三车靠墙会车_轻错位",
+      "agents": {
+        "r1": {"start": [1.05, -0.45], "goal": [4.15, -0.10]},
+        "r2": {"start": [4.25, 0.20], "goal": [1.10, -0.30]},
+        "r3": {"start": [1.20, 2.85], "goal": [4.10, 2.70]}
+      }
+    }
+  ]
+}

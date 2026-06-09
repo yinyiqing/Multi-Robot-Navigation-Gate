@@ -109,9 +109,14 @@ class MultiAgentGazeboEnv:
         self.cooperative_reward_distance_weighted = cooperative_reward_distance_weighted
         self.cooperative_reward_sigma = cooperative_reward_sigma
         self.cooperative_reward_mode = cooperative_reward_mode.strip().lower()
-        if self.cooperative_reward_mode not in ("average", "interaction_only"):
+        if self.cooperative_reward_mode not in (
+            "average",
+            "average_plus_interaction",
+            "interaction_only",
+        ):
             raise ValueError(
-                "cooperative_reward_mode must be either 'average' or 'interaction_only'"
+                "cooperative_reward_mode must be 'average', "
+                "'average_plus_interaction', or 'interaction_only'"
             )
         self.interaction_safe_distance = interaction_safe_distance
         self.interaction_close_penalty = interaction_close_penalty
@@ -731,6 +736,14 @@ class MultiAgentGazeboEnv:
                 adjusted[idx] = float(
                     np.mean([rewards[self.agent_names.index(n)] for n in visible])
                 )
+            if self.cooperative_reward_mode == "average_plus_interaction":
+                interaction_reward = self._compute_interaction_reward(
+                    name,
+                    self.last_reward_neighbors[name],
+                    step_agents_info[name]["progress"] if step_agents_info else 0.0,
+                )
+                self.last_interaction_rewards[name] = interaction_reward
+                adjusted[idx] = float(adjusted[idx] + interaction_reward)
         return adjusted
 
     def _compute_interaction_reward(self, name, visible_neighbors, progress):

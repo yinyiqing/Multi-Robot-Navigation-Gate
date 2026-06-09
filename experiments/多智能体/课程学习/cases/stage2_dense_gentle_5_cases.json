@@ -1,0 +1,50 @@
+{
+  "name": "stage2_dense_gentle_5_cases",
+  "description": "Five-agent gentle dense-interaction curriculum cases before the full stage2_dense suite.",
+  "cases": [
+    {
+      "name": "cross_center_5_gentle_wide",
+      "weight": 1.4,
+      "agents": {
+        "r1": {"start": [-1.8, -0.15], "goal": [1.8, -0.15]},
+        "r2": {"start": [1.8, 0.15], "goal": [-1.8, 0.15]},
+        "r3": {"start": [-0.15, -1.8], "goal": [-0.15, 1.8]},
+        "r4": {"start": [0.15, 1.8], "goal": [0.15, -1.8]},
+        "r5": {"start": [-1.6, -1.6], "goal": [1.6, 1.6]}
+      }
+    },
+    {
+      "name": "clustered_starts_spread_goals_gentle",
+      "weight": 1.4,
+      "agents": {
+        "r1": {"start": [-1.25, -0.45], "goal": [1.9, 0.9]},
+        "r2": {"start": [-0.55, -0.75], "goal": [-1.2, 1.1]},
+        "r3": {"start": [0.25, -0.35], "goal": [0.0, 1.9]},
+        "r4": {"start": [1.05, 0.25], "goal": [1.8, -1.1]},
+        "r5": {"start": [-0.25, 0.75], "goal": [-1.2, -1.1]}
+      }
+    },
+    {
+      "name": "spread_starts_clustered_goals_retention",
+      "weight": 0.8,
+      "agents": {
+        "r1": {"start": [-1.8, -0.8], "goal": [-0.45, 0.05]},
+        "r2": {"start": [1.8, -0.8], "goal": [0.45, 0.05]},
+        "r3": {"start": [-0.8, 1.2], "goal": [-0.15, 0.55]},
+        "r4": {"start": [1.7, 0.9], "goal": [0.15, 0.55]},
+        "r5": {"start": [0.0, -1.6], "goal": [0.0, -0.45]}
+      }
+    },
+    {
+      "name": "wall_adjacent_crossing_retention",
+      "weight": 0.8,
+      "agents": {
+        "r1": {"start": [1.0, -0.5], "goal": [4.2, 0.0]},
+        "r2": {"start": [4.3, 0.2], "goal": [1.1, -0.4]},
+        "r3": {"start": [1.1, 2.9], "goal": [4.3, 2.8]},
+        "r4": {"start": [4.3, 3.9], "goal": [1.0, 3.9]},
+        "r5": {"start": [-1.0, 0.8], "goal": [0.8, 0.8]}
+      }
+    }
+  ]
+}
