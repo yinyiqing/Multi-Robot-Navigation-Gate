@@ -2,6 +2,7 @@ import math
 import json
 import os
 import random
+import socket
 import subprocess
 import time
 from os import path
@@ -246,6 +247,14 @@ class MultiAgentGazeboEnv:
         port = os.environ.get("ROS_PORT_SIM", "11311")
         ros_master_uri = os.environ.get("ROS_MASTER_URI", "").strip()
         should_launch_roscore = not ros_master_uri
+        if ros_master_uri:
+            try:
+                host_port = ros_master_uri.split("://", 1)[-1].rstrip("/")
+                host, uri_port = host_port.split(":", 1)
+                with socket.create_connection((host, int(uri_port)), timeout=1.0):
+                    should_launch_roscore = False
+            except Exception:
+                should_launch_roscore = True
         if should_launch_roscore:
             subprocess.Popen(["roscore", "-p", port])
             print("Roscore launched!")
