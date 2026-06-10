@@ -213,10 +213,24 @@ class TD3(object):
         self.max_action = max_action
         self.writer = SummaryWriter(log_dir=log_dir)
         self.iter_count = 0
+        self.actor_reference = None
+        self.actor_anchor_weight = 0.0
 
     def get_action(self, state):
         state = torch.Tensor(state.reshape(1, -1)).to(device)
         return self.actor(state).cpu().data.numpy().flatten()
+
+    def set_actor_reference(self, actor_state, anchor_weight):
+        if anchor_weight <= 0.0:
+            self.actor_reference = None
+            self.actor_anchor_weight = 0.0
+            return
+        self.actor_reference = Actor(self.state_dim, 2).to(device)
+        self.actor_reference.load_state_dict(actor_state)
+        self.actor_reference.eval()
+        for param in self.actor_reference.parameters():
+            param.requires_grad = False
+        self.actor_anchor_weight = anchor_weight
 
     def train(
         self,
@@ -233,6 +247,7 @@ class TD3(object):
         av_Q = 0
         max_Q = -inf
         av_loss = 0
+        av_actor_anchor_loss = 0
         for it in range(iterations):
             (
                 batch_states,
@@ -267,11 +282,19 @@ class TD3(object):
 
             if it % policy_freq == 0:
                 if update_actor:
-                    actor_grad, _ = self.critic(state, self.actor(state))
-                    actor_grad = -actor_grad.mean()
+                    actor_action = self.actor(state)
+                    actor_grad, _ = self.critic(state, actor_action)
+                    actor_loss = -actor_grad.mean()
+                    anchor_loss = torch.tensor(0.0, device=device)
+                    if self.actor_reference is not None and self.actor_anchor_weight > 0.0:
+                        with torch.no_grad():
+                            reference_action = self.actor_reference(state)
+                        anchor_loss = F.mse_loss(actor_action, reference_action)
+                        actor_loss = actor_loss + self.actor_anchor_weight * anchor_loss
                     self.actor_optimizer.zero_grad()
-                    actor_grad.backward()
+                    actor_loss.backward()
                     self.actor_optimizer.step()
+                    av_actor_anchor_loss += anchor_loss.item()
 
                     for param, target_param in zip(
                         self.actor.parameters(), self.actor_target.parameters()
@@ -293,6 +316,9 @@ class TD3(object):
         self.writer.add_scalar("loss", av_loss / iterations, self.iter_count)
         self.writer.add_scalar("Av. Q", av_Q / iterations, self.iter_count)
         self.writer.add_scalar("Max. Q", max_Q, self.iter_count)
+        self.writer.add_scalar(
+            "Actor anchor loss", av_actor_anchor_loss / iterations, self.iter_count
+        )
 
     def train_local_critic(
         self,
@@ -309,6 +335,7 @@ class TD3(object):
         av_Q = 0
         max_Q = -inf
         av_loss = 0
+        av_actor_anchor_loss = 0
         for it in range(iterations):
             (
                 batch_states,
@@ -349,10 +376,17 @@ class TD3(object):
                 if update_actor:
                     actor_action = self.actor(state)
                     actor_grad, _ = self.critic(critic_state, actor_action)
-                    actor_grad = -actor_grad.mean()
+                    actor_loss = -actor_grad.mean()
+                    anchor_loss = torch.tensor(0.0, device=device)
+                    if self.actor_reference is not None and self.actor_anchor_weight > 0.0:
+                        with torch.no_grad():
+                            reference_action = self.actor_reference(state)
+                        anchor_loss = F.mse_loss(actor_action, reference_action)
+                        actor_loss = actor_loss + self.actor_anchor_weight * anchor_loss
                     self.actor_optimizer.zero_grad()
-                    actor_grad.backward()
+                    actor_loss.backward()
                     self.actor_optimizer.step()
+                    av_actor_anchor_loss += anchor_loss.item()
 
                     for param, target_param in zip(
                         self.actor.parameters(), self.actor_target.parameters()
@@ -374,6 +408,9 @@ class TD3(object):
         self.writer.add_scalar("loss", av_loss / iterations, self.iter_count)
         self.writer.add_scalar("Av. Q", av_Q / iterations, self.iter_count)
         self.writer.add_scalar("Max. Q", max_Q, self.iter_count)
+        self.writer.add_scalar(
+            "Actor anchor loss", av_actor_anchor_loss / iterations, self.iter_count
+        )
 
     def save(self, filename, directory):
         torch.save(self.actor.state_dict(), "%s/%s_actor.pth" % (directory, filename))
@@ -484,6 +521,7 @@ tau = 0.005
 policy_noise = 0.2
 noise_clip = 0.5
 policy_freq = env_int("DRL_MULTI_POLICY_FREQ", 2)
+actor_anchor_weight = env_float("DRL_MULTI_ACTOR_ANCHOR_WEIGHT", 0.0) or 0.0
 buffer_size = 1e6
 agent_names = make_agent_names()
 use_dynamic_reward = env_flag("DRL_MULTI_USE_DYNAMIC_REWARD", False)
@@ -697,6 +735,14 @@ elif load_model:
         else:
             network.load(load_model_name, "./pytorch_models")
             print("Loaded initial model parameters from:", load_model_name)
+        if actor_anchor_weight > 0.0:
+            network.set_actor_reference(network.actor.state_dict(), actor_anchor_weight)
+            print(
+                "Actor anchor enabled from warm start:",
+                load_model_name,
+                "| weight=",
+                actor_anchor_weight,
+            )
     except Exception:
         print("Could not load the stored model parameters, initializing randomly")
 
@@ -768,6 +814,8 @@ print(
     "Actor update delay steps:",
     actor_update_delay_steps,
 )
+print("Policy freq:", policy_freq)
+print("Actor anchor weight:", actor_anchor_weight)
 print("Exploration noise:", expl_noise)
 print("Exploration min:", expl_min)
 print("Exploration decay steps:", expl_decay_steps)

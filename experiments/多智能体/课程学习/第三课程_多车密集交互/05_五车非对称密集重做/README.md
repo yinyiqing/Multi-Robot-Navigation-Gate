@@ -126,12 +126,34 @@
 
 这使得第三课程可以在保持 warm start 和 case 不变的前提下，单独降低 actor 更新频率。
 
-当前正在运行的实验：
+继续沿着“actor 更新稳定性”主线，新增了两组实验：
 
-- `train_multi_curriculum_stage3_asym_three_5_detached_20260610_153603.log`
+- `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260610_153603.log`
   - `delay=12000`
   - `policy_freq=6`
-  - 目的不是继续拖解冻，而是测试“actor 解冻后更少更新”能否比 `policy_freq=2` 更稳
+  - 目的是测试“actor 解冻后更少更新”能否比 `policy_freq=2` 更稳
+  - 结果：
+    - Epoch 1：success `0.875`，collision `0.125`，full success `0.562`
+    - Epoch 2：success `0.892`，collision `0.108`，full success `0.604`
+    - Epoch 3：success `0.867`，collision `0.133`，full success `0.542`
+  - 结论：
+    - 比 `delay=8000` 更稳
+    - 但最终仍未优于 `delay=12000 + policy_freq=2` 的最好点
+    - 说明“少更 actor”只能缓解，不能根治
+
+- `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260610_164119.log`
+  - `delay=12000`
+  - `policy_freq=6`
+  - `actor_anchor_weight=0.05`
+  - 目的是在 warm start actor 基础上，加一个轻量约束，避免 actor 一解冻就迅速偏离原有可用策略
+  - 结果：
+    - Epoch 1：success `0.867`，collision `0.133`，full success `0.604`
+    - Epoch 2：success `0.900`，collision `0.092`，full success `0.646`
+    - Epoch 3：success `0.850`，collision `0.142`，full success `0.521`
+  - 结论：
+    - 中期确实更好，`Epoch 2` 回到了目前第三课程的最好水平
+    - 但到 `Epoch 3` 仍然回落
+    - 说明 actor anchor 是有效缓解项，但还不足以彻底解决退化
 
 ## 当前结论
 
