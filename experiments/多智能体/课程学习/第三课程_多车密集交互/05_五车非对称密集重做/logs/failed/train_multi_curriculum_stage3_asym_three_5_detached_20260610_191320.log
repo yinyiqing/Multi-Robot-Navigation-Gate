@@ -1,0 +1,14 @@
+Activated DRL robot navigation Python environment.
+Python: Python 3.8.10
+Venv: /home/jiutian/venvs/drl-robot-nav
+Curriculum scenario enabled: 3 cases loaded
+Using existing ROS master: http://localhost:11727
+Unable to register with master node [http://localhost:11727]: master may not be running yet. Will keep trying.
+Traceback (most recent call last):
+  File "train_velodyne_td3_multi.py", line 662, in <module>
+    env = MultiAgentGazeboEnv(
+  File "/home/jiutian/Local-Critic-Multi-Robot-Navigation/TD3/multi_agent_velodyne_env.py", line 264, in __init__
+    rospy.init_node("multi_agent_gym", anonymous=True)
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/client.py", line 336, in init_node
+    raise rospy.exceptions.ROSInitException("Failed to initialize time. Please check logs for additional details")
+rospy.exceptions.ROSInitException: Failed to initialize time. Please check logs for additional details

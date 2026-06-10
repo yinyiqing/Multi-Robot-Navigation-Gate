@@ -8,6 +8,11 @@ STAGE="${1:-stage1_single}"
 ROS_PORT="${DRL_MULTI_ROS_PORT:-11367}"
 GAZEBO_PORT="${DRL_MULTI_GAZEBO_PORT:-11407}"
 
+port_in_use() {
+  local port="$1"
+  ss -ltn "( sport = :$port )" 2>/dev/null | tail -n +2 | grep -q .
+}
+
 case "$STAGE" in
   stage1_single)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
@@ -389,6 +394,16 @@ existing_pid="$(
 if [[ -n "$existing_pid" ]]; then
   echo "A multi-agent training process is already running with PID $existing_pid"
   echo "Please stop it before starting curriculum stage $STAGE."
+  exit 1
+fi
+
+if port_in_use "$ROS_PORT"; then
+  echo "ROS port $ROS_PORT is already in use. Please choose a different DRL_MULTI_ROS_PORT."
+  exit 1
+fi
+
+if port_in_use "$GAZEBO_PORT"; then
+  echo "Gazebo port $GAZEBO_PORT is already in use. Please choose a different DRL_MULTI_GAZEBO_PORT."
   exit 1
 fi
 

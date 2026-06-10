@@ -58,6 +58,10 @@
 - `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260609_214533.log`
 - `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260610_090817.log`
 - `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260610_134006.log`
+- `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260610_153603.log`
+- `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260610_164119.log`
+- `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260610_191507.log`
+- `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260610_202722.log`
 
 补充测试日志：
 
@@ -109,6 +113,14 @@
   - 是默认 ROS/Gazebo 端口和旧实例冲突，`gzserver` 启动失败
   - 已归为无效启动日志
 
+- `logs/failed/train_multi_curriculum_stage3_asym_three_5_detached_20260610_191159.log`
+  - 这次不是算法结果
+  - 训练进程错误复用了默认端口，碰到旧 Gazebo 实例，出现 `entity already exists` 和 `gzserver` 反复重启
+
+- `logs/failed/train_multi_curriculum_stage3_asym_three_5_detached_20260610_191320.log`
+  - 这次不是算法结果
+  - 虽然改了端口，但该端口本身已被旧 `gzserver` 占用，训练误判“已有 ROS master”，随后 `rospy.init_node` 失败
+
 这一轮对比之后，可以把“继续扫 delay”基本收口：
 
 - `22000`：太晚，基本不学
@@ -155,6 +167,33 @@
     - 但到 `Epoch 3` 仍然回落
     - 说明 actor anchor 是有效缓解项，但还不足以彻底解决退化
 
+- `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260610_191507.log`
+  - `delay=12000`
+  - `policy_freq=6`
+  - `actor_anchor_weight=0.1`
+  - 目的是测试更强的 warm-start 约束能否进一步压住 actor 漂移
+  - 结果：
+    - Epoch 1：success `0.879`，collision `0.117`，full success `0.521`
+    - Epoch 2：success `0.875`，collision `0.125`，full success `0.583`
+    - Epoch 3：success `0.838`，collision `0.146`，full success `0.500`
+  - 结论：
+    - 比 `actor_anchor_weight=0.05` 更差
+    - 说明继续单纯增大 actor anchor 不能解决问题，这条线可以基本收口
+
+- `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260610_202722.log`
+  - `actor_update_delay_steps=999999`
+  - `policy_freq=2`
+  - `actor_anchor_weight=0`
+  - 这版不是“继续想办法稳住解冻”，而是直接做关键对照：第三课程里 actor 全程冻结，只训练 critic
+  - 结果：
+    - Epoch 1：success `0.883`，collision `0.117`，full success `0.562`
+    - Epoch 2：success `0.879`，collision `0.121`，full success `0.542`
+    - Epoch 3：success `0.879`，collision `0.129`，full success `0.583`
+  - 结论：
+    - 明显比多种“解冻后退化”的版本更稳
+    - 说明第三课程当前最主要的问题，确实是 actor 更新本身
+    - 但“只训 critic、不动 actor”也没有显著超过最好的 warm-start 基线，因此它更像是在保住已有能力，而不是学到新的三车交互策略
+
 ## 当前结论
 
 第三课程后续的重点不应是“必须先解决对称中心交叉”，而应是：
@@ -168,8 +207,14 @@
 
 第三课程的下一步不再是继续加难 case，也不再直接推进更强对称密集。
 
-当前唯一主线问题是：
+当前更准确的主线结论是：
 
-- 如何让 actor 在 `stage3_asym_three_5` 中更新而不快速遗忘 `stage3_asym_pair_5` 的已有能力
+1. `stage3_asym_pair_5 -> stage3_asym_three_5` 的 warm start 本身是可用的
+2. 第三课程当前真正的破坏项是 actor 更新，而不是 case 文件本身
+3. `delay`、`policy_freq`、轻量 `anchor` 都只能缓解，不能根治
+4. actor 全冻结可以保住已有能力，但暂时没有带来明显的新收益
 
-因此下一步应只围绕“actor 更新稳定性”做实验，而不是继续扩展 case 难度。
+因此第三课程下一步不应再继续做零散的“小修小补”，而应明确围绕下面二选一推进：
+
+- 要么接受第三课程暂时不更新 actor，把它当成稳定过渡/评估阶段
+- 要么重新设计更本质的 actor 更新方案，而不是继续微调解冻时机
