@@ -56,6 +56,12 @@
 - `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260609_202936.log`
 - `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260609_210249.log`
 - `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260609_214533.log`
+- `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260610_090817.log`
+- `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260610_134006.log`
+
+补充测试日志：
+
+- `logs/train/test_multi_curriculum_stage3_asym_three_5_TD3_velodyne_multi_v4_curriculum_stage3_asym_pair_5_from_5a_cleanstart_v2_best_detached_20260609_233731.log`
 
 补充判断：
 
@@ -74,6 +80,58 @@
   - actor 解冻后很快退化为大量 `0/5`、`1/5`
   - `Eval Epoch 1` 下降到 success `0.021`、collision `0.787`、full success `0.000`
   - 说明当前主要问题已经不是 case 是否还不够非对称，而是 actor 在 `pair -> three` 阶段更新时快速退化
+
+### 2026-06-10：解冻窗口对比
+
+先做了一个干净的 warm-start 检查：
+
+- `stage3_asym_pair_5_from_5a_cleanstart_v2_best` 直接测试 `stage3_asym_three_5`
+- 结果说明 warm start actor 本身是可用的，不是“一上来就不适配新 case”
+
+在这个前提下，对比了两组解冻窗口：
+
+- `20260610_090817`，`delay=12000`
+  - Epoch 1：success `0.904`，collision `0.096`，full success `0.646`
+  - Epoch 2：success `0.871`，collision `0.125`，full success `0.583`
+  - Epoch 3：success `0.887`，collision `0.117`，full success `0.583`
+  - 结论：没有像 `delay=4000` 那样学炸，但也没有明显超过 warm start
+
+- `20260610_134006`，`delay=8000`
+  - Epoch 1：success `0.879`，collision `0.121`，full success `0.583`
+  - Epoch 2：success `0.863`，collision `0.146`，full success `0.500`
+  - Epoch 3：success `0.808`，collision `0.171`，full success `0.354`
+  - 结论：比 `delay=12000` 更差，说明继续提前解冻只会加重退化
+
+额外说明：
+
+- `logs/failed/train_multi_curriculum_stage3_asym_three_5_detached_20260610_133924.log`
+  - 这次不是算法结果
+  - 是默认 ROS/Gazebo 端口和旧实例冲突，`gzserver` 启动失败
+  - 已归为无效启动日志
+
+这一轮对比之后，可以把“继续扫 delay”基本收口：
+
+- `22000`：太晚，基本不学
+- `12000`：当前最稳，但只是“最不坏”
+- `8000`：明显继续变差
+- `4000`：容易直接学炸
+
+因此第三课程下一步不再继续找“最佳解冻时间”，而是转去直接处理 actor 更新机制。
+
+### 2026-06-10：主线切到 actor 更新机制
+
+为了直接验证“critic 多更、actor 少更”是否能缓解退化，代码增加了：
+
+- `DRL_MULTI_POLICY_FREQ`
+
+这使得第三课程可以在保持 warm start 和 case 不变的前提下，单独降低 actor 更新频率。
+
+当前正在运行的实验：
+
+- `train_multi_curriculum_stage3_asym_three_5_detached_20260610_153603.log`
+  - `delay=12000`
+  - `policy_freq=6`
+  - 目的不是继续拖解冻，而是测试“actor 解冻后更少更新”能否比 `policy_freq=2` 更稳
 
 ## 当前结论
 
