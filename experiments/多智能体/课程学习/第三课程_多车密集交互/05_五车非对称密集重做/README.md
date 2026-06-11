@@ -62,6 +62,7 @@
 - `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260610_164119.log`
 - `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260610_191507.log`
 - `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260610_202722.log`
+- `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260610_223831.log`
 
 补充测试日志：
 
@@ -194,6 +195,20 @@
     - 说明第三课程当前最主要的问题，确实是 actor 更新本身
     - 但“只训 critic、不动 actor”也没有显著超过最好的 warm-start 基线，因此它更像是在保住已有能力，而不是学到新的三车交互策略
 
+- `logs/train/train_multi_curriculum_stage3_asym_three_5_detached_20260610_223831.log`
+  - `actor_update_delay_steps=0`
+  - `policy_freq=2`
+  - `actor_anchor_weight=0`
+  - 这版用于补齐一个之前真正没做过的关键对照：第三课程从第一步开始就解冻 actor
+  - 结果：
+    - Epoch 1：success `0.812`，collision `0.188`，full success `0.438`
+    - Epoch 2：success `0.804`，collision `0.175`，full success `0.375`
+    - Epoch 3：success `0.746`，collision `0.237`，full success `0.229`
+  - 结论：
+    - 这是目前第三课程中最差的一组有效结果
+    - 说明“场景切换不算太大，所以 actor 应该从一开始就更新”这个猜想，在当前实现下并不成立
+    - 当前第三课程里，actor 越早参与更新，越容易破坏已有策略
+
 ## 当前结论
 
 第三课程后续的重点不应是“必须先解决对称中心交叉”，而应是：
@@ -213,6 +228,7 @@
 2. 第三课程当前真正的破坏项是 actor 更新，而不是 case 文件本身
 3. `delay`、`policy_freq`、轻量 `anchor` 都只能缓解，不能根治
 4. actor 全冻结可以保住已有能力，但暂时没有带来明显的新收益
+5. `delay=0 / 4000 / 8000 / 12000 / 22000 / 全冻结` 这一组对照已经基本把“解冻时机”这条线试清楚了，后续不应再继续在这里做零散盲调
 
 因此第三课程下一步不应再继续做零散的“小修小补”，而应明确围绕下面二选一推进：
 
