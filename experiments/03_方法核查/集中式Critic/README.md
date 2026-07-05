@@ -22,14 +22,26 @@
 
 ## 02 中程验证
 
-- 当前正在跑：
+- 已跑完：
   - 修正后 `joint-action critic`
   - 同一 warm start
   - `5 epoch`
-- 目的：
-  - 看短对照里的优势能不能在更长训练里保持
-- 当前运行日志还在根目录 `logs/`，跑完后再归档到：
-  - [02_中程验证](/home/jiutian/Local-Critic-Multi-Robot-Navigation/experiments/03_方法核查/集中式Critic/02_中程验证)
+- 各轮验证：
+  - Epoch 1: `success_rate=0.867`, `collision_rate=0.133`, `full_success_rate=0.542`
+  - Epoch 2: `success_rate=0.875`, `collision_rate=0.133`, `full_success_rate=0.542`
+  - Epoch 3: `success_rate=0.825`, `collision_rate=0.175`, `full_success_rate=0.417`
+  - Epoch 4: `success_rate=0.783`, `collision_rate=0.200`, `full_success_rate=0.375`
+  - Epoch 5: `success_rate=0.708`, `collision_rate=0.275`, `full_success_rate=0.208`
+- 结论：
+  - 前 2 个 epoch 明显好于旧版 critic
+  - 但继续训练后还是出现了后期退化
+  - 所以现在更准确的判断是：
+    - critic 改法不是没用
+    - 但它还不足以单独解决 actor 后期变差的问题
+
+对应日志：
+
+- [02_中程验证](/home/jiutian/Local-Critic-Multi-Robot-Navigation/experiments/03_方法核查/集中式Critic/02_中程验证)
 
 ## 已完成的代码核查
 
@@ -59,4 +71,4 @@
 
 - 先发现旧版 critic 看到的多车信息不够完整
 - 再把多车信息补进训练数据和 critic 输入里
-- 然后继续看 critic 改对以后，actor 解冻还会不会像以前那样明显退化
+- 然后确认到：critic 改对以后，前期会更稳，但更长训练里仍会退化
