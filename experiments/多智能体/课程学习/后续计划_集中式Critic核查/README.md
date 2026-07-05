@@ -18,7 +18,7 @@
 
 对应日志：
 
-- [01_短对照_critic输入对照](/home/jiutian/Local-Critic-Multi-Robot-Navigation/experiments/多智能体/课程学习/后续计划_集中式Critic核查/01_短对照_critic输入对照)
+- [01_短对照](/home/jiutian/Local-Critic-Multi-Robot-Navigation/experiments/多智能体/课程学习/后续计划_集中式Critic核查/01_短对照)
 
 ## 02 中程验证
 
@@ -29,7 +29,7 @@
 - 目的：
   - 看短对照里的优势能不能在更长训练里保持
 - 当前运行日志还在根目录 `logs/`，跑完后再归档到：
-  - [02_中程验证_joint_action_critic](/home/jiutian/Local-Critic-Multi-Robot-Navigation/experiments/多智能体/课程学习/后续计划_集中式Critic核查/02_中程验证_joint_action_critic)
+  - [02_中程验证](/home/jiutian/Local-Critic-Multi-Robot-Navigation/experiments/多智能体/课程学习/后续计划_集中式Critic核查/02_中程验证)
 
 ## 已完成的代码核查
 
@@ -52,8 +52,8 @@
 
 - 这个目录只保留：
   - 一个总 README
-  - `01_短对照_critic输入对照/`
-  - `02_中程验证_joint_action_critic/`
+  - `01_短对照/`
+  - `02_中程验证/`
 
 ## 一句话总结
 
