@@ -35,6 +35,22 @@
   - critic 输入改法确实会影响结果
   - 现在更值得继续查 critic 语义和 buffer，而不是回去盲调 actor 解冻时机
 
+## 第二轮核查结论
+
+- 已确认：
+  - actor 更新时，其他 agent 动作来自 replay buffer
+  - 没有把其他 agent 的 actor 梯度错误串进当前 agent 更新
+- 当前最值得继续修的点不是 detach
+- 而是 `target joint action` 的构造还不够标准：
+  - 原来 TD3 的 smoothing noise 只明确加在当前样本 agent 的 `next_action`
+  - 其他 agent 的 target action 还是无噪声版本
+- 这个点现已修正：
+  - 所有 agent 的 target action 都统一加入 TD3 smoothing noise
+  - inactive agent 再按 `next_active_mask` 置零
+- 所以下一步优先级应当是：
+  1. 直接做一组中等长度验证
+  2. 看 joint-action critic 的优势能不能在更长训练里保持
+
 ## 核查清单
 
 ### 1. Buffer

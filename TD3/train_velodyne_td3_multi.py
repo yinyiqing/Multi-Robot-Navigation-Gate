@@ -245,11 +245,22 @@ class TD3(object):
             device=device,
         )
 
-    def _build_target_joint_actions(self, joint_next_states_batch, next_active_mask_batch):
+    def _build_target_joint_actions(
+        self,
+        joint_next_states_batch,
+        next_active_mask_batch,
+        policy_noise,
+        noise_clip,
+    ):
         joint_next_states = self._joint_states_to_tensor(joint_next_states_batch)
         batch_size, num_agents, state_dim = joint_next_states.shape
         flat_next_states = joint_next_states.reshape(batch_size * num_agents, state_dim)
         flat_next_actions = self.actor_target(flat_next_states)
+        flat_noise = torch.randn_like(flat_next_actions) * policy_noise
+        flat_noise = flat_noise.clamp(-noise_clip, noise_clip)
+        flat_next_actions = (flat_next_actions + flat_noise).clamp(
+            -self.max_action, self.max_action
+        )
         joint_next_actions = flat_next_actions.reshape(batch_size, num_agents, -1)
 
         if next_active_mask_batch is not None:
@@ -452,13 +463,12 @@ class TD3(object):
 
             if self.critic_action_dim > self.action_dim and has_joint_transition:
                 joint_next_action = self._build_target_joint_actions(
-                    batch_joint_next_states, batch_next_active_masks
+                    batch_joint_next_states,
+                    batch_next_active_masks,
+                    policy_noise,
+                    noise_clip,
                 )
-                joint_next_action = joint_next_action.view(next_action.shape[0], -1, self.action_dim)
-                agent_indices = [0 if idx is None else int(idx) for idx in batch_agent_indices]
-                for batch_idx, agent_idx in enumerate(agent_indices):
-                    joint_next_action[batch_idx, agent_idx] = next_action[batch_idx]
-                critic_next_action = joint_next_action.reshape(next_action.shape[0], -1)
+                critic_next_action = joint_next_action
                 critic_action = self._joint_actions_to_tensor(batch_joint_actions)
             else:
                 critic_next_action = next_action
