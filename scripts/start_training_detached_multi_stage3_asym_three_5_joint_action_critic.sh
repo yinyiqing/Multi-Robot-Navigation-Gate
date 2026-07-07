@@ -11,7 +11,7 @@ LAUNCHFILE="multi_robot_scenario_curriculum_${STAGE}_${NUM_AGENTS}.launch"
 LAUNCH_PATH="$TD3_DIR/assets/$LAUNCHFILE"
 MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage3_asym_three_5_joint_action_critic_from_stage3_pair_cleanstart_v2_best}"
 LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage3_asym_pair_5_from_5a_cleanstart_v2_best}"
-CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage3_asym_three_5_cases.json"
+CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage3_asym_three_5_cases.json"
 ROS_PORT="${DRL_MULTI_ROS_PORT:-11381}"
 GAZEBO_PORT="${DRL_MULTI_GAZEBO_PORT:-11481}"
 

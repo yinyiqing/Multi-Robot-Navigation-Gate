@@ -18,7 +18,7 @@ case "$STAGE" in
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage1_single}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1_single_local_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage1_single_local_cases.json"
     VERSION="multi-agent-curriculum-stage1-single-local-v1"
     DEFAULT_MAX_EPOCHS=8
     DEFAULT_EVAL_EPISODES=24
@@ -31,7 +31,7 @@ case "$STAGE" in
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage1b_single}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage1_single_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1b_single_near_goal_sidewall_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage1b_single_near_goal_sidewall_cases.json"
     VERSION="multi-agent-curriculum-stage1b-near-goal-sidewall-v1"
     DEFAULT_MAX_EPOCHS=8
     DEFAULT_EVAL_EPISODES=32
@@ -44,7 +44,7 @@ case "$STAGE" in
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage1e_single_rescue_from_stage1_single}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage1_single_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1e_single_rescue_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage1e_single_rescue_cases.json"
     VERSION="multi-agent-curriculum-stage1e-single-rescue-v1"
     DEFAULT_MAX_EPOCHS=10
     DEFAULT_EVAL_EPISODES=48
@@ -57,7 +57,7 @@ case "$STAGE" in
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage1f_wall_parallel_rescue_from_stage1e}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage1e_single_rescue_from_stage1_single_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1f_wall_parallel_rescue_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage1f_wall_parallel_rescue_cases.json"
     VERSION="multi-agent-curriculum-stage1f-wall-parallel-rescue-v1"
     DEFAULT_MAX_EPOCHS=8
     DEFAULT_EVAL_EPISODES=48
@@ -70,7 +70,7 @@ case "$STAGE" in
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage1g_collision_guard_from_stage1f}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage1f_wall_parallel_rescue_from_stage1e_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1g_collision_guard_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage1g_collision_guard_cases.json"
     VERSION="multi-agent-curriculum-stage1g-collision-guard-v1"
     DEFAULT_MAX_EPOCHS=6
     DEFAULT_EVAL_EPISODES=48
@@ -83,7 +83,7 @@ case "$STAGE" in
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage1h_separated_reverse_guard_from_stage1g}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage1g_collision_guard_from_stage1f_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1h_separated_reverse_guard_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage1h_separated_reverse_guard_cases.json"
     VERSION="multi-agent-curriculum-stage1h-separated-reverse-guard-v1"
     DEFAULT_MAX_EPOCHS=4
     DEFAULT_EVAL_EPISODES=48
@@ -96,7 +96,7 @@ case "$STAGE" in
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage1i_yaw_reverse_collision_guard_from_stage1g}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage1g_collision_guard_from_stage1f_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1i_yaw_reverse_collision_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage1i_yaw_reverse_collision_cases.json"
     VERSION="multi-agent-curriculum-stage1i-yaw-reverse-collision-guard-v1"
     DEFAULT_MAX_EPOCHS=3
     DEFAULT_EVAL_EPISODES=72
@@ -109,7 +109,7 @@ case "$STAGE" in
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-3}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage2a_manual_dense_crossing_from_stage1g}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage1g_collision_guard_from_stage1f_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2a_manual_dense_crossing_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage2a_manual_dense_crossing_cases.json"
     VERSION="multi-agent-curriculum-stage2a-manual-dense-crossing-v1"
     DEFAULT_MAX_EPOCHS=8
     DEFAULT_EVAL_EPISODES=48
@@ -122,7 +122,7 @@ case "$STAGE" in
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-2}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_pre_pairwise_warmup_from_stage1g}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage1g_collision_guard_from_stage1f_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2_pre_pairwise_warmup_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage2_pre_pairwise_warmup_cases.json"
     VERSION="multi-agent-curriculum-stage2-pre-pairwise-warmup-v1"
     DEFAULT_MAX_EPOCHS=6
     DEFAULT_EVAL_EPISODES=48
@@ -135,7 +135,7 @@ case "$STAGE" in
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-2}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_main_pairwise_repair_from_stage2_pre_best}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_pre_pairwise_warmup_from_stage1g_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2_main_pairwise_repair_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage2_main_pairwise_repair_cases.json"
     VERSION="multi-agent-curriculum-stage2-main-pairwise-repair-v1"
     DEFAULT_MAX_EPOCHS=8
     DEFAULT_EVAL_EPISODES=64
@@ -148,7 +148,7 @@ case "$STAGE" in
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-3}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage2b_three_light_dense_from_2d_gentle}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_2d_local_critic_from_2a_gentle_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2b_three_light_dense_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage2b_three_light_dense_cases.json"
     VERSION="multi-agent-curriculum-stage2b-three-light-dense-v1"
     DEFAULT_MAX_EPOCHS=8
     DEFAULT_EVAL_EPISODES=48
@@ -161,7 +161,7 @@ case "$STAGE" in
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-3}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage2b_three_transition_from_2d_gentle}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_2d_local_critic_from_2a_gentle_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2b_three_transition_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage2b_three_transition_cases.json"
     VERSION="multi-agent-curriculum-stage2b-three-transition-v1"
     DEFAULT_MAX_EPOCHS=8
     DEFAULT_EVAL_EPISODES=48
@@ -174,7 +174,7 @@ case "$STAGE" in
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_dense_5}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage1_single_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2_dense_multi_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage2_dense_multi_cases.json"
     VERSION="multi-agent-curriculum-stage2-dense-v1"
     DEFAULT_MAX_EPOCHS=8
     DEFAULT_EVAL_EPISODES=24
@@ -187,7 +187,7 @@ case "$STAGE" in
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_dense_gentle_from_5a}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2_dense_gentle_5_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage2_dense_gentle_5_cases.json"
     VERSION="multi-agent-curriculum-stage2-dense-gentle-5-from-5a-v1"
     DEFAULT_MAX_EPOCHS=6
     DEFAULT_EVAL_EPISODES=40
@@ -200,7 +200,7 @@ case "$STAGE" in
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_dense_bridge_from_5a}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2_dense_bridge_5_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage2_dense_bridge_5_cases.json"
     VERSION="multi-agent-curriculum-stage2-dense-bridge-5-from-5a-v1"
     DEFAULT_MAX_EPOCHS=4
     DEFAULT_EVAL_EPISODES=48
@@ -213,7 +213,7 @@ case "$STAGE" in
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_pairwise_to_dense_from_5a}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2_pairwise_to_dense_5_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage2_pairwise_to_dense_5_cases.json"
     VERSION="multi-agent-curriculum-stage2-pairwise-to-dense-5-from-5a-v1"
     DEFAULT_MAX_EPOCHS=3
     DEFAULT_EVAL_EPISODES=48
@@ -227,7 +227,7 @@ case "$STAGE" in
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage3_asym_pair_5_from_5a}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage3_asym_pair_5_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage3_asym_pair_5_cases.json"
     VERSION="multi-agent-curriculum-stage3-asym-pair-5-from-5a-v1"
     DEFAULT_MAX_EPOCHS=3
     DEFAULT_EVAL_EPISODES=48
@@ -241,7 +241,7 @@ case "$STAGE" in
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage3_asym_three_5_from_stage3_asym_pair}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage3_asym_pair_5_from_5a_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage3_asym_three_5_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage3_asym_three_5_cases.json"
     VERSION="multi-agent-curriculum-stage3-asym-three-5-v1"
     DEFAULT_MAX_EPOCHS=3
     DEFAULT_EVAL_EPISODES=48
@@ -255,7 +255,7 @@ case "$STAGE" in
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-3}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_three_dense_3}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage1_single_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2_three_dense_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage2_three_dense_cases.json"
     VERSION="multi-agent-curriculum-stage2-three-dense-v1"
     DEFAULT_MAX_EPOCHS=8
     DEFAULT_EVAL_EPISODES=24

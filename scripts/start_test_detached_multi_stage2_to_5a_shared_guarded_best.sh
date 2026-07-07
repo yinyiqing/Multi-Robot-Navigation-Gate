@@ -8,15 +8,16 @@ PID_FILE="$PROJECT_ROOT/.test_multi_stage2_to_5a_shared_guarded_best_detached.pi
 NUM_AGENTS=5
 LAUNCHFILE="multi_robot_scenario_stage2_to_5a_shared_guarded_test_${NUM_AGENTS}.launch"
 LAUNCH_PATH="$TD3_DIR/assets/$LAUNCHFILE"
-MODEL_NAME="TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best"
+MODEL_NAME="${DRL_MULTI_TEST_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best}"
 ROS_PORT="${DRL_MULTI_ROS_PORT:-11386}"
 GAZEBO_PORT="${DRL_MULTI_GAZEBO_PORT:-11486}"
 TARGET_EPISODES="${DRL_MULTI_TEST_TARGET_EPISODES:-300}"
+SAFE_MODEL="${MODEL_NAME//[^A-Za-z0-9_]/_}"
 
 mkdir -p "$LOG_DIR"
 
 timestamp="$(date +%Y%m%d_%H%M%S)"
-log_file="$LOG_DIR/test_multi_stage2_to_5a_shared_guarded_${MODEL_NAME}_detached_${timestamp}.log"
+log_file="$LOG_DIR/test_multi_stage2_to_5a_shared_guarded_${SAFE_MODEL}_detached_${timestamp}.log"
 
 if [[ -f "$PID_FILE" ]]; then
   old_pid="$(cat "$PID_FILE" 2>/dev/null || true)"
@@ -47,6 +48,9 @@ setsid bash -lc "
   export DRL_MULTI_TEST_LAUNCHFILE='$LAUNCHFILE'
   export DRL_MULTI_TEST_FILE_NAME='$MODEL_NAME'
   export DRL_MULTI_TEST_TARGET_EPISODES='$TARGET_EPISODES'
+  export DRL_MULTI_TEST_STATE_PATH='./checkpoints/${SAFE_MODEL}_standard_5a_guarded_test_state.pt'
+  export DRL_MULTI_TEST_STATS_PATH='./results/${SAFE_MODEL}_standard_5a_guarded_test.npy'
+  export DRL_MULTI_SCENARIO=standard
   cd '$PROJECT_ROOT/catkin_ws'
   source devel_isolated/setup.bash
   cd '$TD3_DIR'
@@ -60,5 +64,6 @@ echo "PID: $(cat "$PID_FILE")"
 echo "Agents: $NUM_AGENTS"
 echo "Model: $MODEL_NAME"
 echo "Launch: $LAUNCH_PATH"
+echo "Scenario: standard"
 echo "Target episodes: $TARGET_EPISODES"
 echo "Log: $log_file"

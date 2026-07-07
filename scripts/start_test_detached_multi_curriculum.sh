@@ -14,87 +14,87 @@ case "$STAGE" in
   stage1_single)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
     DEFAULT_MODEL="TD3_velodyne_multi_v4"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1_single_local_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage1_single_local_cases.json"
     ;;
   stage1b_single)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
     DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage1_single_best"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1b_single_near_goal_sidewall_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage1b_single_near_goal_sidewall_cases.json"
     ;;
   stage1e_single_rescue)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
     DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage1e_single_rescue_from_stage1_single_best"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1e_single_rescue_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage1e_single_rescue_cases.json"
     ;;
   stage1f_wall_parallel_rescue)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
     DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage1f_wall_parallel_rescue_from_stage1e_best"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1f_wall_parallel_rescue_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage1f_wall_parallel_rescue_cases.json"
     ;;
   stage1g_collision_guard)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
     DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage1g_collision_guard_from_stage1f_best"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1g_collision_guard_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage1g_collision_guard_cases.json"
     ;;
   stage1h_separated_reverse_guard)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
     DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage1h_separated_reverse_guard_from_stage1g_best"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1h_separated_reverse_guard_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage1h_separated_reverse_guard_cases.json"
     ;;
   stage1i_yaw_reverse_collision_guard)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-1}"
     DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage1i_yaw_reverse_collision_guard_from_stage1g_best"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage1i_yaw_reverse_collision_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage1i_yaw_reverse_collision_cases.json"
     ;;
   stage2a_manual_dense_crossing)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-3}"
     DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage2a_manual_dense_crossing_from_stage1g_best"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2a_manual_dense_crossing_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage2a_manual_dense_crossing_cases.json"
     ;;
   stage2_pre_pairwise_warmup)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-2}"
     DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_pre_pairwise_warmup_from_stage1g_best"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2_pre_pairwise_warmup_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage2_pre_pairwise_warmup_cases.json"
     ;;
   stage2_pairwise_diagnostic)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-2}"
     DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage1g_collision_guard_from_stage1f_best"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2_pairwise_diagnostic_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage2_pairwise_diagnostic_cases.json"
     ;;
   stage2b_three_light_dense)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-3}"
     DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_2d_local_critic_from_2a_gentle_best"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2b_three_light_dense_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage2b_three_light_dense_cases.json"
     ;;
   stage2b_three_transition)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-3}"
     DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_2d_local_critic_from_2a_gentle_best"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2b_three_transition_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage2b_three_transition_cases.json"
     ;;
   stage2_pairwise_to_dense)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
     DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_pairwise_to_dense_from_5a_best"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2_pairwise_to_dense_5_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage2_pairwise_to_dense_5_cases.json"
     ;;
   stage3_asym_pair_5)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
     DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage3_asym_pair_5_from_5a_best"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage3_asym_pair_5_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage3_asym_pair_5_cases.json"
     ;;
   stage3_asym_three_5)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
     DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage3_asym_three_5_from_stage3_asym_pair_best"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage3_asym_three_5_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage3_asym_three_5_cases.json"
     ;;
   stage2_dense)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
     DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_dense_5_best"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2_dense_multi_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage2_dense_multi_cases.json"
     ;;
   stage2_three_dense)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-3}"
     DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_three_dense_3_best"
-    CASES_PATH="$PROJECT_ROOT/experiments/多智能体/课程学习/cases/stage2_three_dense_cases.json"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage2_three_dense_cases.json"
     ;;
   *)
     echo "Unknown curriculum stage: $STAGE"
