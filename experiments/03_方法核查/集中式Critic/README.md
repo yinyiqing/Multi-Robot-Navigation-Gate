@@ -6,6 +6,26 @@
 - 先确认 critic 这条线有没有改对
 - 看 critic 看到更完整的多车信息后，actor 解冻会不会更稳
 
+## 现在这条线的定位
+
+这条线已经完成第一轮关键判断：
+
+- 旧版 critic 的多车信息确实不完整
+- 补完整以后，前期效果会更好
+- 但更长训练里还是会退化
+
+所以这里的结论不是“critic 没用”，而是：
+
+**critic 这条线有帮助，但它不是当前主要卡点的最终答案。**
+
+当前主要卡点已经收缩成：
+
+**单一 actor 在普通导航和密集交互之间，可能存在能力冲突。**
+
+后续主线已转到：
+
+- [04_保留专门化](/home/jiutian/Local-Critic-Multi-Robot-Navigation/experiments/04_保留专门化/README.md)
+
 ## 01 短对照
 
 | 实验 | success_rate | collision_rate | full_success_rate |
