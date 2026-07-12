@@ -110,16 +110,20 @@
 2. `5D best`
    - `TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best`
 
-密集 actor 当前先保留：
+密集 actor 当前改为：
 
-1. `stage3_asym_pair_5 best`
-   - `TD3_velodyne_multi_v4_curriculum_stage3_asym_pair_5_from_5a_cleanstart_v2_best`
+1. `stage3_asym_pair_5 from 5D`
+   - `TD3_velodyne_multi_v4_curriculum_stage3_asym_pair_5_from_5d_best`
 
 补充说明：
 
-- `2026-07-12` 起，这个 `PAIR(from_5a)` 不再默认视为最终 dense actor 候选。
-- 原因很直接：`5A` 的交互底子偏弱，作为 dense 专门化 warm start 不够自然。
-- 已补开一条新线：`5D -> stage3_asym_pair_5`，后面用它和旧 `PAIR(from_5a)` 再比较。
+- 旧 `PAIR(from_5a)` 只保留为历史对照，不再作为优先 dense actor。
+- 原因是：`5A` 的交互底子偏弱，作为 dense 专门化 warm start 不够自然。
+- 新补做的 `5D -> stage3_asym_pair_5` 已完成 3 epoch：
+  - Epoch 1：`0.900 / 0.104 / 0.729`
+  - Epoch 2：`0.912 / 0.087 / 0.729`
+  - Epoch 3：`0.921 / 0.079 / 0.750`
+- 其中 Epoch 3 已明显优于旧 `PAIR(from_5a)`，所以后续主口径切到 `PAIR(from_5d)`。
 
 overwrite actor 当前先保留：
 
@@ -204,7 +208,7 @@ overwrite actor 当前先保留：
      - 不仅普通场景退化
      - dense 表现也没有超过 `5A/5D`
      - 说明 overwrite 路线整体不划算
-7. `PAIR -> stage3_asym_three_5`
+7. `PAIR(from_5a) -> stage3_asym_three_5`
    - 120 episodes
    - `success_rate=0.900`
    - `collision_rate=0.102`
@@ -227,7 +231,23 @@ overwrite actor 当前先保留：
    - 补充观察：
      - dense 上明显强于 `5A`
      - 和 `5D` 非常接近
-     - 说明它可以作为当前“专门化 actor”候选
+  - 说明它曾经可以作为专门化 actor 候选，但现在优先级已低于 `PAIR(from_5d)`
+
+8. `5D -> PAIR`
+   - 3 epochs
+   - Epoch 1：`success_rate=0.900`
+   - Epoch 1：`collision_rate=0.104`
+   - Epoch 1：`full_success_rate=0.729`
+   - Epoch 2：`success_rate=0.912`
+   - Epoch 2：`collision_rate=0.087`
+   - Epoch 2：`full_success_rate=0.729`
+   - Epoch 3：`success_rate=0.921`
+   - Epoch 3：`collision_rate=0.079`
+   - Epoch 3：`full_success_rate=0.750`
+   - 当前判断：
+     - 前两轮与旧 `PAIR(from_5a)` 持平
+     - 第三轮明显更好
+     - 当前应把它作为新的优先 dense actor 候选
 
 ### 当前横向对比
 
@@ -246,7 +266,8 @@ overwrite actor 当前先保留：
 
 - `5A` 在标准五车上仍然最稳，说明它更像“普通 actor”候选
 - `5D` 在 dense 上明显好于 `5A`，但在标准五车上没有超过 `5A`
-- `PAIR` 回到标准五车后，collision 还行，但 `full_success` 和 `timeout` 更差；而它在 dense 上明显更强，更像“偏向密集交互的专门 actor”
+- 旧 `PAIR(from_5a)` 回到标准五车后，collision 还行，但 `full_success` 和 `timeout` 更差；而它在 dense 上明显更强，更像“偏向密集交互的专门 actor”
+- 新 `PAIR(from_5d)` 在训练端已经比旧 `PAIR(from_5a)` 更稳、更强，后续应优先从它继续往 `three_5` 走
 - `THREE_MID` 回到标准五车后比 `5A`、`5D`、`PAIR` 都更差，说明继续覆盖式训练会破坏普通场景能力
 - `THREE_MID` 在 dense 上也没有换来更强表现，说明 overwrite 不是值得继续走的方向
 - 现在已经能初步看出：
@@ -256,7 +277,7 @@ overwrite actor 当前先保留：
 - `THREE_MID` 说明 overwrite 路线会进一步放大这种偏移，而且收益不够
 - 当前可先采用的候选组合：
   - 普通 actor：`5A`
-  - 密集 actor：`PAIR`
+  - 密集 actor：`PAIR(from_5d)`
 - `5D` 仍然值得保留，作为“过渡 actor / 强基线”备用
 
 ### 简短记录

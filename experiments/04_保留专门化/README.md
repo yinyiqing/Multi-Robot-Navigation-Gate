@@ -83,10 +83,11 @@
 - 当前验证：
   - 基本支持
   - `5A` 在标准五车最稳
-  - `PAIR` 在 dense 上明显强于 `5A`
+  - 旧 `PAIR(from_5a)` 在 dense 上明显强于 `5A`
+  - 新 `PAIR(from_5d)` 在训练端已经优于旧 `PAIR(from_5a)`
   - `5D` 介于两者之间，更像过渡 actor
 - 当前结论：
-  - 现在更像“能力偏向不同”，还不是“完全割裂”
+  - 现在更像“能力偏向不同”，而 `5D -> PAIR` 是更合理的专门化链路
 
 ### 3. preserve-and-specialize 比 overwrite 更合理
 
@@ -116,14 +117,14 @@
 - 普通 actor：
   - `5A`
 - 密集 actor：
-  - `PAIR`
+  - `PAIR(from_5d)`
 - 备用强基线 / 过渡 actor：
   - `5D`
 
 补充：
 
 - `2026-07-12` 起，旧 `PAIR(from_5a)` 只保留为历史候选，不再直接当最终 dense actor。
-- 当前补做新线：`5D -> stage3_asym_pair_5`，先看它能不能成为更合理的 dense actor 来源。
+- `2026-07-13`：`5D -> stage3_asym_pair_5` 已完成 3 epoch，第三轮达到 `0.921 / 0.079 / 0.750`，已优于旧 `PAIR(from_5a)`，后续主线切到 `PAIR(from_5d)`。
 
 ## 当前简单记录
 

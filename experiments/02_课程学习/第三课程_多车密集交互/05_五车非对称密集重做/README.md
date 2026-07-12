@@ -47,6 +47,34 @@
   - 而是验证“带弱交互基础的普通 actor”作为 dense warm start 是否更合理
   - 由于 `5D` 当时带几何邻域 critic，而当前 `stage3_asym_pair_5` 默认不是同一 critic 结构，这次 warm start 默认采用 `actor-only`
 
+### 2026-07-13：`5D -> stage3_asym_pair_5`
+
+训练日志：
+
+- `/home/jiutian/Local-Critic-Multi-Robot-Navigation/logs/train_multi_curriculum_stage3_asym_pair_5_detached_20260712_234835.log`
+
+结果：
+
+| epoch | success | collision | full success |
+| --- | ---: | ---: | ---: |
+| 1 | 0.900 | 0.104 | 0.729 |
+| 2 | 0.912 | 0.087 | 0.729 |
+| 3 | 0.921 | 0.079 | 0.750 |
+
+和旧 `5A -> PAIR` 对比：
+
+- Epoch 1：略差，但仍在同一量级
+- Epoch 2：基本打平
+- Epoch 3：明显更好，旧版已经退到 `0.883 / 0.113 / 0.646`
+
+当前结论：
+
+- `5D` 作为 dense warm start 至少不比 `5A` 差
+- 到第 3 个 epoch，`5D -> PAIR` 明显优于旧 `5A -> PAIR`
+- 因此后续如果还需要一个 `PAIR` 角色，主口径应切到：
+  - `TD3_velodyne_multi_v4_curriculum_stage3_asym_pair_5_from_5d_best`
+- 旧 `PAIR(from_5a)` 仍保留，但只作为历史对照，不再作为优先 dense actor
+
 ### 五车非对称三车冲突
 
 失败日志：
