@@ -79,12 +79,12 @@ case "$STAGE" in
     ;;
   stage3_asym_pair_5)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
-    DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage3_asym_pair_5_from_5a_best"
+    DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage3_asym_pair_5_from_5d_best"
     CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage3_asym_pair_5_cases.json"
     ;;
   stage3_asym_three_5)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
-    DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage3_asym_three_5_from_stage3_asym_pair_best"
+    DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage3_asym_three_5_from_pair_5d_best"
     CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage3_asym_three_5_cases.json"
     ;;
   stage2_dense)
@@ -135,11 +135,11 @@ else
     TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best)
       MODEL_TAG="5D"
       ;;
-    TD3_velodyne_multi_v4_curriculum_stage3_asym_pair_5_from_5a_cleanstart_v2_best)
-      MODEL_TAG="PAIR"
+    TD3_velodyne_multi_v4_curriculum_stage3_asym_pair_5_from_5d_best)
+      MODEL_TAG="PAIR_5D"
       ;;
-    TD3_velodyne_multi_v4_curriculum_stage3_asym_three_5_joint_action_critic_midcheck_from_stage3_pair_cleanstart_v2_best_best)
-      MODEL_TAG="THREE_MID"
+    TD3_velodyne_multi_v4_curriculum_stage3_asym_three_5_from_pair_5d_best)
+      MODEL_TAG="THREE_5D"
       ;;
     *)
       MODEL_TAG="$safe_model"

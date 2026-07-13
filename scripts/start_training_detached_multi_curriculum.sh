@@ -225,10 +225,11 @@ case "$STAGE" in
     ;;
   stage3_asym_pair_5)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
-    MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage3_asym_pair_5_from_5a}"
-    LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best}"
+    MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage3_asym_pair_5_from_5d}"
+    LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best}"
     CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage3_asym_pair_5_cases.json"
-    VERSION="multi-agent-curriculum-stage3-asym-pair-5-from-5a-v1"
+    VERSION="multi-agent-curriculum-stage3-asym-pair-5-from-5d-v1"
+    DEFAULT_LOAD_ACTOR_ONLY=1
     DEFAULT_MAX_EPOCHS=3
     DEFAULT_EVAL_EPISODES=48
     DEFAULT_EXPL_NOISE=0.018
@@ -239,10 +240,11 @@ case "$STAGE" in
     ;;
   stage3_asym_three_5)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
-    MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage3_asym_three_5_from_stage3_asym_pair}"
-    LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage3_asym_pair_5_from_5a_best}"
+    MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage3_asym_three_5_from_pair_5d}"
+    LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage3_asym_pair_5_from_5d_best}"
     CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage3_asym_three_5_cases.json"
-    VERSION="multi-agent-curriculum-stage3-asym-three-5-v1"
+    VERSION="multi-agent-curriculum-stage3-asym-three-5-from-pair-5d-v1"
+    DEFAULT_LOAD_ACTOR_ONLY=0
     DEFAULT_MAX_EPOCHS=3
     DEFAULT_EVAL_EPISODES=48
     DEFAULT_EXPL_NOISE=0.015
@@ -361,7 +363,7 @@ DISTANCE_WEIGHTED_REWARD="${DRL_MULTI_USE_DISTANCE_WEIGHTED_REWARD:-$DEFAULT_DIS
 REWARD_SELF_WEIGHT="${DRL_MULTI_REWARD_SELF_WEIGHT:-$DEFAULT_REWARD_SELF_WEIGHT}"
 LOCAL_CRITIC="${DRL_MULTI_USE_LOCAL_CRITIC:-$DEFAULT_LOCAL_CRITIC}"
 LOCAL_CRITIC_GEOMETRY_ONLY="${DRL_MULTI_LOCAL_CRITIC_GEOMETRY_ONLY:-$DEFAULT_LOCAL_CRITIC_GEOMETRY_ONLY}"
-LOAD_ACTOR_ONLY="${DRL_MULTI_LOAD_ACTOR_ONLY:-0}"
+LOAD_ACTOR_ONLY="${DRL_MULTI_LOAD_ACTOR_ONLY:-${DEFAULT_LOAD_ACTOR_ONLY:-0}}"
 ACTOR_UPDATE_DELAY_STEPS="${DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS:-${DEFAULT_ACTOR_UPDATE_DELAY_STEPS:-0}}"
 POLICY_FREQ="${DRL_MULTI_POLICY_FREQ:-2}"
 ACTOR_ANCHOR_WEIGHT="${DRL_MULTI_ACTOR_ANCHOR_WEIGHT:-0}"

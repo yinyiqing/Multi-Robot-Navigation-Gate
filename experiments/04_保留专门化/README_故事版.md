@@ -75,20 +75,7 @@
 
 ## 5. 这条新线里我们看到了什么
 
-先看 `PAIR` 这一级。
-
-最早我们有旧版本：
-
-- `PAIR(from_5a)`
-
-后来又补做了更合理的一版：
-
-- `PAIR(from_5d)`
-
-结果说明：
-
-- `PAIR(from_5d)` 优于旧 `PAIR(from_5a)`
-- 说明 `5D` 作为 dense warm start 比 `5A` 更自然
+当前 `PAIR` 只保留 `PAIR(from_5d)`。它先从 `5D` 继承交互基础，再进入非对称双车冲突课程。
 
 所以现在角色基本变成：
 
@@ -98,10 +85,7 @@
 
 ## 6. 那 single actor overwrite 为什么不行
 
-我们后面继续试过：
-
-- 把 `PAIR` 再往 `THREE_5` 继续训练
-- 以及更早一些的 `THREE_MID`、joint-action critic、attention critic 等版本
+把 `PAIR(from_5d)` 再往 `THREE_5` 继续训练后，仍然出现逐轮退化。
 
 反复出现的现象都很像：
 
@@ -172,11 +156,9 @@
 
 - 普通导航课程主线已经接回五车
 - 旧 pure dense 五车主线已经验证过，整体不顺
-- `PAIR(from_5a)` 做过
-- `PAIR(from_5d)` 已补做，并且结果更好
+- `5D -> PAIR(from_5d)` 已完成
 - `PAIR -> THREE_5` 的继续训练也做过，结果说明继续硬训会退化
 - 粗双 actor 切换做过，结果不够好
-- attention critic 版本做过，但当时 warm start 链路还不够干净
 
 ### 现在正在做的
 

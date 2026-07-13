@@ -4,7 +4,7 @@ set -eo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 STANDARD_ACTOR="${DRL_MULTI_STANDARD_ACTOR_FILE:-TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best}"
-DENSE_ACTOR="${DRL_MULTI_DENSE_ACTOR_FILE:-TD3_velodyne_multi_v4_curriculum_stage3_asym_pair_5_from_5a_cleanstart_v2_best}"
+DENSE_ACTOR="${DRL_MULTI_DENSE_ACTOR_FILE:-TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best}"
 SWITCH_TAG="${DRL_MULTI_TEST_LOG_TAG:-DUAL}"
 TARGET_EPISODES="${DRL_MULTI_TEST_TARGET_EPISODES:-120}"
 STATE_PATH="${DRL_MULTI_TEST_STATE_PATH:-./checkpoints/dual_std5_test_state.pt}"

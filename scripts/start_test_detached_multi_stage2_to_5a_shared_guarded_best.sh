@@ -28,11 +28,11 @@ else
     TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best)
       MODEL_TAG="5D"
       ;;
-    TD3_velodyne_multi_v4_curriculum_stage3_asym_pair_5_from_5a_cleanstart_v2_best)
-      MODEL_TAG="PAIR"
+    TD3_velodyne_multi_v4_curriculum_stage3_asym_pair_5_from_5d_best)
+      MODEL_TAG="PAIR_5D"
       ;;
-    TD3_velodyne_multi_v4_curriculum_stage3_asym_three_5_joint_action_critic_midcheck_from_stage3_pair_cleanstart_v2_best_best)
-      MODEL_TAG="THREE_MID"
+    TD3_velodyne_multi_v4_curriculum_stage3_asym_three_5_from_pair_5d_best)
+      MODEL_TAG="THREE_5D"
       ;;
     *)
       MODEL_TAG="$SAFE_MODEL"
