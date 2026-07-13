@@ -103,6 +103,31 @@ class DualActorSwitcher(object):
         return action, mode, nearest_distance, visible_count
 
 
+class CaseOracleSwitcher(object):
+    def __init__(self, standard_policy, dense_policy, case_actor_map):
+        self.standard_policy = standard_policy
+        self.dense_policy = dense_policy
+        self.case_actor_map = dict(case_actor_map)
+
+    def reset(self, agent_names):
+        return None
+
+    def choose_action(self, env, name, state):
+        case = getattr(env, "current_curriculum_case", None)
+        case_name = "standard"
+        if isinstance(case, dict):
+            case_name = str(case.get("name") or "unnamed_curriculum_case")
+        mode = self.case_actor_map.get(case_name, self.case_actor_map.get("default", "standard"))
+        if mode not in ("standard", "dense"):
+            raise ValueError(
+                "Case oracle mode must map cases to 'standard' or 'dense', got %r for %s"
+                % (mode, case_name)
+            )
+        policy = self.dense_policy if mode == "dense" else self.standard_policy
+        action = policy.get_action(np.array(state))
+        return action, mode, None, None
+
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -125,6 +150,13 @@ def env_float(name, default):
     if value is None or value.strip() == "":
         return default
     return float(value)
+
+
+def env_json_path(name):
+    value = os.environ.get(name)
+    if value is None:
+        return ""
+    return value.strip()
 
 
 def make_agent_names():
@@ -151,10 +183,22 @@ standard_actor_file = os.environ.get(
     "DRL_MULTI_STANDARD_ACTOR_FILE", file_name
 ).strip()
 dense_actor_file = os.environ.get("DRL_MULTI_DENSE_ACTOR_FILE", "").strip()
+actor_selection_mode = os.environ.get("DRL_MULTI_ACTOR_SELECTION_MODE", "").strip().lower()
 dual_actor_enabled = bool(dense_actor_file)
+if not actor_selection_mode:
+    actor_selection_mode = "hard_switch" if dual_actor_enabled else "single"
+if actor_selection_mode not in ("single", "hard_switch", "case_oracle"):
+    raise ValueError(
+        "DRL_MULTI_ACTOR_SELECTION_MODE must be one of: single, hard_switch, case_oracle"
+    )
+if actor_selection_mode != "single" and not dual_actor_enabled:
+    raise ValueError(
+        "DRL_MULTI_DENSE_ACTOR_FILE is required when actor selection mode is not 'single'"
+    )
 switch_on_distance = env_float("DRL_MULTI_SWITCH_ON_DISTANCE", 1.6)
 switch_off_distance = env_float("DRL_MULTI_SWITCH_OFF_DISTANCE", 2.0)
 switch_on_visible_neighbors = env_int("DRL_MULTI_SWITCH_ON_VISIBLE_NEIGHBORS", 1)
+case_oracle_map_path = env_json_path("DRL_MULTI_CASE_ORACLE_MAP")
 launchfile = os.environ.get(
     "DRL_MULTI_TEST_LAUNCHFILE", "multi_robot_scenario_multi_2.launch"
 )
@@ -292,6 +336,29 @@ def scalar_or_none(value):
     return float(value)
 
 
+def load_case_oracle_map():
+    if actor_selection_mode != "case_oracle":
+        return {}
+    if not case_oracle_map_path:
+        raise ValueError(
+            "DRL_MULTI_CASE_ORACLE_MAP must point to a JSON file in case_oracle mode"
+        )
+    with open(case_oracle_map_path, "r", encoding="utf-8") as fh:
+        payload = json.load(fh)
+    if not isinstance(payload, dict) or not payload:
+        raise ValueError("Case oracle map JSON must be a non-empty object")
+    normalized = {}
+    for key, value in payload.items():
+        mode = str(value).strip().lower()
+        if mode not in ("standard", "dense"):
+            raise ValueError(
+                "Case oracle map values must be 'standard' or 'dense', got %r for %s"
+                % (value, key)
+            )
+        normalized[str(key)] = mode
+    return normalized
+
+
 def should_trace_episode(timeout_episode, full_success, episode_unresolved_count):
     if not trace_failures:
         return False
@@ -400,20 +467,29 @@ except Exception:
     raise ValueError("Could not load the stored multi-agent model parameters")
 
 dense_network = None
-switcher = None
+dense_policy_controller = None
+case_oracle_map = {}
 if dual_actor_enabled:
     dense_network = TD3(state_dim, action_dim)
     try:
         dense_network.load(dense_actor_file, "./pytorch_models")
     except Exception:
         raise ValueError("Could not load the stored dense-actor parameters")
-    switcher = DualActorSwitcher(
-        standard_policy=network,
-        dense_policy=dense_network,
-        switch_on_distance=switch_on_distance,
-        switch_off_distance=switch_off_distance,
-        switch_on_visible_neighbors=switch_on_visible_neighbors,
-    )
+    if actor_selection_mode == "hard_switch":
+        dense_policy_controller = DualActorSwitcher(
+            standard_policy=network,
+            dense_policy=dense_network,
+            switch_on_distance=switch_on_distance,
+            switch_off_distance=switch_off_distance,
+            switch_on_visible_neighbors=switch_on_visible_neighbors,
+        )
+    elif actor_selection_mode == "case_oracle":
+        case_oracle_map = load_case_oracle_map()
+        dense_policy_controller = CaseOracleSwitcher(
+            standard_policy=network,
+            dense_policy=dense_network,
+            case_actor_map=case_oracle_map,
+        )
 
 test_state = load_test_state() or {}
 episode_num = test_state.get("episode_num", 0)
@@ -441,13 +517,17 @@ print("Test version: multi-agent-eval-v1-headless")
 print("Test process PID:", os.getpid())
 print("Launchfile:", launchfile)
 print("Model file:", file_name)
+print("Actor selection mode:", actor_selection_mode)
 if dual_actor_enabled:
     print("Dual actor mode: enabled")
     print("Standard actor file:", standard_actor_file)
     print("Dense actor file:", dense_actor_file)
-    print("Switch on distance:", switch_on_distance)
-    print("Switch off distance:", switch_off_distance)
-    print("Switch on visible neighbors:", switch_on_visible_neighbors)
+    if actor_selection_mode == "hard_switch":
+        print("Switch on distance:", switch_on_distance)
+        print("Switch off distance:", switch_off_distance)
+        print("Switch on visible neighbors:", switch_on_visible_neighbors)
+    elif actor_selection_mode == "case_oracle":
+        print("Case oracle map:", case_oracle_map_path)
 else:
     print("Dual actor mode: disabled")
 print("Scenario mode:", scenario_mode)
@@ -473,8 +553,8 @@ print("==============================================")
 
 states = env.reset()
 episode_case_name = current_case_name(env)
-if switcher is not None:
-    switcher.reset(agent_names)
+if dense_policy_controller is not None:
+    dense_policy_controller.reset(agent_names)
 active_mask = [True] * len(agent_names)
 episode_done = False
 episode_env_steps = 0
@@ -496,8 +576,10 @@ while True:
             env_actions.append([0.0, 0.0])
             continue
 
-        if switcher is not None:
-            action, mode, _, _ = switcher.choose_action(env, agent_names[idx], state)
+        if dense_policy_controller is not None:
+            action, mode, _, _ = dense_policy_controller.choose_action(
+                env, agent_names[idx], state
+            )
             if mode == "dense":
                 episode_dense_action_steps[idx] += 1
             else:
@@ -745,8 +827,8 @@ while True:
 
     states = env.reset()
     episode_case_name = current_case_name(env)
-    if switcher is not None:
-        switcher.reset(agent_names)
+    if dense_policy_controller is not None:
+        dense_policy_controller.reset(agent_names)
     active_mask = [True] * len(agent_names)
     episode_done = False
     episode_env_steps = 0

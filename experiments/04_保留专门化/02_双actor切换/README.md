@@ -19,7 +19,7 @@
 
 先验证“能力偏向存在”之后，直接做粗粒度策略切换够不够。
 
-## 当前最小版本
+## 第一轮最小版本
 
 - 普通 actor：
   - `5A`
@@ -72,13 +72,62 @@
   - 能力偏向确实存在
   - 但“整策略硬切换”太粗，还没有把两个 actor 的能力真正用好
 
-### 下一步更合理的方向
+## 现在的第二轮主线
 
-- 不继续细调这版硬切换
-- 这一步的价值主要是：
-  - 证明问题不只是“要不要两个 actor”
-  - 而是“如何识别交互状态、如何只在必要时增强交互建模”
-- 下一步主线收敛到：
-  - 局部交互感知
-  - 轻量门控
-  - 注意力增强
+- 第一轮 `5A + PAIR` 先不继续细调
+- 第二轮先切到：
+  - 普通 actor：`5A`
+  - dense actor：`5D`
+- 原因：
+  - `5D` 目前是正式 dense test 最稳的 actor
+  - `PAIR(from_5d)` 训练内更顺，但正式 `stage3_asym_three_5` test 没超过 `5D`
+
+这一轮要先回答两个问题：
+
+1. 两个 actor 到底有没有足够互补性
+2. 如果有，最小门控能不能先把这种互补性用出来
+
+## 脚本现状
+
+`TD3/test_velodyne_td3_multi.py` 现在支持三种模式：
+
+- `single`
+  - 单 actor 测试
+- `hard_switch`
+  - 基于最近邻距离和可见邻居数的硬切换
+- `case_oracle`
+  - 按 case 名直接指定用 `standard` 或 `dense`
+  - 这是验证上界用的，不是最终方法
+
+对应环境变量：
+
+- `DRL_MULTI_STANDARD_ACTOR_FILE`
+- `DRL_MULTI_DENSE_ACTOR_FILE`
+- `DRL_MULTI_ACTOR_SELECTION_MODE`
+- `DRL_MULTI_CASE_ORACLE_MAP`（只在 `case_oracle` 下需要）
+
+辅助工具：
+
+- `build_case_oracle_map.py`
+  - 输入两份 test 日志
+  - 自动比较各 case 的 `full_success / success / collision`
+  - 输出 `case_oracle` JSON
+
+## 第二轮准备怎么做
+
+顺序固定：
+
+1. `5A + 5D` 跑一版 `hard_switch`
+   - `standard_5`
+   - `stage3_asym_three_5`
+2. 统计 `5A` 和 `5D` 在 `stage3_asym_three_5` 的 case 级优劣
+3. 按 case 做一版 `case_oracle`
+   - 先看理论上界有没有明显提升空间
+4. 只有 oracle 确认“两个 actor 确实互补”后，再继续做 learned gate
+
+## 当前一句话
+
+- 这一步不再证明“两个 actor 能不能切”
+- 这一步要证明的是：
+  - `5A` 和 `5D` 有没有可利用的互补性
+  - 如果有，简单门控能不能先把它转成实际收益
