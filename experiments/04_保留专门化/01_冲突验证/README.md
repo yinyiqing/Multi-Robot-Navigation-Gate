@@ -224,6 +224,18 @@ overwrite actor 当前先保留：
      - 这一条目前还是训练内 eval
      - 在作为后续 attention 基线前，最好先补正式 test
 
+9. `PAIR(from_5d) -> 标准五车`
+   - 300 episodes
+   - `success_rate=0.891`
+   - `collision_rate=0.085`
+   - `unresolved_rate=0.023`
+   - `full_success_rate=0.573`
+   - `timeout_episode_rate=0.107`
+   - 当前判断：
+     - 明显优于旧 `PAIR(from_5a)` 的标准五车结果
+     - 但仍未超过 `5A` 和 `5D`
+     - 因此它的定位仍然不是“普通 actor”，而是更健康的 dense specialized actor
+
 ### 当前横向对比
 
 | 组别 | success_rate | collision_rate | full_success_rate | timeout/unresolved |
@@ -232,7 +244,8 @@ overwrite actor 当前先保留：
 | `5A -> dense` | 0.885 | 0.118 | 0.567 | timeout 0.008, unresolved 0.002 |
 | `5D -> 标准五车` | 0.882 | 0.098 | 0.550 | timeout 0.100 |
 | `5D -> dense` | 0.902 | 0.097 | 0.650 | timeout 0.017, unresolved 0.003 |
-| `PAIR -> 标准五车` | 0.885 | 0.087 | 0.542 | timeout 0.142, unresolved 0.028 |
+| `PAIR(from_5a) -> 标准五车` | 0.885 | 0.087 | 0.542 | timeout 0.142, unresolved 0.028 |
+| `PAIR(from_5d) -> 标准五车` | 0.891 | 0.085 | 0.573 | timeout 0.107, unresolved 0.023 |
 | `PAIR -> dense` | 0.900 | 0.102 | 0.642 | timeout 0.000, unresolved 0.000 |
 | `THREE_MID -> 标准五车` | 0.870 | 0.115 | 0.517 | timeout 0.083, unresolved 0.018 |
 | `THREE_MID -> dense` | 0.870 | 0.130 | 0.517 | timeout 0.025, unresolved 0.005 |
@@ -242,7 +255,7 @@ overwrite actor 当前先保留：
 - `5A` 在标准五车上仍然最稳，说明它更像“普通 actor”候选
 - `5D` 在 dense 上明显好于 `5A`，但在标准五车上没有超过 `5A`
 - 旧 `PAIR(from_5a)` 回到标准五车后，collision 还行，但 `full_success` 和 `timeout` 更差；而它在 dense 上明显更强，更像“偏向密集交互的专门 actor”
-- 新 `PAIR(from_5d)` 在训练端已经比旧 `PAIR(from_5a)` 更稳、更强，后续应优先从它继续往 `three_5` 走
+- 新 `PAIR(from_5d)` 不仅训练端更强，正式标准五车 test 也优于旧 `PAIR(from_5a)`；但它仍未超过 `5A/5D`，所以定位仍应是“dense specialized actor”，而不是普通主干
 - `THREE_MID` 回到标准五车后比 `5A`、`5D`、`PAIR` 都更差，说明继续覆盖式训练会破坏普通场景能力
 - `THREE_MID` 在 dense 上也没有换来更强表现，说明 overwrite 不是值得继续走的方向
 - 现在已经能初步看出：
@@ -261,3 +274,4 @@ overwrite actor 当前先保留：
 - `2026-07-07`：`THREE_MID -> 标准五车` 重跑完成，结果差于 `5A/5D/PAIR`，支持“继续覆盖训练会伤到普通能力”这个判断。
 - `2026-07-08`：`THREE_MID -> dense` 跑完，dense 上也没有更强，overwrite 路线基本可以先停。
 - `2026-07-12`：`PAIR -> dense` 跑完，结果接近 `5D -> dense`，当前可以把 `5A + PAIR` 作为最自然的一组保留-专门化候选。
+- `2026-07-13`：`PAIR(from_5d) -> 标准五车` 正式 test 完成，结果优于旧 `PAIR(from_5a)`，但仍未超过 `5A/5D`，支持它作为 dense specialized actor，而不是普通 actor。
