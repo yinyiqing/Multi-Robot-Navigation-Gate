@@ -236,6 +236,32 @@ overwrite actor 当前先保留：
      - 但仍未超过 `5A` 和 `5D`
      - 因此它的定位仍然不是“普通 actor”，而是更健康的 dense specialized actor
 
+10. `PAIR(from_5d) -> stage3_asym_three_5`
+   - 120 episodes
+   - `success_rate=0.880`
+   - `collision_rate=0.122`
+   - `unresolved_rate=0.000`
+   - `full_success_rate=0.575`
+   - `timeout_episode_rate=0.000`
+   - 分 case：
+     - `three_cross_main_pair_with_late_third`
+       - `success_rate=0.770`
+       - `collision_rate=0.230`
+       - `full_success_rate=0.300`
+     - `three_goal_merge_main_pair_with_outer_third`
+       - `success_rate=0.985`
+       - `collision_rate=0.020`
+       - `full_success_rate=0.925`
+     - `three_wall_pair_with_far_third`
+       - `success_rate=0.885`
+       - `collision_rate=0.115`
+       - `full_success_rate=0.500`
+   - 当前判断：
+     - 比 `5D -> dense (0.902 / 0.097 / 0.650)` 更差
+     - 也低于旧 `PAIR(from_5a) -> dense (0.900 / 0.102 / 0.642)`
+     - 说明 `PAIR(from_5d)` 训练链路更顺，不等于它已经成为当前最强 dense test actor
+     - 所以下一步做门控时，dense expert 不能默认直接选它
+
 ### 当前横向对比
 
 | 组别 | success_rate | collision_rate | full_success_rate | timeout/unresolved |
@@ -245,8 +271,9 @@ overwrite actor 当前先保留：
 | `5D -> 标准五车` | 0.882 | 0.098 | 0.550 | timeout 0.100 |
 | `5D -> dense` | 0.902 | 0.097 | 0.650 | timeout 0.017, unresolved 0.003 |
 | `PAIR(from_5a) -> 标准五车` | 0.885 | 0.087 | 0.542 | timeout 0.142, unresolved 0.028 |
+| `PAIR(from_5a) -> dense` | 0.900 | 0.102 | 0.642 | timeout 0.000, unresolved 0.000 |
 | `PAIR(from_5d) -> 标准五车` | 0.891 | 0.085 | 0.573 | timeout 0.107, unresolved 0.023 |
-| `PAIR -> dense` | 0.900 | 0.102 | 0.642 | timeout 0.000, unresolved 0.000 |
+| `PAIR(from_5d) -> dense` | 0.880 | 0.122 | 0.575 | timeout 0.000, unresolved 0.000 |
 | `THREE_MID -> 标准五车` | 0.870 | 0.115 | 0.517 | timeout 0.083, unresolved 0.018 |
 | `THREE_MID -> dense` | 0.870 | 0.130 | 0.517 | timeout 0.025, unresolved 0.005 |
 
@@ -255,18 +282,19 @@ overwrite actor 当前先保留：
 - `5A` 在标准五车上仍然最稳，说明它更像“普通 actor”候选
 - `5D` 在 dense 上明显好于 `5A`，但在标准五车上没有超过 `5A`
 - 旧 `PAIR(from_5a)` 回到标准五车后，collision 还行，但 `full_success` 和 `timeout` 更差；而它在 dense 上明显更强，更像“偏向密集交互的专门 actor”
-- 新 `PAIR(from_5d)` 不仅训练端更强，正式标准五车 test 也优于旧 `PAIR(from_5a)`；但它仍未超过 `5A/5D`，所以定位仍应是“dense specialized actor”，而不是普通主干
+- 新 `PAIR(from_5d)` 在标准五车上优于旧 `PAIR(from_5a)`，说明 `5D` 作为 warm start 更合理
+- 但它在正式 dense benchmark 上反而低于 `5D` 和旧 `PAIR(from_5a)`，说明“训练更顺”不等于“最终 dense test 更强”
 - `THREE_MID` 回到标准五车后比 `5A`、`5D`、`PAIR` 都更差，说明继续覆盖式训练会破坏普通场景能力
 - `THREE_MID` 在 dense 上也没有换来更强表现，说明 overwrite 不是值得继续走的方向
 - 现在已经能初步看出：
   - `5A` 更偏普通场景
-  - `5D` 有一点向 dense 偏移
-  - `PAIR` 的 dense 偏置更明显
+  - `5D` 是当前最稳的 dense/bridge actor
+  - `PAIR(from_5d)` 更像一次“专门化尝试”，但还不是最强 dense expert
 - `THREE_MID` 说明 overwrite 路线会进一步放大这种偏移，而且收益不够
-- 当前可先采用的候选组合：
+- 当前最稳妥的门控起点应改成：
   - 普通 actor：`5A`
-  - 密集 actor：`PAIR(from_5d)`
-- `5D` 仍然值得保留，作为“过渡 actor / 强基线”备用
+  - dense actor：`5D`
+- `PAIR(from_5d)` 先保留为对照 / 备选 dense actor，不直接升为主搭配
 
 ### 简短记录
 
@@ -275,3 +303,4 @@ overwrite actor 当前先保留：
 - `2026-07-08`：`THREE_MID -> dense` 跑完，dense 上也没有更强，overwrite 路线基本可以先停。
 - `2026-07-12`：`PAIR -> dense` 跑完，结果接近 `5D -> dense`，当前可以把 `5A + PAIR` 作为最自然的一组保留-专门化候选。
 - `2026-07-13`：`PAIR(from_5d) -> 标准五车` 正式 test 完成，结果优于旧 `PAIR(from_5a)`，但仍未超过 `5A/5D`，支持它作为 dense specialized actor，而不是普通 actor。
+- `2026-07-13`：`PAIR(from_5d) -> stage3_asym_three_5` 正式 test 完成，结果为 `0.880 / 0.122 / 0.575`，低于 `5D` 和旧 `PAIR(from_5a)`；因此门控第一版应优先用 `5A + 5D`，`PAIR(from_5d)` 作为对照保留。

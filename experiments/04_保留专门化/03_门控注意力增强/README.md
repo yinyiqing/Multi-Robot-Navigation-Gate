@@ -45,6 +45,5 @@
 - `2026-07-12`：从粗双 actor 切换正式转向门控注意力增强主线。
 - `2026-07-12`：已在训练代码中补上最小 local attention critic 骨架，下一步做可跑脚本和短对照。
 - `2026-07-12`：attention critic 短训练已启动，先跑 5 epoch 看能否稳定起、能否比旧 dense 线更顺。
-- `2026-07-12`：排查发现日志里的 `context_neighbors_mean` 统计口径有误，原来取的是 episode 结束时最后一帧 context，终止时通常会变成全 0；后续已改成按整集 step 统计。
 - `2026-07-12`：当前这版 attention 训练实际配置是 `Joint-action critic = False`，所以它不是在之前更强的 joint-action critic 基线上加注意力，而是切到了另一条 local critic 分支；这次结果不能直接当作“attention 比 joint-action critic 差”的结论。
-- `2026-07-13`：导师明确认可“冻结两个 actor，单独训练门控网络”这条线；因此当前主线已从“先试 attention”调整为“先做门控，注意力后置”。 
+- `2026-07-13`：当前主线从“先试 attention”调整为“先做门控，注意力后置”。 
