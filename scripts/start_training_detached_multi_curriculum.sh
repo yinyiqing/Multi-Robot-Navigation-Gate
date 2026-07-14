@@ -4,6 +4,7 @@ set -eo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TD3_DIR="$PROJECT_ROOT/TD3"
 LOG_DIR="$PROJECT_ROOT/logs"
+ROS_WORKSPACE_ROOT="${DRL_MULTI_ROS_WORKSPACE_ROOT:-/home/jiutian/Local-Critic-Multi-Robot-Navigation}"
 STAGE="${1:-stage1_single}"
 ROS_PORT="${DRL_MULTI_ROS_PORT:-11367}"
 GAZEBO_PORT="${DRL_MULTI_GAZEBO_PORT:-11407}"
@@ -253,6 +254,21 @@ case "$STAGE" in
     DEFAULT_CRITIC_LR=0.00002
     DEFAULT_ACTOR_UPDATE_DELAY_STEPS=4000
     ;;
+  stage4_asym_dense_5)
+    NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
+    MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_multi_dense5_from_5d}"
+    LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best}"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage4_asym_dense_5_cases.json"
+    VERSION="dense5-from-5d-v1"
+    DEFAULT_LOAD_ACTOR_ONLY=1
+    DEFAULT_MAX_EPOCHS=20
+    DEFAULT_EVAL_EPISODES=60
+    DEFAULT_EXPL_NOISE=0.018
+    DEFAULT_EXPL_MIN=0.006
+    DEFAULT_ACTOR_LR=0.000001
+    DEFAULT_CRITIC_LR=0.00002
+    DEFAULT_ACTOR_UPDATE_DELAY_STEPS=18000
+    ;;
   stage2_three_dense)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-3}"
     MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_three_dense_3}"
@@ -268,7 +284,7 @@ case "$STAGE" in
     ;;
   *)
     echo "Unknown curriculum stage: $STAGE"
-    echo "Available stages: stage1_single, stage1b_single, stage1e_single_rescue, stage1f_wall_parallel_rescue, stage1g_collision_guard, stage1h_separated_reverse_guard, stage1i_yaw_reverse_collision_guard, stage2_pre_pairwise_warmup, stage2_main_pairwise_repair, stage2a_manual_dense_crossing, stage2b_three_transition, stage2b_three_light_dense, stage2_three_dense, stage2_pairwise_to_dense, stage2_dense_bridge, stage2_dense_gentle, stage2_dense, stage3_asym_pair_5, stage3_asym_three_5"
+    echo "Available stages: stage1_single, stage1b_single, stage1e_single_rescue, stage1f_wall_parallel_rescue, stage1g_collision_guard, stage1h_separated_reverse_guard, stage1i_yaw_reverse_collision_guard, stage2_pre_pairwise_warmup, stage2_main_pairwise_repair, stage2a_manual_dense_crossing, stage2b_three_transition, stage2b_three_light_dense, stage2_three_dense, stage2_pairwise_to_dense, stage2_dense_bridge, stage2_dense_gentle, stage2_dense, stage3_asym_pair_5, stage3_asym_three_5, stage4_asym_dense_5"
     exit 1
     ;;
 esac
@@ -310,7 +326,7 @@ WALL_CLEARANCE_SPEED_WEIGHT="${DRL_MULTI_WALL_CLEARANCE_SPEED_WEIGHT:-$DEFAULT_W
 WALL_CLEARANCE_TURN_WEIGHT="${DRL_MULTI_WALL_CLEARANCE_TURN_WEIGHT:-$DEFAULT_WALL_CLEARANCE_TURN_WEIGHT}"
 if [[ "$STAGE" == "stage1e_single_rescue" || "$STAGE" == "stage1f_wall_parallel_rescue" || "$STAGE" == "stage1g_collision_guard" || "$STAGE" == "stage1h_separated_reverse_guard" || "$STAGE" == "stage1i_yaw_reverse_collision_guard" ]]; then
   LOCAL_NAVIGATION_REWARD="${DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD:-1}"
-elif [[ "$STAGE" == "stage2a_manual_dense_crossing" || "$STAGE" == "stage2_pre_pairwise_warmup" || "$STAGE" == "stage2_main_pairwise_repair" || "$STAGE" == "stage2b_three_transition" || "$STAGE" == "stage2b_three_light_dense" || "$STAGE" == "stage2_pairwise_to_dense" || "$STAGE" == "stage2_dense_gentle" || "$STAGE" == "stage2_dense_bridge" || "$STAGE" == "stage3_asym_pair_5" || "$STAGE" == "stage3_asym_three_5" ]]; then
+elif [[ "$STAGE" == "stage2a_manual_dense_crossing" || "$STAGE" == "stage2_pre_pairwise_warmup" || "$STAGE" == "stage2_main_pairwise_repair" || "$STAGE" == "stage2b_three_transition" || "$STAGE" == "stage2b_three_light_dense" || "$STAGE" == "stage2_pairwise_to_dense" || "$STAGE" == "stage2_dense_gentle" || "$STAGE" == "stage2_dense_bridge" || "$STAGE" == "stage3_asym_pair_5" || "$STAGE" == "stage3_asym_three_5" || "$STAGE" == "stage4_asym_dense_5" ]]; then
   LOCAL_NAVIGATION_REWARD="${DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD:-1}"
 else
   LOCAL_NAVIGATION_REWARD="${DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD:-0}"
@@ -321,12 +337,12 @@ if [[ "$STAGE" == "stage2_pre_pairwise_warmup" ]]; then
   DEFAULT_INTERACTION_SAFE_DISTANCE=0.9
   DEFAULT_INTERACTION_CLOSE_PENALTY=0.25
   DEFAULT_INTERACTION_STAGNATION_PENALTY=0.02
-elif [[ "$STAGE" == "stage2_main_pairwise_repair" || "$STAGE" == "stage2b_three_transition" || "$STAGE" == "stage2b_three_light_dense" || "$STAGE" == "stage2_pairwise_to_dense" || "$STAGE" == "stage2_dense_gentle" || "$STAGE" == "stage2_dense_bridge" || "$STAGE" == "stage3_asym_pair_5" || "$STAGE" == "stage3_asym_three_5" ]]; then
+elif [[ "$STAGE" == "stage2_main_pairwise_repair" || "$STAGE" == "stage2b_three_transition" || "$STAGE" == "stage2b_three_light_dense" || "$STAGE" == "stage2_pairwise_to_dense" || "$STAGE" == "stage2_dense_gentle" || "$STAGE" == "stage2_dense_bridge" || "$STAGE" == "stage3_asym_pair_5" || "$STAGE" == "stage3_asym_three_5" || "$STAGE" == "stage4_asym_dense_5" ]]; then
   DEFAULT_DYNAMIC_REWARD=1
   DEFAULT_INTERACTION_SAFE_DISTANCE=0.9
   DEFAULT_INTERACTION_CLOSE_PENALTY=0.35
   DEFAULT_INTERACTION_STAGNATION_PENALTY=0.02
-  if [[ "$STAGE" == "stage2_pairwise_to_dense" || "$STAGE" == "stage2_dense_gentle" || "$STAGE" == "stage2_dense_bridge" || "$STAGE" == "stage3_asym_pair_5" || "$STAGE" == "stage3_asym_three_5" ]]; then
+  if [[ "$STAGE" == "stage2_pairwise_to_dense" || "$STAGE" == "stage2_dense_gentle" || "$STAGE" == "stage2_dense_bridge" || "$STAGE" == "stage3_asym_pair_5" || "$STAGE" == "stage3_asym_three_5" || "$STAGE" == "stage4_asym_dense_5" ]]; then
     DEFAULT_REWARD_MODE="average_plus_interaction"
   else
     DEFAULT_REWARD_MODE="average"
@@ -348,7 +364,7 @@ if [[ "$STAGE" == "stage2_main_pairwise_repair" || "$STAGE" == "stage2b_three_tr
   DEFAULT_REWARD_SELF_WEIGHT=0.8
   DEFAULT_LOCAL_CRITIC=1
   DEFAULT_LOCAL_CRITIC_GEOMETRY_ONLY=0
-elif [[ "$STAGE" == "stage2_pairwise_to_dense" || "$STAGE" == "stage2_dense_gentle" || "$STAGE" == "stage2_dense_bridge" || "$STAGE" == "stage3_asym_pair_5" || "$STAGE" == "stage3_asym_three_5" ]]; then
+elif [[ "$STAGE" == "stage2_pairwise_to_dense" || "$STAGE" == "stage2_dense_gentle" || "$STAGE" == "stage2_dense_bridge" || "$STAGE" == "stage3_asym_pair_5" || "$STAGE" == "stage3_asym_three_5" || "$STAGE" == "stage4_asym_dense_5" ]]; then
   DEFAULT_DISTANCE_WEIGHTED_REWARD=1
   DEFAULT_REWARD_SELF_WEIGHT=0.85
   DEFAULT_LOCAL_CRITIC=0
@@ -420,7 +436,7 @@ setsid bash -lc "
   export ROS_MASTER_URI=http://localhost:${ROS_PORT}
   export ROS_PORT_SIM=${ROS_PORT}
   export GAZEBO_MASTER_URI=http://localhost:${GAZEBO_PORT}
-  export GAZEBO_RESOURCE_PATH='$PROJECT_ROOT/catkin_ws/src/multi_robot_scenario/launch'
+  export GAZEBO_RESOURCE_PATH='$ROS_WORKSPACE_ROOT/catkin_ws/src/multi_robot_scenario/launch'
   export DRL_MULTI_NUM_AGENTS='$NUM_AGENTS'
   export DRL_MULTI_TRAIN_LAUNCHFILE='$LAUNCHFILE'
   export DRL_MULTI_SCENARIO=curriculum
@@ -463,7 +479,7 @@ setsid bash -lc "
   export DRL_MULTI_LOAD_MODEL=1
   export DRL_MULTI_LOAD_ACTOR_ONLY='$LOAD_ACTOR_ONLY'
   export DRL_MULTI_LOAD_MODEL_NAME='$LOAD_MODEL_NAME'
-  cd '$PROJECT_ROOT/catkin_ws'
+  cd '$ROS_WORKSPACE_ROOT/catkin_ws'
   source devel_isolated/setup.bash
   cd '$TD3_DIR'
   exec python3 -u train_velodyne_td3_multi.py
@@ -480,6 +496,7 @@ echo "Warm start: $LOAD_MODEL_NAME"
 echo "Warm start actor only: $LOAD_ACTOR_ONLY"
 echo "Cases: $CASES_PATH"
 echo "Launch: $LAUNCH_PATH"
+echo "ROS workspace root: $ROS_WORKSPACE_ROOT"
 echo "Sampling: $CURRICULUM_SAMPLING"
 echo "Max epochs: $MAX_EPOCHS"
 echo "Eval episodes: $EVAL_EPISODES"
