@@ -111,3 +111,43 @@
 - `2026-07-13`：停止双 Actor gate 路线，建立冻结 `5D` 的本地时空 Attention 残差主线。
 - `2026-07-13`：旧 Attention run 在约 670 episode 停止。best 在 episode 300，后续 gate/residual 退化为近常量且角速度残差翻转；该结果只说明旧目标不稳定，不能证明时空 Attention 有效。
 - `2026-07-13`：建立 balanced v2：三组分层回放、reward scale、非饱和 gate/residual 约束、固定评估、Actor 衰减和无提升早停。
+
+## Dense5 排查结论
+
+`2026-07-14` 的 `stage4_asym_dense_5` 排查后，当前先记住这几件事：
+
+1. 刚才那次 `dense5-from-5d` 失败 run 不能拿来判断 `warm start` 本身好坏。
+2. 当时真正的问题首先是配置不一致，不是单纯“5D actor 不适合继续训”。
+3. 现在 `stage4_asym_dense_5` 已先改回更接近原始 `5D` 的配方，但还没有重新开跑。
+
+### 三版对照
+
+| 项目 | 原始 5D 成功版 | 刚才错误 dense5 版 | 修正后 dense5 版 |
+| --- | --- | --- | --- |
+| 模型入口 | `stage2_to_5d_geo_critic_from_5a_guarded` | `stage4_asym_dense_5` | `stage4_asym_dense_5` |
+| warm start 源 | `5A` actor | `5D best` actor | `5D best` full model 优先 |
+| load 方式 | actor-only，critic 改结构后重建 | actor-only，critic 重建 | 默认先整套加载，只有 critic shape 不匹配才退回 actor-only |
+| local critic | `True` | `False` | `True` |
+| geometry only | `True` | `False` | `True` |
+| reward mode | `average` | `average_plus_interaction` | `average` |
+| reward self weight | `0.8` | `0.85` | `0.8` |
+| local navigation reward | `False` | `True` | `False` |
+| eval episodes | `40` | `60` | `40` |
+| expl noise / min | `0.025 / 0.012` | `0.018 / 0.006` | `0.025 / 0.012` |
+| actor lr | `1e-6` | `1e-6` | `1e-6` |
+| critic lr | `8e-5` | `2e-5` | `8e-5` |
+| actor update delay | `20000` | `18000` | `20000` |
+| resume latest checkpoint | 默认会续 | 默认会续 | `dense5` 启动脚本里默认关掉 |
+
+### 当前判断
+
+- 原始 `5D` 的成功，不能简单理解成“5D actor 很万能”，它其实也是在一套特定 critic 和 reward 配方下训出来的。
+- 刚才那次失败，更像是“换了训练问题定义后，又只继承了 actor，没有公平继承原始 5D 的训练结构”。
+- 所以在重新开跑之前，不能先下结论说“拟合较强的 actor 不适合 warm start”。
+
+### 接下来怎么看
+
+- 如果后面用“修正后 dense5 版”继续训，还是明显差于原始 `5D`，那时再认真讨论：
+  - 是不是 `5D` actor 本身过拟合原分布；
+  - 还是从 `5D` 直接跳到 `dense5` 的分布跨度太大；
+  - 还是 dense5 课程本身就不够顺。
