@@ -204,6 +204,8 @@ class TD3(object):
         self.actor = Actor(state_dim, action_dim).to(device)
         self.actor_target = Actor(state_dim, action_dim).to(device)
         self.actor_target.load_state_dict(self.actor.state_dict())
+        self.actor_lr = actor_lr
+        self.actor_train_mode = "full"
         self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=actor_lr)
 
         self.critic = Critic(self.critic_state_dim, action_dim).to(device)
@@ -216,6 +218,35 @@ class TD3(object):
         self.iter_count = 0
         self.actor_reference = None
         self.actor_anchor_weight = 0.0
+
+    def set_actor_train_mode(self, mode):
+        mode = (mode or "full").strip().lower()
+        for param in self.actor.parameters():
+            param.requires_grad = True
+
+        if mode == "full":
+            pass
+        elif mode == "head_only":
+            for module in (self.actor.layer_1, self.actor.layer_2):
+                for param in module.parameters():
+                    param.requires_grad = False
+        else:
+            raise ValueError(
+                "Unsupported DRL_MULTI_ACTOR_TRAIN_MODE: %s. Use full or head_only."
+                % mode
+            )
+
+        trainable_params = [p for p in self.actor.parameters() if p.requires_grad]
+        if not trainable_params:
+            raise ValueError("Actor train mode left no trainable parameters")
+        self.actor_train_mode = mode
+        self.actor_optimizer = torch.optim.Adam(trainable_params, lr=self.actor_lr)
+
+    def actor_trainable_parameter_count(self):
+        return sum(p.numel() for p in self.actor.parameters() if p.requires_grad)
+
+    def actor_total_parameter_count(self):
+        return sum(p.numel() for p in self.actor.parameters())
 
     def get_action(self, state):
         state = torch.Tensor(state.reshape(1, -1)).to(device)
@@ -523,6 +554,7 @@ policy_noise = 0.2
 noise_clip = 0.5
 policy_freq = env_int("DRL_MULTI_POLICY_FREQ", 2)
 actor_anchor_weight = env_float("DRL_MULTI_ACTOR_ANCHOR_WEIGHT", 0.0) or 0.0
+actor_train_mode = os.environ.get("DRL_MULTI_ACTOR_TRAIN_MODE", "full").strip().lower()
 buffer_size = 1e6
 agent_names = make_agent_names()
 use_dynamic_reward = env_flag("DRL_MULTI_USE_DYNAMIC_REWARD", False)
@@ -719,6 +751,7 @@ network = TD3(
     actor_lr=actor_lr,
     critic_lr=critic_lr,
 )
+network.set_actor_train_mode(actor_train_mode)
 replay_buffer = ReplayBuffer(buffer_size, seed)
 
 if checkpoint:
@@ -755,7 +788,6 @@ elif load_model:
     except Exception as exc:
         print("Could not load the stored model parameters, initializing randomly")
         print("Load error:", exc)
-
 evaluations = checkpoint["evaluations"] if checkpoint else []
 timestep = checkpoint["timestep"] if checkpoint else 0
 env_step_count = checkpoint["env_step_count"] if checkpoint else 0
@@ -817,6 +849,15 @@ print("Best metric:", best_metric)
 print("Eval episodes:", eval_ep)
 print("Max epochs:", max_epochs or "unlimited")
 print("Actor learning rate:", actor_lr)
+print("Actor train mode:", network.actor_train_mode)
+print(
+    "Actor trainable parameters:",
+    "%i/%i"
+    % (
+        network.actor_trainable_parameter_count(),
+        network.actor_total_parameter_count(),
+    ),
+)
 print("Critic learning rate:", critic_lr)
 print(
     "Actor update delay steps:",

@@ -36,11 +36,9 @@
 - 继续覆盖训练单一 actor 不能稳定同时提高普通能力和 dense 能力。
 - 后续若做专家组合，应先验证专家互补性，再训练门控。
 
-## 有效日志
+## 保留日志
 
-- `logs/test_stage3_asym_three_5_5A_20260707_193554.log`
+本目录只保留当前主线需要复查的 `5D` anchor 日志。`5A` 和 `PAIR(from_5d)` 的结果只保留在上表中，原始日志已清理，避免继续分散主线。
+
 - `logs/test_stage3_asym_three_5_5D_20260707_213454.log`
 - `logs/test_std5_5D_20260707_205700.log`
-- `logs/train/train_multi_curriculum_stage3_asym_pair_5_detached_20260712_234835.log`
-- `logs/test_std5_PAIR_5D_20260713_084935.log`
-- `logs/test_stage3_asym_three_5_PAIR_5D_20260713_104759.log`

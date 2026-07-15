@@ -411,6 +411,7 @@ LOAD_ACTOR_ONLY="${DRL_MULTI_LOAD_ACTOR_ONLY:-${DEFAULT_LOAD_ACTOR_ONLY:-0}}"
 ACTOR_UPDATE_DELAY_STEPS="${DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS:-${DEFAULT_ACTOR_UPDATE_DELAY_STEPS:-0}}"
 POLICY_FREQ="${DRL_MULTI_POLICY_FREQ:-2}"
 ACTOR_ANCHOR_WEIGHT="${DRL_MULTI_ACTOR_ANCHOR_WEIGHT:-0}"
+ACTOR_TRAIN_MODE="${DRL_MULTI_ACTOR_TRAIN_MODE:-full}"
 RESUME_TRAINING="${DRL_MULTI_RESUME_TRAINING:-1}"
 LOCAL_CRITIC_MAX_AGENTS="${DRL_MULTI_LOCAL_CRITIC_MAX_AGENTS:-10}"
 LOCAL_NAV_HEADING_WEIGHT="${DRL_MULTI_LOCAL_NAV_HEADING_WEIGHT:-0.35}"
@@ -444,7 +445,7 @@ if [[ -n "$existing_pid" ]]; then
   exit 1
 fi
 
-if [[ "$STAGE" == "stage4_asym_dense_5_bridge" && "${DRL_MULTI_ALLOW_FULL_ACTOR_FINETUNE:-0}" != "1" ]]; then
+if [[ "$STAGE" == "stage4_asym_dense_5_bridge" && "$ACTOR_TRAIN_MODE" == "full" && "${DRL_MULTI_ALLOW_FULL_ACTOR_FINETUNE:-0}" != "1" ]]; then
   echo "Direct full-actor fine-tune on stage4_asym_dense_5_bridge is paused."
   echo "It already degraded from both 5D and 5A warm starts."
   echo "Use a dedicated dense-actor script with controlled unfreezing/adapter training instead."
@@ -511,6 +512,7 @@ setsid bash -lc "
   export DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS='$ACTOR_UPDATE_DELAY_STEPS'
   export DRL_MULTI_POLICY_FREQ='$POLICY_FREQ'
   export DRL_MULTI_ACTOR_ANCHOR_WEIGHT='$ACTOR_ANCHOR_WEIGHT'
+  export DRL_MULTI_ACTOR_TRAIN_MODE='$ACTOR_TRAIN_MODE'
   export DRL_MULTI_RESUME_TRAINING='$RESUME_TRAINING'
   export DRL_MULTI_TRAINING_VERSION='${DRL_MULTI_TRAINING_VERSION:-$VERSION}'
   export DRL_MULTI_TRAIN_FILE_NAME='$MODEL_NAME'
@@ -544,6 +546,7 @@ echo "Critic LR: $CRITIC_LR"
 echo "Actor update delay steps: $ACTOR_UPDATE_DELAY_STEPS"
 echo "Policy freq: $POLICY_FREQ"
 echo "Actor anchor weight: $ACTOR_ANCHOR_WEIGHT"
+echo "Actor train mode: $ACTOR_TRAIN_MODE"
 echo "Resume training: $RESUME_TRAINING"
 echo "Dynamic reward: $DYNAMIC_REWARD"
 echo "Reward mode: $REWARD_MODE"
