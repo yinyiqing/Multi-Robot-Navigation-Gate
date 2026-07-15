@@ -41,7 +41,14 @@
 
 一句话：
 
-**冻结当前最稳的 `5D` Actor，只训练使用本车时空观测的门控残差和 Attention Critic，不再覆盖完整 Actor。**
+**先把第二个 dense 专家训出来，再考虑用 gate / attention 去保留普通能力并增强密集交互。**
+
+当前顺序很重要：
+
+1. `5D` 先作为普通到 dense 的最强 bridge baseline。
+2. 直接 `stage4_asym_dense_5` 太硬，先作为压力测试。
+3. 新增 `stage4_asym_dense_5_bridge` 作为 dense 专家训练入口。
+4. 等 dense 专家真的比 `5D` 更专，再训练 gate / attention；否则 gate 只会学成“多数时候选 5D”。
 
 ## 这一目录后面准备怎么放
 
@@ -50,7 +57,7 @@
 - `02_双actor切换/`
   - 作为中间验证：能力偏向存在，但粗切换不够
 - `03_门控注意力增强/`
-  - 当前唯一新主线：`5D + 时空 Attention 残差`
+  - 当前主线：先训练 dense 专家，再做 gate / attention 组合
 - `04_安全兜底/`
   - 如果主线有效，再把传统规划或安全控制并进来
 
@@ -59,8 +66,8 @@
 ## 当前一句话记录
 
 - 旧主线卡点：actor 解冻后退化
-- 旧 Attention / 联合动作 Critic 实现已精简，不复用旧结构
-- 新主线：冻结 `5D`，只学习本地可观测的时空残差
+- `5A + 5D` 互补不足，不能直接训练 gate
+- 新主线：先补一个真正更适合 dense 的第二专家
 
 ## 当前故事
 
@@ -69,7 +76,7 @@
 3. `5D` 更像普通到 dense 的桥接 actor。
 4. `PAIR(from_5d)` 是当前 dense 专门化基线，但正式 dense 测试没有超过 `5D`。
 5. `5A + 5D` 的 hard switch 和 oracle 显示互补不足，不能直接进入 learned gate 训练。
-6. 当前改用单 Actor 残差 Attention，不再依赖两个专家互补。
+6. 当前先回到专家训练：如果没有更专的 dense actor，gate / attention 的故事站不稳。
 
 ## 当前测试口径
 
@@ -83,7 +90,7 @@
 ### 当前模型角色
 
 - 冻结基础 Actor：`5D`
-- 新训练模型：`5D + spatiotemporal attention residual`
+- 新训练模型：`stage4_asym_dense_5_bridge` 上的 dense expert
 - `5A`、`PAIR(from_5d)`、`THREE_5`：历史对照，不进入新训练图
 
 额外约定：
@@ -111,6 +118,9 @@
 - `2026-07-13`：停止双 Actor gate 路线，建立冻结 `5D` 的本地时空 Attention 残差主线。
 - `2026-07-13`：旧 Attention run 在约 670 episode 停止。best 在 episode 300，后续 gate/residual 退化为近常量且角速度残差翻转；该结果只说明旧目标不稳定，不能证明时空 Attention 有效。
 - `2026-07-13`：建立 balanced v2：三组分层回放、reward scale、非饱和 gate/residual 约束、固定评估、Actor 衰减和无提升早停。
+- `2026-07-15`：新仓库 `Multi-Robot-Navigation-Gate` 独立出来，gate / dense-expert 工作不再污染原主线仓库。
+- `2026-07-15`：确认 hard `stage4_asym_dense_5` 对 `5D` 太硬，固定策略 40 集 success `0.355`、collision `0.680`、full success `0.025`，只作为压力测试。
+- `2026-07-15`：新增 `stage4_asym_dense_5_bridge`，几何约束为最小可能起点间距约 `1.04m`、目标间距约 `0.72m`；`5D` 固定策略 40 集 success `0.540`、collision `0.475`、full success `0.250`，适合作为 dense 专家训练入口。
 
 ## Dense5 排查结论
 

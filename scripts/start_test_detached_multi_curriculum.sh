@@ -92,6 +92,11 @@ case "$STAGE" in
     DEFAULT_MODEL="TD3_multi_dense5_from_5d_geo_best"
     CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage4_asym_dense_5_cases.json"
     ;;
+  stage4_asym_dense_5_bridge)
+    NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
+    DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage4_asym_dense_5_bridge_cases.json"
+    ;;
   stage2_dense)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
     DEFAULT_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best"
@@ -104,7 +109,7 @@ case "$STAGE" in
     ;;
   *)
     echo "Unknown curriculum stage: $STAGE"
-    echo "Available stages: stage1_single, stage1b_single, stage1e_single_rescue, stage1f_wall_parallel_rescue, stage1g_collision_guard, stage1h_separated_reverse_guard, stage1i_yaw_reverse_collision_guard, stage2_pairwise_diagnostic, stage2_pre_pairwise_warmup, stage2a_manual_dense_crossing, stage2b_three_transition, stage2b_three_light_dense, stage2_pairwise_to_dense, stage2_three_dense, stage2_dense, stage3_asym_pair_5, stage3_asym_three_5, stage4_asym_dense_5"
+    echo "Available stages: stage1_single, stage1b_single, stage1e_single_rescue, stage1f_wall_parallel_rescue, stage1g_collision_guard, stage1h_separated_reverse_guard, stage1i_yaw_reverse_collision_guard, stage2_pairwise_diagnostic, stage2_pre_pairwise_warmup, stage2a_manual_dense_crossing, stage2b_three_transition, stage2b_three_light_dense, stage2_pairwise_to_dense, stage2_three_dense, stage2_dense, stage3_asym_pair_5, stage3_asym_three_5, stage4_asym_dense_5_bridge, stage4_asym_dense_5"
     exit 1
     ;;
 esac

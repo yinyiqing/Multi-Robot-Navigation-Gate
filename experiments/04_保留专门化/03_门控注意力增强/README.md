@@ -1,6 +1,46 @@
-# 03 时空 Attention 残差主线
+# 03 门控注意力增强
 
-当前唯一的新训练主线是：
+当前主线先不要急着训练 gate。
+
+导师建议的 gate / attention 是合理方向，但前提是两个专家真的互补。`5A + 5D`
+的 oracle 已经显示互补不足，所以现在先做：
+
+```text
+5D baseline
+  -> trainable dense bridge
+  -> dense expert
+  -> gate / attention 融合
+```
+
+## 当前 dense expert 入口
+
+`stage4_asym_dense_5` 先作为 hard stress test，不作为训练入口。
+
+新入口是 `stage4_asym_dense_5_bridge`：
+
+- 最小可能起点间距约 `1.04m`
+- 最小可能目标间距约 `0.72m`
+- 5D 固定策略 40 集：
+  - success `0.540`
+  - collision `0.475`
+  - full success `0.250`
+
+对应日志：
+
+- `logs/test/test_stage4_asym_dense_5_bridge_5D_BASELINE_STAGE4_BRIDGE_20260715_150100.log`
+- `logs/test/test_stage4_asym_dense_5_5D_BASELINE_STAGE4_20260715_140502.log`
+
+下一步优先跑：
+
+```bash
+bash scripts/start_training_detached_multi_curriculum.sh stage4_asym_dense_5_bridge
+```
+
+如果 bridge 上能训出超过 `5D` 的 dense expert，再回到 gate / attention。
+
+## 暂存的 Attention 残差方案
+
+原 Attention 残差方案先保留，不作为当前第一步：
 
 ```text
 冻结 5D Actor
