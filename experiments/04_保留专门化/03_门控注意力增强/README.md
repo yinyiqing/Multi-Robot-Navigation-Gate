@@ -55,9 +55,9 @@ actor anchor 防止起点策略被快速拉坏。但结果仍然没有突破：
 所以当前不应继续整网 fine-tune；下一步应冻结基础 actor，只训练小 residual / adapter / attention 修正。
 这样更贴近导师说的“冻结两个 actor，再单独训 gate”的思路，也更容易保护已有导航能力。
 
-## 暂存的 Attention 残差方案
+## 当前 Attention 残差方案
 
-原 Attention 残差方案先保留，不作为当前第一步：
+当前不再继续训练完整 dense actor，而是先跑冻结 `5D` 的小 residual：
 
 ```text
 冻结 5D Actor
@@ -69,6 +69,31 @@ actor anchor 防止起点策略被快速拉坏。但结果仍然没有突破：
 
 它不再训练两个完整 Actor，也不再使用 hard switch。门控只控制残差修正强度，初始值接近零，因此训练起点等价于原始 `5D`。
 
+当前 bridge residual 入口：
+
+```bash
+bash scripts/start_training_detached_attention_bridge_residual_5d.sh
+```
+
+默认模型名：
+
+`TD3_velodyne_multi_v5_attention_bridge_residual_from_5d_conservative`
+
+默认训练分布：
+
+- `standard`：普通随机五车，保护原导航能力
+- `bridge`：`stage4_asym_dense_5_bridge`，学习密集修正
+
+默认约束：
+
+- `max_residual=0.12`
+- `actor_lr=2e-6`
+- `actor_start_step=8000`
+- `reward_scale=0.05`
+- `gate_penalty=0.3`
+- `residual_penalty=0.2`
+- `standard_residual_penalty=2.0`
+
 ## 输入与执行边界
 
 - 每帧输入仍是本车 24 维观测。
@@ -77,7 +102,7 @@ actor anchor 防止起点策略被快速拉坏。但结果仍然没有突破：
 - 不读取 Gazebo 中其他机器人的真实位置或动作。
 - 训练和执行使用相同的本地可观测信息。
 
-## 单一训练配置
+## 旧 balanced v2 配置
 
 - 冻结基础模型：`5D best`
 - reward：基础 individual reward
@@ -126,6 +151,7 @@ actor anchor 防止起点策略被快速拉坏。但结果仍然没有突破：
 ## 入口
 
 ```bash
+bash scripts/start_training_detached_attention_bridge_residual_5d.sh
 bash scripts/start_training_detached_spatiotemporal_attention_5d.sh
 bash scripts/stop_training_detached_spatiotemporal_attention_5d.sh
 ```
@@ -135,6 +161,7 @@ bash scripts/stop_training_detached_spatiotemporal_attention_5d.sh
 - `TD3/spatiotemporal_attention.py`
 - `TD3/sequence_replay_buffer.py`
 - `TD3/train_spatiotemporal_attention.py`
+- `experiments/02_课程学习/cases/stage4_attention_bridge_residual_5_cases.json`
 - `experiments/02_课程学习/cases/stage4_spatiotemporal_attention_mixed_5_cases.json`
 
 旧 Attention、联合动作 Critic 和 `5A + 5D` 双 Actor 只保留为历史结论，不复用其实现。

@@ -415,7 +415,7 @@ class SpatioTemporalTD3:
         metrics = {}
         gate = gate.detach()
         residual = residual.detach()
-        for group in ("standard", "pair", "three"):
+        for group in sorted(set(str(group) for group in groups.tolist())):
             mask = torch.as_tensor(groups == group, device=gate.device)
             if not mask.any():
                 continue

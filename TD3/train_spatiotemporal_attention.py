@@ -24,6 +24,29 @@ def env_float(name, default):
     return default if value is None or not value.strip() else float(value)
 
 
+def env_groups(name, default):
+    value = os.environ.get(name)
+    if value is None or not value.strip():
+        return list(default)
+    return [group.strip() for group in value.split(",") if group.strip()]
+
+
+def env_group_ratios(name, default):
+    value = os.environ.get(name)
+    if value is None or not value.strip():
+        return dict(default)
+    ratios = {}
+    for item in value.split(","):
+        item = item.strip()
+        if not item:
+            continue
+        if ":" not in item:
+            raise ValueError(f"{name} item must be group:ratio, got {item!r}")
+        group, ratio = item.split(":", 1)
+        ratios[group.strip()] = float(ratio)
+    return ratios
+
+
 def make_histories(states, history_len):
     return {
         index: deque(
@@ -168,17 +191,22 @@ standard_residual_penalty_weight = env_float(
 )
 batch_size = env_int("DRL_ATTENTION_BATCH_SIZE", 64)
 replay_capacity = env_int("DRL_ATTENTION_REPLAY_CAPACITY", 200000)
-replay_group_ratios = {
-    "standard": env_float("DRL_ATTENTION_REPLAY_STANDARD_RATIO", 1.0),
-    "pair": env_float("DRL_ATTENTION_REPLAY_PAIR_RATIO", 1.0),
-    "three": env_float("DRL_ATTENTION_REPLAY_THREE_RATIO", 1.0),
-}
+replay_group_ratios = env_group_ratios(
+    "DRL_ATTENTION_REPLAY_GROUP_RATIOS",
+    {
+        "standard": env_float("DRL_ATTENTION_REPLAY_STANDARD_RATIO", 1.0),
+        "pair": env_float("DRL_ATTENTION_REPLAY_PAIR_RATIO", 1.0),
+        "three": env_float("DRL_ATTENTION_REPLAY_THREE_RATIO", 1.0),
+    },
+)
 learning_starts = env_int("DRL_ATTENTION_LEARNING_STARTS", 2000)
 max_episodes = env_int("DRL_ATTENTION_MAX_EPISODES", 1000)
 max_episode_steps = env_int("DRL_ATTENTION_MAX_EPISODE_STEPS", 300)
 eval_interval = env_int("DRL_ATTENTION_EVAL_INTERVAL", 25)
 eval_episodes_per_case = env_int("DRL_ATTENTION_EVAL_EPISODES_PER_CASE", 4)
 standard_eval_episodes = env_int("DRL_ATTENTION_STANDARD_EVAL_EPISODES", 12)
+standard_eval_group = os.environ.get("DRL_ATTENTION_STANDARD_EVAL_GROUP", "standard")
+dense_eval_groups = env_groups("DRL_ATTENTION_DENSE_EVAL_GROUPS", ["three"])
 evaluation_seed = env_int("DRL_ATTENTION_EVAL_SEED", 20260713)
 early_stopping_patience = env_int("DRL_ATTENTION_EARLY_STOPPING_PATIENCE", 8)
 checkpoint_interval = env_int("DRL_ATTENTION_CHECKPOINT_INTERVAL", 10)
@@ -339,8 +367,14 @@ print(
     standard_residual_penalty_weight,
 )
 print(
-    "Fixed evaluation: standard=%d, dense=%d per case, seed=%d"
-    % (standard_eval_episodes, eval_episodes_per_case, evaluation_seed)
+    "Fixed evaluation: %s=%d, dense groups=%s x%d per case, seed=%d"
+    % (
+        standard_eval_group,
+        standard_eval_episodes,
+        ",".join(dense_eval_groups),
+        eval_episodes_per_case,
+        evaluation_seed,
+    )
 )
 print("Early stopping patience:", early_stopping_patience, "evaluations")
 print("Fixed exploration noise:", exploration_noise)
@@ -484,24 +518,45 @@ try:
         standard_metrics = evaluate_group(
             agent,
             env,
-            "standard",
+            standard_eval_group,
             history_len,
             standard_eval_episodes,
             max_episode_steps,
             evaluation_seed,
         )
-        dense_metrics = evaluate_group(
-            agent,
-            env,
-            "three",
-            history_len,
-            eval_episodes_per_case,
-            max_episode_steps,
-            evaluation_seed + 1000,
-        )
+        dense_metrics_by_group = {}
+        dense_totals = {
+            "success_rate": 0.0,
+            "collision_rate": 0.0,
+            "full_success_rate": 0.0,
+            "timeout_rate": 0.0,
+        }
+        for group_index, dense_group in enumerate(dense_eval_groups):
+            group_metrics = evaluate_group(
+                agent,
+                env,
+                dense_group,
+                history_len,
+                eval_episodes_per_case,
+                max_episode_steps,
+                evaluation_seed + 1000 + group_index,
+            )
+            dense_metrics_by_group[dense_group] = group_metrics
+            for name, value in group_metrics.items():
+                dense_totals[name] += value
+        dense_metrics = {
+            name: value / max(len(dense_eval_groups), 1)
+            for name, value in dense_totals.items()
+        }
         print("Eval standard:", standard_metrics)
-        print("Eval three:", dense_metrics)
-        for group, metrics in (("standard", standard_metrics), ("three", dense_metrics)):
+        print("Eval dense:", dense_metrics)
+        for dense_group, group_metrics in dense_metrics_by_group.items():
+            print(f"Eval {dense_group}:", group_metrics)
+        for group, metrics in (
+            (standard_eval_group, standard_metrics),
+            ("dense", dense_metrics),
+            *dense_metrics_by_group.items(),
+        ):
             for name, value in metrics.items():
                 writer.add_scalar(f"eval/{group}_{name}", value, episode)
 

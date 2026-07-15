@@ -8,7 +8,7 @@ PID_FILE="$PROJECT_ROOT/.train_spatiotemporal_attention_5d_detached.pid"
 ROS_WORKSPACE_ROOT="${DRL_ATTENTION_ROS_WORKSPACE_ROOT:-$PROJECT_ROOT}"
 LAUNCHFILE="multi_robot_scenario_attention_5.launch"
 LAUNCH_PATH="$TD3_DIR/assets/$LAUNCHFILE"
-CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage4_spatiotemporal_attention_mixed_5_cases.json"
+CASES_PATH="${DRL_MULTI_CURRICULUM_CASES:-$PROJECT_ROOT/experiments/02_课程学习/cases/stage4_spatiotemporal_attention_mixed_5_cases.json}"
 BASE_MODEL="${DRL_ATTENTION_BASE_MODEL:-TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best}"
 MODEL_NAME="${DRL_ATTENTION_MODEL_NAME:-TD3_velodyne_multi_v5_attention_residual_from_5d_balanced_v2}"
 ROS_PORT="${DRL_ATTENTION_ROS_PORT:-12821}"
@@ -50,7 +50,7 @@ setsid bash -lc "
   export GAZEBO_MASTER_URI=http://localhost:${GAZEBO_PORT}
   export GAZEBO_RESOURCE_PATH='$ROS_WORKSPACE_ROOT/catkin_ws/src/multi_robot_scenario/launch'
   export DRL_MULTI_CURRICULUM_CASES='$CASES_PATH'
-  export DRL_MULTI_CURRICULUM_SAMPLING=random
+  export DRL_MULTI_CURRICULUM_SAMPLING='${DRL_MULTI_CURRICULUM_SAMPLING:-random}'
   export DRL_ATTENTION_LAUNCHFILE='$LAUNCHFILE'
   export DRL_ATTENTION_BASE_MODEL='$BASE_MODEL'
   export DRL_ATTENTION_MODEL_NAME='$MODEL_NAME'

@@ -5,8 +5,6 @@ import numpy as np
 
 
 class SequenceReplayBuffer:
-    GROUPS = ("standard", "pair", "three")
-
     def __init__(self, capacity, seed=0, group_ratios=None):
         self.capacity = int(capacity)
         self.rng = random.Random(seed)
@@ -85,7 +83,7 @@ class SequenceReplayBuffer:
 
     def state_dict(self):
         return {
-            "version": 2,
+            "version": 3,
             "capacity": self.capacity,
             "group_ratios": self.group_ratios,
             "buffer": [self.entries[transition_id] for transition_id in self.order],
@@ -113,16 +111,15 @@ class SequenceReplayBuffer:
     def _sample_counts(self, batch_size):
         available_groups = [
             group
-            for group in self.GROUPS
-            if self.group_ratios.get(group, 0.0) > 0.0
-            and len(self.group_ids.get(group, ())) > 0
+            for group, ids in self.group_ids.items()
+            if self.group_ratios.get(group, 1.0) > 0.0 and len(ids) > 0
         ]
         if not available_groups:
             return {}
 
-        ratio_sum = sum(self.group_ratios[group] for group in available_groups)
+        ratio_sum = sum(self.group_ratios.get(group, 1.0) for group in available_groups)
         exact = {
-            group: batch_size * self.group_ratios[group] / ratio_sum
+            group: batch_size * self.group_ratios.get(group, 1.0) / ratio_sum
             for group in available_groups
         }
         counts = {
@@ -132,7 +129,10 @@ class SequenceReplayBuffer:
         remaining = batch_size - sum(counts.values())
         priority = sorted(
             available_groups,
-            key=lambda group: (exact[group] - int(exact[group]), self.group_ratios[group]),
+            key=lambda group: (
+                exact[group] - int(exact[group]),
+                self.group_ratios.get(group, 1.0),
+            ),
             reverse=True,
         )
         while remaining and priority:
@@ -161,10 +161,10 @@ class SequenceReplayBuffer:
     @classmethod
     def _normalize_ratios(cls, ratios):
         if ratios is None:
-            ratios = {group: 1.0 for group in cls.GROUPS}
+            ratios = {}
         normalized = {
-            group: max(float(ratios.get(group, 0.0)), 0.0) for group in cls.GROUPS
+            str(group): max(float(value), 0.0) for group, value in ratios.items()
         }
-        if sum(normalized.values()) <= 0.0:
+        if normalized and sum(normalized.values()) <= 0.0:
             raise ValueError("At least one replay group ratio must be positive")
         return normalized
