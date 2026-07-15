@@ -736,11 +736,11 @@ elif load_model:
                 network.load(load_model_name, "./pytorch_models")
                 print("Loaded initial model parameters from:", load_model_name)
             except Exception as exc:
-                if use_local_critic and can_fallback_to_actor_only(exc):
+                if can_fallback_to_actor_only(exc):
                     network.load_actor(load_model_name, "./pytorch_models")
                     print("Loaded initial actor parameters from:", load_model_name)
                     print(
-                        "Full model warm start failed; critic was reinitialized because stored critic shape did not match."
+                        "Full model warm start failed; critic was reinitialized because stored critic shape did not match. Actor warm start is still active."
                     )
                 else:
                     raise
