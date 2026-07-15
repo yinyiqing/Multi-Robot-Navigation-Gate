@@ -1,6 +1,6 @@
 {
   "name": "stage4_asym_dense_5_bridge_cases",
-  "description": "Five-agent asymmetric dense bridge cases. This set is denser than stage3_asym_three_5 but avoids start positions near the collision threshold and avoids overlapping goals. It is intended as the trainable entry before the hard stage4_asym_dense_5 stress test.",
+  "description": "Five-agent asymmetric dense bridge cases. This set is denser than stage3_asym_three_5 but avoids start positions near the collision threshold and avoids overlapping goals. It is the current dense-specialist training entry.",
   "cases": [
     {
       "name": "bridge_offset_cross_with_late_cut",
