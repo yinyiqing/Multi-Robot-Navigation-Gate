@@ -444,6 +444,14 @@ if [[ -n "$existing_pid" ]]; then
   exit 1
 fi
 
+if [[ "$STAGE" == "stage4_asym_dense_5_bridge" && "${DRL_MULTI_ALLOW_FULL_ACTOR_FINETUNE:-0}" != "1" ]]; then
+  echo "Direct full-actor fine-tune on stage4_asym_dense_5_bridge is paused."
+  echo "It already degraded from both 5D and 5A warm starts."
+  echo "Use a dedicated dense-actor script with controlled unfreezing/adapter training instead."
+  echo "Set DRL_MULTI_ALLOW_FULL_ACTOR_FINETUNE=1 only for deliberate reproduction."
+  exit 1
+fi
+
 if port_in_use "$ROS_PORT"; then
   echo "ROS port $ROS_PORT is already in use. Please choose a different DRL_MULTI_ROS_PORT."
   exit 1
