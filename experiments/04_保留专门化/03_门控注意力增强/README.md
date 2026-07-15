@@ -112,6 +112,37 @@ bash scripts/start_training_detached_attention_bridge_residual_5d.sh
 - bridge 有小幅改善信号，尤其 collision 从 `0.475` 最好降到 `0.420`。
 - 但增强还不稳定，dual-benchmark best 的 bridge success 没超过 baseline；下一步需要更强的 dense 修正或更合理的 best 选择口径。
 
+### 首轮失败原因排查
+
+这轮不能简单说成 “Attention 没用”，更准确是：
+
+1. residual 基本没有真正打开。
+   - best checkpoint 在 episode 40，只有 `4580` samples，而 actor residual 设定为 `8000` samples 后才开始训练。
+   - best checkpoint 的 gate mean 约 `0.0180`，有效动作修正均值约 `0.00060`。
+   - latest checkpoint 的 gate mean 约 `0.0155`，有效动作修正均值约 `0.00006`，说明后期被正则进一步压回接近 0。
+2. best 选择口径偏向 dual-benchmark，没有保存 bridge 单项最好点。
+   - dual-benchmark best 是 episode 40：bridge `0.530 / 0.470 / 0.350`。
+   - bridge 单项最好是 episode 140：bridge `0.580 / 0.420 / 0.300`。
+   - 但 episode 140 的 standard full 降到 `0.583`，因此没有更新 dual-benchmark best。
+3. bridge 的失败主要集中在两个硬 case。
+   - 训练日志按 case 粗统计：
+     - `bridge_center_weave_with_dual_entries`：success `0.138`，collision `0.854`
+     - `bridge_offset_cross_with_late_cut`：success `0.256`，collision `0.783`
+     - `bridge_cluster_release_to_spread_bottleneck`：success `0.452`，collision `0.548`
+     - `bridge_wall_channel_reverse_stream`：success `0.857`，collision `0.143`
+     - `bridge_diagonal_merge_with_back_pressure`：success `1.000`，collision `0.009`
+   - 简单 case 已经接近饱和，平均提升主要取决于 center / offset 两个冲突 case。
+4. eval 样本数偏小，波动不可忽略。
+   - 每次 bridge eval 是 5 个 case、每 case 4 局，共 20 局。
+   - full success 从 `0.25` 到 `0.35` 只差 2 局；success 从 `0.54` 到 `0.58` 只差约 4 个 agent 成败。
+
+下一步应调整：
+
+- 降低 gate/residual 正则或提高 `max_residual`，让 residual 真的参与动作。
+- actor start 可以提前一些，或先只训练 bridge residual，再用 standard regularization 拉回。
+- 同时保存 `dual_best` 和 `bridge_best`，避免丢掉 dense 单项峰值。
+- eval 增加每 case 局数，至少用于最终确认。
+
 ## 输入与执行边界
 
 - 每帧输入仍是本车 24 维观测。
