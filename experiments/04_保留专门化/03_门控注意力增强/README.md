@@ -36,16 +36,24 @@
 - `logs/test/test_stage4_asym_dense_5_bridge_5A_BASELINE_STAGE4_BRIDGE_20260715_175834.log`
 
 `5D -> bridge` 的第一次训练已经暴露出一个关键问题：第 1 轮略好于固定 `5D`，但继续 actor
-更新后快速退化，第 7 轮 success 降到 `0.215`。所以现在不再把 `5D` 当作唯一 warmstart，
-而是先试更早期的 `5A`：
+更新后快速退化，第 7 轮 success 降到 `0.215`。随后又试了更早期的 `5A` warmstart：
 
 ```bash
 bash scripts/start_training_detached_multi_dense5_bridge_from_5a.sh
 ```
 
 这条 run 的默认策略是 actor-only warmstart、新 critic、低 actor lr、长 actor update delay，并用轻微
-actor anchor 防止起点策略被快速拉坏。如果 bridge 上能训出超过 `5A/5D` 固定基线的 dense expert，
-再回到 gate / attention。
+actor anchor 防止起点策略被快速拉坏。但结果仍然没有突破：
+
+- epoch 1：success `0.520`，collision `0.480`，full `0.275`
+- epoch 2：success `0.540`，collision `0.465`，full `0.275`
+- epoch 3：success `0.535`，collision `0.470`，full `0.275`
+- epoch 4：success `0.490`，collision `0.505`，full `0.225`
+- epoch 5：success `0.490`，collision `0.520`，full `0.225`
+
+结论：换成 `5A` 起点也没有解决问题。前几轮基本只是固定 actor 的表现，一旦 actor 解冻，分数又开始掉。
+所以当前不应继续整网 fine-tune；下一步应冻结基础 actor，只训练小 residual / adapter / attention 修正。
+这样更贴近导师说的“冻结两个 actor，再单独训 gate”的思路，也更容易保护已有导航能力。
 
 ## 暂存的 Attention 残差方案
 
