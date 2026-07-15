@@ -5,6 +5,7 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TD3_DIR="$PROJECT_ROOT/TD3"
 LOG_DIR="$PROJECT_ROOT/logs"
 PID_FILE="$PROJECT_ROOT/.train_spatiotemporal_attention_5d_detached.pid"
+ROS_WORKSPACE_ROOT="${DRL_ATTENTION_ROS_WORKSPACE_ROOT:-$PROJECT_ROOT}"
 LAUNCHFILE="multi_robot_scenario_attention_5.launch"
 LAUNCH_PATH="$TD3_DIR/assets/$LAUNCHFILE"
 CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage4_spatiotemporal_attention_mixed_5_cases.json"
@@ -47,13 +48,13 @@ setsid bash -lc "
   export ROS_MASTER_URI=http://localhost:${ROS_PORT}
   export ROS_PORT_SIM=${ROS_PORT}
   export GAZEBO_MASTER_URI=http://localhost:${GAZEBO_PORT}
-  export GAZEBO_RESOURCE_PATH='$PROJECT_ROOT/catkin_ws/src/multi_robot_scenario/launch'
+  export GAZEBO_RESOURCE_PATH='$ROS_WORKSPACE_ROOT/catkin_ws/src/multi_robot_scenario/launch'
   export DRL_MULTI_CURRICULUM_CASES='$CASES_PATH'
   export DRL_MULTI_CURRICULUM_SAMPLING=random
   export DRL_ATTENTION_LAUNCHFILE='$LAUNCHFILE'
   export DRL_ATTENTION_BASE_MODEL='$BASE_MODEL'
   export DRL_ATTENTION_MODEL_NAME='$MODEL_NAME'
-  cd '$PROJECT_ROOT/catkin_ws'
+  cd '$ROS_WORKSPACE_ROOT/catkin_ws'
   source devel_isolated/setup.bash
   cd '$TD3_DIR'
   exec python3 -u train_spatiotemporal_attention.py
@@ -65,5 +66,6 @@ echo "PID: $(<"$PID_FILE")"
 echo "Frozen base actor: $BASE_MODEL"
 echo "Attention model: $MODEL_NAME"
 echo "Curriculum: $CASES_PATH"
+echo "ROS workspace root: $ROS_WORKSPACE_ROOT"
 echo "ROS/Gazebo ports: $ROS_PORT / $GAZEBO_PORT"
 echo "Log: $log_file"

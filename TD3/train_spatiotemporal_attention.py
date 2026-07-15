@@ -199,6 +199,9 @@ base_actor_path = os.path.join("pytorch_models", f"{base_model}_actor.pth")
 checkpoint_path = os.path.join("checkpoints", f"{model_name}_latest.pt")
 best_checkpoint_path = os.path.join("checkpoints", f"{model_name}_best.pt")
 
+os.makedirs("checkpoints", exist_ok=True)
+os.makedirs("runs", exist_ok=True)
+
 random.seed(seed)
 np.random.seed(seed)
 torch.manual_seed(seed)
@@ -231,6 +234,12 @@ env = MultiAgentGazeboEnv(
     active_neighbors_only=True,
 )
 time.sleep(5)
+
+curriculum_groups = sorted(
+    {str(case.get("group", "ungrouped")) for case in env.curriculum_cases}
+)
+for group in curriculum_groups:
+    replay_group_ratios.setdefault(group, 1.0)
 
 timestamp = datetime.now().strftime("%b%d_%H-%M-%S")
 writer = SummaryWriter(
@@ -309,7 +318,7 @@ print("Training: 5D frozen actor + spatiotemporal attention residual")
 print("Base model:", base_model)
 print("History length:", history_len)
 print("Attention model dim / heads:", model_dim, "/", num_heads)
-print("Mixed curriculum groups: standard, pair, three")
+print("Mixed curriculum groups:", ", ".join(curriculum_groups))
 print("Reward: base individual reward only")
 print(
     "Actor start / LR warmup / decay:",
