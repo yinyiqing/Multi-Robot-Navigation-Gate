@@ -6,7 +6,7 @@
 的 oracle 已经显示互补不足，所以现在先做：
 
 ```text
-5D baseline
+5A / 5D baseline
   -> trainable dense bridge
   -> dense expert
   -> gate / attention 融合
@@ -24,19 +24,28 @@
   - success `0.540`
   - collision `0.475`
   - full success `0.250`
+- 5A 固定策略 40 集：
+  - success `0.530`
+  - collision `0.475`
+  - full success `0.275`
 
 对应日志：
 
 - `logs/test/test_stage4_asym_dense_5_bridge_5D_BASELINE_STAGE4_BRIDGE_20260715_150100.log`
 - `logs/test/test_stage4_asym_dense_5_5D_BASELINE_STAGE4_20260715_140502.log`
+- `logs/test/test_stage4_asym_dense_5_bridge_5A_BASELINE_STAGE4_BRIDGE_20260715_175834.log`
 
-下一步优先跑：
+`5D -> bridge` 的第一次训练已经暴露出一个关键问题：第 1 轮略好于固定 `5D`，但继续 actor
+更新后快速退化，第 7 轮 success 降到 `0.215`。所以现在不再把 `5D` 当作唯一 warmstart，
+而是先试更早期的 `5A`：
 
 ```bash
-bash scripts/start_training_detached_multi_curriculum.sh stage4_asym_dense_5_bridge
+bash scripts/start_training_detached_multi_dense5_bridge_from_5a.sh
 ```
 
-如果 bridge 上能训出超过 `5D` 的 dense expert，再回到 gate / attention。
+这条 run 的默认策略是 actor-only warmstart、新 critic、低 actor lr、长 actor update delay，并用轻微
+actor anchor 防止起点策略被快速拉坏。如果 bridge 上能训出超过 `5A/5D` 固定基线的 dense expert，
+再回到 gate / attention。
 
 ## 暂存的 Attention 残差方案
 

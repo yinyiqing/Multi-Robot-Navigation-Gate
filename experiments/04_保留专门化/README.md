@@ -121,6 +121,8 @@
 - `2026-07-15`：新仓库 `Multi-Robot-Navigation-Gate` 独立出来，gate / dense-expert 工作不再污染原主线仓库。
 - `2026-07-15`：确认 hard `stage4_asym_dense_5` 对 `5D` 太硬，固定策略 40 集 success `0.355`、collision `0.680`、full success `0.025`，只作为压力测试。
 - `2026-07-15`：新增 `stage4_asym_dense_5_bridge`，几何约束为最小可能起点间距约 `1.04m`、目标间距约 `0.72m`；`5D` 固定策略 40 集 success `0.540`、collision `0.475`、full success `0.250`，适合作为 dense 专家训练入口。
+- `2026-07-15`：`5D -> bridge` 训练第 1 轮略升到 success `0.575`、full `0.325`，随后 actor 解冻后持续退化，第 7 轮降到 success `0.215`、collision `0.790`。这说明当前更像是 warmstart actor 被新 critic / 新分布拉坏，而不是 bridge 环境完全不可学。
+- `2026-07-15`：`5A` 固定策略在 bridge 上 success `0.530`、collision `0.475`、full `0.275`，不弱于 `5D`。下一步改用 `5A` 作为更早期、更少 dense 拟合的起点，训练 `TD3_multi_dense5_bridge_from_5a`。
 
 ## Dense5 排查结论
 
