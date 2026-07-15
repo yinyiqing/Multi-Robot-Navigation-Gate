@@ -94,6 +94,24 @@ bash scripts/start_training_detached_attention_bridge_residual_5d.sh
 - `residual_penalty=0.2`
 - `standard_residual_penalty=2.0`
 
+2026-07-15 首轮 conservative run 已完成 early stopping：
+
+- 日志：`logs/train/train_spatiotemporal_attention_5d_20260715_193508.log`
+- best 保存：`TD3_velodyne_multi_v5_attention_bridge_residual_from_5d_conservative_best`
+- frozen `5D` bridge baseline：success `0.540`，collision `0.475`，full `0.250`
+- best dual-benchmark 出现在 episode 40：
+  - standard：success `0.933`，collision `0.050`，full `0.750`
+  - bridge/dense：success `0.530`，collision `0.470`，full `0.350`
+- 单独 bridge 最好出现在 episode 140：
+  - bridge/dense：success `0.580`，collision `0.420`，full `0.300`
+  - standard：success `0.917`，collision `0.067`，full `0.583`
+
+当前结论：
+
+- 冻结 `5D` 后没有出现 full actor fine-tune 那种崩盘，standard 能力保护住了。
+- bridge 有小幅改善信号，尤其 collision 从 `0.475` 最好降到 `0.420`。
+- 但增强还不稳定，dual-benchmark best 的 bridge success 没超过 baseline；下一步需要更强的 dense 修正或更合理的 best 选择口径。
+
 ## 输入与执行边界
 
 - 每帧输入仍是本车 24 维观测。
