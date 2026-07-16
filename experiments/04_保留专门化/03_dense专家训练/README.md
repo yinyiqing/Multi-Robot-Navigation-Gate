@@ -4,19 +4,41 @@
 
 ## 当前实验
 
-入口脚本：
+当前先把 dense 训练环境换成中等密度：
 
 ```bash
-scripts/start_training_detached_dense5_bridge_head_from_5d.sh
+scripts/start_training_detached_dense5_gentle_geo_critic_from_5d.sh
 ```
 
 训练设置：
 
 - warmstart：`5D` actor
-- 训练环境：`stage4_asym_dense_5_bridge`
-- actor 模式：`head_only`
-- critic：新初始化
-- 目标：超过固定 `5D` 在 bridge 上的表现
+- 训练环境：`stage4_asym_dense_5_gentle`
+- critic：几何邻域 local critic
+- 目标：先训练出一个会处理中等 dense 交互的 actor，再回到 `stage4_asym_dense_5_bridge` 做 hard test
+
+## dense 密度定义
+
+训练用 dense 不是五车同时抢同一个点，而是：
+
+- 5 车在同一个有墙世界里运行；
+- 2-3 个主交互智能体；
+- 2-3 个压力/保持智能体；
+- 起点不贴脸，目标不扎堆；
+- 路径有交叉，但不做五路中心强交叉。
+
+当前训练集：
+
+`experiments/02_课程学习/cases/stage4_asym_dense_5_gentle_cases.json`
+
+几何约束：
+
+| 指标 | 目标 |
+| --- | --- |
+| 最小起点距离 | 约 `>= 1.2m` |
+| 最小目标距离 | 约 `>= 1.0m` |
+| 直线路径交叉 | 每个 case `0-3` 组 |
+| hard bridge 用途 | 训练后测试，不再作为第一训练入口 |
 
 ## Baseline
 
@@ -33,7 +55,8 @@ scripts/start_training_detached_dense5_bridge_head_from_5d.sh
 - `5A -> bridge` full fine-tune 基本维持原状，随后也没有突破。
 - 这说明问题不只是 `5D` 起点太拟合，而是 full actor 解冻本身容易把已有导航能力拉坏。
 - `5D -> bridge` head-only 没有崩，但也没有超过 baseline，说明只训练最后动作头不够。
-- 下一步应保留 `5D` 主干，训练小 adapter / residual，让 dense 专家只学局部修正，而不是回到 full actor fine-tune。
+- `stage4_asym_dense_5_bridge` 直接训练过硬：五车路径冲突过于集中，更适合 hard test。
+- 下一步先在 `stage4_asym_dense_5_gentle` 上训练 dense 专家，再用 bridge 验证泛化。
 
 ## 已完成结果
 
@@ -42,6 +65,7 @@ scripts/start_training_detached_dense5_bridge_head_from_5d.sh
 | `5D -> bridge` full actor | `stage4_asym_dense_5_bridge` | 约 0.58 | 后续约 0.79 | 后续约 0.00 | 解冻后退化，不作为主线 |
 | `5A -> bridge` full actor | `stage4_asym_dense_5_bridge` | 约 0.53 | 约 0.48 | 约 0.28 | 基本维持，没学出 dense 专家 |
 | `5D -> bridge` head-only | `stage4_asym_dense_5_bridge` | 0.580 | 0.430 | 0.300 | 稳住了，但没有实质超过 `5D` baseline |
+| `5D -> bridge` geo critic | `stage4_asym_dense_5_bridge` | 0.550 | 0.460 | 0.275 | 场景太硬，前期多为 critic-only，停止 |
 
 `5D -> bridge` head-only 8 轮 eval：
 

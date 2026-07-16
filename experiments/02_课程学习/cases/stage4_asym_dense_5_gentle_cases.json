@@ -1,0 +1,68 @@
+{
+  "name": "stage4_asym_dense_5_gentle_cases",
+  "description": "Five-agent asymmetric dense cases for dense-specialist training. The density target is moderate: two or three main interacting agents, two pressure/retention agents, no near-collision starts, no overlapping goals, and no five-way center weave. The harder stage4_asym_dense_5_bridge set remains the final stress test.",
+  "density_rules": {
+    "min_start_distance_target": ">= 1.2m",
+    "min_goal_distance_target": ">= 1.0m",
+    "straight_path_intersections_target": "2 to 4 per case",
+    "main_interacting_agents": "2 to 3",
+    "pressure_agents": "2 to 3 non-dominant agents that keep the scene dense without all sharing one bottleneck"
+  },
+  "cases": [
+    {
+      "name": "gentle_offset_pair_cross_with_side_pressure",
+      "weight": 1.4,
+      "agents": {
+        "r1": {"start": [-1.45, -0.30], "start_jitter": [0.04, 0.04], "goal": [1.75, -0.10], "goal_jitter": [0.03, 0.03]},
+        "r2": {"start": [0.25, -1.45], "start_jitter": [0.04, 0.04], "goal": [0.05, 1.65], "goal_jitter": [0.03, 0.03]},
+        "r3": {"start": [1.85, 0.80], "start_jitter": [0.04, 0.04], "goal": [0.70, 0.60], "goal_jitter": [0.03, 0.03]},
+        "r4": {"start": [-1.95, 1.30], "start_jitter": [0.04, 0.04], "goal": [-0.95, 1.30], "goal_jitter": [0.03, 0.03]},
+        "r5": {"start": [1.75, -1.55], "start_jitter": [0.04, 0.04], "goal": [0.75, -1.15], "goal_jitter": [0.03, 0.03]}
+      }
+    },
+    {
+      "name": "gentle_three_agent_staggered_merge",
+      "weight": 1.3,
+      "agents": {
+        "r1": {"start": [-1.40, -0.55], "start_jitter": [0.04, 0.04], "goal": [1.55, 0.55], "goal_jitter": [0.03, 0.03]},
+        "r2": {"start": [1.55, 0.35], "start_jitter": [0.04, 0.04], "goal": [-1.05, 0.15], "goal_jitter": [0.03, 0.03]},
+        "r3": {"start": [0.15, -1.55], "start_jitter": [0.04, 0.04], "goal": [0.35, 1.45], "goal_jitter": [0.03, 0.03]},
+        "r4": {"start": [-1.75, 1.45], "start_jitter": [0.04, 0.04], "goal": [-0.95, 1.45], "goal_jitter": [0.03, 0.03]},
+        "r5": {"start": [1.60, -1.45], "start_jitter": [0.04, 0.04], "goal": [0.55, -1.45], "goal_jitter": [0.03, 0.03]}
+      }
+    },
+    {
+      "name": "gentle_wall_channel_reverse_with_open_side",
+      "weight": 1.1,
+      "agents": {
+        "r1": {"start": [1.05, -0.55], "start_jitter": [0.04, 0.04], "goal": [4.00, -0.10], "goal_jitter": [0.03, 0.03]},
+        "r2": {"start": [4.00, 0.20], "start_jitter": [0.04, 0.04], "goal": [1.20, -0.45], "goal_jitter": [0.03, 0.03]},
+        "r3": {"start": [0.80, 1.35], "start_jitter": [0.04, 0.04], "goal": [1.80, 0.75], "goal_jitter": [0.03, 0.03]},
+        "r4": {"start": [-1.05, 1.05], "start_jitter": [0.04, 0.04], "goal": [0.30, 1.05], "goal_jitter": [0.03, 0.03]},
+        "r5": {"start": [2.05, -1.75], "start_jitter": [0.04, 0.04], "goal": [0.55, -1.20], "goal_jitter": [0.03, 0.03]}
+      }
+    },
+    {
+      "name": "gentle_cluster_release_wide_goals",
+      "weight": 1.2,
+      "agents": {
+        "r1": {"start": [-1.20, -0.45], "start_jitter": [0.04, 0.04], "goal": [1.65, 0.85], "goal_jitter": [0.03, 0.03]},
+        "r2": {"start": [-0.20, -1.15], "start_jitter": [0.04, 0.04], "goal": [-0.55, 1.70], "goal_jitter": [0.03, 0.03]},
+        "r3": {"start": [0.95, -0.35], "start_jitter": [0.04, 0.04], "goal": [0.45, 0.70], "goal_jitter": [0.03, 0.03]},
+        "r4": {"start": [1.75, 0.70], "start_jitter": [0.04, 0.04], "goal": [1.70, -1.00], "goal_jitter": [0.03, 0.03]},
+        "r5": {"start": [-0.95, 1.10], "start_jitter": [0.04, 0.04], "goal": [-1.20, -0.95], "goal_jitter": [0.03, 0.03]}
+      }
+    },
+    {
+      "name": "gentle_offset_weave_three_plus_retention",
+      "weight": 1.2,
+      "agents": {
+        "r1": {"start": [-1.45, -0.15], "start_jitter": [0.04, 0.04], "goal": [1.65, -0.05], "goal_jitter": [0.03, 0.03]},
+        "r2": {"start": [0.10, -1.45], "start_jitter": [0.04, 0.04], "goal": [0.05, 1.70], "goal_jitter": [0.03, 0.03]},
+        "r3": {"start": [1.95, 0.70], "start_jitter": [0.04, 0.04], "goal": [0.20, 0.55], "goal_jitter": [0.03, 0.03]},
+        "r4": {"start": [-1.50, 1.35], "start_jitter": [0.04, 0.04], "goal": [-1.00, 1.35], "goal_jitter": [0.03, 0.03]},
+        "r5": {"start": [1.60, -1.55], "start_jitter": [0.04, 0.04], "goal": [0.70, -1.15], "goal_jitter": [0.03, 0.03]}
+      }
+    }
+  ]
+}
