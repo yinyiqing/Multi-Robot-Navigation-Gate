@@ -13,11 +13,21 @@ ROS_PORT="${DRL_MULTI_TEST_ROS_PORT:-11391}"
 GAZEBO_PORT="${DRL_MULTI_TEST_GAZEBO_PORT:-11491}"
 TARGET_EPISODES="${DRL_MULTI_TEST_TARGET_EPISODES:-120}"
 SAFE_MODEL="${MODEL_NAME//[^A-Za-z0-9_]/_}"
+RUN_TAG="${DRL_MULTI_DENSE_RUN_TAG:-dense5_random}"
+SAFE_RUN_TAG="${RUN_TAG//[^A-Za-z0-9_]/_}"
+DENSE_START_X_RANGE="${DRL_MULTI_DENSE_START_X_RANGE:-"-2.0,2.0"}"
+DENSE_START_Y_RANGE="${DRL_MULTI_DENSE_START_Y_RANGE:-"-2.0,2.0"}"
+DENSE_ROBOT_CLEARANCE="${DRL_MULTI_DENSE_ROBOT_CLEARANCE:-0.9}"
+DENSE_GOAL_X_OFFSET="${DRL_MULTI_DENSE_GOAL_X_OFFSET:-"-1.2,1.2"}"
+DENSE_GOAL_Y_OFFSET="${DRL_MULTI_DENSE_GOAL_Y_OFFSET:-"-1.2,1.2"}"
+DENSE_GOAL_MIN_DISTANCE="${DRL_MULTI_DENSE_GOAL_MIN_DISTANCE:-0.6}"
+DENSE_GOAL_MAX_DISTANCE="${DRL_MULTI_DENSE_GOAL_MAX_DISTANCE:-1.7}"
+DENSE_GOAL_CLEARANCE="${DRL_MULTI_DENSE_GOAL_CLEARANCE:-0.8}"
 
 mkdir -p "$LOG_DIR"
 
 timestamp="$(date +%Y%m%d_%H%M%S)"
-log_file="$LOG_DIR/test_dense5_random_5d_${timestamp}.log"
+log_file="$LOG_DIR/test_${SAFE_RUN_TAG}_5d_${timestamp}.log"
 
 if [[ -f "$PID_FILE" ]]; then
   old_pid="$(cat "$PID_FILE" 2>/dev/null || true)"
@@ -60,17 +70,17 @@ setsid bash -lc "
   export DRL_MULTI_TEST_LAUNCHFILE='$LAUNCHFILE'
   export DRL_MULTI_TEST_FILE_NAME='$MODEL_NAME'
   export DRL_MULTI_TEST_TARGET_EPISODES='$TARGET_EPISODES'
-  export DRL_MULTI_TEST_STATE_PATH='./checkpoints/${SAFE_MODEL}_dense5_random_test_state.pt'
-  export DRL_MULTI_TEST_STATS_PATH='./results/${SAFE_MODEL}_dense5_random_test.npy'
+  export DRL_MULTI_TEST_STATE_PATH='./checkpoints/${SAFE_MODEL}_${SAFE_RUN_TAG}_test_state.pt'
+  export DRL_MULTI_TEST_STATS_PATH='./results/${SAFE_MODEL}_${SAFE_RUN_TAG}_test.npy'
   export DRL_MULTI_SCENARIO=dense
-  export DRL_MULTI_DENSE_START_X_RANGE='-2.0,2.0'
-  export DRL_MULTI_DENSE_START_Y_RANGE='-2.0,2.0'
-  export DRL_MULTI_DENSE_ROBOT_CLEARANCE='0.9'
-  export DRL_MULTI_DENSE_GOAL_X_OFFSET='-1.2,1.2'
-  export DRL_MULTI_DENSE_GOAL_Y_OFFSET='-1.2,1.2'
-  export DRL_MULTI_DENSE_GOAL_MIN_DISTANCE='0.6'
-  export DRL_MULTI_DENSE_GOAL_MAX_DISTANCE='1.7'
-  export DRL_MULTI_DENSE_GOAL_CLEARANCE='0.8'
+  export DRL_MULTI_DENSE_START_X_RANGE='$DENSE_START_X_RANGE'
+  export DRL_MULTI_DENSE_START_Y_RANGE='$DENSE_START_Y_RANGE'
+  export DRL_MULTI_DENSE_ROBOT_CLEARANCE='$DENSE_ROBOT_CLEARANCE'
+  export DRL_MULTI_DENSE_GOAL_X_OFFSET='$DENSE_GOAL_X_OFFSET'
+  export DRL_MULTI_DENSE_GOAL_Y_OFFSET='$DENSE_GOAL_Y_OFFSET'
+  export DRL_MULTI_DENSE_GOAL_MIN_DISTANCE='$DENSE_GOAL_MIN_DISTANCE'
+  export DRL_MULTI_DENSE_GOAL_MAX_DISTANCE='$DENSE_GOAL_MAX_DISTANCE'
+  export DRL_MULTI_DENSE_GOAL_CLEARANCE='$DENSE_GOAL_CLEARANCE'
   cd '$PROJECT_ROOT/catkin_ws'
   source devel_isolated/setup.bash
   cd '$TD3_DIR'
@@ -83,12 +93,14 @@ echo "Detached random-dense 5D test started."
 echo "PID: $(cat "$PID_FILE")"
 echo "Agents: $NUM_AGENTS"
 echo "Model: $MODEL_NAME"
+echo "Run tag: $RUN_TAG"
 echo "Scenario: dense random"
-echo "Start range: [-2.0, 2.0]^2"
-echo "Nominal robot density: 5/16 = 0.313 robots/m^2"
-echo "Robot clearance env: 0.9m; effective clearance is 1.2m with weak_coupling_layout"
-echo "Goal offset: [-1.2, 1.2]^2"
-echo "Goal distance: 0.6m..1.7m"
-echo "Goal clearance: 0.8m, relaxed by env if needed"
+echo "Start x range: $DENSE_START_X_RANGE"
+echo "Start y range: $DENSE_START_Y_RANGE"
+echo "Robot clearance env: ${DENSE_ROBOT_CLEARANCE}m; effective clearance is at least 1.2m with weak_coupling_layout"
+echo "Goal x offset: $DENSE_GOAL_X_OFFSET"
+echo "Goal y offset: $DENSE_GOAL_Y_OFFSET"
+echo "Goal distance: ${DENSE_GOAL_MIN_DISTANCE}m..${DENSE_GOAL_MAX_DISTANCE}m"
+echo "Goal clearance: ${DENSE_GOAL_CLEARANCE}m, relaxed by env if needed"
 echo "Target episodes: $TARGET_EPISODES"
 echo "Log: $log_file"
