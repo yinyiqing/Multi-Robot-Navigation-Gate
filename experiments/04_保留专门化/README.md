@@ -22,7 +22,11 @@
    - `5D` 退化说明较强的已有策略会被新 dense critic / reward 梯度拉坏。
    - `5A` 不退化但也不进步，说明换一个更早期 actor 并不能自动学出 dense 专家。
    - 当前首要问题是 full actor 解冻不稳定，其次才是“5D 是否过拟合”。
-6. 现在的问题不是 gate，也不是 attention。
+6. `5D -> bridge` head-only 已跑完。
+   - 8 轮结果在 `success=0.525-0.580`、`full=0.200-0.300` 之间震荡。
+   - 它没有像 full actor 解冻那样崩，但也没有实质超过固定 `5D` baseline。
+   - 结论是：只训练最后动作头不够，下一步应试小 adapter / residual。
+7. 现在的问题不是 gate，也不是 attention。
    - `5A + 5D` 的 hard switch 没超过单独 `5D`。
    - oracle 多数仍选 `5D`，说明两个 actor 互补不够。
    - 没有可靠 dense 专家时，gate 只会学成“多数时候保护 5D”。
@@ -32,23 +36,24 @@
 ```text
 5D actor
   -> 保留已有导航主干
-  -> 只开放少量可训练参数
-  -> 在 stage4_asym_dense_5_bridge 上训练 dense 专家
+  -> 不再 full 解冻
+  -> 训练小 adapter / residual
+  -> 让 dense 专家只学密集交互下的局部修正
 ```
 
 下一步实验：
 
 ```bash
+待实现：5D frozen backbone + dense adapter/residual
+```
+
+已经完成的 head-only 脚本：
+
+```bash
 scripts/start_training_detached_dense5_bridge_head_from_5d.sh
 ```
 
-这个脚本做的事情：
-
-- 从 `5D` actor warmstart。
-- 只加载 actor，新建 critic。
-- 冻结 actor 前两层，只训练最后 action head。
-- 延迟 actor 更新，先让 critic 在 bridge 分布上稳定。
-- 日志先写到仓库根目录 `logs/`，跑完后再归档。
+它证明了“小范围训练不会立刻崩”，但最后动作头表达力不够。
 
 ## 判断标准
 
@@ -75,5 +80,6 @@ scripts/start_training_detached_dense5_bridge_head_from_5d.sh
 - `01_冲突验证/logs/test_stage3_asym_three_5_5D_20260707_213454.log`
 - `03_dense专家训练/logs/test/test_stage4_asym_dense_5_bridge_5D_BASELINE_STAGE4_BRIDGE_20260715_150100.log`
 - `03_dense专家训练/logs/test/test_stage4_asym_dense_5_bridge_5A_BASELINE_STAGE4_BRIDGE_20260715_175834.log`
+- `03_dense专家训练/logs/train/train_multi_curriculum_stage4_asym_dense_5_bridge_detached_20260715_235805.log`
 
 失败 run 的大日志和模型产物不保留，结论写在本文档里。
