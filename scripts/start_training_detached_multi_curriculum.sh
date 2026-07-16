@@ -269,12 +269,12 @@ case "$STAGE" in
     DEFAULT_CRITIC_LR=0.00004
     DEFAULT_ACTOR_UPDATE_DELAY_STEPS=6000
     ;;
-  stage4_asym_dense_5_gentle)
+  stage4_asym_dense_5_moderate)
     NUM_AGENTS="${DRL_MULTI_NUM_AGENTS:-5}"
-    MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_multi_dense5_gentle_from_5d}"
+    MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_multi_dense5_moderate_from_5d}"
     LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best}"
-    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage4_asym_dense_5_gentle_cases.json"
-    VERSION="dense5-gentle-from-5d-v1"
+    CASES_PATH="$PROJECT_ROOT/experiments/02_课程学习/cases/stage4_asym_dense_5_moderate_cases.json"
+    VERSION="dense5-moderate-from-5d-v1"
     DEFAULT_LOAD_ACTOR_ONLY=1
     DEFAULT_MAX_EPOCHS=8
     DEFAULT_EVAL_EPISODES=40
@@ -299,7 +299,7 @@ case "$STAGE" in
     ;;
   *)
     echo "Unknown curriculum stage: $STAGE"
-    echo "Available stages: stage1_single, stage1b_single, stage1e_single_rescue, stage1f_wall_parallel_rescue, stage1g_collision_guard, stage1h_separated_reverse_guard, stage1i_yaw_reverse_collision_guard, stage2_pre_pairwise_warmup, stage2_main_pairwise_repair, stage2a_manual_dense_crossing, stage2b_three_transition, stage2b_three_light_dense, stage2_three_dense, stage2_pairwise_to_dense, stage2_dense_bridge, stage2_dense_gentle, stage2_dense, stage3_asym_pair_5, stage3_asym_three_5, stage4_asym_dense_5_gentle, stage4_asym_dense_5_bridge"
+    echo "Available stages: stage1_single, stage1b_single, stage1e_single_rescue, stage1f_wall_parallel_rescue, stage1g_collision_guard, stage1h_separated_reverse_guard, stage1i_yaw_reverse_collision_guard, stage2_pre_pairwise_warmup, stage2_main_pairwise_repair, stage2a_manual_dense_crossing, stage2b_three_transition, stage2b_three_light_dense, stage2_three_dense, stage2_pairwise_to_dense, stage2_dense_bridge, stage2_dense_gentle, stage2_dense, stage3_asym_pair_5, stage3_asym_three_5, stage4_asym_dense_5_moderate, stage4_asym_dense_5_bridge"
     exit 1
     ;;
 esac
@@ -341,7 +341,7 @@ WALL_CLEARANCE_SPEED_WEIGHT="${DRL_MULTI_WALL_CLEARANCE_SPEED_WEIGHT:-$DEFAULT_W
 WALL_CLEARANCE_TURN_WEIGHT="${DRL_MULTI_WALL_CLEARANCE_TURN_WEIGHT:-$DEFAULT_WALL_CLEARANCE_TURN_WEIGHT}"
 if [[ "$STAGE" == "stage1e_single_rescue" || "$STAGE" == "stage1f_wall_parallel_rescue" || "$STAGE" == "stage1g_collision_guard" || "$STAGE" == "stage1h_separated_reverse_guard" || "$STAGE" == "stage1i_yaw_reverse_collision_guard" ]]; then
   LOCAL_NAVIGATION_REWARD="${DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD:-1}"
-elif [[ "$STAGE" == "stage2a_manual_dense_crossing" || "$STAGE" == "stage2_pre_pairwise_warmup" || "$STAGE" == "stage2_main_pairwise_repair" || "$STAGE" == "stage2b_three_transition" || "$STAGE" == "stage2b_three_light_dense" || "$STAGE" == "stage2_pairwise_to_dense" || "$STAGE" == "stage2_dense_gentle" || "$STAGE" == "stage2_dense_bridge" || "$STAGE" == "stage3_asym_pair_5" || "$STAGE" == "stage3_asym_three_5" || "$STAGE" == "stage4_asym_dense_5_gentle" || "$STAGE" == "stage4_asym_dense_5_bridge" ]]; then
+elif [[ "$STAGE" == "stage2a_manual_dense_crossing" || "$STAGE" == "stage2_pre_pairwise_warmup" || "$STAGE" == "stage2_main_pairwise_repair" || "$STAGE" == "stage2b_three_transition" || "$STAGE" == "stage2b_three_light_dense" || "$STAGE" == "stage2_pairwise_to_dense" || "$STAGE" == "stage2_dense_gentle" || "$STAGE" == "stage2_dense_bridge" || "$STAGE" == "stage3_asym_pair_5" || "$STAGE" == "stage3_asym_three_5" || "$STAGE" == "stage4_asym_dense_5_moderate" || "$STAGE" == "stage4_asym_dense_5_bridge" ]]; then
   LOCAL_NAVIGATION_REWARD="${DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD:-1}"
 else
   LOCAL_NAVIGATION_REWARD="${DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD:-0}"
@@ -352,12 +352,12 @@ if [[ "$STAGE" == "stage2_pre_pairwise_warmup" ]]; then
   DEFAULT_INTERACTION_SAFE_DISTANCE=0.9
   DEFAULT_INTERACTION_CLOSE_PENALTY=0.25
   DEFAULT_INTERACTION_STAGNATION_PENALTY=0.02
-elif [[ "$STAGE" == "stage2_main_pairwise_repair" || "$STAGE" == "stage2b_three_transition" || "$STAGE" == "stage2b_three_light_dense" || "$STAGE" == "stage2_pairwise_to_dense" || "$STAGE" == "stage2_dense_gentle" || "$STAGE" == "stage2_dense_bridge" || "$STAGE" == "stage3_asym_pair_5" || "$STAGE" == "stage3_asym_three_5" || "$STAGE" == "stage4_asym_dense_5_gentle" || "$STAGE" == "stage4_asym_dense_5_bridge" ]]; then
+elif [[ "$STAGE" == "stage2_main_pairwise_repair" || "$STAGE" == "stage2b_three_transition" || "$STAGE" == "stage2b_three_light_dense" || "$STAGE" == "stage2_pairwise_to_dense" || "$STAGE" == "stage2_dense_gentle" || "$STAGE" == "stage2_dense_bridge" || "$STAGE" == "stage3_asym_pair_5" || "$STAGE" == "stage3_asym_three_5" || "$STAGE" == "stage4_asym_dense_5_moderate" || "$STAGE" == "stage4_asym_dense_5_bridge" ]]; then
   DEFAULT_DYNAMIC_REWARD=1
   DEFAULT_INTERACTION_SAFE_DISTANCE=0.9
   DEFAULT_INTERACTION_CLOSE_PENALTY=0.35
   DEFAULT_INTERACTION_STAGNATION_PENALTY=0.02
-  if [[ "$STAGE" == "stage2_pairwise_to_dense" || "$STAGE" == "stage2_dense_gentle" || "$STAGE" == "stage2_dense_bridge" || "$STAGE" == "stage3_asym_pair_5" || "$STAGE" == "stage3_asym_three_5" || "$STAGE" == "stage4_asym_dense_5_gentle" || "$STAGE" == "stage4_asym_dense_5_bridge" ]]; then
+  if [[ "$STAGE" == "stage2_pairwise_to_dense" || "$STAGE" == "stage2_dense_gentle" || "$STAGE" == "stage2_dense_bridge" || "$STAGE" == "stage3_asym_pair_5" || "$STAGE" == "stage3_asym_three_5" || "$STAGE" == "stage4_asym_dense_5_moderate" || "$STAGE" == "stage4_asym_dense_5_bridge" ]]; then
     DEFAULT_REWARD_MODE="average_plus_interaction"
   else
     DEFAULT_REWARD_MODE="average"
@@ -379,7 +379,7 @@ if [[ "$STAGE" == "stage2_main_pairwise_repair" || "$STAGE" == "stage2b_three_tr
   DEFAULT_REWARD_SELF_WEIGHT=0.8
   DEFAULT_LOCAL_CRITIC=1
   DEFAULT_LOCAL_CRITIC_GEOMETRY_ONLY=0
-elif [[ "$STAGE" == "stage2_pairwise_to_dense" || "$STAGE" == "stage2_dense_gentle" || "$STAGE" == "stage2_dense_bridge" || "$STAGE" == "stage3_asym_pair_5" || "$STAGE" == "stage3_asym_three_5" || "$STAGE" == "stage4_asym_dense_5_gentle" || "$STAGE" == "stage4_asym_dense_5_bridge" ]]; then
+elif [[ "$STAGE" == "stage2_pairwise_to_dense" || "$STAGE" == "stage2_dense_gentle" || "$STAGE" == "stage2_dense_bridge" || "$STAGE" == "stage3_asym_pair_5" || "$STAGE" == "stage3_asym_three_5" || "$STAGE" == "stage4_asym_dense_5_moderate" || "$STAGE" == "stage4_asym_dense_5_bridge" ]]; then
   DEFAULT_DISTANCE_WEIGHTED_REWARD=1
   DEFAULT_REWARD_SELF_WEIGHT=0.85
   DEFAULT_LOCAL_CRITIC=0

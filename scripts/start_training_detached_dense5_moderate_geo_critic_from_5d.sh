@@ -3,7 +3,7 @@ set -eo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-export DRL_MULTI_TRAIN_FILE_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_multi_dense5_gentle_geo_critic_from_5d}"
+export DRL_MULTI_TRAIN_FILE_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-TD3_multi_dense5_moderate_geo_critic_from_5d}"
 export DRL_MULTI_LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best}"
 export DRL_MULTI_LOAD_ACTOR_ONLY="${DRL_MULTI_LOAD_ACTOR_ONLY:-1}"
 export DRL_MULTI_RESUME_TRAINING="${DRL_MULTI_RESUME_TRAINING:-0}"
@@ -31,6 +31,6 @@ export DRL_MULTI_CRITIC_LR="${DRL_MULTI_CRITIC_LR:-0.00006}"
 export DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS="${DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS:-5000}"
 export DRL_MULTI_POLICY_FREQ="${DRL_MULTI_POLICY_FREQ:-2}"
 export DRL_MULTI_ACTOR_ANCHOR_WEIGHT="${DRL_MULTI_ACTOR_ANCHOR_WEIGHT:-0.03}"
-export DRL_MULTI_TRAINING_VERSION="${DRL_MULTI_TRAINING_VERSION:-dense5-gentle-geo-critic-from-5d-v1}"
+export DRL_MULTI_TRAINING_VERSION="${DRL_MULTI_TRAINING_VERSION:-dense5-moderate-geo-critic-from-5d-v1}"
 
-exec "$PROJECT_ROOT/scripts/start_training_detached_multi_curriculum.sh" stage4_asym_dense_5_gentle
+exec "$PROJECT_ROOT/scripts/start_training_detached_multi_curriculum.sh" stage4_asym_dense_5_moderate
