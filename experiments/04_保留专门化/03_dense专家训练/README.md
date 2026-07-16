@@ -71,6 +71,30 @@ scripts/start_training_detached_dense5_moderate_geo_critic_from_5d.sh
 - head-only 能稳住，但不足以形成 dense 专家；
 - 所以当前先把 dense 场景定义降到“中等密度、可学习”，再评估训练是否真的有改进。
 
+## moderate dense baseline
+
+固定 `5D` 在 `stage4_asym_dense_5_moderate` 上的 120 episodes 测试：
+
+| 模型 | 场景 | success | collision | unresolved | full |
+| --- | --- | ---: | ---: | ---: | ---: |
+| `5D` | `stage4_asym_dense_5_moderate` | 0.513 | 0.502 | 0.002 | 0.058 |
+
+按 case：
+
+| case | success | collision | full |
+| --- | ---: | ---: | ---: |
+| `moderate_offset_pair_cross_with_side_pressure` | 0.708 | 0.292 | 0.208 |
+| `moderate_wall_channel_reverse_with_open_side` | 0.700 | 0.317 | 0.083 |
+| `moderate_cluster_release_wide_goals` | 0.583 | 0.417 | 0.000 |
+| `moderate_three_agent_staggered_merge` | 0.308 | 0.742 | 0.000 |
+| `moderate_offset_weave_three_plus_retention` | 0.267 | 0.742 | 0.000 |
+
+判断：
+
+- 总体难度合适：固定 `5D` 不是 0.8-0.9，也不是 0.2-0.3；
+- 碰撞率仍然高，说明它确实测到了 dense 交互短板；
+- 后两个 case 偏硬，训练时要监控它们是否继续拖垮整体。
+
 ## 下一步
 
-先测固定 `5D` 在 `stage4_asym_dense_5_moderate` 上的 baseline。只有 baseline 落在合理区间，才开始训练 dense 专家。
+开始训练 dense 专家，但训练目标先定为超过固定 `5D` 的 moderate dense baseline，而不是直接追旧 hard set。
