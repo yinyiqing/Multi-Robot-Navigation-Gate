@@ -1,8 +1,10 @@
 # 02 双 Actor 切换
 
+状态：`failed diagnostic`。该组合不再训练 gate，通用切换实现仅供未来通过互补性审计的新专家复用。
+
 这里验证冻结两个 actor 后，简单切换能否利用二者的能力差异。
 
-## 当前组合
+## 历史组合
 
 - standard actor：`5A`
 - dense actor：`5D`

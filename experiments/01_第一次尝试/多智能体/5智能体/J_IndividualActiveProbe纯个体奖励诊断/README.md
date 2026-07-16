@@ -50,7 +50,7 @@ J 的 timeout 结构进一步支持当前 deadlock 诊断：59 个 timeout episo
 
 ## 核心文件
 
-- `五车IndividualActiveProbe/train_multi_individual_active_probe_5_detached_20260601_091906.log`
+- `五车IndividualActiveProbe/logs/train/train_multi_individual_active_probe_5_detached_20260601_091906.log`
 - `五车IndividualActiveProbe/test_multi_individual_active_probe_5_best_detached_20260601_145111.raw.log.gz`
 - `五车IndividualActiveProbe/test_multi_individual_active_probe_5_best_300episodes_clean.log`
 - `五车IndividualActiveProbe/test_multi_individual_active_probe_5_best_300episodes.npy`

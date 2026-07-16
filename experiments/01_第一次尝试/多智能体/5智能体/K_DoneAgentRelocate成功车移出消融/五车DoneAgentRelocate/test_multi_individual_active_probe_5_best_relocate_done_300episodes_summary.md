@@ -3,7 +3,7 @@
 ## Run
 
 - model: `TD3_velodyne_multi_v4_individual_active_probe_5_best`
-- source training: `train_multi_individual_active_probe_5_detached_20260601_091906.log`
+- source training: `../../J_IndividualActiveProbe纯个体奖励诊断/五车IndividualActiveProbe/logs/train/train_multi_individual_active_probe_5_detached_20260601_091906.log`
 - base checkpoint: J group epoch 3 best
 - raw test log: `test_multi_individual_active_probe_5_best_relocate_done_detached_20260601_164040.raw.log.gz`
 - clean log: `test_multi_individual_active_probe_5_best_relocate_done_300episodes_clean.log`

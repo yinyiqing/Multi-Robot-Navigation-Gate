@@ -20,8 +20,8 @@ Active-neighbor 过滤后，训练早期出现很强的小样本评估结果：e
 
 ## 核心文件
 
-- `五车Weighted09Active/train_multi_weighted09_active_5_detached_20260529_200614.log`
-- `五车Weighted09Active/test_multi_weighted09_active_5_best_detached_20260531_120616.raw.log`
+- `五车Weighted09Active/logs/train/train_multi_weighted09_active_5_detached_20260529_200614.log`
+- `五车Weighted09Active/logs/test/test_multi_weighted09_active_5_best_detached_20260531_120616.log`
 - `五车Weighted09Active/test_multi_weighted09_active_5_best_300episodes_clean.log`
 - `五车Weighted09Active/test_multi_weighted09_active_5_best_300episodes.npy`
 - `五车Weighted09Active/test_multi_weighted09_active_5_best_300episodes_summary.md`

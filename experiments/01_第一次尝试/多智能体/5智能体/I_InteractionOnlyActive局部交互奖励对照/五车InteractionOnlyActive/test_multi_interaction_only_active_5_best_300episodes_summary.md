@@ -3,8 +3,8 @@
 ## Run
 
 - model: `TD3_velodyne_multi_v4_interaction_only_active_5_best`
-- source training: `train_multi_interaction_only_active_5_detached_20260531_144304.log`
-- test log: `test_multi_interaction_only_active_5_best_detached_20260531_215232.raw.log`
+- source training: `logs/train/train_multi_interaction_only_active_5_detached_20260531_144304.log`
+- test log: `logs/test/test_multi_interaction_only_active_5_best_detached_20260531_215232.log`
 - episodes: 300
 - agents: 5
 - scenario: `standard`

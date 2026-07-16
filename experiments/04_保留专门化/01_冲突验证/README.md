@@ -1,8 +1,10 @@
 # 01 冲突验证
 
+状态：`historical diagnostic`。本目录表格使用旧版 outcome 口径，仅用于形成研究动机，不进入论文正式结果。
+
 这里验证单一 actor 继续向密集场景训练时，是否会破坏已有的普通导航能力。
 
-## 当前模型
+## 当时模型
 
 - 普通 actor：`5A`
   - `TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best`
@@ -17,7 +19,7 @@
 - `stage3_asym_three_5`：dense 场景主测试
 - `stage2_dense`：压力测试，不作为当前主 benchmark
 
-## 正式结果
+## 历史结果
 
 | 模型 | 场景 | success | collision | full success | timeout |
 | --- | --- | ---: | ---: | ---: | ---: |

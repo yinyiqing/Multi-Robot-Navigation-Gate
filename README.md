@@ -1,77 +1,55 @@
-# Local-Critic-Multi-Robot-Navigation
+# Local-Critic Multi-Robot Navigation
 
-本仓库基于 `reiniscimurs/DRL-robot-navigation`，研究 TD3 在 ROS/Gazebo 多机器人局部导航中的训练与泛化。机器人执行时只使用本车 24 维观测；训练阶段可以通过局部 Critic 使用邻居信息。
+本项目研究 ROS/Gazebo 中无通信、局部观测的多机器人导航。执行阶段每台机器人只使用本车 24 维观测；训练阶段允许 Critic 使用局部邻居几何信息。
 
-## 当前研究主线
+## 当前研究问题
 
-历史实验收敛出的能力链路是：
-
-```text
-5A（普通五车 Actor）
-  -> 5D（几何邻域 Critic 训练得到的桥接 Actor）
-  -> PAIR(from_5d) / THREE_5（证明继续覆盖训练会退化）
-  -> 5D + 时空 Attention 残差（当前主线）
-```
-
-现有结果支持以下判断：
-
-- `5A` 是普通导航主干。
-- `5D` 在当前正式 dense 测试中表现最好，是桥接基线。
-- `PAIR(from_5d)` 的训练过程更顺，但正式 dense 测试没有超过 `5D`；继续训练到 `THREE_5` 后逐轮退化。
-- `5A + 5D` 的 hard switch 和 case-level oracle 都没有超过单独使用 `5D`，二者暂时缺乏足够的专家互补性。
-
-因此当前不再覆盖训练完整 Actor，也不再训练双 Actor gate。新主线冻结 `5D`，只训练使用本车观测历史的时空 Attention 残差和 Attention Critic。
-
-## 方法结构
-
-Actor 在所有主要实验中保持分散执行：
+已有 `5D` 策略能完成普通五车导航，但在同步交叉、汇流和对向通道等高交互场景中明显退化。继续微调整个 Actor 又会覆盖已有能力。因此当前论文主线是：
 
 ```text
-20 维激光 + 目标距离/方向 + 上一步动作
-  -> 共享 Actor
-  -> 线速度与角速度
+冻结 5D generalist
+  -> 训练有动作幅度约束的 dense residual specialist
+  -> 审计两个策略是否互补
+  -> 互补性成立后训练本地时序 gate
 ```
 
-主要 Critic 变体包括：
+当前状态为 `D0`：方法与实验协议已冻结，正在推进 `D1` 场景生成器。`D1-D3` 完成前不启动 residual 或 gate 训练。唯一决策源是 [论文协议](experiments/04_保留专门化/05_论文主线/README.md)。
 
-- 共享 Critic：只使用本车状态和动作。
-- 局部 Critic：训练时加入邻居几何及可选动作信息。
-- 几何邻域 Critic：只加入邻居几何，不依赖邻居动作。
-- 时空 Attention：使用本车激光扇区和最近观测历史，输出对冻结 `5D` 的门控残差动作。
-- Attention Critic：与 Actor 使用相同的本地序列输入，不使用其他机器人的仿真真值。
+## 当前结论
 
-## 建议阅读顺序
+- `generalist-5d` 是当前冻结的普通导航基线。
+- 随机缩小起点区域得到的 random dense 同时缩短了目标距离，只能作为 spatial-density 诊断，不能作为正式 dense benchmark。
+- 五个 fixed moderate case 能暴露同步路径冲突，但只作为 canonical held-out 测试，不作为唯一训练分布。
+- full Actor fine-tune、head-only 以及历史 `5A + 5D` 双 Actor 切换都没有形成可靠的能力增益。
+- 正式训练前必须先实现任务距离匹配的 low/medium/high interaction-density 数据集，并完成修复口径下的 generalist baseline。
 
-1. [实验总览](experiments/实验总览.md)
-2. [课程学习](experiments/02_课程学习/README.md)
-3. [五车非对称密集重做](experiments/02_课程学习/第三课程_多车密集交互/05_五车非对称密集重做/README.md)
-4. [保留专门化](experiments/04_保留专门化/README.md)
-5. [时空 Attention 残差主线](experiments/04_保留专门化/03_门控注意力增强/README.md)
-6. [双 Actor 切换与 Oracle（历史诊断）](experiments/04_保留专门化/02_双actor切换/README.md)
-7. [执行文档](README_执行文档.md)
-
-早期三车 A/B/C/D/D2 对照仍保留为历史实验，见 [第一次尝试](experiments/01_第一次尝试/多智能体/3智能体/三车主线对照总表.md)，不再作为当前主线入口。
-
-## 当前执行入口
+## 从这里开始
 
 ```bash
-# 当前唯一的新训练主线
-bash scripts/start_training_detached_spatiotemporal_attention_5d.sh
+# 查看受支持的当前实验及状态
+bash scripts/experiment.sh list
 
-# 5D standard_5 正式测试
-bash scripts/start_test_detached_multi_stage2_to_5d_geo_critic_from_5a_guarded_best.sh
+# 查看正在运行的受管实验
+bash scripts/experiment.sh status
 
+# 启动/停止 5D standard 正式评估
+bash scripts/experiment.sh start eval-5d-standard
+bash scripts/experiment.sh stop eval-5d-standard
 ```
 
-具体环境变量、后台进程和 ROS/Gazebo 操作见 [README_执行文档.md](README_执行文档.md)。
+当前评估使用互斥结局口径：`success + collision + unresolved = agents * episodes`，同一步同时到达并碰撞时按碰撞处理。2026-07-16 以前的旧口径结果仅用于历史诊断。
 
-## 仓库结构
+## 仓库导航
 
-```text
-Local-Critic-Multi-Robot-Navigation/
-├── TD3/              # 训练、测试、环境、模型与 checkpoint
-├── catkin_ws/        # ROS 工作区、机器人模型和 Gazebo 插件
-├── scripts/          # 训练、测试、停止与观察脚本
-├── experiments/      # 实验设计、正式结果和结论
-└── README_执行文档.md # 当前机器执行手册
-```
+| 位置 | 内容 | 状态 |
+| --- | --- | --- |
+| [论文协议](experiments/04_保留专门化/05_论文主线/README.md) | 研究问题、dense 定义、决策门和实验矩阵 | 唯一当前协议 |
+| [实验索引](experiments/README.md) | 各阶段作用、状态和阅读顺序 | 当前索引 |
+| [模型注册表](TD3/MODEL_REGISTRY.md) | 短模型 ID、实际文件名和使用限制 | 当前索引 |
+| [脚本索引](scripts/README.md) | 当前入口、历史脚本和命名规范 | 当前索引 |
+| [执行手册](README_执行文档.md) | ROS、Gazebo、后台进程和环境配置 | 运维参考 |
+| `TD3/` | 环境、模型、训练和评测代码 | 源代码 |
+| `catkin_ws/` | ROS 包、机器人模型和 Gazebo 插件 | 源代码/构建区 |
+| `logs/`, `TD3/results/`, `TD3/runs/`, `TD3/checkpoints/` | 当前机器运行产物 | 本地，不提交 |
+
+历史实验目录保留原名和原始 artifact 名，避免破坏复现。新的文档、命令和论文统一使用注册表中的短 ID。

@@ -51,8 +51,7 @@ Best checkpoint 出现在 epoch 4：`full_success_rate=0.667`，`success_rate=0.
 
 ## 核心文件
 
-- `五车InteractionOnlyActive/train_multi_interaction_only_active_5_detached_20260531_144304.log`
-- `五车InteractionOnlyActive/test_multi_interaction_only_active_5_best_detached_20260531_215232.raw.log`
-- `五车InteractionOnlyActive/test_multi_interaction_only_active_5_best_300episodes_clean.log`
+- `五车InteractionOnlyActive/logs/train/train_multi_interaction_only_active_5_detached_20260531_144304.log`
+- `五车InteractionOnlyActive/logs/test/test_multi_interaction_only_active_5_best_detached_20260531_215232.log`
 - `五车InteractionOnlyActive/test_multi_interaction_only_active_5_best_300episodes.npy`
 - `五车InteractionOnlyActive/test_multi_interaction_only_active_5_best_300episodes_summary.md`

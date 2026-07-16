@@ -3,7 +3,7 @@
 ## Run
 
 - model: `TD3_velodyne_multi_v4_individual_antistagnation_5_best`
-- source training: `train_multi_individual_antistagnation_5_detached_20260601_194529.log`
+- source training: `logs/train/train_multi_individual_antistagnation_5_detached_20260601_194529.log`
 - raw test log partial: `test_multi_individual_antistagnation_5_best_detached_20260601_233854.partial.raw.log.gz`
 - raw test log resume: `test_multi_individual_antistagnation_5_best_detached_20260601_234131.resume.raw.log.gz`
 - clean log: `test_multi_individual_antistagnation_5_best_300episodes_clean.log`

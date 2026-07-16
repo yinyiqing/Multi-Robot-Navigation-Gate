@@ -1,10 +1,12 @@
 # 03 dense 专家训练
 
-当前目标：先训练一个真正适合 dense 情景的第二专家 actor。只有当 dense 专家和普通专家都足够稳定后，再冻结两个 actor，单独训练门控网络。
+状态：`diagnostic / failed training archive`。本目录记录 dense 定义诊断、full fine-tune 失败和 residual 代码脚手架；正式训练分布尚未实现，因此当前禁止从本目录启动训练。
 
-## 当前 dense 定义
+后续目标是训练 interaction-dense residual specialist。开始条件和评测协议以 `../05_论文主线/README.md` 的 D1-D5 决策门为准。
 
-当前训练入口不是旧的 hard set，也不是 pair/three 诊断集，而是：
+## 历史 fixed moderate 定义
+
+此前 full fine-tune 使用的场景不是旧 hard set，也不是 pair/three 诊断集，而是：
 
 ```bash
 stage4_asym_dense_5_moderate
@@ -41,7 +43,7 @@ experiments/02_课程学习/cases/stage4_asym_dense_5_moderate_cases.json
 
 `stage4_asym_dense_5_moderate` 是 dense 专家训练环境：五车都在场，主冲突仍然是 2-3 车，但旁边的车会形成空间压力和路径占用。它比 pair/three 更接近 dense，但比旧 hard set 更可学。
 
-## 当前训练脚本
+## 历史 full fine-tune 脚本
 
 ```bash
 scripts/start_training_detached_dense5_moderate_geo_critic_from_5d.sh
@@ -95,7 +97,7 @@ scripts/start_training_detached_dense5_moderate_geo_critic_from_5d.sh
 - 碰撞率仍然高，说明它确实测到了 dense 交互短板；
 - 后两个 case 偏硬，训练时要监控它们是否继续拖垮整体。
 
-## 下一步
+## full fine-tune 结果
 
 `5D -> moderate dense` 的 full actor fine-tune 已确认失败：
 
@@ -117,3 +119,39 @@ scripts/start_training_detached_dense5_moderate_geo_critic_from_5d.sh
 - 这条训练产物已删除，只保留失败日志作为诊断。
 
 下一步不要继续 full actor fine-tune。更合理的尝试是冻结 actor 主干，只训练一个很小的 residual/head adapter，或者先只训练 critic/表示层，再用保守策略更新 actor。
+
+## residual 实现
+
+当前已实现第一版最小 residual：
+
+```text
+frozen 5D action + 0.15 * tanh(adapter(state))
+adapter: 24 -> 128 -> 2
+```
+
+最后一层零初始化，因此训练开始前的动作与固定 `5D` 完全一致。基础 Actor 参数不参与反向传播，checkpoint 同时保存基础 Actor、residual 参数和 residual scale。
+
+预留训练入口（D1-D3 完成前禁止执行）：
+
+```bash
+scripts/start_training_detached_dense5_moderate_residual_from_5d.sh
+```
+
+预留测试入口：
+
+```bash
+scripts/start_test_detached_dense5_moderate_residual_best.sh
+scripts/start_test_detached_standard5_residual_best.sh
+```
+
+第一版只使用 individual reward，保留训练期几何邻域 Critic。只有 moderate dense 提升且 standard_5 不明显下降，才能认为 residual 专门化成立。
+
+## dense 定义诊断
+
+2026-07-16 对固定人工 case 和三档随机 dense 采样做了对照，归档见：
+
+```text
+logs/test/dense_definition_20260716/README.md
+```
+
+关键结论是：随机 tight2 的 agent success / full success 约为 `0.802 / 0.483`，而固定 moderate case 在修复口径下约为 `0.488 / 0.033`。固定 case 测到的是同步路径冲突，远比单纯缩小随机采样区域更强。后续需要分别定义空间密度与交互密度，固定 case 更适合作为 held-out stress test，不应作为唯一训练分布。

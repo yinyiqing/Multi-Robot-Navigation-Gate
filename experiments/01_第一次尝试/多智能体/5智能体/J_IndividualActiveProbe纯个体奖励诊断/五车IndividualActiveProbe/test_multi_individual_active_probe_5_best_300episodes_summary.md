@@ -3,7 +3,7 @@
 ## Run
 
 - model: `TD3_velodyne_multi_v4_individual_active_probe_5_best`
-- source training: `train_multi_individual_active_probe_5_detached_20260601_091906.log`
+- source training: `logs/train/train_multi_individual_active_probe_5_detached_20260601_091906.log`
 - raw test log: `test_multi_individual_active_probe_5_best_detached_20260601_145111.raw.log.gz`
 - clean log: `test_multi_individual_active_probe_5_best_300episodes_clean.log`
 - episodes: 300

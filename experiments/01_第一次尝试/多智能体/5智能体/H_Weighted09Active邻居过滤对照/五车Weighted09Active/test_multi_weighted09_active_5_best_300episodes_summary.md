@@ -5,8 +5,8 @@
 - 初始模型：`TD3_velodyne_multi_v4`
 - 训练模型：`TD3_velodyne_multi_v4_weighted09_active_5`
 - 测试模型：`TD3_velodyne_multi_v4_weighted09_active_5_best`
-- 训练日志：`train_multi_weighted09_active_5_detached_20260529_200614.log`
-- 原始测试日志：`test_multi_weighted09_active_5_best_detached_20260531_120616.raw.log`
+- 训练日志：`logs/train/train_multi_weighted09_active_5_detached_20260529_200614.log`
+- 原始测试日志：`logs/test/test_multi_weighted09_active_5_best_detached_20260531_120616.log`
 - 清洗测试日志：`test_multi_weighted09_active_5_best_300episodes_clean.log`
 - 测试统计：`test_multi_weighted09_active_5_best_300episodes.npy`
 - 场景：`standard`

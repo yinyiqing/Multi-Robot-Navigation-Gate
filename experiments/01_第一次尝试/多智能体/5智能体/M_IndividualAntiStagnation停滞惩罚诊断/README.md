@@ -39,7 +39,7 @@ M 的 300 episodes best 测试结果为 `success_rate=0.864`、`collision_rate=0
 
 ## 核心文件
 
-- `五车IndividualAntiStagnation/train_multi_individual_antistagnation_5_detached_20260601_194529.log`
+- `五车IndividualAntiStagnation/logs/train/train_multi_individual_antistagnation_5_detached_20260601_194529.log`
 - `五车IndividualAntiStagnation/test_multi_individual_antistagnation_5_best_detached_20260601_233854.partial.raw.log.gz`
 - `五车IndividualAntiStagnation/test_multi_individual_antistagnation_5_best_detached_20260601_234131.resume.raw.log.gz`
 - `五车IndividualAntiStagnation/test_multi_individual_antistagnation_5_best_300episodes_clean.log`
