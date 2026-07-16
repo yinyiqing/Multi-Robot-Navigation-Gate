@@ -16,7 +16,7 @@
         "r1": {"start": [-1.45, -0.30], "start_jitter": [0.04, 0.04], "goal": [1.75, -0.10], "goal_jitter": [0.03, 0.03]},
         "r2": {"start": [0.25, -1.45], "start_jitter": [0.04, 0.04], "goal": [0.05, 1.65], "goal_jitter": [0.03, 0.03]},
         "r3": {"start": [1.85, 0.80], "start_jitter": [0.04, 0.04], "goal": [0.70, 0.60], "goal_jitter": [0.03, 0.03]},
-        "r4": {"start": [-1.95, 1.30], "start_jitter": [0.04, 0.04], "goal": [-0.95, 1.30], "goal_jitter": [0.03, 0.03]},
+        "r4": {"start": [-1.25, 1.25], "start_jitter": [0.04, 0.04], "goal": [-0.95, 1.30], "goal_jitter": [0.03, 0.03]},
         "r5": {"start": [1.75, -1.55], "start_jitter": [0.04, 0.04], "goal": [0.75, -1.15], "goal_jitter": [0.03, 0.03]}
       }
     },
@@ -27,7 +27,7 @@
         "r1": {"start": [-1.40, -0.55], "start_jitter": [0.04, 0.04], "goal": [1.55, 0.55], "goal_jitter": [0.03, 0.03]},
         "r2": {"start": [1.55, 0.35], "start_jitter": [0.04, 0.04], "goal": [-1.05, 0.15], "goal_jitter": [0.03, 0.03]},
         "r3": {"start": [0.15, -1.55], "start_jitter": [0.04, 0.04], "goal": [0.35, 1.45], "goal_jitter": [0.03, 0.03]},
-        "r4": {"start": [-1.75, 1.45], "start_jitter": [0.04, 0.04], "goal": [-0.95, 1.45], "goal_jitter": [0.03, 0.03]},
+        "r4": {"start": [-1.25, 1.20], "start_jitter": [0.04, 0.04], "goal": [0.05, 0.35], "goal_jitter": [0.03, 0.03]},
         "r5": {"start": [1.60, -1.45], "start_jitter": [0.04, 0.04], "goal": [0.55, -1.45], "goal_jitter": [0.03, 0.03]}
       }
     },
@@ -47,7 +47,7 @@
       "weight": 1.2,
       "agents": {
         "r1": {"start": [-1.20, -0.45], "start_jitter": [0.04, 0.04], "goal": [1.65, 0.85], "goal_jitter": [0.03, 0.03]},
-        "r2": {"start": [-0.20, -1.15], "start_jitter": [0.04, 0.04], "goal": [-0.55, 1.70], "goal_jitter": [0.03, 0.03]},
+        "r2": {"start": [-0.20, -1.15], "start_jitter": [0.04, 0.04], "goal": [0.05, 1.70], "goal_jitter": [0.03, 0.03]},
         "r3": {"start": [0.95, -0.35], "start_jitter": [0.04, 0.04], "goal": [0.45, 0.70], "goal_jitter": [0.03, 0.03]},
         "r4": {"start": [1.75, 0.70], "start_jitter": [0.04, 0.04], "goal": [1.70, -1.00], "goal_jitter": [0.03, 0.03]},
         "r5": {"start": [-0.95, 1.10], "start_jitter": [0.04, 0.04], "goal": [-1.20, -0.95], "goal_jitter": [0.03, 0.03]}
@@ -57,10 +57,10 @@
       "name": "moderate_offset_weave_three_plus_retention",
       "weight": 1.2,
       "agents": {
-        "r1": {"start": [-1.45, -0.15], "start_jitter": [0.04, 0.04], "goal": [1.65, -0.05], "goal_jitter": [0.03, 0.03]},
+        "r1": {"start": [-1.25, -0.15], "start_jitter": [0.04, 0.04], "goal": [1.65, -0.05], "goal_jitter": [0.03, 0.03]},
         "r2": {"start": [0.10, -1.45], "start_jitter": [0.04, 0.04], "goal": [0.05, 1.70], "goal_jitter": [0.03, 0.03]},
         "r3": {"start": [1.95, 0.70], "start_jitter": [0.04, 0.04], "goal": [0.20, 0.55], "goal_jitter": [0.03, 0.03]},
-        "r4": {"start": [-1.50, 1.35], "start_jitter": [0.04, 0.04], "goal": [-1.00, 1.35], "goal_jitter": [0.03, 0.03]},
+        "r4": {"start": [-1.25, 1.20], "start_jitter": [0.04, 0.04], "goal": [1.25, 1.20], "goal_jitter": [0.03, 0.03]},
         "r5": {"start": [1.60, -1.55], "start_jitter": [0.04, 0.04], "goal": [0.70, -1.15], "goal_jitter": [0.03, 0.03]}
       }
     }
