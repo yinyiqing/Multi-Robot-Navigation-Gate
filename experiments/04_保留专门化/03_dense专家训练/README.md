@@ -97,4 +97,23 @@ scripts/start_training_detached_dense5_moderate_geo_critic_from_5d.sh
 
 ## 下一步
 
-开始训练 dense 专家，但训练目标先定为超过固定 `5D` 的 moderate dense baseline，而不是直接追旧 hard set。
+`5D -> moderate dense` 的 full actor fine-tune 已确认失败：
+
+| epoch | success | collision | full |
+| ---: | ---: | ---: | ---: |
+| 1 | 0.485 | 0.525 | 0.025 |
+| 2 | 0.510 | 0.515 | 0.075 |
+| 3 | 0.450 | 0.555 | 0.000 |
+| 4 | 0.395 | 0.595 | 0.000 |
+| 5 | 0.370 | 0.600 | 0.000 |
+| 6 | 0.295 | 0.695 | 0.000 |
+| 7 | 0.295 | 0.690 | 0.000 |
+| 8 | 0.230 | 0.765 | 0.000 |
+
+结论：
+
+- full actor 解冻继续破坏已有导航能力；
+- 最好结果只在 epoch 2 贴近 baseline，随后持续退化；
+- 这条训练产物已删除，只保留失败日志作为诊断。
+
+下一步不要继续 full actor fine-tune。更合理的尝试是冻结 actor 主干，只训练一个很小的 residual/head adapter，或者先只训练 critic/表示层，再用保守策略更新 actor。
