@@ -241,7 +241,7 @@ class GazeboEnv:
             theta = np.pi - theta
 
         # Detect if the goal has been reached and give a large positive reward
-        if distance < GOAL_REACHED_DIST:
+        if distance < GOAL_REACHED_DIST and not collision:
             target = True
             done = True
 

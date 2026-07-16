@@ -7,41 +7,52 @@ from datetime import datetime
 
 import numpy as np
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
 
+from actor_models import Actor, ResidualActor, is_residual_actor_state_dict
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
-
-
-class Actor(nn.Module):
-    def __init__(self, state_dim, action_dim):
-        super(Actor, self).__init__()
-
-        self.layer_1 = nn.Linear(state_dim, 800)
-        self.layer_2 = nn.Linear(800, 600)
-        self.layer_3 = nn.Linear(600, action_dim)
-        self.tanh = nn.Tanh()
-
-    def forward(self, s):
-        s = F.relu(self.layer_1(s))
-        s = F.relu(self.layer_2(s))
-        a = self.tanh(self.layer_3(s))
-        return a
+from outcome_utils import resolve_terminal_outcome
 
 
 class TD3(object):
-    def __init__(self, state_dim, action_dim):
-        self.actor = Actor(state_dim, action_dim).to(device)
+    def __init__(
+        self,
+        state_dim,
+        action_dim,
+        actor_mode="full",
+        residual_hidden_dim=128,
+        residual_scale=0.15,
+    ):
+        if actor_mode == "residual":
+            self.actor = ResidualActor(
+                state_dim,
+                action_dim,
+                hidden_dim=residual_hidden_dim,
+                residual_scale=residual_scale,
+            ).to(device)
+        elif actor_mode in ("full", "head_only"):
+            self.actor = Actor(state_dim, action_dim).to(device)
+        else:
+            raise ValueError("Unsupported test actor mode: %s" % actor_mode)
+        self.actor_mode = actor_mode
+        self.residual_scale = float(residual_scale)
 
     def get_action(self, state):
         state = torch.Tensor(state.reshape(1, -1)).to(device)
         return self.actor(state).cpu().data.numpy().flatten()
 
     def load(self, filename, directory):
-        self.actor.load_state_dict(
-            torch.load("%s/%s_actor.pth" % (directory, filename), map_location=device)
+        actor_state = torch.load(
+            "%s/%s_actor.pth" % (directory, filename), map_location=device
         )
+        residual_checkpoint = is_residual_actor_state_dict(actor_state)
+        if self.actor_mode == "residual" and not residual_checkpoint:
+            raise ValueError("Residual test mode requires a residual actor checkpoint")
+        if self.actor_mode != "residual" and residual_checkpoint:
+            raise ValueError("Residual actor checkpoint requires residual test mode")
+        self.actor.load_state_dict(actor_state)
+        if self.actor_mode == "residual":
+            self.residual_scale = self.actor.residual_scale
 
 
 class DualActorSwitcher(object):
@@ -178,10 +189,16 @@ target_test_episodes = int(os.environ.get("DRL_MULTI_TEST_TARGET_EPISODES", "0")
 scenario_mode = os.environ.get("DRL_MULTI_SCENARIO", "standard").strip().lower()
 base_file_name = "TD3_velodyne_multi_v4"
 file_name = os.environ.get("DRL_MULTI_TEST_FILE_NAME", base_file_name)
+actor_mode = os.environ.get("DRL_MULTI_TEST_ACTOR_MODE", "full").strip().lower()
+residual_hidden_dim = env_int("DRL_MULTI_RESIDUAL_HIDDEN_DIM", 128)
+residual_scale = env_float("DRL_MULTI_RESIDUAL_SCALE", 0.15)
 standard_actor_file = os.environ.get(
     "DRL_MULTI_STANDARD_ACTOR_FILE", file_name
 ).strip()
 dense_actor_file = os.environ.get("DRL_MULTI_DENSE_ACTOR_FILE", "").strip()
+dense_actor_mode = os.environ.get(
+    "DRL_MULTI_DENSE_ACTOR_MODE", "full"
+).strip().lower()
 actor_selection_mode = os.environ.get("DRL_MULTI_ACTOR_SELECTION_MODE", "").strip().lower()
 dual_actor_enabled = bool(dense_actor_file)
 if not actor_selection_mode:
@@ -361,7 +378,13 @@ np.random.seed(seed)
 state_dim = environment_dim + robot_dim
 action_dim = 2
 
-network = TD3(state_dim, action_dim)
+network = TD3(
+    state_dim,
+    action_dim,
+    actor_mode=actor_mode,
+    residual_hidden_dim=residual_hidden_dim,
+    residual_scale=residual_scale,
+)
 try:
     network.load(standard_actor_file, "./pytorch_models")
 except Exception:
@@ -371,7 +394,13 @@ dense_network = None
 dense_policy_controller = None
 case_oracle_map = {}
 if dual_actor_enabled:
-    dense_network = TD3(state_dim, action_dim)
+    dense_network = TD3(
+        state_dim,
+        action_dim,
+        actor_mode=dense_actor_mode,
+        residual_hidden_dim=residual_hidden_dim,
+        residual_scale=residual_scale,
+    )
     try:
         dense_network.load(dense_actor_file, "./pytorch_models")
     except Exception:
@@ -418,11 +447,16 @@ print("Test version: multi-agent-eval-v1-headless")
 print("Test process PID:", os.getpid())
 print("Launchfile:", launchfile)
 print("Model file:", file_name)
+print("Actor mode:", actor_mode)
+if actor_mode == "residual":
+    print("Residual hidden dim:", residual_hidden_dim)
+    print("Residual scale:", network.residual_scale)
 print("Actor selection mode:", actor_selection_mode)
 if dual_actor_enabled:
     print("Dual actor mode: enabled")
     print("Standard actor file:", standard_actor_file)
     print("Dense actor file:", dense_actor_file)
+    print("Dense actor mode:", dense_actor_mode)
     if actor_selection_mode == "hard_switch":
         print("Switch on distance:", switch_on_distance)
         print("Switch off distance:", switch_off_distance)
@@ -497,10 +531,14 @@ while True:
         episode_rewards[idx] += rewards[idx]
         episode_agent_samples += 1
         total_agent_samples += 1
-        episode_success_flags[idx] = max(episode_success_flags[idx], int(targets[idx]))
-        episode_collision_flags[idx] = max(
-            episode_collision_flags[idx], int(collisions[idx])
+        success, collision = resolve_terminal_outcome(
+            episode_success_flags[idx],
+            episode_collision_flags[idx],
+            targets[idx],
+            collisions[idx],
         )
+        episode_success_flags[idx] = int(success)
+        episode_collision_flags[idx] = int(collision)
         episode_final_distances[agent_names[idx]] = step_agents[agent_names[idx]][
             "distance"
         ]

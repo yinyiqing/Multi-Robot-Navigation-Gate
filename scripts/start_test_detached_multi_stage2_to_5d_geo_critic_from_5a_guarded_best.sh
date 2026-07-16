@@ -12,6 +12,9 @@ MODEL_NAME="${DRL_MULTI_TEST_FILE_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_
 ROS_PORT="${DRL_MULTI_TEST_ROS_PORT:-11388}"
 GAZEBO_PORT="${DRL_MULTI_TEST_GAZEBO_PORT:-11488}"
 TARGET_EPISODES="${DRL_MULTI_TEST_TARGET_EPISODES:-300}"
+ACTOR_MODE="${DRL_MULTI_TEST_ACTOR_MODE:-full}"
+RESIDUAL_HIDDEN_DIM="${DRL_MULTI_RESIDUAL_HIDDEN_DIM:-128}"
+RESIDUAL_SCALE="${DRL_MULTI_RESIDUAL_SCALE:-0.15}"
 SAFE_MODEL="${MODEL_NAME//[^A-Za-z0-9_]/_}"
 
 mkdir -p "$LOG_DIR"
@@ -59,6 +62,9 @@ setsid bash -lc "
   export DRL_MULTI_NUM_AGENTS='$NUM_AGENTS'
   export DRL_MULTI_TEST_LAUNCHFILE='$LAUNCHFILE'
   export DRL_MULTI_TEST_FILE_NAME='$MODEL_NAME'
+  export DRL_MULTI_TEST_ACTOR_MODE='$ACTOR_MODE'
+  export DRL_MULTI_RESIDUAL_HIDDEN_DIM='$RESIDUAL_HIDDEN_DIM'
+  export DRL_MULTI_RESIDUAL_SCALE='$RESIDUAL_SCALE'
   export DRL_MULTI_TEST_TARGET_EPISODES='$TARGET_EPISODES'
   export DRL_MULTI_TEST_STATE_PATH='./checkpoints/${SAFE_MODEL}_stage2_to_5d_geo_critic_test_state.pt'
   export DRL_MULTI_TEST_STATS_PATH='./results/${SAFE_MODEL}_stage2_to_5d_geo_critic_test.npy'
@@ -75,6 +81,7 @@ echo "Detached stage2-to-5D geometry-critic best test started."
 echo "PID: $(cat "$PID_FILE")"
 echo "Agents: $NUM_AGENTS"
 echo "Model: $MODEL_NAME"
+echo "Actor mode: $ACTOR_MODE"
 echo "Launch: $LAUNCH_PATH"
 echo "Scenario: standard"
 echo "Target episodes: $TARGET_EPISODES"

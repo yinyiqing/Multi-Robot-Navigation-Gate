@@ -10,6 +10,7 @@ import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
 
 from velodyne_env import GazeboEnv
+from outcome_utils import resolve_terminal_outcome
 
 
 class Actor(nn.Module):
@@ -135,8 +136,12 @@ while True:
     total_steps += 1
     episode_reward += reward
     episode_timesteps += 1
-    episode_target = episode_target or bool(target)
-    episode_collision = episode_collision or bool(env.last_step_info["collision"])
+    episode_target, episode_collision = resolve_terminal_outcome(
+        episode_target,
+        episode_collision,
+        target,
+        env.last_step_info["collision"],
+    )
 
     if episode_timesteps >= max_ep:
         done = True

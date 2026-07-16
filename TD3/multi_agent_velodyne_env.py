@@ -1018,7 +1018,8 @@ class MultiAgentGazeboEnv:
         for idx, name in enumerate(self.agent_names):
             state, distance = self._build_state(name, actions[idx])
             done, collision, min_laser = self.observe_collision(self.velodyne_data[name])
-            target = distance < GOAL_REACHED_DIST
+            # A collision at the goal boundary is a failure, not a simultaneous success.
+            target = distance < GOAL_REACHED_DIST and not collision
             if target:
                 done = True
             progress = (

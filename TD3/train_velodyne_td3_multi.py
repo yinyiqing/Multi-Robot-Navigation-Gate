@@ -7,12 +7,14 @@ from datetime import datetime
 
 import numpy as np
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 from numpy import inf
 from torch.utils.tensorboard import SummaryWriter
 
+from actor_models import Actor, ResidualActor, is_residual_actor_state_dict
+from critic_models import Critic
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
+from outcome_utils import resolve_terminal_outcome
 from replay_buffer import ReplayBuffer
 
 
@@ -60,12 +62,14 @@ def evaluate(network, env, epoch, eval_episodes=10):
 
             for idx, done in enumerate(dones):
                 if active_mask[idx]:
-                    episode_success_flags[idx] = max(
-                        episode_success_flags[idx], int(targets[idx])
+                    success, collision = resolve_terminal_outcome(
+                        episode_success_flags[idx],
+                        episode_collision_flags[idx],
+                        targets[idx],
+                        collisions[idx],
                     )
-                    episode_collision_flags[idx] = max(
-                        episode_collision_flags[idx], int(collisions[idx])
-                    )
+                    episode_success_flags[idx] = int(success)
+                    episode_collision_flags[idx] = int(collision)
                 if active_mask[idx] and done:
                     active_mask[idx] = False
 
@@ -138,55 +142,6 @@ def evaluate(network, env, epoch, eval_episodes=10):
     }
 
 
-class Actor(nn.Module):
-    def __init__(self, state_dim, action_dim):
-        super(Actor, self).__init__()
-
-        self.layer_1 = nn.Linear(state_dim, 800)
-        self.layer_2 = nn.Linear(800, 600)
-        self.layer_3 = nn.Linear(600, action_dim)
-        self.tanh = nn.Tanh()
-
-    def forward(self, s):
-        s = F.relu(self.layer_1(s))
-        s = F.relu(self.layer_2(s))
-        a = self.tanh(self.layer_3(s))
-        return a
-
-
-class Critic(nn.Module):
-    def __init__(self, state_dim, action_dim):
-        super(Critic, self).__init__()
-
-        self.layer_1 = nn.Linear(state_dim, 800)
-        self.layer_2_s = nn.Linear(800, 600)
-        self.layer_2_a = nn.Linear(action_dim, 600)
-        self.layer_3 = nn.Linear(600, 1)
-
-        self.layer_4 = nn.Linear(state_dim, 800)
-        self.layer_5_s = nn.Linear(800, 600)
-        self.layer_5_a = nn.Linear(action_dim, 600)
-        self.layer_6 = nn.Linear(600, 1)
-
-    def forward(self, s, a):
-        s1 = F.relu(self.layer_1(s))
-        self.layer_2_s(s1)
-        self.layer_2_a(a)
-        s11 = torch.mm(s1, self.layer_2_s.weight.data.t())
-        s12 = torch.mm(a, self.layer_2_a.weight.data.t())
-        s1 = F.relu(s11 + s12 + self.layer_2_a.bias.data)
-        q1 = self.layer_3(s1)
-
-        s2 = F.relu(self.layer_4(s))
-        self.layer_5_s(s2)
-        self.layer_5_a(a)
-        s21 = torch.mm(s2, self.layer_5_s.weight.data.t())
-        s22 = torch.mm(a, self.layer_5_a.weight.data.t())
-        s2 = F.relu(s21 + s22 + self.layer_5_a.bias.data)
-        q2 = self.layer_6(s2)
-        return q1, q2
-
-
 class TD3(object):
     def __init__(
         self,
@@ -197,16 +152,21 @@ class TD3(object):
         critic_state_dim=None,
         actor_lr=1e-3,
         critic_lr=1e-3,
+        actor_train_mode="full",
+        residual_hidden_dim=128,
+        residual_scale=0.15,
     ):
         self.state_dim = state_dim
         self.critic_state_dim = critic_state_dim or state_dim
         self.action_dim = action_dim
-        self.actor = Actor(state_dim, action_dim).to(device)
-        self.actor_target = Actor(state_dim, action_dim).to(device)
+        self.residual_hidden_dim = int(residual_hidden_dim)
+        self.residual_scale = float(residual_scale)
+        self.actor_train_mode = (actor_train_mode or "full").strip().lower()
+        self.actor = self._make_actor().to(device)
+        self.actor_target = self._make_actor().to(device)
         self.actor_target.load_state_dict(self.actor.state_dict())
         self.actor_lr = actor_lr
-        self.actor_train_mode = "full"
-        self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=actor_lr)
+        self._configure_actor_train_mode()
 
         self.critic = Critic(self.critic_state_dim, action_dim).to(device)
         self.critic_target = Critic(self.critic_state_dim, action_dim).to(device)
@@ -219,27 +179,37 @@ class TD3(object):
         self.actor_reference = None
         self.actor_anchor_weight = 0.0
 
-    def set_actor_train_mode(self, mode):
-        mode = (mode or "full").strip().lower()
+    def _make_actor(self):
+        if self.actor_train_mode == "residual":
+            return ResidualActor(
+                self.state_dim,
+                self.action_dim,
+                hidden_dim=self.residual_hidden_dim,
+                residual_scale=self.residual_scale,
+            )
+        if self.actor_train_mode in ("full", "head_only"):
+            return Actor(self.state_dim, self.action_dim)
+        raise ValueError(
+            "Unsupported DRL_MULTI_ACTOR_TRAIN_MODE: %s. Use full, head_only, or residual."
+            % self.actor_train_mode
+        )
+
+    def _configure_actor_train_mode(self):
         for param in self.actor.parameters():
             param.requires_grad = True
 
-        if mode == "full":
+        if self.actor_train_mode == "full":
             pass
-        elif mode == "head_only":
+        elif self.actor_train_mode == "head_only":
             for module in (self.actor.layer_1, self.actor.layer_2):
                 for param in module.parameters():
                     param.requires_grad = False
-        else:
-            raise ValueError(
-                "Unsupported DRL_MULTI_ACTOR_TRAIN_MODE: %s. Use full or head_only."
-                % mode
-            )
+        elif self.actor_train_mode == "residual":
+            self.actor.freeze_base_actor()
 
         trainable_params = [p for p in self.actor.parameters() if p.requires_grad]
         if not trainable_params:
             raise ValueError("Actor train mode left no trainable parameters")
-        self.actor_train_mode = mode
         self.actor_optimizer = torch.optim.Adam(trainable_params, lr=self.actor_lr)
 
     def actor_trainable_parameter_count(self):
@@ -257,7 +227,7 @@ class TD3(object):
             self.actor_reference = None
             self.actor_anchor_weight = 0.0
             return
-        self.actor_reference = Actor(self.state_dim, 2).to(device)
+        self.actor_reference = self._make_actor().to(device)
         self.actor_reference.load_state_dict(actor_state)
         self.actor_reference.eval()
         for param in self.actor_reference.parameters():
@@ -448,6 +418,23 @@ class TD3(object):
         torch.save(self.actor.state_dict(), "%s/%s_actor.pth" % (directory, filename))
         torch.save(self.critic.state_dict(), "%s/%s_critic.pth" % (directory, filename))
 
+    def _load_actor_state(self, actor_state):
+        residual_checkpoint = is_residual_actor_state_dict(actor_state)
+        if self.actor_train_mode == "residual":
+            if residual_checkpoint:
+                self.actor.load_state_dict(actor_state)
+            else:
+                self.actor.load_base_state_dict(actor_state)
+            self.actor.freeze_base_actor()
+            self.residual_scale = self.actor.residual_scale
+        else:
+            if residual_checkpoint:
+                raise ValueError(
+                    "Residual actor checkpoint requires DRL_MULTI_ACTOR_TRAIN_MODE=residual"
+                )
+            self.actor.load_state_dict(actor_state)
+        self.actor_target.load_state_dict(self.actor.state_dict())
+
     def load(self, filename, directory):
         actor_state = torch.load(
             "%s/%s_actor.pth" % (directory, filename), map_location=device
@@ -455,19 +442,15 @@ class TD3(object):
         critic_state = torch.load(
             "%s/%s_critic.pth" % (directory, filename), map_location=device
         )
-        self.actor.load_state_dict(actor_state)
+        self._load_actor_state(actor_state)
         self.critic.load_state_dict(critic_state)
-        # Warm start must also synchronize target networks. Otherwise TD targets
-        # are computed from stale/random targets even though online nets were loaded.
-        self.actor_target.load_state_dict(actor_state)
         self.critic_target.load_state_dict(critic_state)
 
     def load_actor(self, filename, directory):
         actor_state = torch.load(
             "%s/%s_actor.pth" % (directory, filename), map_location=device
         )
-        self.actor.load_state_dict(actor_state)
-        self.actor_target.load_state_dict(actor_state)
+        self._load_actor_state(actor_state)
 
     def state_dict(self):
         return {
@@ -482,11 +465,25 @@ class TD3(object):
             "max_action": self.max_action,
             "state_dim": self.state_dim,
             "critic_state_dim": self.critic_state_dim,
+            "actor_train_mode": self.actor_train_mode,
+            "residual_hidden_dim": self.residual_hidden_dim,
+            "residual_scale": self.residual_scale,
         }
 
     def load_state_dict(self, state):
+        saved_mode = state.get("actor_train_mode")
+        if saved_mode is None and self.actor_train_mode == "residual":
+            raise ValueError("Legacy checkpoint does not contain a residual actor")
+        if saved_mode is not None and saved_mode != self.actor_train_mode:
+            raise ValueError(
+                "Checkpoint actor mode %s does not match configured mode %s"
+                % (saved_mode, self.actor_train_mode)
+            )
         self.actor.load_state_dict(state["actor"])
         self.actor_target.load_state_dict(state["actor_target"])
+        if self.actor_train_mode == "residual":
+            self.actor.freeze_base_actor()
+            self.residual_scale = self.actor.residual_scale
         self.actor_optimizer.load_state_dict(state["actor_optimizer"])
         self.critic.load_state_dict(state["critic"])
         self.critic_target.load_state_dict(state["critic_target"])
@@ -555,6 +552,8 @@ noise_clip = 0.5
 policy_freq = env_int("DRL_MULTI_POLICY_FREQ", 2)
 actor_anchor_weight = env_float("DRL_MULTI_ACTOR_ANCHOR_WEIGHT", 0.0) or 0.0
 actor_train_mode = os.environ.get("DRL_MULTI_ACTOR_TRAIN_MODE", "full").strip().lower()
+residual_hidden_dim = env_int("DRL_MULTI_RESIDUAL_HIDDEN_DIM", 128)
+residual_scale = env_float("DRL_MULTI_RESIDUAL_SCALE", 0.15)
 buffer_size = 1e6
 agent_names = make_agent_names()
 use_dynamic_reward = env_flag("DRL_MULTI_USE_DYNAMIC_REWARD", False)
@@ -741,6 +740,11 @@ critic_state_dim = state_dim + critic_context_dim if use_local_critic else state
 
 checkpoint = load_training_checkpoint()
 log_dir = checkpoint["network"]["log_dir"] if checkpoint else make_run_log_dir()
+if checkpoint:
+    residual_hidden_dim = checkpoint["network"].get(
+        "residual_hidden_dim", residual_hidden_dim
+    )
+    residual_scale = checkpoint["network"].get("residual_scale", residual_scale)
 
 network = TD3(
     state_dim,
@@ -750,8 +754,10 @@ network = TD3(
     critic_state_dim=critic_state_dim,
     actor_lr=actor_lr,
     critic_lr=critic_lr,
+    actor_train_mode=actor_train_mode,
+    residual_hidden_dim=residual_hidden_dim,
+    residual_scale=residual_scale,
 )
-network.set_actor_train_mode(actor_train_mode)
 replay_buffer = ReplayBuffer(buffer_size, seed)
 
 if checkpoint:
@@ -850,6 +856,9 @@ print("Eval episodes:", eval_ep)
 print("Max epochs:", max_epochs or "unlimited")
 print("Actor learning rate:", actor_lr)
 print("Actor train mode:", network.actor_train_mode)
+if network.actor_train_mode == "residual":
+    print("Residual hidden dim:", network.residual_hidden_dim)
+    print("Residual scale:", network.residual_scale)
 print(
     "Actor trainable parameters:",
     "%i/%i"
@@ -1453,10 +1462,14 @@ while timestep < max_timesteps:
             )
         episode_rewards[idx] += rewards[idx]
         episode_sample_count += 1
-        episode_success_flags[idx] = max(episode_success_flags[idx], int(targets[idx]))
-        episode_collision_flags[idx] = max(
-            episode_collision_flags[idx], int(collisions[idx])
+        success, collision = resolve_terminal_outcome(
+            episode_success_flags[idx],
+            episode_collision_flags[idx],
+            targets[idx],
+            collisions[idx],
         )
+        episode_success_flags[idx] = int(success)
+        episode_collision_flags[idx] = int(collision)
         episode_final_distances[agent_names[idx]] = step_agents[agent_names[idx]][
             "distance"
         ]

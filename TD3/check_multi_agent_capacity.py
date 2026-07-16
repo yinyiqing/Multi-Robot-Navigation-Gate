@@ -6,6 +6,7 @@ import time
 import numpy as np
 
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
+from outcome_utils import resolve_terminal_outcome
 
 
 def parse_args():
@@ -93,10 +94,14 @@ def main():
                     nearest_robot_distances.append(float(info["nearest_robot_distance"]))
                 if info["distance"] is not None:
                     final_distances.append(float(info["distance"]))
-                episode_targets[idx] = max(episode_targets[idx], int(targets[idx]))
-                episode_collisions[idx] = max(
-                    episode_collisions[idx], int(collisions[idx])
+                success, collision = resolve_terminal_outcome(
+                    episode_targets[idx],
+                    episode_collisions[idx],
+                    targets[idx],
+                    collisions[idx],
                 )
+                episode_targets[idx] = int(success)
+                episode_collisions[idx] = int(collision)
                 if active_mask[idx] and dones[idx]:
                     active_mask[idx] = False
 
