@@ -39,7 +39,7 @@
 
 ```text
 D1  实现 conflict graph、standard/dense 生成器和 manifest 回放（已完成）
-D2  完成 Gazebo 有效性筛选并冻结两个场景池的 train/validation/test
+D2  完成 Gazebo 有效性筛选并冻结两个场景池的 train/validation/test（已完成）
 D3  在固定 test manifest 上重跑 generalist-5d baseline
 ```
 

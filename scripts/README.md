@@ -44,6 +44,7 @@ start|stop _ training|test _ detached _ <historical-run-name>.sh
 - `generate_*`, `publish_*`, `observe_*`：环境工具。
 - `generate_fixed_scenarios.py`：离线生成 standard/dense 固定候选清单。
 - `validate_fixed_scenarios.py`：用策略无关的 Gazebo reset 检查筛选清单。
+- `audit_fixed_scenarios.py`：检查固定清单 schema、split 互斥性和 Gazebo 标记。
 - 当前映射表中的 start/stop：受支持的底层入口。
 - 其他 start/stop：历史复现入口，不代表当前建议。
 - residual/gate 脚本：脚手架；论文协议允许前不得执行。

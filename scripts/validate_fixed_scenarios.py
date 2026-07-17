@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import copy
+import gzip
 import json
 import os
 import sys
@@ -40,7 +41,11 @@ def parse_args():
 def write_json(path, payload):
     output = Path(path)
     output.parent.mkdir(parents=True, exist_ok=True)
-    with output.open("w", encoding="utf-8") as handle:
+    if output.suffix == ".gz":
+        handle_context = gzip.open(output, "wt", encoding="utf-8")
+    else:
+        handle_context = output.open("w", encoding="utf-8")
+    with handle_context as handle:
         json.dump(payload, handle, ensure_ascii=False, indent=2)
         handle.write("\n")
 

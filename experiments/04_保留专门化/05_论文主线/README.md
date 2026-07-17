@@ -1,6 +1,6 @@
 # ICRA Paper Protocol: Preserve-and-Specialize
 
-状态：`D1 固定随机场景管线已实现，等待大规模 Gazebo 有效性筛选`。
+状态：`D2 standard/dense 固定数据已冻结，等待固定 manifest baseline`。
 
 在本协议的 `D1-D3` 完成前，不启动新的 Actor 或 gate 训练。后续若改变方法主张、dense 定义、数据划分或主指标，先修改本协议，再改代码和脚本。
 

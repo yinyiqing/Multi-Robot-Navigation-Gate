@@ -31,3 +31,6 @@ __pycache__/
 /trash/route2_pair_from_5a/local_artifacts/
 
 .DS_Store
+
+# Regenerable fixed-scenario candidates before Gazebo validity filtering.
+experiments/04_保留专门化/05_论文主线/datasets/candidates_*/

@@ -1,3 +1,4 @@
+import gzip
 import hashlib
 import heapq
 import json
@@ -485,7 +486,13 @@ def write_dataset_splits(datasets, output_dir):
 
 
 def load_manifest_dataset(path):
-    with Path(path).open("r", encoding="utf-8") as handle:
+    manifest_path = Path(path)
+    opener = gzip.open if manifest_path.suffix == ".gz" else manifest_path.open
+    if manifest_path.suffix == ".gz":
+        handle_context = opener(manifest_path, "rt", encoding="utf-8")
+    else:
+        handle_context = opener("r", encoding="utf-8")
+    with handle_context as handle:
         payload = json.load(handle)
     if not isinstance(payload, dict) or not isinstance(payload.get("scenarios"), list):
         raise ValueError("Manifest dataset must contain a scenarios list")

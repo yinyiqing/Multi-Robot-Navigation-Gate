@@ -1,4 +1,5 @@
 import json
+import gzip
 import math
 import sys
 import tempfile
@@ -83,6 +84,19 @@ class ScenarioManifestTests(unittest.TestCase):
         del broken["agents"]["r5"]
         with self.assertRaisesRegex(ValueError, "exactly match"):
             validate_manifest_scenarios([broken], [f"r{i}" for i in range(1, 6)])
+
+    def test_loads_gzip_manifest(self):
+        datasets = generate_dataset(
+            PRESETS["dense"],
+            {"train": 1, "validation": 0, "test": 0, "reserve": 0},
+            master_seed=12,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "train.json.gz"
+            with gzip.open(path, "wt", encoding="utf-8") as handle:
+                json.dump(datasets["train"], handle)
+            payload = load_manifest_dataset(path)
+            self.assertEqual(len(payload["scenarios"]), 1)
 
 
 if __name__ == "__main__":
