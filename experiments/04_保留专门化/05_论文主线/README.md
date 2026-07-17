@@ -6,6 +6,8 @@
 
 执行进度（2026-07-17）：`eval-5d-standard` 已完成 1000 episodes，结果为 agent success `0.8816`、collision `0.0990`、unresolved `0.0194`、full success `0.5690`。这是 D3 的 standard 子项，不代表 D3 完成；完整归档见 [D3 generalist baseline](results/D3_generalist_baseline/README.md)。当前仍只推进 D1。
 
+现有 standard、random dense 和五个 fixed moderate case 的参数与结果汇总见 [场景对照](SCENARIO_COMPARISON.md)。
+
 ## 1. 一句话主线
 
 在无通信、局部观测的多机器人导航中，完整策略继续适应高交互场景会破坏已有普通导航能力；因此冻结 generalist，用受限 residual 学习 interaction-dense specialist，再用本地时序 gate 按状态调用 specialist。
