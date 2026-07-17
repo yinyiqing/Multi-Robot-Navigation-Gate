@@ -42,7 +42,7 @@ nominal robot clearance: 0.9m
 goal clearance: 0.8m
 ```
 
-tight1/tight2 的启动环境变量没有写入日志、state 文件或 shell history，无法完整恢复。它们只能作为探索性诊断，不能直接作为论文正式表格。正式重跑前，测试程序必须把完整 scenario manifest 写入日志和结果文件。
+tight1/tight2 由 `scripts/start_test_detached_dense5_random_5d.sh` 的参数化环境变量启动，配置已可从脚本/实验记录恢复；但历史日志本身没有内嵌完整 scenario manifest。正式重跑前，测试程序必须把完整 scenario manifest 写入日志和结果文件。
 
 旧 random 日志还使用 success/collision 可重叠的旧统计口径，因此可能出现三类计数之和大于 600。fixed moderate metric-fix 日志使用碰撞优先的互斥口径。旧、新绝对数值不能直接做严格显著性比较，但 full-success 难度趋势仍可用于场景定义诊断。
 
