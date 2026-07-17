@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "experiment_id": "eval-5d-standard",
+  "model_id": "generalist-5d",
+  "artifact_prefix": "TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best",
+  "scenario_id": "standard-5",
+  "actor_mode": "full",
+  "num_agents": 5,
+  "test_seed": 1000,
+  "episodes": 1000,
+  "metric_version": "collision-priority-mutually-exclusive-v1",
+  "launch_git_head": "033ae75",
+  "launch_worktree_clean": false,
+  "reproducibility_commit": "73c905c",
+  "counts": {
+    "agent_success": 4408,
+    "collision": 495,
+    "unresolved": 97,
+    "full_success": 569,
+    "timeout_episode": 90
+  },
+  "rates": {
+    "agent_success": 0.8816,
+    "collision": 0.0990,
+    "unresolved": 0.0194,
+    "full_success": 0.5690,
+    "timeout_episode": 0.0900
+  },
+  "episode_bootstrap_95_ci": {
+    "resamples": 20000,
+    "seed": 20260717,
+    "agent_success": [0.8718, 0.8912],
+    "collision": [0.0898, 0.1084],
+    "unresolved": [0.0156, 0.0234],
+    "full_success": [0.5380, 0.5990],
+    "timeout_episode": [0.0730, 0.1080]
+  },
+  "auxiliary": {
+    "mean_episode_steps": 70.156,
+    "mean_final_distance_m": 0.3950494068,
+    "mean_reward": 104.6508018016,
+    "success_histogram_0_to_5": [0, 4, 15, 119, 293, 569],
+    "collision_histogram_0_to_5": [637, 249, 99, 12, 3, 0]
+  },
+  "npy_columns": [
+    "episode_num",
+    "cumulative_env_steps",
+    "cumulative_agent_samples",
+    "episode_env_steps",
+    "episode_agent_samples",
+    "mean_reward",
+    "success_count",
+    "collision_count",
+    "full_success",
+    "mean_final_distance",
+    "unresolved_count",
+    "timeout_episode",
+    "scenario_name"
+  ],
+  "sha256": {
+    "actor": "51e31499a8e7ec88a80e2ff657f74b3d14a64168c2afab9361c6cbe770818ff0",
+    "critic": "30ca5fcd3eab84066b403205c4482eb46c7b92b1cddd3b5ea34dbb2b03714310",
+    "log": "e1f235b7af6de330c745e11609f7b0a568ac44e4ed4d70036c92a6fbfb42db82",
+    "episode_stats_npy": "922a56b82e851e4bfc8f7095c91c9017d8d20a806197e277c3f2eb632b3d58ef"
+  }
+}

@@ -11,18 +11,16 @@ if [[ ! -f "$PID_FILE" ]]; then
 fi
 
 pid="$(cat "$PID_FILE" 2>/dev/null || true)"
-if [[ -z "$pid" ]] || ! kill -0 "$pid" 2>/dev/null; then
-  echo "No running detached curriculum test process found for stage: $STAGE"
+if [[ ! "$pid" =~ ^[0-9]+$ ]]; then
+  echo "Invalid or empty PID file for stage: $STAGE"
   rm -f "$PID_FILE"
   exit 0
 fi
 
-pgid="$(ps -o pgid= -p "$pid" | tr -d ' ')"
-if [[ -n "$pgid" ]]; then
-  kill -- "-$pgid" 2>/dev/null || true
+if kill -- "-$pid" 2>/dev/null; then
   sleep 2
-  kill -9 -- "-$pgid" 2>/dev/null || true
-else
+  kill -9 -- "-$pid" 2>/dev/null || true
+elif kill -0 "$pid" 2>/dev/null; then
   kill "$pid" 2>/dev/null || true
 fi
 rm -f "$PID_FILE"

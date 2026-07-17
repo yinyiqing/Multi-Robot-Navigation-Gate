@@ -4,6 +4,8 @@
 
 在本协议的 `D1-D3` 完成前，不启动新的 Actor 或 gate 训练。后续若改变方法主张、dense 定义、数据划分或主指标，先修改本协议，再改代码和脚本。
 
+执行进度（2026-07-17）：`eval-5d-standard` 已完成 1000 episodes，结果为 agent success `0.8816`、collision `0.0990`、unresolved `0.0194`、full success `0.5690`。这是 D3 的 standard 子项，不代表 D3 完成；完整归档见 [D3 generalist baseline](results/D3_generalist_baseline/README.md)。当前仍只推进 D1。
+
 ## 1. 一句话主线
 
 在无通信、局部观测的多机器人导航中，完整策略继续适应高交互场景会破坏已有普通导航能力；因此冻结 generalist，用受限 residual 学习 interaction-dense specialist，再用本地时序 gate 按状态调用 specialist。
@@ -300,7 +302,7 @@ success + collision + unresolved = N * episodes
 - `D0`：本协议确认。
 - `D1`：scenario manifest、冲突图计算和程序化生成器完成并单测。
 - `D2`：固定数据划分生成，检查 density 分布和场景有效性。
-- `D3`：修复口径下的 generalist baseline 完成。
+- `D3`：修复口径下的 generalist baseline 完成。standard 子项已完成；density sweep 和 held-out 待 D1-D2 后补齐。
 - `D4`：specialist 训练与三 seed 复现。
 - `D5`：互补性达到 gate 准入条件。
 - `D6`：gate 训练。

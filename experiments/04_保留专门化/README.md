@@ -40,7 +40,7 @@
 ```text
 D1  实现 conflict graph、程序化生成器和 scenario manifest
 D2  冻结 low/medium/high 数据划分并检查任务距离匹配
-D3  重跑 generalist-5d baseline
+D3  重跑 generalist-5d baseline（standard 子项已完成，其他场景待 D1-D2）
 ```
 
 `D1-D3` 完成前不启动 residual 或 gate 训练。相关脚本虽然已经有结构脚手架，但不属于当前可执行入口。

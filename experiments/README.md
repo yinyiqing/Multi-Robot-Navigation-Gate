@@ -31,7 +31,7 @@
 
 | 实验 ID | 模型 | 场景 | 状态 | 目的 |
 | --- | --- | --- | --- | --- |
-| `eval-5d-standard` | `generalist-5d` | `standard-5` | `current` | 修复口径下的 generalist retention baseline |
+| `eval-5d-standard` | `generalist-5d` | `standard-5` | `complete` | 1000 episodes: agent `0.8816`, full `0.5690` |
 | `diag-5d-random-dense` | `generalist-5d` | `random-dense-5` | `diagnostic` | 仅区分 spatial density 与 interaction density |
 | `eval-5d-canonical-moderate` | `generalist-5d` | 五个 fixed moderate cases | `baseline` | held-out interaction failure baseline |
 | `train-residual-specialist` | `generalist-5d + residual` | procedural medium/high | `planned` | D1-D3 完成后才允许训练 |
