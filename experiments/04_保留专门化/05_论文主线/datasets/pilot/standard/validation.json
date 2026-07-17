@@ -1,0 +1,389 @@
+{
+  "dataset_version": 1,
+  "dataset_id": "standard-fixed-random-v1-validation",
+  "split": "validation",
+  "generator_config": {
+    "preset": "standard",
+    "start_half_width_min": 4.5,
+    "start_half_width_max": 4.5,
+    "robot_clearance": 0.95,
+    "goal_min_distance": 0.8,
+    "goal_max_distance": 3.5,
+    "goal_clearance": 0.85,
+    "robot_goal_clearance": 0.75,
+    "box_clearance": 1.0,
+    "box_box_clearance": 0.8,
+    "num_boxes": 4,
+    "robot_map_clearance": 0.24,
+    "box_map_clearance": 0.35,
+    "planner_resolution": 0.15,
+    "nominal_speed": 0.5,
+    "conflict_distance": 0.9,
+    "conflict_horizon": 8.0
+  },
+  "master_seed": 20260717,
+  "candidate_count": 35,
+  "rejection_counts": {
+    "No static path for r3": 3,
+    "No static path for r2": 3,
+    "No static path for r1": 3,
+    "No static path for r4": 5,
+    "No static path for r5": 1
+  },
+  "scenarios": [
+    {
+      "manifest_version": 1,
+      "generator": "fixed-random-v1",
+      "preset": "standard",
+      "generation_seed": 20260717000019,
+      "map_id": "TD3.world-v1",
+      "num_agents": 5,
+      "start_half_width_m": 4.5,
+      "boxes": [
+        [
+          3.328156,
+          -3.82264
+        ],
+        [
+          1.620158,
+          -3.577971
+        ],
+        [
+          0.914112,
+          -3.965354
+        ],
+        [
+          -0.33649,
+          -2.451393
+        ]
+      ],
+      "agents": {
+        "r1": {
+          "start": [
+            2.071522,
+            -0.331706
+          ],
+          "goal": [
+            0.980497,
+            0.322644
+          ],
+          "heading": 2.744302,
+          "task_distance_m": 1.272206,
+          "path_length_m": 1.372123
+        },
+        "r2": {
+          "start": [
+            -0.034404,
+            4.03096
+          ],
+          "goal": [
+            1.034335,
+            3.553824
+          ],
+          "heading": -0.459693,
+          "task_distance_m": 1.170411,
+          "path_length_m": 1.26383
+        },
+        "r3": {
+          "start": [
+            0.945162,
+            -0.593562
+          ],
+          "goal": [
+            -0.472056,
+            0.285425
+          ],
+          "heading": 2.766021,
+          "task_distance_m": 1.667671,
+          "path_length_m": 1.759765
+        },
+        "r4": {
+          "start": [
+            -0.825044,
+            -0.876229
+          ],
+          "goal": [
+            0.622752,
+            -1.541935
+          ],
+          "heading": -0.544621,
+          "task_distance_m": 1.593512,
+          "path_length_m": 1.705016
+        },
+        "r5": {
+          "start": [
+            0.142852,
+            2.091795
+          ],
+          "goal": [
+            -1.006261,
+            3.849176
+          ],
+          "heading": 2.069228,
+          "task_distance_m": 2.099725,
+          "path_length_m": 2.2313
+        }
+      },
+      "validity": {
+        "static_geometry": true,
+        "static_path_for_all_agents": true,
+        "gazebo_reset": null,
+        "min_start_clearance_m": 1.156398,
+        "min_goal_clearance_m": 1.45303,
+        "min_task_distance_m": 1.170411,
+        "max_task_distance_m": 2.099725
+      },
+      "metrics": {
+        "conflict_edges": [],
+        "conflict_edge_count": 0,
+        "interaction_density": 0.0,
+        "max_conflict_degree": 0,
+        "mean_conflict_degree": 0.0,
+        "earliest_conflict_time_s": null,
+        "simultaneous_conflict_count": 0,
+        "min_synchronized_path_separation_m": 1.060670762720236
+      },
+      "scenario_id": "standard-20260717000019-3f2e9fcec543",
+      "split": "validation"
+    },
+    {
+      "manifest_version": 1,
+      "generator": "fixed-random-v1",
+      "preset": "standard",
+      "generation_seed": 20260717000022,
+      "map_id": "TD3.world-v1",
+      "num_agents": 5,
+      "start_half_width_m": 4.5,
+      "boxes": [
+        [
+          -0.935827,
+          3.56553
+        ],
+        [
+          0.262921,
+          -3.799674
+        ],
+        [
+          -3.752651,
+          3.333461
+        ],
+        [
+          0.910063,
+          2.833649
+        ]
+      ],
+      "agents": {
+        "r1": {
+          "start": [
+            1.766017,
+            0.309091
+          ],
+          "goal": [
+            0.876978,
+            0.076502
+          ],
+          "heading": -2.980253,
+          "task_distance_m": 0.91896,
+          "path_length_m": 0.96649
+        },
+        "r2": {
+          "start": [
+            0.268536,
+            3.99512
+          ],
+          "goal": [
+            2.320859,
+            4.169454
+          ],
+          "heading": 0.017135,
+          "task_distance_m": 2.059715,
+          "path_length_m": 2.090675
+        },
+        "r3": {
+          "start": [
+            -0.050309,
+            -0.569357
+          ],
+          "goal": [
+            -0.679487,
+            0.63883
+          ],
+          "heading": 1.860542,
+          "task_distance_m": 1.362197,
+          "path_length_m": 1.505607
+        },
+        "r4": {
+          "start": [
+            2.041046,
+            -0.990512
+          ],
+          "goal": [
+            1.83915,
+            1.121492
+          ],
+          "heading": 1.590839,
+          "task_distance_m": 2.121633,
+          "path_length_m": 2.257209
+        },
+        "r5": {
+          "start": [
+            0.86502,
+            1.452502
+          ],
+          "goal": [
+            0.092474,
+            1.047125
+          ],
+          "heading": -2.759807,
+          "task_distance_m": 0.872443,
+          "path_length_m": 0.935876
+        }
+      },
+      "validity": {
+        "static_geometry": true,
+        "static_path_for_all_agents": true,
+        "gazebo_reset": null,
+        "min_start_clearance_m": 1.328386,
+        "min_goal_clearance_m": 0.873287,
+        "min_task_distance_m": 0.872443,
+        "max_task_distance_m": 2.121633
+      },
+      "metrics": {
+        "conflict_edges": [
+          {
+            "agents": [
+              "r3",
+              "r5"
+            ],
+            "min_distance_m": 0.877484,
+            "time_s": 3.0
+          }
+        ],
+        "conflict_edge_count": 1,
+        "interaction_density": 0.1,
+        "max_conflict_degree": 1,
+        "mean_conflict_degree": 0.4,
+        "earliest_conflict_time_s": 3.0,
+        "simultaneous_conflict_count": 1,
+        "min_synchronized_path_separation_m": 0.8774843139760109
+      },
+      "scenario_id": "standard-20260717000022-b06418419352",
+      "split": "validation"
+    },
+    {
+      "manifest_version": 1,
+      "generator": "fixed-random-v1",
+      "preset": "standard",
+      "generation_seed": 20260717000023,
+      "map_id": "TD3.world-v1",
+      "num_agents": 5,
+      "start_half_width_m": 4.5,
+      "boxes": [
+        [
+          -0.381178,
+          3.7267
+        ],
+        [
+          1.908146,
+          1.131465
+        ],
+        [
+          0.685287,
+          2.04501
+        ],
+        [
+          1.475817,
+          -1.298619
+        ]
+      ],
+      "agents": {
+        "r1": {
+          "start": [
+            -0.096868,
+            -2.744131
+          ],
+          "goal": [
+            -0.633199,
+            -2.016632
+          ],
+          "heading": 2.252794,
+          "task_distance_m": 0.903828,
+          "path_length_m": 0.944978
+        },
+        "r2": {
+          "start": [
+            -3.468524,
+            4.205571
+          ],
+          "goal": [
+            -3.03124,
+            2.949243
+          ],
+          "heading": -1.359765,
+          "task_distance_m": 1.330254,
+          "path_length_m": 1.446238
+        },
+        "r3": {
+          "start": [
+            0.645383,
+            0.743352
+          ],
+          "goal": [
+            -1.082494,
+            -0.413423
+          ],
+          "heading": -2.621147,
+          "task_distance_m": 2.079348,
+          "path_length_m": 2.213379
+        },
+        "r4": {
+          "start": [
+            0.343499,
+            -0.711681
+          ],
+          "goal": [
+            1.844651,
+            -0.183267
+          ],
+          "heading": 0.472904,
+          "task_distance_m": 1.591439,
+          "path_length_m": 1.726551
+        },
+        "r5": {
+          "start": [
+            2.794535,
+            -3.89783
+          ],
+          "goal": [
+            1.615409,
+            -3.568614
+          ],
+          "heading": 2.983721,
+          "task_distance_m": 1.224223,
+          "path_length_m": 1.315487
+        }
+      },
+      "validity": {
+        "static_geometry": true,
+        "static_path_for_all_agents": true,
+        "gazebo_reset": null,
+        "min_start_clearance_m": 1.48602,
+        "min_goal_clearance_m": 1.664976,
+        "min_task_distance_m": 0.903828,
+        "max_task_distance_m": 2.079348
+      },
+      "metrics": {
+        "conflict_edges": [],
+        "conflict_edge_count": 0,
+        "interaction_density": 0.0,
+        "max_conflict_degree": 0,
+        "mean_conflict_degree": 0.0,
+        "earliest_conflict_time_s": null,
+        "simultaneous_conflict_count": 0,
+        "min_synchronized_path_separation_m": 1.1370349020374253
+      },
+      "scenario_id": "standard-20260717000023-723920384ffb",
+      "split": "validation"
+    }
+  ]
+}

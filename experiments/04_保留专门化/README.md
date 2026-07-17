@@ -38,9 +38,9 @@
 ## 当前允许的工作
 
 ```text
-D1  实现 conflict graph、程序化生成器和 scenario manifest
-D2  冻结 low/medium/high 数据划分并检查任务距离匹配
-D3  重跑 generalist-5d baseline（standard 子项已完成，其他场景待 D1-D2）
+D1  实现 conflict graph、standard/dense 生成器和 manifest 回放（已完成）
+D2  完成 Gazebo 有效性筛选并冻结两个场景池的 train/validation/test
+D3  在固定 test manifest 上重跑 generalist-5d baseline
 ```
 
 `D1-D3` 完成前不启动 residual 或 gate 训练。相关脚本虽然已经有结构脚手架，但不属于当前可执行入口。
@@ -50,7 +50,7 @@ D3  重跑 generalist-5d baseline（standard 子项已完成，其他场景待 D
 新文档统一使用短 ID：
 
 - 模型：`generalist-5d`, `residual-specialist`, `temporal-gate`
-- 场景：`standard-5`, `procedural-low/medium/high`, `canonical-moderate`
+- 场景池：`standard`, `dense`
 - 当前评估：`eval-5d-standard`
 
 历史 artifact 原名不修改，映射见 [模型注册表](../../TD3/MODEL_REGISTRY.md)。

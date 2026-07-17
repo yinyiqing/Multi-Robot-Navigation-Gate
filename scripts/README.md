@@ -34,7 +34,7 @@ start|stop _ training|test _ detached _ <historical-run-name>.sh
 
 - 实验：`eval-5d-standard`
 - 模型：`generalist-5d`
-- 场景：`standard-5`, `procedural-low`, `procedural-medium`, `procedural-high`
+- 场景池：`standard`, `dense`
 
 对应实际权重见 [模型注册表](../TD3/MODEL_REGISTRY.md)。
 
@@ -42,6 +42,8 @@ start|stop _ training|test _ detached _ <historical-run-name>.sh
 
 - `experiment.sh`：当前稳定入口。
 - `generate_*`, `publish_*`, `observe_*`：环境工具。
+- `generate_fixed_scenarios.py`：离线生成 standard/dense 固定候选清单。
+- `validate_fixed_scenarios.py`：用策略无关的 Gazebo reset 检查筛选清单。
 - 当前映射表中的 start/stop：受支持的底层入口。
 - 其他 start/stop：历史复现入口，不代表当前建议。
 - residual/gate 脚本：脚手架；论文协议允许前不得执行。

@@ -1,0 +1,274 @@
+{
+  "dataset_version": 1,
+  "dataset_id": "standard-fixed-random-v1-reserve",
+  "split": "reserve",
+  "generator_config": {
+    "preset": "standard",
+    "start_half_width_min": 4.5,
+    "start_half_width_max": 4.5,
+    "robot_clearance": 0.95,
+    "goal_min_distance": 0.8,
+    "goal_max_distance": 3.5,
+    "goal_clearance": 0.85,
+    "robot_goal_clearance": 0.75,
+    "box_clearance": 1.0,
+    "box_box_clearance": 0.8,
+    "num_boxes": 4,
+    "robot_map_clearance": 0.24,
+    "box_map_clearance": 0.35,
+    "planner_resolution": 0.15,
+    "nominal_speed": 0.5,
+    "conflict_distance": 0.9,
+    "conflict_horizon": 8.0
+  },
+  "master_seed": 20260717,
+  "candidate_count": 35,
+  "rejection_counts": {
+    "No static path for r3": 3,
+    "No static path for r2": 3,
+    "No static path for r1": 3,
+    "No static path for r4": 5,
+    "No static path for r5": 1
+  },
+  "scenarios": [
+    {
+      "manifest_version": 1,
+      "generator": "fixed-random-v1",
+      "preset": "standard",
+      "generation_seed": 20260717000032,
+      "map_id": "TD3.world-v1",
+      "num_agents": 5,
+      "start_half_width_m": 4.5,
+      "boxes": [
+        [
+          0.498183,
+          -0.065333
+        ],
+        [
+          1.517733,
+          -0.610992
+        ],
+        [
+          3.103489,
+          -3.955874
+        ],
+        [
+          -0.439888,
+          0.89881
+        ]
+      ],
+      "agents": {
+        "r1": {
+          "start": [
+            0.0617,
+            3.707275
+          ],
+          "goal": [
+            0.801341,
+            2.991897
+          ],
+          "heading": -0.823942,
+          "task_distance_m": 1.028996,
+          "path_length_m": 1.031335
+        },
+        "r2": {
+          "start": [
+            1.971777,
+            1.13533
+          ],
+          "goal": [
+            2.796798,
+            1.180385
+          ],
+          "heading": -0.003925,
+          "task_distance_m": 0.826251,
+          "path_length_m": 0.842374
+        },
+        "r3": {
+          "start": [
+            1.99775,
+            -3.877117
+          ],
+          "goal": [
+            0.638767,
+            -4.044569
+          ],
+          "heading": -2.963704,
+          "task_distance_m": 1.369261,
+          "path_length_m": 1.422567
+        },
+        "r4": {
+          "start": [
+            -0.930496,
+            4.009744
+          ],
+          "goal": [
+            0.914083,
+            1.740167
+          ],
+          "heading": -0.888448,
+          "task_distance_m": 2.924628,
+          "path_length_m": 3.048931
+        },
+        "r5": {
+          "start": [
+            -0.325354,
+            -2.876326
+          ],
+          "goal": [
+            0.298411,
+            -1.268028
+          ],
+          "heading": 1.309909,
+          "task_distance_m": 1.725023,
+          "path_length_m": 1.884079
+        }
+      },
+      "validity": {
+        "static_geometry": true,
+        "static_path_for_all_agents": true,
+        "gazebo_reset": null,
+        "min_start_clearance_m": 1.037276,
+        "min_goal_clearance_m": 1.256797,
+        "min_task_distance_m": 0.826251,
+        "max_task_distance_m": 2.924628
+      },
+      "metrics": {
+        "conflict_edges": [
+          {
+            "agents": [
+              "r1",
+              "r4"
+            ],
+            "min_distance_m": 0.454838,
+            "time_s": 3.9
+          }
+        ],
+        "conflict_edge_count": 1,
+        "interaction_density": 0.1,
+        "max_conflict_degree": 1,
+        "mean_conflict_degree": 0.4,
+        "earliest_conflict_time_s": 3.9,
+        "simultaneous_conflict_count": 1,
+        "min_synchronized_path_separation_m": 0.4548381147670316
+      },
+      "scenario_id": "standard-20260717000032-593e4cdfc208",
+      "split": "reserve"
+    },
+    {
+      "manifest_version": 1,
+      "generator": "fixed-random-v1",
+      "preset": "standard",
+      "generation_seed": 20260717000034,
+      "map_id": "TD3.world-v1",
+      "num_agents": 5,
+      "start_half_width_m": 4.5,
+      "boxes": [
+        [
+          0.787402,
+          4.135548
+        ],
+        [
+          -0.304712,
+          -0.163201
+        ],
+        [
+          -3.861533,
+          0.894681
+        ],
+        [
+          -3.098096,
+          3.568634
+        ]
+      ],
+      "agents": {
+        "r1": {
+          "start": [
+            0.569585,
+            -0.995774
+          ],
+          "goal": [
+            0.433423,
+            0.688356
+          ],
+          "heading": 1.565904,
+          "task_distance_m": 1.689625,
+          "path_length_m": 1.752517
+        },
+        "r2": {
+          "start": [
+            -0.518624,
+            3.920635
+          ],
+          "goal": [
+            -0.113346,
+            3.04216
+          ],
+          "heading": -1.032896,
+          "task_distance_m": 0.967454,
+          "path_length_m": 1.061616
+        },
+        "r3": {
+          "start": [
+            1.68485,
+            -0.261309
+          ],
+          "goal": [
+            2.030922,
+            -1.478433
+          ],
+          "heading": -1.350675,
+          "task_distance_m": 1.265369,
+          "path_length_m": 1.42411
+        },
+        "r4": {
+          "start": [
+            0.281043,
+            1.590161
+          ],
+          "goal": [
+            1.675589,
+            0.733585
+          ],
+          "heading": -0.471955,
+          "task_distance_m": 1.636607,
+          "path_length_m": 1.728523
+        },
+        "r5": {
+          "start": [
+            2.473785,
+            -4.097448
+          ],
+          "goal": [
+            3.296168,
+            -3.738485
+          ],
+          "heading": 0.304475,
+          "task_distance_m": 0.897312,
+          "path_length_m": 0.969745
+        }
+      },
+      "validity": {
+        "static_geometry": true,
+        "static_path_for_all_agents": true,
+        "gazebo_reset": null,
+        "min_start_clearance_m": 1.335386,
+        "min_goal_clearance_m": 1.242989,
+        "min_task_distance_m": 0.897312,
+        "max_task_distance_m": 1.689625
+      },
+      "metrics": {
+        "conflict_edges": [],
+        "conflict_edge_count": 0,
+        "interaction_density": 0.0,
+        "max_conflict_degree": 0,
+        "mean_conflict_degree": 0.0,
+        "earliest_conflict_time_s": null,
+        "simultaneous_conflict_count": 0,
+        "min_synchronized_path_separation_m": 0.907804144492176
+      },
+      "scenario_id": "standard-20260717000034-08d2d0288cf8",
+      "split": "reserve"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # ICRA Paper Protocol: Preserve-and-Specialize
 
-状态：`D0 方法与实验协议冻结`。
+状态：`D1 固定随机场景管线已实现，等待大规模 Gazebo 有效性筛选`。
 
 在本协议的 `D1-D3` 完成前，不启动新的 Actor 或 gate 训练。后续若改变方法主张、dense 定义、数据划分或主指标，先修改本协议，再改代码和脚本。
 
@@ -102,17 +102,9 @@ rho_I = 2 * |E| / (N * (N - 1))
 - `min_path_separation`
 - `bottleneck_width / robot_diameter`
 
-### 3.3 五车难度层级
+### 3.3 指标的用途
 
-第一版按冲突边数划分，不按策略成功率反向定义：
-
-| Level | 五车冲突边数 | 用途 |
-| --- | ---: | --- |
-| low | `0-1` | generalist retention / standard |
-| medium | `2-4` | specialist 主训练分布 |
-| high | `>=5` | specialist 强交互训练与测试 |
-
-完成至少 1000 个生成样本的分布检查后，才能冻结最终区间。
+冲突边数和 interaction density 只用于描述、分桶和分析结果，不参与场景的接受或拒绝。这样 dense 仍然是随机分布，不会因为人为挑选“难例”而变成另一组特殊 case。
 
 ## 4. 场景生成与数据划分
 
@@ -125,32 +117,36 @@ rho_I = 2 * |E| / (N * (N - 1))
 - 目标之间不重叠，目标不贴障碍。
 - 每个机器人独立存在可行路径。
 - 起终点距离处于固定范围，避免通过缩短任务制造高成功率。
-- 按 `rho_I`、最大冲突度和时间重叠接受或拒绝样本。
+- Gazebo reset 后传感器正常、无初始碰撞，实际位置与 manifest 一致。
 - 保存完整 manifest，禁止仅保存 `tight1` 之类人工标签。
 
-### 4.2 三类数据
+筛选只能依据上述策略无关的有效性条件。禁止依据 `5D`、dense Actor 或本文方法的成功/失败删除 test 场景。
 
-1. `procedural-low`：低 interaction density，用于 generalist retention 和 gate 训练。
-2. `procedural-medium/high`：dense specialist 的训练与分布内测试。
-3. `canonical-heldout`：crossing、merge、corridor reverse、weaving、bottleneck 等人工 archetype，只用于测试。
+### 4.2 两个场景池
 
-现有五个 moderate case 归入 `canonical-heldout`，不再作为唯一训练分布。
+只生成两类环境：
+
+1. `standard`：普通五车随机场景，训练/验证普通 Actor，并检查 gate 是否保留普通能力。
+2. `dense`：在 tight1 与 tight2 之间连续随机采样的五车场景，训练/验证 dense Actor。
+
+Gate 不需要第三种环境。它直接混合读取 `standard/train` 和 `dense/train`。validation 和 test 只是两个场景池各自互不重叠的数据划分，不是新环境。
+
+Dense 固定参数：起点方形半宽在 `1.65-1.75 m` 连续采样，起点间距至少 `1.2 m`，任务距离 `0.9-2.3 m`，五车、四个随机箱子。越界 goal 直接重采样，不做 clip。
 
 ### 4.3 严格划分
 
 - 训练、验证、测试使用不重叠的生成 seed。
-- canonical-heldout 的几何模板不得出现在训练集。
-- 至少保留一张未参与训练的地图。
-- 测试扩展到未训练的机器人数量，目标为 `3/5/8`，若 Gazebo 容量不允许 8 车则明确报告限制。
+- 场景在离线生成和有效性筛选后冻结；训练、验证和测试全过程只按 manifest 回放。
+- 先多生成候选，再只删除无效 reset，最后按目标数量截取，不能运行方法后再清理 test。
 
 建议初始规模：
 
-| Split | 每个 density level | Seed |
-| --- | ---: | --- |
-| train | 在线生成 | `0, 1, 2` 分别训练 |
-| validation | 200 episodes | `100-299` |
-| test | 300 episodes | `1000-1299` |
-| canonical-heldout | 每类 60 episodes | 独立固定 seed |
+| Pool | train | validation | test |
+| --- | ---: | ---: | ---: |
+| standard | 3000 | 500 | 1000 |
+| dense | 6000 | 1000 | 2000 |
+
+正式数量可根据 Gazebo 筛选成本调整，但 test 必须在训练前冻结，并保留所有有效场景。当前仓库中的 `datasets/pilot` 只用于检查生成与回放管线，不是正式论文数据。
 
 ## 5. 方法训练阶段
 
@@ -165,10 +161,10 @@ rho_I = 2 * |E| / (N * (N - 1))
 - 初始化 `delta_pi_D` 为零，初始动作与 `5D` 完全一致。
 - gate 固定为 `g=1`。
 - 只训练 residual 和 Critic，generalist 全冻结。
-- 主训练分布为 procedural medium/high。
+- 主训练分布为固定 `dense/train`。
 - 使用 individual reward；第一版不加入 cooperative reward shaping。
 - residual action 默认限制为 `0.15`，并对 residual magnitude 加正则。
-- best 只根据 validation medium/high 选择，不能看 test。
+- best 只根据 `dense/validation` 选择，不能看 test。
 
 ### S2: 专家互补性审计
 
@@ -199,7 +195,7 @@ Gate 准入条件：
 ### S3: Gate
 
 - 冻结 generalist 和 specialist。
-- 在 low/medium/high 混合分布上训练 gate。
+- 混合固定的 `standard/train` 与 `dense/train` 训练 gate。
 - gate 输入只使用本车最近 `H` 帧 24 维观测。
 - 第一版比较 `H=1` MLP 与 `H=4/8` GRU 或 temporal attention。
 - 输出 soft gate，并加入时间平滑约束，避免动作模式频繁抖动。

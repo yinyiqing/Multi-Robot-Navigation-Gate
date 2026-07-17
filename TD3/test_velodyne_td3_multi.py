@@ -272,7 +272,7 @@ def append_stats(record):
 def current_case_name(env):
     case = getattr(env, "current_curriculum_case", None)
     if isinstance(case, dict):
-        return str(case.get("name") or "unnamed_curriculum_case")
+        return str(case.get("scenario_id") or case.get("name") or "unnamed_curriculum_case")
     return "standard"
 
 
@@ -466,6 +466,9 @@ if dual_actor_enabled:
 else:
     print("Dual actor mode: disabled")
 print("Scenario mode:", scenario_mode)
+if scenario_mode == "manifest":
+    print("Manifest path:", os.environ.get("DRL_MULTI_MANIFEST_PATH", ""))
+    print("Manifest sampling:", os.environ.get("DRL_MULTI_MANIFEST_SAMPLING", "cycle"))
 print("Seed:", seed)
 print("Device:", device)
 if torch.cuda.is_available():
@@ -478,7 +481,7 @@ print("Starting episode:", episode_num)
 print("Starting env steps:", total_env_steps)
 print("Starting agent samples:", total_agent_samples)
 print("Target test episodes:", target_test_episodes or "unlimited")
-if scenario_mode == "curriculum":
+if scenario_mode in ("curriculum", "manifest"):
     print("Case-level stats enabled")
 print("==============================================")
 
