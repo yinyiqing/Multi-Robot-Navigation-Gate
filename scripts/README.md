@@ -20,6 +20,8 @@ bash scripts/experiment.sh stop eval-5d-standard
 | `eval-5d-standard` | `start/stop_test_detached_multi_stage2_to_5d_geo_critic_from_5a_guarded_best.sh` | current |
 | `diag-5d-random-dense` | `start/stop_test_detached_dense5_random_5d.sh` | diagnostic |
 
+固定数据 baseline 使用 `start_test_fixed_v1_5d.sh standard|dense`，两组可通过独立端口并行运行；对应停止入口为 `stop_test_fixed_v1_5d.sh`。
+
 五个 fixed moderate case 暂时仍通过通用 curriculum 测试脚本运行；在 D1-D3 数据协议完成前不把它包装成正式入口。
 
 ## 长脚本命名
