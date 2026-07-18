@@ -487,6 +487,12 @@ class TD3(object):
             "actor_train_mode": self.actor_train_mode,
             "residual_hidden_dim": self.residual_hidden_dim,
             "residual_scale": self.residual_scale,
+            "actor_reference": (
+                self.actor_reference.state_dict()
+                if self.actor_reference is not None
+                else None
+            ),
+            "actor_anchor_weight": self.actor_anchor_weight,
         }
 
     def load_state_dict(self, state):
@@ -504,6 +510,12 @@ class TD3(object):
             self.actor.freeze_base_actor()
             self.residual_scale = self.actor.residual_scale
         self.actor_optimizer.load_state_dict(state["actor_optimizer"])
+        actor_reference = state.get("actor_reference")
+        saved_anchor_weight = float(state.get("actor_anchor_weight", 0.0))
+        if actor_reference is not None and saved_anchor_weight > 0.0:
+            self.set_actor_reference(actor_reference, saved_anchor_weight)
+        else:
+            self.set_actor_reference({}, 0.0)
         self.critic.load_state_dict(state["critic"])
         self.critic_target.load_state_dict(state["critic_target"])
         self.critic_optimizer.load_state_dict(state["critic_optimizer"])

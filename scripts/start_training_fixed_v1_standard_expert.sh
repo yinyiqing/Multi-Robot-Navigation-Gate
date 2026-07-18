@@ -9,6 +9,10 @@ PID_FILE="$PROJECT_ROOT/.train_fixed_v1_standard_expert.pid"
 NUM_AGENTS=5
 MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-standard_expert_5d_fixed_v1}"
 LOAD_MODEL_NAME="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best}"
+LOAD_ACTOR_ONLY="${DRL_MULTI_LOAD_ACTOR_ONLY:-1}"
+ACTOR_ANCHOR_WEIGHT="${DRL_MULTI_ACTOR_ANCHOR_WEIGHT:-0.0}"
+ACTOR_UPDATE_DELAY_STEPS="${DRL_MULTI_LOCAL_CRITIC_ACTOR_UPDATE_DELAY_STEPS:-20000}"
+TRAINING_VERSION="${DRL_MULTI_TRAINING_VERSION:-standard-expert-fixed-v1}"
 ROS_PORT="${DRL_MULTI_TRAIN_ROS_PORT:-11801}"
 GAZEBO_PORT="${DRL_MULTI_TRAIN_GAZEBO_PORT:-11901}"
 MAX_EPOCHS="${DRL_MULTI_MAX_EPOCHS:-1}"
@@ -17,6 +21,10 @@ LAUNCHFILE="multi_robot_scenario_fixed_v1_standard_train_5.launch"
 
 if [[ ! -f "$TD3_DIR/pytorch_models/${LOAD_MODEL_NAME}_actor.pth" ]]; then
   echo "Actor warm start is missing: $TD3_DIR/pytorch_models/${LOAD_MODEL_NAME}_actor.pth"
+  exit 1
+fi
+if [[ "$LOAD_ACTOR_ONLY" == "0" ]] && [[ ! -f "$TD3_DIR/pytorch_models/${LOAD_MODEL_NAME}_critic.pth" ]]; then
+  echo "Critic warm start is missing: $TD3_DIR/pytorch_models/${LOAD_MODEL_NAME}_critic.pth"
   exit 1
 fi
 if [[ -f "$PID_FILE" ]]; then
@@ -51,13 +59,13 @@ setsid bash -lc "
   export DRL_MULTI_MANIFEST_SAMPLING=random
   export DRL_MULTI_TRAIN_FILE_NAME='$MODEL_NAME'
   export DRL_MULTI_LOAD_MODEL=1
-  export DRL_MULTI_LOAD_ACTOR_ONLY=1
+  export DRL_MULTI_LOAD_ACTOR_ONLY=${LOAD_ACTOR_ONLY}
   export DRL_MULTI_LOAD_MODEL_NAME='$LOAD_MODEL_NAME'
   export DRL_MULTI_RESUME_TRAINING=1
   export DRL_MULTI_MAX_EPOCHS=${MAX_EPOCHS}
   export DRL_MULTI_EVAL_EPISODES=${EVAL_EPISODES}
   export DRL_MULTI_BEST_METRIC=full_success
-  export DRL_MULTI_TRAINING_VERSION=standard-expert-fixed-v1
+  export DRL_MULTI_TRAINING_VERSION='$TRAINING_VERSION'
   export DRL_MULTI_ACTOR_TRAIN_MODE=full
   export DRL_MULTI_USE_DYNAMIC_REWARD=1
   export DRL_MULTI_REWARD_MODE=average
@@ -74,7 +82,8 @@ setsid bash -lc "
   export DRL_MULTI_EXPL_MIN=0.012
   export DRL_MULTI_ACTOR_LR=0.000001
   export DRL_MULTI_CRITIC_LR=0.00008
-  export DRL_MULTI_LOCAL_CRITIC_ACTOR_UPDATE_DELAY_STEPS=20000
+  export DRL_MULTI_ACTOR_ANCHOR_WEIGHT=${ACTOR_ANCHOR_WEIGHT}
+  export DRL_MULTI_LOCAL_CRITIC_ACTOR_UPDATE_DELAY_STEPS=${ACTOR_UPDATE_DELAY_STEPS}
   cd '$PROJECT_ROOT/catkin_ws'
   source devel_isolated/setup.bash
   cd '$TD3_DIR'
@@ -87,4 +96,7 @@ echo "PID: $(cat "$PID_FILE")"
 echo "Train manifest: $DATASET_DIR/standard/train.json.gz"
 echo "Eval manifest: $DATASET_DIR/standard/validation.json.gz"
 echo "Max epochs: $MAX_EPOCHS"
+echo "Actor-only warm start: $LOAD_ACTOR_ONLY"
+echo "Actor anchor weight: $ACTOR_ANCHOR_WEIGHT"
+echo "Actor update delay: $ACTOR_UPDATE_DELAY_STEPS"
 echo "Log: $log_file"

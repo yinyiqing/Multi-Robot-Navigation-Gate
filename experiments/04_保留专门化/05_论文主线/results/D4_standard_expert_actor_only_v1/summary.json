@@ -1,0 +1,44 @@
+{
+  "result_version": 1,
+  "status": "failed_diagnostic",
+  "model_id": "standard-expert-actor-only-v1",
+  "initialization": {
+    "actor": "generalist-5d",
+    "critic": "random"
+  },
+  "training": {
+    "actor_learning_rate": 0.000001,
+    "critic_learning_rate": 0.00008,
+    "actor_anchor_weight": 0.0,
+    "actor_update_delay_agent_samples": 20000,
+    "reward_self_weight": 0.8,
+    "reward_neighbor_weight": 0.2
+  },
+  "validation": {
+    "episodes": 100,
+    "sampling": "cycle",
+    "best_epoch": 10,
+    "epochs": {
+      "7": [0.846, 0.138, 0.016, 0.510, 0.080],
+      "8": [0.838, 0.148, 0.014, 0.540, 0.070],
+      "9": [0.848, 0.146, 0.006, 0.560, 0.030],
+      "10": [0.850, 0.148, 0.002, 0.560, 0.010],
+      "11": [0.786, 0.198, 0.016, 0.400, 0.080],
+      "12": [0.746, 0.188, 0.066, 0.250, 0.310]
+    },
+    "columns": [
+      "agent_success",
+      "collision",
+      "unresolved",
+      "full_success",
+      "timeout_episode_rate"
+    ]
+  },
+  "sha256": {
+    "best_epoch_010_actor.pth": "18bad387b0a732b4de1edaf652c9834fd3fb8426d509e5b7c42e367f7fe3984f",
+    "smoke_epoch_001.log": "9f87dfed9a84f4903ee7cab880f4eede51c7dc8c5d953d4e8d6a3b8f04423a00",
+    "train_epoch_002_to_006.log": "4b50c44db1c939fa73baa0767e3e22c3fc868a63c672a22536f70dd0f0550287",
+    "train_epoch_007_to_012.log": "d423e0e67afef13ca2fcbaaab65a1d4dee86e58a64864d35a5975026f970f979",
+    "validation_epoch_007_to_012.npy": "1a48a1f54ac66d0beb0bce44f0a02330ec31b8a572c384d782869d34fb304b6f"
+  }
+}
