@@ -1,10 +1,10 @@
 # ICRA Paper Protocol: Preserve-and-Specialize
 
-状态：`D2 standard/dense 固定数据已冻结，等待固定 manifest baseline`。
+状态：`D3 fixed-v1 generalist baseline 已完成，下一步进入 specialist`。
 
 在本协议的 `D1-D3` 完成前，不启动新的 Actor 或 gate 训练。后续若改变方法主张、dense 定义、数据划分或主指标，先修改本协议，再改代码和脚本。
 
-执行进度（2026-07-17）：`eval-5d-standard` 已完成 1000 episodes，结果为 agent success `0.8816`、collision `0.0990`、unresolved `0.0194`、full success `0.5690`。这是 D3 的 standard 子项，不代表 D3 完成；完整归档见 [D3 generalist baseline](results/D3_generalist_baseline/README.md)。当前仍只推进 D1。
+执行进度（2026-07-18）：`generalist-5d` 已完成 fixed-v1 standard 1000 场和 dense 2000 场。standard full success `0.5750`，dense `0.2795`；完整归档见 [D3 fixed-v1 baseline](results/D3_fixed_v1_generalist_baseline/README.md)。
 
 现有 standard、random dense 和五个 fixed moderate case 的参数与结果汇总见 [场景对照](SCENARIO_COMPARISON.md)。
 
@@ -300,14 +300,14 @@ success + collision + unresolved = N * episodes
 - `D0`：本协议确认。
 - `D1`：scenario manifest、冲突图计算和程序化生成器完成并单测。
 - `D2`：固定数据划分生成，检查 density 分布和场景有效性。
-- `D3`：修复口径下的 generalist baseline 完成。standard 子项已完成；density sweep 和 held-out 待 D1-D2 后补齐。
+- `D3`：修复口径下的 fixed-v1 standard/dense generalist baseline 完成。
 - `D4`：specialist 训练与三 seed 复现。
 - `D5`：互补性达到 gate 准入条件。
 - `D6`：gate 训练。
 - `D7`：完整基线、消融、泛化和统计检验。
 - `D8`：论文图表冻结。
 
-当前只允许推进到 `D1`，不启动 residual 或 gate 训练。
+当前允许进入 `D4` specialist 训练；gate 仍需等待 D5 互补性审计通过。
 
 ## 11. 预期贡献表述
 

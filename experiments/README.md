@@ -32,10 +32,11 @@
 | 实验 ID | 模型 | 场景 | 状态 | 目的 |
 | --- | --- | --- | --- | --- |
 | `eval-5d-standard` | `generalist-5d` | `standard-5` | `complete` | 1000 episodes: agent `0.8816`, full `0.5690` |
+| `eval-5d-fixed-v1` | `generalist-5d` | fixed standard/dense | `complete` | standard full `0.5750`; dense full `0.2795` |
 | `diag-5d-random-dense` | `generalist-5d` | `random-dense-5` | `diagnostic` | 仅区分 spatial density 与 interaction density |
 | `eval-5d-canonical-moderate` | `generalist-5d` | 五个 fixed moderate cases | `baseline` | held-out interaction failure baseline |
-| `train-residual-specialist` | `generalist-5d + residual` | procedural medium/high | `planned` | D1-D3 完成后才允许训练 |
-| `train-temporal-gate` | generalist + specialist | low/medium/high mix | `planned` | 专家互补性达到 D5 后才允许训练 |
+| `train-residual-specialist` | `generalist-5d + residual` | fixed dense/train | `next` | D3 已完成，可以进入 D4 |
+| `train-temporal-gate` | generalist + specialist | fixed standard/dense mix | `planned` | 专家互补性达到 D5 后才允许训练 |
 
 ## 阅读顺序
 

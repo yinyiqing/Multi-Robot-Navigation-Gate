@@ -40,10 +40,10 @@
 ```text
 D1  实现 conflict graph、standard/dense 生成器和 manifest 回放（已完成）
 D2  完成 Gazebo 有效性筛选并冻结两个场景池的 train/validation/test（已完成）
-D3  在固定 test manifest 上重跑 generalist-5d baseline
+D3  在固定 test manifest 上重跑 generalist-5d baseline（已完成）
 ```
 
-`D1-D3` 完成前不启动 residual 或 gate 训练。相关脚本虽然已经有结构脚手架，但不属于当前可执行入口。
+现在允许推进 specialist；gate 仍必须等待 paired evaluation 证明专家互补。
 
 ## 名称
 

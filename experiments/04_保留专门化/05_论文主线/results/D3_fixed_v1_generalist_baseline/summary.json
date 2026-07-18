@@ -1,0 +1,60 @@
+{
+  "result_version": 1,
+  "status": "complete",
+  "model_id": "generalist-5d",
+  "actor_file": "TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best_actor.pth",
+  "actor_sha256": "51e31499a8e7ec88a80e2ff657f74b3d14a64168c2afab9361c6cbe770818ff0",
+  "launch_commit": "d1d0836",
+  "bootstrap": {
+    "samples": 20000,
+    "seed": 20260718,
+    "unit": "episode"
+  },
+  "npy_columns": [
+    "episode_num",
+    "cumulative_env_steps",
+    "cumulative_agent_samples",
+    "episode_env_steps",
+    "episode_agent_samples",
+    "mean_reward",
+    "success_count",
+    "collision_count",
+    "full_success",
+    "mean_final_distance",
+    "unresolved_count",
+    "timeout_episode",
+    "scenario_id"
+  ],
+  "pools": {
+    "standard": {
+      "episodes": 1000,
+      "agents": 5000,
+      "success": 4314,
+      "collision": 672,
+      "unresolved": 14,
+      "full_success": 575,
+      "timeout_episodes": 14,
+      "mean_episode_steps": 42.174,
+      "mean_reward": 99.6176230869,
+      "mean_final_distance_m": 0.3947822197,
+      "manifest_sha256": "699bc7237debadecb59400adafc075f20a4cc1fe5642ba82b74196d221ab35f8",
+      "log_sha256": "4363d333383ff3f98ead69967931cbc18aa226a9ac149c67983390e781ffd081",
+      "npy_sha256": "7c0f50b25f6991c708ced187c46419d5f5b8486b9a1b5ab88be136de8ce27788"
+    },
+    "dense": {
+      "episodes": 2000,
+      "agents": 10000,
+      "success": 6976,
+      "collision": 3022,
+      "unresolved": 2,
+      "full_success": 559,
+      "timeout_episodes": 2,
+      "mean_episode_steps": 25.8905,
+      "mean_reward": 58.6660569232,
+      "mean_final_distance_m": 0.4737439482,
+      "manifest_sha256": "03a744048102d7310db026e399e41c4ce664ed31b180438b2a2b519c78133eab",
+      "log_sha256": "9d7da526069f41d57862d8576fc841ad91be6edf41b7ce3ba959564290affc4c",
+      "npy_sha256": "7ed54c2c2a7c0cf90a7edcd6057aa747a536cac6e69ba237bc2970008855e8ba"
+    }
+  }
+}
