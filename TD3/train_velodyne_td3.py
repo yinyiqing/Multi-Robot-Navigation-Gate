@@ -12,6 +12,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from critic_models import Critic
 from replay_buffer import ReplayBuffer
+from training_utils import replay_done
 from velodyne_env import GazeboEnv
 
 
@@ -455,7 +456,7 @@ while timestep < max_timesteps:
 
     a_in = [(action[0] + 1) / 2, action[1]]
     next_state, reward, done, target = env.step(a_in)
-    done_bool = 0 if episode_timesteps + 1 == max_ep else int(done)
+    done_bool = replay_done(episode_timesteps + 1 == max_ep, done)
     done = 1 if episode_timesteps + 1 == max_ep else int(done)
     episode_reward += reward
 
