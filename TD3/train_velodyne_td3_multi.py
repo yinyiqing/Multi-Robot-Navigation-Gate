@@ -13,6 +13,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from actor_models import Actor, ResidualActor, is_residual_actor_state_dict
 from critic_models import Critic
+from evaluation_protocol import build_eval_protocol_id, reconcile_evaluation_state
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
 from outcome_utils import resolve_terminal_outcome
 from replay_buffer import ReplayBuffer
@@ -592,6 +593,12 @@ if scenario_mode == "manifest" and not eval_manifest_path:
         "DRL_MULTI_EVAL_MANIFEST_PATH must point to validation data when "
         "DRL_MULTI_SCENARIO=manifest"
     )
+eval_protocol_id = build_eval_protocol_id(
+    scenario_mode=scenario_mode,
+    eval_manifest_path=eval_manifest_path,
+    eval_episodes=eval_ep,
+    max_episode_steps=max_ep,
+)
 use_distance_weighted_reward = env_flag(
     "DRL_MULTI_USE_DISTANCE_WEIGHTED_REWARD", False
 )
@@ -698,6 +705,8 @@ def save_training_checkpoint(
             "expl_noise": expl_noise_value,
             "best_eval_summary": best_eval_summary,
             "best_epoch": best_epoch,
+            "eval_protocol_id": eval_protocol_id,
+            "evaluation_history": evaluation_history,
         },
         path,
     )
@@ -818,7 +827,14 @@ elif load_model:
     except Exception as exc:
         print("Could not load the stored model parameters, initializing randomly")
         print("Load error:", exc)
-evaluations = checkpoint["evaluations"] if checkpoint else []
+(
+    evaluations,
+    best_eval_summary,
+    best_epoch,
+    evaluation_history,
+    eval_protocol_reset,
+    previous_eval_protocol_id,
+) = reconcile_evaluation_state(checkpoint, eval_protocol_id)
 timestep = checkpoint["timestep"] if checkpoint else 0
 env_step_count = checkpoint["env_step_count"] if checkpoint else 0
 timesteps_since_eval = checkpoint["timesteps_since_eval"] if checkpoint else 0
@@ -829,8 +845,6 @@ if checkpoint:
 else:
     epoch = 1
 expl_noise = checkpoint["expl_noise"] if checkpoint else expl_noise
-best_eval_summary = checkpoint.get("best_eval_summary") if checkpoint else None
-best_epoch = checkpoint.get("best_epoch") if checkpoint else None
 skip_episode_summary_once = checkpoint is not None
 train_start_time = time.time()
 
@@ -881,6 +895,14 @@ print("Local critic max neighbors:", local_critic_max_neighbors)
 print("Local critic context dim:", critic_context_dim)
 print("Best metric:", best_metric)
 print("Eval episodes:", eval_ep)
+print("Eval protocol ID:", eval_protocol_id)
+if eval_protocol_reset:
+    print(
+        "Eval history reset because protocol changed:",
+        previous_eval_protocol_id or "legacy-unversioned",
+        "->",
+        eval_protocol_id,
+    )
 print("Max epochs:", max_epochs or "unlimited")
 print("Actor learning rate:", actor_lr)
 print("Actor train mode:", network.actor_train_mode)
@@ -1277,6 +1299,9 @@ while timestep < max_timesteps:
                 epoch,
             )
             network.save(file_name, directory="./pytorch_models")
+            epoch_model_name = f"{file_name}_epoch_{epoch:03d}"
+            network.save(epoch_model_name, directory="./pytorch_models")
+            print("Epoch model snapshot saved:", epoch_model_name)
             np.save("./results/%s" % file_name, evaluations)
             save_training_checkpoint(
                 network,
@@ -1576,6 +1601,9 @@ network.writer.add_scalar(
 )
 if save_model:
     network.save("%s" % file_name, directory="./pytorch_models")
+    epoch_model_name = f"{file_name}_epoch_{epoch:03d}"
+    network.save(epoch_model_name, directory="./pytorch_models")
+    print("Epoch model snapshot saved:", epoch_model_name)
 np.save("./results/%s" % file_name, evaluations)
 save_training_checkpoint(
     network,
