@@ -49,6 +49,7 @@ start|stop _ training|test _ detached _ <historical-run-name>.sh
 - `audit_fixed_scenarios.py`：检查固定清单 schema、split 互斥性和 Gazebo 标记。
 - `start_training_fixed_v1_standard_expert.sh`：从 5D warm-start 训练 standard expert，可通过环境变量设置短检查或正式训练轮数。
 - `start_training_fixed_v1_standard_expert_v2.sh`：完整加载 5D Actor/Critic，保留 0.8/0.2 reward，并使用 Actor anchor 的 v2 实验入口。
+- `start_training_fixed_v1_standard_expert_v3.sh`：只验证 timeout terminal 和 Critic 更新比例修复的 3-epoch v3 入口。
 - `stop_training_fixed_v1_standard_expert.sh`：停止 standard expert 训练进程组。
 - 训练 checkpoint 会按 validation 协议隔离 best，并在每轮验证后保存独立的 `epoch_NNN` 模型快照。
 - 多机器人训练中 timeout transition 记为 terminal，Critic 更新按有效 agent samples 归一化；旧训练结果不与修复后结果混合。
