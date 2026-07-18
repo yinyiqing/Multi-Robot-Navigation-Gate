@@ -18,7 +18,25 @@ from outcome_utils import resolve_terminal_outcome
 from replay_buffer import ReplayBuffer
 
 
-def evaluate(network, env, epoch, eval_episodes=10):
+def evaluate(network, env, epoch, eval_episodes=10, eval_manifest_path=None):
+    previous_manifest_path = getattr(env, "manifest_path", None)
+    previous_manifest_sampling = os.environ.get("DRL_MULTI_MANIFEST_SAMPLING")
+    try:
+        if eval_manifest_path:
+            os.environ["DRL_MULTI_MANIFEST_SAMPLING"] = "cycle"
+            env.set_manifest_path(eval_manifest_path)
+        return _evaluate_current_manifest(network, env, epoch, eval_episodes)
+    finally:
+        if eval_manifest_path:
+            if previous_manifest_sampling is None:
+                os.environ.pop("DRL_MULTI_MANIFEST_SAMPLING", None)
+            else:
+                os.environ["DRL_MULTI_MANIFEST_SAMPLING"] = previous_manifest_sampling
+            if previous_manifest_path:
+                env.set_manifest_path(previous_manifest_path)
+
+
+def _evaluate_current_manifest(network, env, epoch, eval_episodes=10):
     previous_mode = env.cooperative_reward
     previous_anti_stagnation = env.anti_stagnation_reward
     previous_wall_clearance = env.wall_clearance_reward
@@ -568,6 +586,12 @@ local_critic_max_neighbors = max(local_critic_max_agents - 1, 1)
 local_critic_feature_dim = 5 if local_critic_geometry_only else 7
 best_metric = os.environ.get("DRL_MULTI_BEST_METRIC", "success").strip().lower()
 scenario_mode = os.environ.get("DRL_MULTI_SCENARIO", "standard").strip().lower()
+eval_manifest_path = os.environ.get("DRL_MULTI_EVAL_MANIFEST_PATH", "").strip()
+if scenario_mode == "manifest" and not eval_manifest_path:
+    raise ValueError(
+        "DRL_MULTI_EVAL_MANIFEST_PATH must point to validation data when "
+        "DRL_MULTI_SCENARIO=manifest"
+    )
 use_distance_weighted_reward = env_flag(
     "DRL_MULTI_USE_DISTANCE_WEIGHTED_REWARD", False
 )
@@ -818,6 +842,7 @@ print("Scenario mode:", scenario_mode)
 if scenario_mode == "manifest":
     print("Manifest path:", os.environ.get("DRL_MULTI_MANIFEST_PATH", ""))
     print("Manifest sampling:", os.environ.get("DRL_MULTI_MANIFEST_SAMPLING", "cycle"))
+    print("Eval manifest path:", eval_manifest_path)
 print("Seed:", seed)
 print("Device:", device)
 if torch.cuda.is_available():
@@ -1203,7 +1228,11 @@ while timestep < max_timesteps:
             )
             timesteps_since_eval %= eval_freq
             last_eval_summary = evaluate(
-                network=network, env=env, epoch=epoch, eval_episodes=eval_ep
+                network=network,
+                env=env,
+                epoch=epoch,
+                eval_episodes=eval_ep,
+                eval_manifest_path=eval_manifest_path,
             )
             evaluations.append(
                 [
@@ -1504,7 +1533,13 @@ if max_epochs and epoch > max_epochs:
     print("Training stopped after reaching configured max epochs.")
     sys.exit(0)
 
-last_eval_summary = evaluate(network=network, env=env, epoch=epoch, eval_episodes=eval_ep)
+last_eval_summary = evaluate(
+    network=network,
+    env=env,
+    epoch=epoch,
+    eval_episodes=eval_ep,
+    eval_manifest_path=eval_manifest_path,
+)
 evaluations.append(
     [
         last_eval_summary["avg_reward"],

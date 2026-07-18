@@ -35,8 +35,9 @@
 | `eval-5d-fixed-v1` | `generalist-5d` | fixed standard/dense | `complete` | standard full `0.5750`; dense full `0.2795` |
 | `diag-5d-random-dense` | `generalist-5d` | `random-dense-5` | `diagnostic` | 仅区分 spatial density 与 interaction density |
 | `eval-5d-canonical-moderate` | `generalist-5d` | 五个 fixed moderate cases | `baseline` | held-out interaction failure baseline |
-| `train-residual-specialist` | `generalist-5d + residual` | fixed dense/train | `next` | D3 已完成，可以进入 D4 |
-| `train-temporal-gate` | generalist + specialist | fixed standard/dense mix | `planned` | 专家互补性达到 D5 后才允许训练 |
+| `train-standard-expert` | 5D warm-start full Actor | fixed standard/train | `ready` | smoke 已通过，下一步建立可接受的普通场景专家 |
+| `train-dense-expert` | 5D warm-start full Actor | fixed dense/train | `planned` | standard expert 流程稳定后启动 |
+| `train-temporal-gate` | standard + dense experts | fixed standard/dense mix | `planned` | 专家互补性达到 D5 后才允许训练 |
 
 ## 阅读顺序
 

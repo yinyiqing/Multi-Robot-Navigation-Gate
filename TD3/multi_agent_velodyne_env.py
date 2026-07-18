@@ -393,6 +393,34 @@ class MultiAgentGazeboEnv:
         self.manifest_dataset_id = str(payload.get("dataset_id", "unknown"))
         return validate_manifest_scenarios(payload["scenarios"], self.agent_names)
 
+    def set_manifest_path(self, manifest_path):
+        """Switch fixed cases on the existing Gazebo instance without respawning it."""
+        if self.scenario_mode != "manifest":
+            raise ValueError("set_manifest_path requires scenario_mode=manifest")
+        manifest_path = os.path.abspath(os.path.expanduser(str(manifest_path)))
+        previous_path = os.environ.get("DRL_MULTI_MANIFEST_PATH")
+        os.environ["DRL_MULTI_MANIFEST_PATH"] = manifest_path
+        try:
+            cases = self._load_manifest_cases()
+        finally:
+            if previous_path is None:
+                os.environ.pop("DRL_MULTI_MANIFEST_PATH", None)
+            else:
+                os.environ["DRL_MULTI_MANIFEST_PATH"] = previous_path
+        self.curriculum_cases = cases
+        self.curriculum_case_index = 0
+        self.current_curriculum_case = None
+        sampling = os.environ.get("DRL_MULTI_MANIFEST_SAMPLING", "cycle")
+        print(
+            "Manifest switched: %s | scenarios=%i | sampling=%s | path=%s"
+            % (
+                self.manifest_dataset_id,
+                len(cases),
+                sampling,
+                self.manifest_path,
+            )
+        )
+
     def _current_case_uses_standard_layout(self):
         return bool(
             self.scenario_mode == "curriculum"

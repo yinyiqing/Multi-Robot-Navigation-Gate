@@ -14,7 +14,7 @@
   -> 5A + 5D switch/oracle：专家互补性不足
 ```
 
-因此当前假设是：冻结 `generalist-5d`，只学习幅度受限的 residual specialist；只有 paired evaluation 证明专家互补后，才训练 temporal gate。
+因此当前假设是：保留 `generalist-5d` 作为共同初始化和 baseline，分别训练完整的 standard expert 与 dense expert；只有 paired evaluation 证明专家互补后，才训练 temporal gate。
 
 ## 子目录角色
 
@@ -49,7 +49,7 @@ D3  在固定 test manifest 上重跑 generalist-5d baseline（已完成）
 
 新文档统一使用短 ID：
 
-- 模型：`generalist-5d`, `residual-specialist`, `temporal-gate`
+- 模型：`generalist-5d`, `standard-expert`, `dense-expert`, `temporal-gate`
 - 场景池：`standard`, `dense`
 - 当前评估：`eval-5d-standard`
 
