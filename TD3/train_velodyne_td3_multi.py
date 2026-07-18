@@ -17,6 +17,7 @@ from evaluation_protocol import build_eval_protocol_id, reconcile_evaluation_sta
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
 from outcome_utils import resolve_terminal_outcome
 from replay_buffer import ReplayBuffer
+from training_utils import episode_train_iterations, replay_done
 
 
 def evaluate(network, env, epoch, eval_episodes=10, eval_manifest_path=None):
@@ -1023,7 +1024,9 @@ def is_better_eval(candidate, current_best):
 while timestep < max_timesteps:
     if episode_done:
         if timestep != 0 and not skip_episode_summary_once:
-            train_iterations = max(episode_timesteps, 1)
+            train_iterations = episode_train_iterations(
+                episode_sample_count, len(agent_names)
+            )
             if use_local_critic:
                 network.train_local_critic(
                     replay_buffer,
@@ -1514,7 +1517,7 @@ while timestep < max_timesteps:
     for idx in range(len(agent_names)):
         if not active_mask[idx]:
             continue
-        done_bool = 0 if truncated else int(dones[idx])
+        done_bool = replay_done(truncated, dones[idx])
         if use_local_critic:
             replay_buffer.add_local_critic(
                 states[idx],

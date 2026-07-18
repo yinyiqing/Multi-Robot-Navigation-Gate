@@ -24,6 +24,8 @@
 
 同一协议内 best 为 epoch 10，但没有证明高于原始 5D；epoch 11-12 出现明显策略漂移和超时崩坏。该模型不得作为最终 standard expert，也不得读取 standard test。
 
+诊断发现：v1 使用的训练代码把 300 步 timeout transition 写成 `done=0`，并按环境步数而不是有效 agent samples 更新 Critic。该问题已在后续训练代码修复，v1 结果不应与修复后的实验混合比较。
+
 ## 文件
 
 - `smoke_epoch_001.log`：10 场随机 validation 的管线检查，不参与正式 best。

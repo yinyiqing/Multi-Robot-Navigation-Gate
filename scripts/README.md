@@ -51,6 +51,7 @@ start|stop _ training|test _ detached _ <historical-run-name>.sh
 - `start_training_fixed_v1_standard_expert_v2.sh`：完整加载 5D Actor/Critic，保留 0.8/0.2 reward，并使用 Actor anchor 的 v2 实验入口。
 - `stop_training_fixed_v1_standard_expert.sh`：停止 standard expert 训练进程组。
 - 训练 checkpoint 会按 validation 协议隔离 best，并在每轮验证后保存独立的 `epoch_NNN` 模型快照。
+- 多机器人训练中 timeout transition 记为 terminal，Critic 更新按有效 agent samples 归一化；旧训练结果不与修复后结果混合。
 - 当前映射表中的 start/stop：受支持的底层入口。
 - 其他 start/stop：历史复现入口，不代表当前建议。
 - residual/gate 脚本：脚手架；论文协议允许前不得执行。
