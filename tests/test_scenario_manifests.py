@@ -98,6 +98,35 @@ class ScenarioManifestTests(unittest.TestCase):
             payload = load_manifest_dataset(path)
             self.assertEqual(len(payload["scenarios"]), 1)
 
+    def test_edge1_pilot_views_are_balanced_and_disjoint(self):
+        view_root = (
+            ROOT
+            / "experiments/04_保留专门化/05_论文主线/datasets/fixed_v1/views/edge1_pilot"
+        )
+        train = load_manifest_dataset(view_root / "train.json.gz")["scenarios"]
+        validation = load_manifest_dataset(view_root / "validation.json.gz")["scenarios"]
+
+        self.assertEqual(len(train), 512)
+        self.assertEqual(len(validation), 423)
+        self.assertEqual(sum(item["preset"] == "standard" for item in train), 256)
+        self.assertEqual(sum(item["preset"] == "dense" for item in train), 256)
+        self.assertEqual(
+            sum(item["preset"] == "standard" for item in validation), 212
+        )
+        self.assertEqual(sum(item["preset"] == "dense" for item in validation), 211)
+        self.assertTrue(
+            all(item["metrics"]["conflict_edge_count"] == 1 for item in train)
+        )
+        self.assertTrue(
+            all(
+                item["metrics"]["conflict_edge_count"] == 1
+                for item in validation
+            )
+        )
+        train_ids = {item["scenario_id"] for item in train}
+        validation_ids = {item["scenario_id"] for item in validation}
+        self.assertFalse(train_ids & validation_ids)
+
 
 if __name__ == "__main__":
     unittest.main()
