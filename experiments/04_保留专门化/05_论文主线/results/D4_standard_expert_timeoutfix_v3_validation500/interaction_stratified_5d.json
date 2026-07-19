@@ -1,0 +1,59 @@
+{
+  "result_version": 1,
+  "source_model": "generalist_5d",
+  "source_manifest": "standard/validation",
+  "source_episodes": 500,
+  "classification": {
+    "low_interaction": "conflict_edge_count == 0",
+    "interaction": "conflict_edge_count > 0"
+  },
+  "bootstrap": {
+    "resamples": 20000,
+    "seed": 20260719
+  },
+  "strata": {
+    "low_interaction": {
+      "episodes": 206,
+      "agents": 1030,
+      "agent_success_count": 997,
+      "agent_success": 0.9679611650485436,
+      "agent_success_95ci": [0.95631068, 0.97864078],
+      "collision_count": 30,
+      "collision": 0.02912621359223301,
+      "unresolved_count": 3,
+      "unresolved": 0.0029126213592233015,
+      "full_success_count": 176,
+      "full_success": 0.8543689320388349,
+      "full_success_95ci": [0.80582524, 0.89805825],
+      "timeout_count": 3,
+      "timeout": 0.014563106796116505,
+      "mean_steps": 40.27669902912621,
+      "median_steps": 33.0
+    },
+    "interaction": {
+      "episodes": 294,
+      "agents": 1470,
+      "agent_success_count": 1197,
+      "agent_success": 0.8142857142857142,
+      "agent_success_95ci": [0.79319728, 0.83537415],
+      "collision_count": 268,
+      "collision": 0.18231292517006803,
+      "unresolved_count": 5,
+      "unresolved": 0.003401360544217687,
+      "full_success_count": 125,
+      "full_success": 0.42517006802721086,
+      "full_success_95ci": [0.3707483, 0.4829932],
+      "timeout_count": 5,
+      "timeout": 0.017006802721088437,
+      "mean_steps": 43.965986394557824,
+      "median_steps": 34.0
+    }
+  },
+  "by_conflict_edge_count": {
+    "0": {"episodes": 206, "agent_success": 0.9679611650485436, "collision": 0.02912621359223301, "full_success": 0.8543689320388349, "mean_steps": 40.27669902912621},
+    "1": {"episodes": 212, "agent_success": 0.8433962264150943, "collision": 0.15471698113207547, "full_success": 0.49056603773584906, "mean_steps": 42.089622641509436},
+    "2": {"episodes": 70, "agent_success": 0.7571428571428569, "collision": 0.23428571428571426, "full_success": 0.2714285714285714, "mean_steps": 51.25714285714286},
+    "3": {"episodes": 10, "agent_success": 0.6599999999999999, "collision": 0.33999999999999997, "full_success": 0.2, "mean_steps": 36.8},
+    "4": {"episodes": 2, "agent_success": 0.5, "collision": 0.5, "full_success": 0.0, "mean_steps": 23.5}
+  }
+}
