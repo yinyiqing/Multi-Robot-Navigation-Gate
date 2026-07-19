@@ -1,0 +1,46 @@
+{
+  "result_version": 1,
+  "status": "rejected_candidate",
+  "model_id": "interaction-expert-edge1-residual-pilot-s20260720",
+  "train_scenarios": 512,
+  "validation_scenarios": 423,
+  "epochs": {
+    "1": {
+      "actor_state": "frozen_5d_zero_residual",
+      "agent_success": 0.8439716312056738,
+      "collision": 0.15460992907801419,
+      "unresolved": 0.0014184397163120568,
+      "full_success": 0.5130023640661938,
+      "timeout": 0.007092198581560284,
+      "mean_steps": 36.83451536643026
+    },
+    "2": {
+      "actor_state": "trained_residual",
+      "agent_success": 0.8274231678486997,
+      "collision": 0.17210401891252955,
+      "unresolved": 0.00047281323877068556,
+      "full_success": 0.47044917257683216,
+      "timeout": 0.002364066193853428,
+      "mean_steps": 34.02127659574468
+    }
+  },
+  "residual_diagnostic": {
+    "replay_states": 80045,
+    "raw_residual_mean": [0.10006752, -0.10006698],
+    "raw_residual_mean_absolute": [0.10006752, 0.10006698],
+    "clipped_action_delta_mean_absolute": [0.02415473, 0.05981247],
+    "changed_state_share": 0.931838340933225,
+    "last_100_mean_q": 72.72962890625,
+    "last_100_mean_max_q": 135.0063919067383
+  },
+  "decision": "stop_current_residual_td3_configuration",
+  "sha256": {
+    "epoch001_best_actor.pth": "9cce0074814d301e180580e1a8146d1b7967495214fb8985c9362ecee4fef925",
+    "epoch001_best_critic.pth": "489e1bc6b1a057e446b2b89a01c0dd1acb574367747266ea26b6e743259b231b",
+    "epoch002_actor.pth": "e0fee0eef09c825ba0e99664e8710840489415a2c744bd6ff8c190fa7915167b",
+    "epoch002_critic.pth": "e4ec63eaee755ebfed155c77e15dc4ff6d81ded58efa368490623748135e776a",
+    "evaluations.npy": "35dd2dce12febcd32b395b7a43807c346be0540c214fe40cf59188c017221574",
+    "tensorboard.tfevents": "e72f6fc17612c997962cd708b0a913228cbc4f075d1f316600dd37fed6501b15",
+    "train.log": "6603785f75acd78a43c2e38b7e5ab4cfbada4e9fb19cc95ccfbde3514ba08791"
+  }
+}
