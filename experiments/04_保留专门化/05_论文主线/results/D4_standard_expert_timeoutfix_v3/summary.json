@@ -1,0 +1,36 @@
+{
+  "result_version": 1,
+  "status": "promising_diagnostic_not_accepted",
+  "model_id": "standard-expert-timeoutfix-v3",
+  "initialization": "generalist-5d-actor-and-critic",
+  "fixes": [
+    "timeout_transition_is_terminal",
+    "critic_updates_normalized_by_agent_samples"
+  ],
+  "validation": {
+    "episodes": 100,
+    "sampling": "cycle",
+    "best_epoch": 2,
+    "columns": [
+      "agent_success",
+      "collision",
+      "unresolved",
+      "full_success",
+      "timeout_episode_rate"
+    ],
+    "epochs": {
+      "1": [0.870, 0.130, 0.000, 0.580, 0.000],
+      "2": [0.882, 0.114, 0.004, 0.620, 0.020],
+      "3": [0.870, 0.124, 0.006, 0.530, 0.030]
+    }
+  },
+  "actor_delta_from_5d": {
+    "epoch_2_mean_absolute": 0.000016405911328078925,
+    "epoch_2_max_absolute": 0.0004846155643463135
+  },
+  "sha256": {
+    "best_epoch_002_actor.pth": "50da5b3c45c02e5d4a1eeb0f94ba791ecb2ba884b731981099093578c0379ffd",
+    "train_epoch_001_to_003.log": "9c157623bf9e497fc5b7827c20a9a7a900ec487beb911ed93b3ca3f2660f0be8",
+    "validation_epoch_001_to_003.npy": "5b7a1ffed2febd91a70c687118980cb33cd3bbd80d354f3f43e7953e60380bd9"
+  }
+}

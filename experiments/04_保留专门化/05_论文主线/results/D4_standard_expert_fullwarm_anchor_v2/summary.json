@@ -1,0 +1,19 @@
+{
+  "result_version": 1,
+  "status": "failed_diagnostic",
+  "model_id": "standard-expert-fullwarm-anchor-v2",
+  "validation_episodes": 100,
+  "best_epoch": 1,
+  "epochs": {
+    "1": [0.864, 0.134, 0.002, 0.530, 0.010],
+    "2": [0.850, 0.140, 0.010, 0.520, 0.050],
+    "3": [0.818, 0.158, 0.024, 0.450, 0.110]
+  },
+  "columns": [
+    "agent_success",
+    "collision",
+    "unresolved",
+    "full_success",
+    "timeout_episode_rate"
+  ]
+}
