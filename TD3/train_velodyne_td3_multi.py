@@ -12,6 +12,7 @@ from numpy import inf
 from torch.utils.tensorboard import SummaryWriter
 
 from actor_models import Actor, ResidualActor, is_residual_actor_state_dict
+from actor_objectives import conservative_actor_objective
 from critic_models import Critic
 from evaluation_protocol import build_eval_protocol_id, reconcile_evaluation_state
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
@@ -179,6 +180,7 @@ class TD3(object):
         actor_train_mode="full",
         residual_hidden_dim=128,
         residual_scale=0.15,
+        actor_q_normalization_alpha=0.0,
     ):
         self.state_dim = state_dim
         self.critic_state_dim = critic_state_dim or state_dim
@@ -186,6 +188,9 @@ class TD3(object):
         self.residual_hidden_dim = int(residual_hidden_dim)
         self.residual_scale = float(residual_scale)
         self.actor_train_mode = (actor_train_mode or "full").strip().lower()
+        self.actor_q_normalization_alpha = float(actor_q_normalization_alpha)
+        if self.actor_q_normalization_alpha < 0.0:
+            raise ValueError("actor_q_normalization_alpha must be non-negative")
         self.actor = self._make_actor().to(device)
         self.actor_target = self._make_actor().to(device)
         self.actor_target.load_state_dict(self.actor.state_dict())
@@ -274,6 +279,8 @@ class TD3(object):
         max_Q = -inf
         av_loss = 0
         av_actor_anchor_loss = 0
+        av_actor_q_scale = 0
+        actor_update_count = 0
         for it in range(iterations):
             (
                 batch_states,
@@ -310,17 +317,23 @@ class TD3(object):
                 if update_actor:
                     actor_action = self.actor(state)
                     actor_grad, _ = self.critic(state, actor_action)
-                    actor_loss = -actor_grad.mean()
-                    anchor_loss = torch.tensor(0.0, device=device)
+                    reference_action = None
                     if self.actor_reference is not None and self.actor_anchor_weight > 0.0:
                         with torch.no_grad():
                             reference_action = self.actor_reference(state)
-                        anchor_loss = F.mse_loss(actor_action, reference_action)
-                        actor_loss = actor_loss + self.actor_anchor_weight * anchor_loss
+                    actor_loss, anchor_loss, q_scale = conservative_actor_objective(
+                        actor_grad,
+                        actor_action,
+                        reference_action,
+                        self.actor_q_normalization_alpha,
+                        self.actor_anchor_weight,
+                    )
                     self.actor_optimizer.zero_grad()
                     actor_loss.backward()
                     self.actor_optimizer.step()
                     av_actor_anchor_loss += anchor_loss.item()
+                    av_actor_q_scale += q_scale.item()
+                    actor_update_count += 1
 
                     for param, target_param in zip(
                         self.actor.parameters(), self.actor_target.parameters()
@@ -345,6 +358,11 @@ class TD3(object):
         self.writer.add_scalar(
             "Actor anchor loss", av_actor_anchor_loss / iterations, self.iter_count
         )
+        self.writer.add_scalar(
+            "Actor Q normalization scale",
+            av_actor_q_scale / max(actor_update_count, 1),
+            self.iter_count,
+        )
 
     def train_local_critic(
         self,
@@ -362,6 +380,8 @@ class TD3(object):
         max_Q = -inf
         av_loss = 0
         av_actor_anchor_loss = 0
+        av_actor_q_scale = 0
+        actor_update_count = 0
         for it in range(iterations):
             (
                 batch_states,
@@ -402,17 +422,23 @@ class TD3(object):
                 if update_actor:
                     actor_action = self.actor(state)
                     actor_grad, _ = self.critic(critic_state, actor_action)
-                    actor_loss = -actor_grad.mean()
-                    anchor_loss = torch.tensor(0.0, device=device)
+                    reference_action = None
                     if self.actor_reference is not None and self.actor_anchor_weight > 0.0:
                         with torch.no_grad():
                             reference_action = self.actor_reference(state)
-                        anchor_loss = F.mse_loss(actor_action, reference_action)
-                        actor_loss = actor_loss + self.actor_anchor_weight * anchor_loss
+                    actor_loss, anchor_loss, q_scale = conservative_actor_objective(
+                        actor_grad,
+                        actor_action,
+                        reference_action,
+                        self.actor_q_normalization_alpha,
+                        self.actor_anchor_weight,
+                    )
                     self.actor_optimizer.zero_grad()
                     actor_loss.backward()
                     self.actor_optimizer.step()
                     av_actor_anchor_loss += anchor_loss.item()
+                    av_actor_q_scale += q_scale.item()
+                    actor_update_count += 1
 
                     for param, target_param in zip(
                         self.actor.parameters(), self.actor_target.parameters()
@@ -436,6 +462,11 @@ class TD3(object):
         self.writer.add_scalar("Max. Q", max_Q, self.iter_count)
         self.writer.add_scalar(
             "Actor anchor loss", av_actor_anchor_loss / iterations, self.iter_count
+        )
+        self.writer.add_scalar(
+            "Actor Q normalization scale",
+            av_actor_q_scale / max(actor_update_count, 1),
+            self.iter_count,
         )
 
     def save(self, filename, directory):
@@ -498,6 +529,7 @@ class TD3(object):
                 else None
             ),
             "actor_anchor_weight": self.actor_anchor_weight,
+            "actor_q_normalization_alpha": self.actor_q_normalization_alpha,
         }
 
     def load_state_dict(self, state):
@@ -515,6 +547,11 @@ class TD3(object):
             self.actor.freeze_base_actor()
             self.residual_scale = self.actor.residual_scale
         self.actor_optimizer.load_state_dict(state["actor_optimizer"])
+        self.actor_q_normalization_alpha = float(
+            state.get(
+                "actor_q_normalization_alpha", self.actor_q_normalization_alpha
+            )
+        )
         actor_reference = state.get("actor_reference")
         saved_anchor_weight = float(state.get("actor_anchor_weight", 0.0))
         if actor_reference is not None and saved_anchor_weight > 0.0:
@@ -590,6 +627,9 @@ policy_noise = 0.2
 noise_clip = 0.5
 policy_freq = env_int("DRL_MULTI_POLICY_FREQ", 2)
 actor_anchor_weight = env_float("DRL_MULTI_ACTOR_ANCHOR_WEIGHT", 0.0) or 0.0
+actor_q_normalization_alpha = (
+    env_float("DRL_MULTI_ACTOR_Q_NORMALIZATION_ALPHA", 0.0) or 0.0
+)
 actor_train_mode = os.environ.get("DRL_MULTI_ACTOR_TRAIN_MODE", "full").strip().lower()
 residual_hidden_dim = env_int("DRL_MULTI_RESIDUAL_HIDDEN_DIM", 128)
 residual_scale = env_float("DRL_MULTI_RESIDUAL_SCALE", 0.15)
@@ -810,6 +850,7 @@ network = TD3(
     actor_train_mode=actor_train_mode,
     residual_hidden_dim=residual_hidden_dim,
     residual_scale=residual_scale,
+    actor_q_normalization_alpha=actor_q_normalization_alpha,
 )
 replay_buffer = ReplayBuffer(buffer_size, seed)
 
@@ -945,6 +986,7 @@ print(
 )
 print("Policy freq:", policy_freq)
 print("Actor anchor weight:", actor_anchor_weight)
+print("Actor Q normalization alpha:", actor_q_normalization_alpha)
 print("Exploration noise:", expl_noise)
 print("Exploration min:", expl_min)
 print("Exploration decay steps:", expl_decay_steps)

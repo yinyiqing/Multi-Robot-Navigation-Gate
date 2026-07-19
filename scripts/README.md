@@ -53,6 +53,7 @@ start|stop _ training|test _ detached _ <historical-run-name>.sh
 - `start_training_fixed_v1_standard_expert_v3.sh`：只验证 timeout terminal 和 Critic 更新比例修复的 3-epoch v3 入口。
 - `start_validation_compare_fixed_v1_standard_v3.sh`：在完整 500 场 standard validation 上顺序比较原始 5D 与 v3 epoch 2。
 - `start/stop_training_fixed_v1_edge1_residual_pilot.sh`：冻结 5D 主体，在平衡 edge-1 视图上先预热 Critic、再训练 bounded residual 的受控 pilot。
+- `start/stop_training_fixed_v1_edge1_conservative_residual_v2.sh`：复用 edge-1 epoch 1 Critic，以归一化 Q 和基础动作约束训练单轮 conservative residual。
 - `stop_training_fixed_v1_standard_expert.sh`：停止 standard expert 训练进程组。
 - 训练 checkpoint 会按 validation 协议隔离 best，并在每轮验证后保存独立的 `epoch_NNN` 模型快照。
 - 多机器人训练中 timeout transition 记为 terminal，Critic 更新按有效 agent samples 归一化；旧训练结果不与修复后结果混合。
