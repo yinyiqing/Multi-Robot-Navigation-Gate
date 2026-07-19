@@ -17,7 +17,11 @@ from evaluation_protocol import build_eval_protocol_id, reconcile_evaluation_sta
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
 from outcome_utils import resolve_terminal_outcome
 from replay_buffer import ReplayBuffer
-from training_utils import episode_train_iterations, replay_done
+from training_utils import (
+    decay_exploration_noise,
+    episode_train_iterations,
+    replay_done,
+)
 
 
 def evaluate(network, env, epoch, eval_episodes=10, eval_manifest_path=None):
@@ -562,12 +566,15 @@ def make_agent_names():
 
 
 seed = env_int("DRL_MULTI_SEED", 0)
-eval_freq = 5e3
+eval_freq = env_int("DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES", 5000)
+if eval_freq < 1:
+    raise ValueError("DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES must be positive")
 max_ep = 300
 eval_ep = int(os.environ.get("DRL_MULTI_EVAL_EPISODES", "10"))
 max_epochs = env_int("DRL_MULTI_MAX_EPOCHS", 0)
 max_timesteps = 5e6
 expl_noise = env_float("DRL_MULTI_EXPL_NOISE", 1.0)
+initial_expl_noise = expl_noise
 expl_decay_steps = env_int("DRL_MULTI_EXPL_DECAY_STEPS", 500000)
 expl_min = env_float("DRL_MULTI_EXPL_MIN", 0.1)
 actor_lr = env_float("DRL_MULTI_ACTOR_LR", 1e-3)
@@ -908,6 +915,7 @@ print("Local critic max neighbors:", local_critic_max_neighbors)
 print("Local critic context dim:", critic_context_dim)
 print("Best metric:", best_metric)
 print("Eval episodes:", eval_ep)
+print("Eval frequency agent samples:", eval_freq)
 print("Eval protocol ID:", eval_protocol_id)
 if eval_protocol_reset:
     print(
@@ -940,6 +948,7 @@ print("Actor anchor weight:", actor_anchor_weight)
 print("Exploration noise:", expl_noise)
 print("Exploration min:", expl_min)
 print("Exploration decay steps:", expl_decay_steps)
+print("Exploration decay unit: environment steps")
 print("TensorBoard log dir:", log_dir)
 print("Checkpoint path:", checkpoint_path)
 print("Best checkpoint path:", best_checkpoint_path)
@@ -1435,8 +1444,12 @@ while timestep < max_timesteps:
         episode_abs_local_navigation_reward_sum = 0.0
         episode_num += 1
 
-    if expl_noise > expl_min:
-        expl_noise = expl_noise - ((1 - expl_min) / expl_decay_steps)
+    expl_noise = decay_exploration_noise(
+        expl_noise,
+        initial_expl_noise,
+        expl_min,
+        expl_decay_steps,
+    )
 
     raw_actions = []
     env_actions = []
