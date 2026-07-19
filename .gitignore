@@ -21,6 +21,7 @@ catkin_ws/src/multi_robot_scenario/launch/pioneer3dx_multi_*_standard.rviz
 .train_*.pid
 .*_detached.pid
 .test_fixed_v1_*_5d.pid
+.validation_*.pid
 catkin_ws/build_isolated/
 catkin_ws/devel_isolated/
 catkin_ws/.catkin_workspace
