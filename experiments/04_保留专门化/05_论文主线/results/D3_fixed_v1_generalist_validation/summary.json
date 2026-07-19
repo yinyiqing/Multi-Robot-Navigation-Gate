@@ -1,0 +1,43 @@
+{
+  "result_version": 1,
+  "status": "complete",
+  "model_id": "generalist-5d",
+  "manifest": "dense/validation",
+  "episodes": 1000,
+  "agents": 5000,
+  "overall": {
+    "agent_success_count": 3561,
+    "agent_success": 0.7122,
+    "agent_success_95ci": [0.697, 0.7272],
+    "collision_count": 1436,
+    "collision": 0.2872,
+    "unresolved_count": 3,
+    "unresolved": 0.0006,
+    "full_success_count": 314,
+    "full_success": 0.314,
+    "full_success_95ci": [0.285, 0.343],
+    "timeout_count": 3,
+    "timeout": 0.003,
+    "mean_steps": 27.988,
+    "mean_reward": 61.54010873777233,
+    "mean_final_distance": 0.4678393537558687,
+    "success_histogram_0_to_5": [6, 42, 138, 327, 173, 314]
+  },
+  "strata": {
+    "edges_0": {"episodes": 42, "agent_success": 0.9904761904761905, "collision": 0.004761904761904762, "full_success": 0.9523809523809523, "mean_steps": 30.261904761904763},
+    "edges_1": {"episodes": 211, "agent_success": 0.8530805687203792, "collision": 0.14691943127962084, "full_success": 0.5592417061611374, "mean_steps": 25.43127962085308},
+    "edges_2": {"episodes": 294, "agent_success": 0.7435374149659862, "collision": 0.25646258503401365, "full_success": 0.336734693877551, "mean_steps": 28.43877551020408},
+    "edges_3": {"episodes": 254, "agent_success": 0.6606299212598425, "collision": 0.33937007874015745, "full_success": 0.15354330708661418, "mean_steps": 25.64566929133858},
+    "edges_4": {"episodes": 127, "agent_success": 0.5779527559055118, "collision": 0.42047244094488195, "full_success": 0.11811023622047244, "mean_steps": 33.37007874015748},
+    "edges_5_plus": {"episodes": 72, "agent_success": 0.42777777777777776, "collision": 0.5694444444444444, "full_success": 0.041666666666666664}
+  },
+  "bootstrap": {"resamples": 20000, "seed": 20260719, "unit": "episode"},
+  "sha256": {
+    "actor": "51e31499a8e7ec88a80e2ff657f74b3d14a64168c2afab9361c6cbe770818ff0",
+    "manifest": "2d1dde389f927b924fa5993c47460bc60bac42aa9506ae3869c3139c9d1264b7",
+    "dense_1000ep.log": "a27d6754a2492bbe130e3e5b27728a26b4344acdc9e2cd16b86b47a725f34843",
+    "dense_1000ep.npy": "58834eb245008272d6b6e21042e0ec20655616e75018089b63eb9c207c66c41a",
+    "dense_state.pt": "806c77e46271e0fc79065483ca1d1ebc4697279e96f1b102006bc605763327ad",
+    "runner.log": "b79c12a3390c7f8c2f4b2e355efec1e00dd8179d8f08b675e73950dee36e24a7"
+  }
+}

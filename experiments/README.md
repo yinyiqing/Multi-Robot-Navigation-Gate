@@ -33,6 +33,7 @@
 | --- | --- | --- | --- | --- |
 | `eval-5d-standard` | `generalist-5d` | `standard-5` | `complete` | 1000 episodes: agent `0.8816`, full `0.5690` |
 | `eval-5d-fixed-v1` | `generalist-5d` | fixed standard/dense | `complete` | standard full `0.5750`; dense full `0.2795` |
+| `eval-5d-validation-strata` | `generalist-5d` | fixed validation interaction strata | `complete` | standard low/interact full `0.8544/0.4252`; dense full `0.3140` |
 | `diag-5d-random-dense` | `generalist-5d` | `random-dense-5` | `diagnostic` | 仅区分 spatial density 与 interaction density |
 | `eval-5d-canonical-moderate` | `generalist-5d` | 五个 fixed moderate cases | `baseline` | held-out interaction failure baseline |
 | `train-standard-expert-v1` | 5D Actor-only warm-start | fixed standard/train | `failed diagnostic` | best agent success `0.850`，后期 timeout 崩坏 |
