@@ -23,7 +23,13 @@ runner="$PROJECT_ROOT/scripts/run_validation_fixed_v1_standard_actor.sh"
 
 setsid bash -lc "
   set -eo pipefail
-  trap 'rm -f \"$PID_FILE\"' EXIT
+  cleanup() {
+    pgid=\"\$(ps -o pgid= -p \$\$ | tr -d ' ')\"
+    ps -eo pid=,pgid= | awk -v pgid=\"\$pgid\" -v self=\"\$\$\" \
+      '\$2 == pgid && \$1 != self { print \$1 }' | xargs -r kill 2>/dev/null || true
+    rm -f '$PID_FILE'
+  }
+  trap cleanup EXIT
   '$runner' baseline_5d '$BASE_ACTOR' 12001 12101 '$base_log'
   sleep 3
   '$runner' v3_epoch002 '$V3_ACTOR' 12002 12102 '$v3_log'
