@@ -57,6 +57,7 @@ start|stop _ training|test _ detached _ <historical-run-name>.sh
 - `build_interaction_risk_views.py`：按同步路径最小间距将 edge-1 场景派生为 deep/close/margin 三档几何风险视图。
 - `analyze_interaction_risk_probe.py`：回连风险 probe 的 manifest、episode 结果和逐帧轨迹，统计实际冲突对间距、闭合速度和 TTC。
 - `compare_interaction_probe_summaries.py`：按 scenario ID 和几何风险层配对比较两次 probe，并计算只在指定风险层采用候选策略的诊断上限。
+- `analyze_temporal_interaction_probe.py`：以其他机器人位置生成评估真值，审计仅使用本机激光和里程计的时序闭合速度/TTC 特征。
 - `start/stop_test_interaction_risk_probe_5d.sh`：在 60 场均衡风险 probe 上运行冻结 5D，并可选记录逐帧轨迹 JSONL。
 - `start/stop_test_interaction_risk_yield_oracle.sh`：在同一 probe 上用特权冲突对标签运行固定优先级停车让行上限。
 - `start/stop_test_temporal_interaction_probe_5d.sh`：重放同一 60 场 probe，记录单机激光、位姿和时间戳，用于验证自运动补偿的时序闭合速度/TTC。
