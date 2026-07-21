@@ -65,7 +65,7 @@ def _evaluate_current_manifest(network, env, epoch, eval_episodes=10):
     success_hist = np.zeros(env.num_agents + 1, dtype=np.int32)
     collision_hist = np.zeros(env.num_agents + 1, dtype=np.int32)
 
-    for _ in range(eval_episodes):
+    for eval_index in range(1, eval_episodes + 1):
         states = env.reset()
         active_mask = [True] * env.num_agents
         episode_success_flags = np.zeros(env.num_agents, dtype=np.int32)
@@ -118,6 +118,22 @@ def _evaluate_current_manifest(network, env, epoch, eval_episodes=10):
             distance = env.last_step_info["agents"][name]["distance"]
             if distance is not None:
                 total_final_distance += distance
+        if eval_index % 10 == 0 or eval_index == eval_episodes:
+            evaluated_agents = eval_index * env.num_agents
+            print(
+                "Validation progress | epoch=%i | episodes=%i/%i | "
+                "success_rate=%.3f | collision_rate=%.3f | "
+                "full_success_rate=%.3f | timeout_rate=%.3f"
+                % (
+                    epoch,
+                    eval_index,
+                    eval_episodes,
+                    total_targets / evaluated_agents,
+                    total_collisions / evaluated_agents,
+                    full_success_count / eval_index,
+                    timeout_episode_count / eval_index,
+                )
+            )
 
     avg_reward = total_reward / total_agents
     success_rate = total_targets / total_agents
