@@ -1,0 +1,37 @@
+{
+  "baseline": "experiments/04_保留专门化/05_论文主线/results/D4_interaction_risk_probe_5d_s20260721/summary.json",
+  "candidate": "experiments/04_保留专门化/05_论文主线/results/D4_interaction_risk_yield_oracle_s20260721/summary.json",
+  "paired": {
+    "close": {
+      "both_success": 5,
+      "baseline_only": 6,
+      "candidate_only": 1,
+      "neither_success": 8
+    },
+    "deep": {
+      "both_success": 1,
+      "baseline_only": 2,
+      "candidate_only": 6,
+      "neither_success": 11
+    },
+    "margin": {
+      "both_success": 13,
+      "baseline_only": 4,
+      "candidate_only": 1,
+      "neither_success": 2
+    },
+    "all": {
+      "both_success": 19,
+      "baseline_only": 12,
+      "candidate_only": 8,
+      "neither_success": 21
+    }
+  },
+  "selective_candidate": {
+    "candidate_band": "deep",
+    "episodes": 60,
+    "agent_success": 0.8666666666666667,
+    "collision": 0.13333333333333333,
+    "full_success": 0.5833333333333334
+  }
+}

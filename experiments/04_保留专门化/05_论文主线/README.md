@@ -194,6 +194,8 @@ v2 full success 为 `0.5177`，仅比现场冻结基线 `0.5130` 多 2 场，同
 
 60 场冻结 5D 风险 probe 进一步确认：按同步路径最小间距分层后，deep/close/margin full success 为 `0.15/0.55/0.85`；失败组在进入约 `1.2 m` 接近区时的闭合速度更高、TTC 更短，但 5D 仍保持高线速度。当前单帧 Actor 不显式观测这些动态量，因此暂停 specialist 续训，先运行固定优先级让行 oracle 验证可解上限。完整归档见 `results/D4_interaction_risk_probe_5d_s20260721`。
 
+固定优先级让行 oracle 在全部 edge-1 上将碰撞率从 `0.170` 降到 `0.147`，但 full success 从 `0.517` 降到 `0.450`。分层后，deep full success 从 `0.15` 升到 `0.35`，close/margin 却从 `0.55/0.85` 降到 `0.30/0.70`。因此拒绝“只要有交互就停车”，但保留“仅在紧迫冲突切换到交互专家”的主线。下一阶段先定义可部署的时序闭合速度/TTC 观测，不直接继续训练。完整归档见 `results/D4_interaction_risk_yield_oracle_s20260721`。
+
 ### S3: 专家互补性审计
 
 在完全相同的 test scenario ID 上分别运行两个 expert，记录 episode 配对结果：
@@ -336,7 +338,7 @@ success + collision + unresolved = N * episodes
 - `D7`：完整基线、消融、泛化和统计检验。
 - `D8`：论文图表冻结。
 
-当前仍处于 `D4`，但 specialist 训练暂停：先完成冲突对让行 oracle 的可解性验证，再决定是否引入相对速度/TTC 观测。gate 仍需等待 D5 互补性审计通过。
+当前仍处于 `D4`，specialist 训练继续暂停。让行 oracle 已证明干预仅对 deep 冲突有价值；下一步是定义经自运动补偿的局部时序闭合速度/TTC 观测和紧迫交互准入协议。gate 仍需等待 D5 互补性审计通过。
 
 ## 11. 预期贡献表述
 
