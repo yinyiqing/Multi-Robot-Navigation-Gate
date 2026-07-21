@@ -11,6 +11,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from actor_models import Actor, ResidualActor, is_residual_actor_state_dict
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
+from oracle_controllers import ConflictPairYieldOracle
 from outcome_utils import resolve_terminal_outcome
 
 
@@ -215,6 +216,14 @@ switch_on_distance = env_float("DRL_MULTI_SWITCH_ON_DISTANCE", 1.6)
 switch_off_distance = env_float("DRL_MULTI_SWITCH_OFF_DISTANCE", 2.0)
 switch_on_visible_neighbors = env_int("DRL_MULTI_SWITCH_ON_VISIBLE_NEIGHBORS", 1)
 case_oracle_map_path = env_json_path("DRL_MULTI_CASE_ORACLE_MAP")
+rule_oracle_mode = os.environ.get("DRL_MULTI_RULE_ORACLE_MODE", "").strip().lower()
+if rule_oracle_mode not in ("", "conflict_pair_yield"):
+    raise ValueError(
+        "DRL_MULTI_RULE_ORACLE_MODE must be empty or 'conflict_pair_yield'"
+    )
+rule_oracle_stop_distance = env_float("DRL_MULTI_RULE_ORACLE_STOP_DISTANCE", 1.2)
+rule_oracle_release_distance = env_float("DRL_MULTI_RULE_ORACLE_RELEASE_DISTANCE", 1.4)
+rule_oracle_max_yield_steps = env_int("DRL_MULTI_RULE_ORACLE_MAX_YIELD_STEPS", 20)
 launchfile = os.environ.get(
     "DRL_MULTI_TEST_LAUNCHFILE", "multi_robot_scenario_multi_2.launch"
 )
@@ -402,6 +411,7 @@ except Exception:
 
 dense_network = None
 dense_policy_controller = None
+rule_oracle_controller = None
 case_oracle_map = {}
 if dual_actor_enabled:
     dense_network = TD3(
@@ -430,6 +440,15 @@ if dual_actor_enabled:
             dense_policy=dense_network,
             case_actor_map=case_oracle_map,
         )
+if rule_oracle_mode == "conflict_pair_yield":
+    if actor_selection_mode != "single":
+        raise ValueError("Conflict-pair yield oracle only supports single actor mode")
+    rule_oracle_controller = ConflictPairYieldOracle(
+        base_policy=network,
+        stop_distance=rule_oracle_stop_distance,
+        release_distance=rule_oracle_release_distance,
+        max_yield_steps=rule_oracle_max_yield_steps,
+    )
 
 test_state = load_test_state() or {}
 episode_num = test_state.get("episode_num", 0)
@@ -475,6 +494,11 @@ if dual_actor_enabled:
         print("Case oracle map:", case_oracle_map_path)
 else:
     print("Dual actor mode: disabled")
+print("Rule oracle mode:", rule_oracle_mode or "disabled")
+if rule_oracle_controller is not None:
+    print("Rule oracle stop distance:", rule_oracle_stop_distance)
+    print("Rule oracle release distance:", rule_oracle_release_distance)
+    print("Rule oracle max yield steps:", rule_oracle_max_yield_steps)
 print("Scenario mode:", scenario_mode)
 if scenario_mode == "manifest":
     print("Manifest path:", os.environ.get("DRL_MULTI_MANIFEST_PATH", ""))
@@ -500,6 +524,8 @@ states = env.reset()
 episode_case_name = current_case_name(env)
 if dense_policy_controller is not None:
     dense_policy_controller.reset(agent_names)
+if rule_oracle_controller is not None:
+    rule_oracle_controller.reset(agent_names)
 active_mask = [True] * len(agent_names)
 episode_done = False
 episode_env_steps = 0
@@ -511,6 +537,7 @@ episode_final_distances = {name: None for name in agent_names}
 episode_start_time = time.time()
 episode_dense_action_steps = np.zeros(len(agent_names), dtype=np.int32)
 episode_standard_action_steps = np.zeros(len(agent_names), dtype=np.int32)
+episode_rule_yield_steps = np.zeros(len(agent_names), dtype=np.int32)
 
 while True:
     env_actions = []
@@ -522,7 +549,19 @@ while True:
             env_actions.append([0.0, 0.0])
             continue
 
-        if dense_policy_controller is not None:
+        if rule_oracle_controller is not None:
+            active_names = {
+                agent_names[index]
+                for index, is_active in enumerate(active_mask)
+                if is_active
+            }
+            action, is_yielding = rule_oracle_controller.choose_action(
+                env, agent_names[idx], state, active_names
+            )
+            episode_standard_action_steps[idx] += 1
+            if is_yielding:
+                episode_rule_yield_steps[idx] += 1
+        elif dense_policy_controller is not None:
             action, mode, _, _ = dense_policy_controller.choose_action(
                 env, agent_names[idx], state
             )
@@ -657,7 +696,8 @@ while True:
         "Episode %i complete | case=%s | env_steps=%i | agent_samples=%i | episode_env_steps=%i | "
         "episode_agent_samples=%i | mean_reward=%.3f | success=%i/%i | collision=%i/%i | "
         "unresolved=%i/%i | full_success=%i | timeout=%i | "
-        "mean_final_distance=%.3f | dense_action_share=%.3f | samples/sec=%.3f"
+        "mean_final_distance=%.3f | dense_action_share=%.3f | rule_yield_share=%.3f | "
+        "samples/sec=%.3f"
         % (
             episode_num,
             episode_case_name,
@@ -681,6 +721,10 @@ while True:
                     float(np.sum(episode_dense_action_steps + episode_standard_action_steps)),
                     1.0,
                 )
+            ),
+            (
+                float(np.sum(episode_rule_yield_steps))
+                / max(float(episode_agent_samples), 1.0)
             ),
             steps_per_sec,
         )
@@ -776,6 +820,8 @@ while True:
     episode_case_name = current_case_name(env)
     if dense_policy_controller is not None:
         dense_policy_controller.reset(agent_names)
+    if rule_oracle_controller is not None:
+        rule_oracle_controller.reset(agent_names)
     active_mask = [True] * len(agent_names)
     episode_done = False
     episode_env_steps = 0
@@ -787,3 +833,4 @@ while True:
     episode_start_time = time.time()
     episode_dense_action_steps = np.zeros(len(agent_names), dtype=np.int32)
     episode_standard_action_steps = np.zeros(len(agent_names), dtype=np.int32)
+    episode_rule_yield_steps = np.zeros(len(agent_names), dtype=np.int32)
