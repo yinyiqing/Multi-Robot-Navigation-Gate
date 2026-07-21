@@ -1,0 +1,823 @@
+{
+  "protocol": {
+    "safety_distance_m": 0.9,
+    "encounter_distance_m": 1.5,
+    "urgent_ttc_s": 2.0,
+    "prediction_persistence_frames": 2,
+    "deployable_inputs": [
+      "front_lidar",
+      "self_odometry",
+      "timestamp"
+    ],
+    "ground_truth_only_inputs": [
+      "other_robot_positions"
+    ],
+    "lidar_sectors": [
+      180
+    ]
+  },
+  "frame_metrics": {
+    "tp": 587,
+    "fp": 1298,
+    "fn": 59,
+    "tn": 461,
+    "precision": 0.31140583554376655,
+    "recall": 0.9086687306501547,
+    "false_positive_rate": 0.7379192723138147,
+    "accuracy": 0.4357588357588358
+  },
+  "raw_frame_metrics": {
+    "tp": 634,
+    "fp": 1497,
+    "fn": 12,
+    "tn": 262,
+    "precision": 0.2975129047395589,
+    "recall": 0.9814241486068112,
+    "false_positive_rate": 0.8510517339397385,
+    "accuracy": 0.3725571725571726
+  },
+  "episode_metrics": {
+    "episodes": 30,
+    "predicted_activation_rate": 1.0,
+    "ground_truth_urgent_rate": 0.9333333333333333,
+    "confusion": {
+      "tp": 28,
+      "fp": 2,
+      "fn": 0,
+      "tn": 0,
+      "precision": 0.9333333333333333,
+      "recall": 1.0,
+      "false_positive_rate": 1.0,
+      "accuracy": 0.9333333333333333
+    }
+  },
+  "by_risk_band": {
+    "deep": {
+      "episodes": 10,
+      "predicted_activation_rate": 1.0,
+      "ground_truth_urgent_rate": 0.9,
+      "confusion": {
+        "tp": 9,
+        "fp": 1,
+        "fn": 0,
+        "tn": 0,
+        "precision": 0.9,
+        "recall": 1.0,
+        "false_positive_rate": 1.0,
+        "accuracy": 0.9
+      }
+    },
+    "close": {
+      "episodes": 10,
+      "predicted_activation_rate": 1.0,
+      "ground_truth_urgent_rate": 1.0,
+      "confusion": {
+        "tp": 10,
+        "fp": 0,
+        "fn": 0,
+        "tn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": null,
+        "accuracy": 1.0
+      }
+    },
+    "margin": {
+      "episodes": 10,
+      "predicted_activation_rate": 1.0,
+      "ground_truth_urgent_rate": 0.9,
+      "confusion": {
+        "tp": 9,
+        "fp": 1,
+        "fn": 0,
+        "tn": 0,
+        "precision": 0.9,
+        "recall": 1.0,
+        "false_positive_rate": 1.0,
+        "accuracy": 0.9
+      }
+    }
+  },
+  "episodes": [
+    {
+      "case": "dense-20260718000258-1ac59e272bcf",
+      "risk_band": "margin",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.964388370513916,
+      "minimum_predicted_ttc_s": 0.14244653284549713,
+      "minimum_ground_truth_ttc_s": 0.0732006082585743,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 45,
+        "fp": 41,
+        "fn": 2,
+        "tn": 20
+      },
+      "raw_frame_confusion": {
+        "tp": 47,
+        "fp": 50,
+        "fn": 0,
+        "tn": 11
+      }
+    },
+    {
+      "case": "dense-20260718000428-58d38366cbc6",
+      "risk_band": "close",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9776960015296936,
+      "minimum_predicted_ttc_s": 0.08921606093645096,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 36,
+        "fp": 114,
+        "fn": 2,
+        "tn": 29
+      },
+      "raw_frame_confusion": {
+        "tp": 38,
+        "fp": 127,
+        "fn": 0,
+        "tn": 16
+      }
+    },
+    {
+      "case": "dense-20260718000703-c69e8462d5ae",
+      "risk_band": "close",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9685865044593811,
+      "minimum_predicted_ttc_s": 0.12565404176712036,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 11,
+        "fp": 42,
+        "fn": 1,
+        "tn": 15
+      },
+      "raw_frame_confusion": {
+        "tp": 12,
+        "fp": 48,
+        "fn": 0,
+        "tn": 9
+      }
+    },
+    {
+      "case": "dense-20260718001281-628e08f663c1",
+      "risk_band": "close",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9757727384567261,
+      "minimum_predicted_ttc_s": 0.09690901637077332,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 28,
+        "fp": 61,
+        "fn": 4,
+        "tn": 16
+      },
+      "raw_frame_confusion": {
+        "tp": 31,
+        "fp": 68,
+        "fn": 1,
+        "tn": 9
+      }
+    },
+    {
+      "case": "dense-20260718001476-f98e3f974b2d",
+      "risk_band": "margin",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9651997685432434,
+      "minimum_predicted_ttc_s": 0.13920094072818756,
+      "minimum_ground_truth_ttc_s": 0.2518969127283669,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 27,
+        "fp": 21,
+        "fn": 2,
+        "tn": 8
+      },
+      "raw_frame_confusion": {
+        "tp": 29,
+        "fp": 24,
+        "fn": 0,
+        "tn": 5
+      }
+    },
+    {
+      "case": "dense-20260718002849-39596f378060",
+      "risk_band": "margin",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.976226806640625,
+      "minimum_predicted_ttc_s": 0.09509289264678955,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 26,
+        "fp": 13,
+        "fn": 8,
+        "tn": 8
+      },
+      "raw_frame_confusion": {
+        "tp": 32,
+        "fp": 15,
+        "fn": 2,
+        "tn": 6
+      }
+    },
+    {
+      "case": "dense-20260718003347-0c16c63c32f6",
+      "risk_band": "deep",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 1.0,
+      "minimum_predicted_ttc_s": 0.0,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 43,
+        "fp": 53,
+        "fn": 7,
+        "tn": 18
+      },
+      "raw_frame_confusion": {
+        "tp": 48,
+        "fp": 60,
+        "fn": 2,
+        "tn": 11
+      }
+    },
+    {
+      "case": "dense-20260718003920-8507d38e3d44",
+      "risk_band": "deep",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 1.0,
+      "minimum_predicted_ttc_s": 0.0,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 20,
+        "fp": 13,
+        "fn": 2,
+        "tn": 12
+      },
+      "raw_frame_confusion": {
+        "tp": 21,
+        "fp": 19,
+        "fn": 1,
+        "tn": 6
+      }
+    },
+    {
+      "case": "dense-20260718004568-fe30a135d0b6",
+      "risk_band": "close",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 1.0,
+      "minimum_predicted_ttc_s": 0.0,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 30,
+        "fp": 36,
+        "fn": 0,
+        "tn": 12
+      },
+      "raw_frame_confusion": {
+        "tp": 30,
+        "fp": 42,
+        "fn": 0,
+        "tn": 6
+      }
+    },
+    {
+      "case": "dense-20260718004795-1739c1ca1ee5",
+      "risk_band": "deep",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.989891529083252,
+      "minimum_predicted_ttc_s": 0.040433984249830246,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 20,
+        "fp": 32,
+        "fn": 0,
+        "tn": 11
+      },
+      "raw_frame_confusion": {
+        "tp": 20,
+        "fp": 37,
+        "fn": 0,
+        "tn": 6
+      }
+    },
+    {
+      "case": "dense-20260718004815-be26ea64b10d",
+      "risk_band": "close",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9902576208114624,
+      "minimum_predicted_ttc_s": 0.038969408720731735,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 39,
+        "fp": 44,
+        "fn": 1,
+        "tn": 14
+      },
+      "raw_frame_confusion": {
+        "tp": 39,
+        "fp": 51,
+        "fn": 1,
+        "tn": 7
+      }
+    },
+    {
+      "case": "dense-20260718004981-6128b32e7bf6",
+      "risk_band": "margin",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9430487751960754,
+      "minimum_predicted_ttc_s": 0.22780494391918182,
+      "minimum_ground_truth_ttc_s": 0.14917294176154566,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 14,
+        "fp": 57,
+        "fn": 5,
+        "tn": 13
+      },
+      "raw_frame_confusion": {
+        "tp": 18,
+        "fp": 62,
+        "fn": 1,
+        "tn": 8
+      }
+    },
+    {
+      "case": "dense-20260718005487-eead3e60507b",
+      "risk_band": "deep",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 1.0,
+      "minimum_predicted_ttc_s": 0.0,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 15,
+        "fp": 23,
+        "fn": 0,
+        "tn": 13
+      },
+      "raw_frame_confusion": {
+        "tp": 15,
+        "fp": 29,
+        "fn": 0,
+        "tn": 7
+      }
+    },
+    {
+      "case": "dense-20260718005909-4fb41e28c3da",
+      "risk_band": "margin",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9410693645477295,
+      "minimum_predicted_ttc_s": 0.2357226461172104,
+      "minimum_ground_truth_ttc_s": 0.6938442738425123,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 14,
+        "fp": 31,
+        "fn": 2,
+        "tn": 16
+      },
+      "raw_frame_confusion": {
+        "tp": 16,
+        "fp": 38,
+        "fn": 0,
+        "tn": 9
+      }
+    },
+    {
+      "case": "dense-20260718006570-59f98ab89f90",
+      "risk_band": "deep",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 1.0,
+      "minimum_predicted_ttc_s": 0.0,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 13,
+        "fp": 33,
+        "fn": 2,
+        "tn": 10
+      },
+      "raw_frame_confusion": {
+        "tp": 15,
+        "fp": 37,
+        "fn": 0,
+        "tn": 6
+      }
+    },
+    {
+      "case": "standard-20260717000152-d6efe6c6e51e",
+      "risk_band": "margin",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9528263211250305,
+      "minimum_predicted_ttc_s": 0.18869467079639435,
+      "minimum_ground_truth_ttc_s": 0.2899811765149894,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 28,
+        "fp": 65,
+        "fn": 2,
+        "tn": 12
+      },
+      "raw_frame_confusion": {
+        "tp": 29,
+        "fp": 71,
+        "fn": 1,
+        "tn": 6
+      }
+    },
+    {
+      "case": "standard-20260717000330-8a0e064175c4",
+      "risk_band": "close",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9918814897537231,
+      "minimum_predicted_ttc_s": 0.032474055886268616,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 8,
+        "fp": 51,
+        "fn": 0,
+        "tn": 14
+      },
+      "raw_frame_confusion": {
+        "tp": 8,
+        "fp": 58,
+        "fn": 0,
+        "tn": 7
+      }
+    },
+    {
+      "case": "standard-20260717000343-25e6e795a314",
+      "risk_band": "close",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 1.0,
+      "minimum_predicted_ttc_s": 0.0,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 14,
+        "fp": 17,
+        "fn": 2,
+        "tn": 8
+      },
+      "raw_frame_confusion": {
+        "tp": 16,
+        "fp": 20,
+        "fn": 0,
+        "tn": 5
+      }
+    },
+    {
+      "case": "standard-20260717000755-a6292cd9241c",
+      "risk_band": "deep",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 1.0,
+      "minimum_predicted_ttc_s": 0.0,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 9,
+        "fp": 63,
+        "fn": 3,
+        "tn": 11
+      },
+      "raw_frame_confusion": {
+        "tp": 12,
+        "fp": 67,
+        "fn": 0,
+        "tn": 7
+      }
+    },
+    {
+      "case": "standard-20260717000866-cd8ac9c85675",
+      "risk_band": "margin",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9455205798149109,
+      "minimum_predicted_ttc_s": 0.21791772544384003,
+      "minimum_ground_truth_ttc_s": 0.41843431282224264,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 26,
+        "fp": 39,
+        "fn": 2,
+        "tn": 15
+      },
+      "raw_frame_confusion": {
+        "tp": 28,
+        "fp": 45,
+        "fn": 0,
+        "tn": 9
+      }
+    },
+    {
+      "case": "standard-20260717001173-e7b56479a1cd",
+      "risk_band": "close",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9488267302513123,
+      "minimum_predicted_ttc_s": 0.20469309389591217,
+      "minimum_ground_truth_ttc_s": 0.2942699919652419,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 2,
+        "fp": 45,
+        "fn": 0,
+        "tn": 12
+      },
+      "raw_frame_confusion": {
+        "tp": 2,
+        "fp": 51,
+        "fn": 0,
+        "tn": 6
+      }
+    },
+    {
+      "case": "standard-20260717001950-8e2b5659e0ef",
+      "risk_band": "deep",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 1.0,
+      "minimum_predicted_ttc_s": 0.0,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 14,
+        "fp": 18,
+        "fn": 2,
+        "tn": 11
+      },
+      "raw_frame_confusion": {
+        "tp": 16,
+        "fp": 22,
+        "fn": 0,
+        "tn": 7
+      }
+    },
+    {
+      "case": "standard-20260717002014-6b91e541130c",
+      "risk_band": "margin",
+      "pool": "standard",
+      "episode_target": false,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9482061266899109,
+      "minimum_predicted_ttc_s": 0.2071753740310669,
+      "minimum_ground_truth_ttc_s": 2.7587948959218087,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 0,
+        "fp": 76,
+        "fn": 0,
+        "tn": 19
+      },
+      "raw_frame_confusion": {
+        "tp": 0,
+        "fp": 85,
+        "fn": 0,
+        "tn": 10
+      }
+    },
+    {
+      "case": "standard-20260717003169-86a6d0de3ba4",
+      "risk_band": "margin",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9551027417182922,
+      "minimum_predicted_ttc_s": 0.17958909273147583,
+      "minimum_ground_truth_ttc_s": 0.234380505334069,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 6,
+        "fp": 32,
+        "fn": 0,
+        "tn": 24
+      },
+      "raw_frame_confusion": {
+        "tp": 6,
+        "fp": 42,
+        "fn": 0,
+        "tn": 14
+      }
+    },
+    {
+      "case": "standard-20260717003254-14ff2682eb2b",
+      "risk_band": "deep",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 1.0,
+      "minimum_predicted_ttc_s": 0.0,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 8,
+        "fp": 17,
+        "fn": 0,
+        "tn": 23
+      },
+      "raw_frame_confusion": {
+        "tp": 8,
+        "fp": 26,
+        "fn": 0,
+        "tn": 14
+      }
+    },
+    {
+      "case": "standard-20260717003266-08dcb8e632c8",
+      "risk_band": "close",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 1.0,
+      "minimum_predicted_ttc_s": 0.0,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 18,
+        "fp": 38,
+        "fn": 6,
+        "tn": 10
+      },
+      "raw_frame_confusion": {
+        "tp": 22,
+        "fp": 41,
+        "fn": 2,
+        "tn": 7
+      }
+    },
+    {
+      "case": "standard-20260717003463-916cc60dfe76",
+      "risk_band": "deep",
+      "pool": "standard",
+      "episode_target": false,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 1.0,
+      "minimum_predicted_ttc_s": 0.0,
+      "minimum_ground_truth_ttc_s": null,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 0,
+        "fp": 101,
+        "fn": 0,
+        "tn": 18
+      },
+      "raw_frame_confusion": {
+        "tp": 0,
+        "fp": 109,
+        "fn": 0,
+        "tn": 10
+      }
+    },
+    {
+      "case": "standard-20260717003747-a2a63599cea5",
+      "risk_band": "margin",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9638984799385071,
+      "minimum_predicted_ttc_s": 0.1444060206413269,
+      "minimum_ground_truth_ttc_s": 0.004664171092771086,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 15,
+        "fp": 37,
+        "fn": 2,
+        "tn": 20
+      },
+      "raw_frame_confusion": {
+        "tp": 16,
+        "fp": 46,
+        "fn": 1,
+        "tn": 11
+      }
+    },
+    {
+      "case": "standard-20260717004285-3e35f5e293b2",
+      "risk_band": "deep",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 1.0,
+      "minimum_predicted_ttc_s": 0.0,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 46,
+        "fp": 26,
+        "fn": 2,
+        "tn": 8
+      },
+      "raw_frame_confusion": {
+        "tp": 48,
+        "fp": 29,
+        "fn": 0,
+        "tn": 5
+      }
+    },
+    {
+      "case": "standard-20260717004895-c934c46ff67a",
+      "risk_band": "close",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9723499417304993,
+      "minimum_predicted_ttc_s": 0.11060019582509995,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "lidar_sectors": 180,
+      "frame_confusion": {
+        "tp": 12,
+        "fp": 59,
+        "fn": 0,
+        "tn": 41
+      },
+      "raw_frame_confusion": {
+        "tp": 12,
+        "fp": 78,
+        "fn": 0,
+        "tn": 22
+      }
+    }
+  ]
+}

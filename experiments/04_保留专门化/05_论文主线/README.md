@@ -196,6 +196,8 @@ v2 full success 为 `0.5177`，仅比现场冻结基线 `0.5130` 多 2 场，同
 
 固定优先级让行 oracle 在全部 edge-1 上将碰撞率从 `0.170` 降到 `0.147`，但 full success 从 `0.517` 降到 `0.450`。分层后，deep full success 从 `0.15` 升到 `0.35`，close/margin 却从 `0.55/0.85` 降到 `0.30/0.70`。因此拒绝“只要有交互就停车”，但保留“仅在紧迫冲突切换到交互专家”的主线。下一阶段先定义可部署的时序闭合速度/TTC 观测，不直接继续训练。完整归档见 `results/D4_interaction_risk_yield_oracle_s20260721`。
 
+基于扇区最小距离的自运动补偿时序差分已在 20-bin 和独立 180-bin 输入上审计。两者 frame recall 为 `0.808/0.909`，但 false-positive rate 高达 `0.636/0.738`，且所有 episode 都被激活。根因是扇区最小值没有稳定物体关联；该特征族已拒绝，不接入 Actor/Gate，不继续调阈值。下一步只做原始二维点的自运动补偿移动簇可行性验证。完整归档见 `results/D4_temporal_interaction_scan_diff_s20260721`。
+
 ### S3: 专家互补性审计
 
 在完全相同的 test scenario ID 上分别运行两个 expert，记录 episode 配对结果：
@@ -338,7 +340,7 @@ success + collision + unresolved = N * episodes
 - `D7`：完整基线、消融、泛化和统计检验。
 - `D8`：论文图表冻结。
 
-当前仍处于 `D4`，specialist 训练继续暂停。让行 oracle 已证明干预仅对 deep 冲突有价值；下一步是定义经自运动补偿的局部时序闭合速度/TTC 观测和紧迫交互准入协议。gate 仍需等待 D5 互补性审计通过。
+当前仍处于 `D4`，specialist 训练继续暂停。让行 oracle 已证明干预仅对 deep 冲突有价值；扇区差分 TTC 已因高误报被拒绝。下一步是原始二维点的自运动补偿移动簇小样本可行性审计；在它通过前不训练 Actor 或 Gate。gate 仍需等待 D5 互补性审计通过。
 
 ## 11. 预期贡献表述
 

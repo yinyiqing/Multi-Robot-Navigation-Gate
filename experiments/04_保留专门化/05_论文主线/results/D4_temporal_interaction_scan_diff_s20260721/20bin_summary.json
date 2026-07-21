@@ -1,0 +1,1480 @@
+{
+  "protocol": {
+    "safety_distance_m": 0.9,
+    "encounter_distance_m": 1.5,
+    "urgent_ttc_s": 2.0,
+    "prediction_persistence_frames": 2,
+    "deployable_inputs": [
+      "front_lidar",
+      "self_odometry",
+      "timestamp"
+    ],
+    "ground_truth_only_inputs": [
+      "other_robot_positions"
+    ]
+  },
+  "frame_metrics": {
+    "tp": 924,
+    "fp": 2340,
+    "fn": 219,
+    "tn": 1341,
+    "precision": 0.28308823529411764,
+    "recall": 0.8083989501312336,
+    "false_positive_rate": 0.6356968215158925,
+    "accuracy": 0.4695273631840796
+  },
+  "raw_frame_metrics": {
+    "tp": 1058,
+    "fp": 2870,
+    "fn": 85,
+    "tn": 811,
+    "precision": 0.26934826883910384,
+    "recall": 0.9256342957130359,
+    "false_positive_rate": 0.7796794349361587,
+    "accuracy": 0.38743781094527363
+  },
+  "episode_metrics": {
+    "episodes": 60,
+    "predicted_activation_rate": 1.0,
+    "ground_truth_urgent_rate": 0.9833333333333333,
+    "confusion": {
+      "tp": 59,
+      "fp": 1,
+      "fn": 0,
+      "tn": 0,
+      "precision": 0.9833333333333333,
+      "recall": 1.0,
+      "false_positive_rate": 1.0,
+      "accuracy": 0.9833333333333333
+    }
+  },
+  "by_risk_band": {
+    "deep": {
+      "episodes": 20,
+      "predicted_activation_rate": 1.0,
+      "ground_truth_urgent_rate": 0.95,
+      "confusion": {
+        "tp": 19,
+        "fp": 1,
+        "fn": 0,
+        "tn": 0,
+        "precision": 0.95,
+        "recall": 1.0,
+        "false_positive_rate": 1.0,
+        "accuracy": 0.95
+      }
+    },
+    "close": {
+      "episodes": 20,
+      "predicted_activation_rate": 1.0,
+      "ground_truth_urgent_rate": 1.0,
+      "confusion": {
+        "tp": 20,
+        "fp": 0,
+        "fn": 0,
+        "tn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": null,
+        "accuracy": 1.0
+      }
+    },
+    "margin": {
+      "episodes": 20,
+      "predicted_activation_rate": 1.0,
+      "ground_truth_urgent_rate": 1.0,
+      "confusion": {
+        "tp": 20,
+        "fp": 0,
+        "fn": 0,
+        "tn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": null,
+        "accuracy": 1.0
+      }
+    }
+  },
+  "episodes": [
+    {
+      "case": "dense-20260718000258-1ac59e272bcf",
+      "risk_band": "margin",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9874563813209534,
+      "minimum_predicted_ttc_s": 0.050174370408058167,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 32,
+        "fp": 13,
+        "fn": 6,
+        "tn": 15
+      },
+      "raw_frame_confusion": {
+        "tp": 35,
+        "fp": 18,
+        "fn": 3,
+        "tn": 10
+      }
+    },
+    {
+      "case": "dense-20260718000428-58d38366cbc6",
+      "risk_band": "close",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9601603746414185,
+      "minimum_predicted_ttc_s": 0.1593584418296814,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 30,
+        "fp": 15,
+        "fn": 5,
+        "tn": 14
+      },
+      "raw_frame_confusion": {
+        "tp": 34,
+        "fp": 19,
+        "fn": 1,
+        "tn": 10
+      }
+    },
+    {
+      "case": "dense-20260718000703-c69e8462d5ae",
+      "risk_band": "close",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9939925670623779,
+      "minimum_predicted_ttc_s": 0.024029843509197235,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 8,
+        "fp": 12,
+        "fn": 0,
+        "tn": 22
+      },
+      "raw_frame_confusion": {
+        "tp": 8,
+        "fp": 20,
+        "fn": 0,
+        "tn": 14
+      }
+    },
+    {
+      "case": "dense-20260718001183-d9eb82d6befe",
+      "risk_band": "close",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9888803362846375,
+      "minimum_predicted_ttc_s": 0.04447874426841736,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 16,
+        "fp": 18,
+        "fn": 5,
+        "tn": 13
+      },
+      "raw_frame_confusion": {
+        "tp": 19,
+        "fp": 22,
+        "fn": 2,
+        "tn": 9
+      }
+    },
+    {
+      "case": "dense-20260718001281-628e08f663c1",
+      "risk_band": "close",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9755346179008484,
+      "minimum_predicted_ttc_s": 0.09786158055067062,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 28,
+        "fp": 93,
+        "fn": 4,
+        "tn": 20
+      },
+      "raw_frame_confusion": {
+        "tp": 32,
+        "fp": 101,
+        "fn": 0,
+        "tn": 12
+      }
+    },
+    {
+      "case": "dense-20260718001476-f98e3f974b2d",
+      "risk_band": "margin",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9558955430984497,
+      "minimum_predicted_ttc_s": 0.1764177680015564,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 12,
+        "fp": 20,
+        "fn": 6,
+        "tn": 22
+      },
+      "raw_frame_confusion": {
+        "tp": 15,
+        "fp": 28,
+        "fn": 3,
+        "tn": 14
+      }
+    },
+    {
+      "case": "dense-20260718001611-5ac6b3c51145",
+      "risk_band": "deep",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9433368444442749,
+      "minimum_predicted_ttc_s": 0.22665271162986755,
+      "minimum_ground_truth_ttc_s": 0.04577154613856895,
+      "frame_confusion": {
+        "tp": 18,
+        "fp": 9,
+        "fn": 3,
+        "tn": 14
+      },
+      "raw_frame_confusion": {
+        "tp": 21,
+        "fp": 14,
+        "fn": 0,
+        "tn": 9
+      }
+    },
+    {
+      "case": "dense-20260718002446-a7a8b1f12e6e",
+      "risk_band": "margin",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9315643906593323,
+      "minimum_predicted_ttc_s": 0.2737424373626709,
+      "minimum_ground_truth_ttc_s": 0.3175404794797996,
+      "frame_confusion": {
+        "tp": 11,
+        "fp": 15,
+        "fn": 9,
+        "tn": 14
+      },
+      "raw_frame_confusion": {
+        "tp": 16,
+        "fp": 20,
+        "fn": 4,
+        "tn": 9
+      }
+    },
+    {
+      "case": "dense-20260718002724-d59372b1c490",
+      "risk_band": "deep",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9977598190307617,
+      "minimum_predicted_ttc_s": 0.008960689418017864,
+      "minimum_ground_truth_ttc_s": 0.06529397535269195,
+      "frame_confusion": {
+        "tp": 15,
+        "fp": 26,
+        "fn": 5,
+        "tn": 24
+      },
+      "raw_frame_confusion": {
+        "tp": 18,
+        "fp": 35,
+        "fn": 2,
+        "tn": 15
+      }
+    },
+    {
+      "case": "dense-20260718002849-39596f378060",
+      "risk_band": "margin",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.964246928691864,
+      "minimum_predicted_ttc_s": 0.14301230013370514,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 22,
+        "fp": 24,
+        "fn": 7,
+        "tn": 17
+      },
+      "raw_frame_confusion": {
+        "tp": 25,
+        "fp": 30,
+        "fn": 4,
+        "tn": 11
+      }
+    },
+    {
+      "case": "dense-20260718003165-e41e1443308b",
+      "risk_band": "close",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9887444376945496,
+      "minimum_predicted_ttc_s": 0.045022353529930115,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 17,
+        "fp": 22,
+        "fn": 4,
+        "tn": 14
+      },
+      "raw_frame_confusion": {
+        "tp": 20,
+        "fp": 26,
+        "fn": 1,
+        "tn": 10
+      }
+    },
+    {
+      "case": "dense-20260718003347-0c16c63c32f6",
+      "risk_band": "deep",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.994312047958374,
+      "minimum_predicted_ttc_s": 0.022751692682504654,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 14,
+        "fp": 57,
+        "fn": 0,
+        "tn": 37
+      },
+      "raw_frame_confusion": {
+        "tp": 14,
+        "fp": 73,
+        "fn": 0,
+        "tn": 21
+      }
+    },
+    {
+      "case": "dense-20260718003497-96d828817c98",
+      "risk_band": "close",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9698344469070435,
+      "minimum_predicted_ttc_s": 0.12066221982240677,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 19,
+        "fp": 27,
+        "fn": 9,
+        "tn": 25
+      },
+      "raw_frame_confusion": {
+        "tp": 25,
+        "fp": 37,
+        "fn": 3,
+        "tn": 15
+      }
+    },
+    {
+      "case": "dense-20260718003511-3affce1c4096",
+      "risk_band": "close",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9696956276893616,
+      "minimum_predicted_ttc_s": 0.1212175041437149,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 23,
+        "fp": 27,
+        "fn": 7,
+        "tn": 22
+      },
+      "raw_frame_confusion": {
+        "tp": 26,
+        "fp": 36,
+        "fn": 4,
+        "tn": 13
+      }
+    },
+    {
+      "case": "dense-20260718003679-d35fd9d62577",
+      "risk_band": "margin",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9316657781600952,
+      "minimum_predicted_ttc_s": 0.27333682775497437,
+      "minimum_ground_truth_ttc_s": 0.2428257687744366,
+      "frame_confusion": {
+        "tp": 30,
+        "fp": 49,
+        "fn": 5,
+        "tn": 13
+      },
+      "raw_frame_confusion": {
+        "tp": 34,
+        "fp": 53,
+        "fn": 1,
+        "tn": 9
+      }
+    },
+    {
+      "case": "dense-20260718003683-8cc8f31acc4d",
+      "risk_band": "margin",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9250297546386719,
+      "minimum_predicted_ttc_s": 0.2998810410499573,
+      "minimum_ground_truth_ttc_s": 0.1507668174697179,
+      "frame_confusion": {
+        "tp": 10,
+        "fp": 19,
+        "fn": 3,
+        "tn": 14
+      },
+      "raw_frame_confusion": {
+        "tp": 12,
+        "fp": 24,
+        "fn": 1,
+        "tn": 9
+      }
+    },
+    {
+      "case": "dense-20260718003799-ce6b3738eef5",
+      "risk_band": "margin",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9735903143882751,
+      "minimum_predicted_ttc_s": 0.10563872009515762,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 18,
+        "fp": 57,
+        "fn": 8,
+        "tn": 12
+      },
+      "raw_frame_confusion": {
+        "tp": 23,
+        "fp": 61,
+        "fn": 3,
+        "tn": 8
+      }
+    },
+    {
+      "case": "dense-20260718003920-8507d38e3d44",
+      "risk_band": "deep",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9722128510475159,
+      "minimum_predicted_ttc_s": 0.11114867776632309,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 17,
+        "fp": 6,
+        "fn": 10,
+        "tn": 11
+      },
+      "raw_frame_confusion": {
+        "tp": 23,
+        "fp": 9,
+        "fn": 4,
+        "tn": 8
+      }
+    },
+    {
+      "case": "dense-20260718004326-3b6f6acb36f4",
+      "risk_band": "margin",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9459142088890076,
+      "minimum_predicted_ttc_s": 0.2163432538509369,
+      "minimum_ground_truth_ttc_s": 0.11050753955683076,
+      "frame_confusion": {
+        "tp": 18,
+        "fp": 8,
+        "fn": 3,
+        "tn": 15
+      },
+      "raw_frame_confusion": {
+        "tp": 21,
+        "fp": 13,
+        "fn": 0,
+        "tn": 10
+      }
+    },
+    {
+      "case": "dense-20260718004354-dc3b0b849e0c",
+      "risk_band": "deep",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.992120623588562,
+      "minimum_predicted_ttc_s": 0.03151753172278404,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 27,
+        "fp": 53,
+        "fn": 5,
+        "tn": 28
+      },
+      "raw_frame_confusion": {
+        "tp": 30,
+        "fp": 63,
+        "fn": 2,
+        "tn": 18
+      }
+    },
+    {
+      "case": "dense-20260718004369-324281e4d2b2",
+      "risk_band": "deep",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9927477836608887,
+      "minimum_predicted_ttc_s": 0.02900894731283188,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 16,
+        "fp": 43,
+        "fn": 4,
+        "tn": 29
+      },
+      "raw_frame_confusion": {
+        "tp": 19,
+        "fp": 55,
+        "fn": 1,
+        "tn": 17
+      }
+    },
+    {
+      "case": "dense-20260718004568-fe30a135d0b6",
+      "risk_band": "close",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9517884850502014,
+      "minimum_predicted_ttc_s": 0.19284595549106598,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 27,
+        "fp": 49,
+        "fn": 6,
+        "tn": 30
+      },
+      "raw_frame_confusion": {
+        "tp": 32,
+        "fp": 60,
+        "fn": 1,
+        "tn": 19
+      }
+    },
+    {
+      "case": "dense-20260718004795-1739c1ca1ee5",
+      "risk_band": "deep",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9569377303123474,
+      "minimum_predicted_ttc_s": 0.17224907875061035,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 25,
+        "fp": 44,
+        "fn": 4,
+        "tn": 24
+      },
+      "raw_frame_confusion": {
+        "tp": 27,
+        "fp": 54,
+        "fn": 2,
+        "tn": 14
+      }
+    },
+    {
+      "case": "dense-20260718004815-be26ea64b10d",
+      "risk_band": "close",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9912818074226379,
+      "minimum_predicted_ttc_s": 0.03487285226583481,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 27,
+        "fp": 15,
+        "fn": 7,
+        "tn": 23
+      },
+      "raw_frame_confusion": {
+        "tp": 31,
+        "fp": 23,
+        "fn": 3,
+        "tn": 15
+      }
+    },
+    {
+      "case": "dense-20260718004981-6128b32e7bf6",
+      "risk_band": "margin",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9467559456825256,
+      "minimum_predicted_ttc_s": 0.21297627687454224,
+      "minimum_ground_truth_ttc_s": 0.08381771548264959,
+      "frame_confusion": {
+        "tp": 23,
+        "fp": 32,
+        "fn": 5,
+        "tn": 15
+      },
+      "raw_frame_confusion": {
+        "tp": 26,
+        "fp": 39,
+        "fn": 2,
+        "tn": 8
+      }
+    },
+    {
+      "case": "dense-20260718005478-9a779e939b44",
+      "risk_band": "deep",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9871681332588196,
+      "minimum_predicted_ttc_s": 0.051327481865882874,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 12,
+        "fp": 15,
+        "fn": 6,
+        "tn": 13
+      },
+      "raw_frame_confusion": {
+        "tp": 16,
+        "fp": 19,
+        "fn": 2,
+        "tn": 9
+      }
+    },
+    {
+      "case": "dense-20260718005487-eead3e60507b",
+      "risk_band": "deep",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9927276968955994,
+      "minimum_predicted_ttc_s": 0.0290891882032156,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 15,
+        "fp": 12,
+        "fn": 2,
+        "tn": 20
+      },
+      "raw_frame_confusion": {
+        "tp": 16,
+        "fp": 21,
+        "fn": 1,
+        "tn": 11
+      }
+    },
+    {
+      "case": "dense-20260718005909-4fb41e28c3da",
+      "risk_band": "margin",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9246240258216858,
+      "minimum_predicted_ttc_s": 0.3015037775039673,
+      "minimum_ground_truth_ttc_s": 0.6283883687155621,
+      "frame_confusion": {
+        "tp": 5,
+        "fp": 22,
+        "fn": 5,
+        "tn": 23
+      },
+      "raw_frame_confusion": {
+        "tp": 7,
+        "fp": 32,
+        "fn": 3,
+        "tn": 13
+      }
+    },
+    {
+      "case": "dense-20260718006570-59f98ab89f90",
+      "risk_band": "deep",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.962555468082428,
+      "minimum_predicted_ttc_s": 0.14977814257144928,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 16,
+        "fp": 30,
+        "fn": 0,
+        "tn": 28
+      },
+      "raw_frame_confusion": {
+        "tp": 16,
+        "fp": 42,
+        "fn": 0,
+        "tn": 16
+      }
+    },
+    {
+      "case": "dense-20260718006831-7bb861f4066a",
+      "risk_band": "close",
+      "pool": "dense",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9384398460388184,
+      "minimum_predicted_ttc_s": 0.24624061584472656,
+      "minimum_ground_truth_ttc_s": 0.1606155854439423,
+      "frame_confusion": {
+        "tp": 11,
+        "fp": 26,
+        "fn": 3,
+        "tn": 19
+      },
+      "raw_frame_confusion": {
+        "tp": 13,
+        "fp": 34,
+        "fn": 1,
+        "tn": 11
+      }
+    },
+    {
+      "case": "standard-20260717000152-d6efe6c6e51e",
+      "risk_band": "margin",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.956762433052063,
+      "minimum_predicted_ttc_s": 0.17295017838478088,
+      "minimum_ground_truth_ttc_s": 0.3349013744960782,
+      "frame_confusion": {
+        "tp": 20,
+        "fp": 62,
+        "fn": 0,
+        "tn": 17
+      },
+      "raw_frame_confusion": {
+        "tp": 20,
+        "fp": 69,
+        "fn": 0,
+        "tn": 10
+      }
+    },
+    {
+      "case": "standard-20260717000330-8a0e064175c4",
+      "risk_band": "close",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9703530669212341,
+      "minimum_predicted_ttc_s": 0.11858762055635452,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 8,
+        "fp": 33,
+        "fn": 0,
+        "tn": 37
+      },
+      "raw_frame_confusion": {
+        "tp": 8,
+        "fp": 47,
+        "fn": 0,
+        "tn": 23
+      }
+    },
+    {
+      "case": "standard-20260717000343-25e6e795a314",
+      "risk_band": "close",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9981938600540161,
+      "minimum_predicted_ttc_s": 0.007224664557725191,
+      "minimum_ground_truth_ttc_s": 0.05218791638688937,
+      "frame_confusion": {
+        "tp": 18,
+        "fp": 34,
+        "fn": 3,
+        "tn": 22
+      },
+      "raw_frame_confusion": {
+        "tp": 21,
+        "fp": 40,
+        "fn": 0,
+        "tn": 16
+      }
+    },
+    {
+      "case": "standard-20260717000596-6a2bae2afe4a",
+      "risk_band": "close",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9687756896018982,
+      "minimum_predicted_ttc_s": 0.12489723414182663,
+      "minimum_ground_truth_ttc_s": 0.16923308682802585,
+      "frame_confusion": {
+        "tp": 6,
+        "fp": 74,
+        "fn": 4,
+        "tn": 20
+      },
+      "raw_frame_confusion": {
+        "tp": 9,
+        "fp": 82,
+        "fn": 1,
+        "tn": 12
+      }
+    },
+    {
+      "case": "standard-20260717000739-f0ac7fa013c1",
+      "risk_band": "close",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9918175935745239,
+      "minimum_predicted_ttc_s": 0.0327296145260334,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 18,
+        "fp": 78,
+        "fn": 0,
+        "tn": 20
+      },
+      "raw_frame_confusion": {
+        "tp": 18,
+        "fp": 87,
+        "fn": 0,
+        "tn": 11
+      }
+    },
+    {
+      "case": "standard-20260717000755-a6292cd9241c",
+      "risk_band": "deep",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9627606272697449,
+      "minimum_predicted_ttc_s": 0.1489575207233429,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 6,
+        "fp": 46,
+        "fn": 2,
+        "tn": 11
+      },
+      "raw_frame_confusion": {
+        "tp": 8,
+        "fp": 50,
+        "fn": 0,
+        "tn": 7
+      }
+    },
+    {
+      "case": "standard-20260717000866-cd8ac9c85675",
+      "risk_band": "margin",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.961304783821106,
+      "minimum_predicted_ttc_s": 0.15478095412254333,
+      "minimum_ground_truth_ttc_s": 0.46133267387558197,
+      "frame_confusion": {
+        "tp": 7,
+        "fp": 41,
+        "fn": 1,
+        "tn": 21
+      },
+      "raw_frame_confusion": {
+        "tp": 7,
+        "fp": 50,
+        "fn": 1,
+        "tn": 12
+      }
+    },
+    {
+      "case": "standard-20260717001173-e7b56479a1cd",
+      "risk_band": "close",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9216787815093994,
+      "minimum_predicted_ttc_s": 0.31328487396240234,
+      "minimum_ground_truth_ttc_s": 0.2642028980248707,
+      "frame_confusion": {
+        "tp": 2,
+        "fp": 35,
+        "fn": 0,
+        "tn": 17
+      },
+      "raw_frame_confusion": {
+        "tp": 2,
+        "fp": 42,
+        "fn": 0,
+        "tn": 10
+      }
+    },
+    {
+      "case": "standard-20260717001260-7d08f8f30a54",
+      "risk_band": "margin",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9599734544754028,
+      "minimum_predicted_ttc_s": 0.16010616719722748,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 7,
+        "fp": 51,
+        "fn": 3,
+        "tn": 36
+      },
+      "raw_frame_confusion": {
+        "tp": 9,
+        "fp": 67,
+        "fn": 1,
+        "tn": 20
+      }
+    },
+    {
+      "case": "standard-20260717001950-8e2b5659e0ef",
+      "risk_band": "deep",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.990221381187439,
+      "minimum_predicted_ttc_s": 0.039114534854888916,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 20,
+        "fp": 24,
+        "fn": 4,
+        "tn": 21
+      },
+      "raw_frame_confusion": {
+        "tp": 22,
+        "fp": 33,
+        "fn": 2,
+        "tn": 12
+      }
+    },
+    {
+      "case": "standard-20260717002014-6b91e541130c",
+      "risk_band": "margin",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9617120623588562,
+      "minimum_predicted_ttc_s": 0.1531517654657364,
+      "minimum_ground_truth_ttc_s": 0.0650038176287975,
+      "frame_confusion": {
+        "tp": 9,
+        "fp": 48,
+        "fn": 5,
+        "tn": 24
+      },
+      "raw_frame_confusion": {
+        "tp": 11,
+        "fp": 57,
+        "fn": 3,
+        "tn": 15
+      }
+    },
+    {
+      "case": "standard-20260717002130-2aa07ff0bdb8",
+      "risk_band": "deep",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9474279880523682,
+      "minimum_predicted_ttc_s": 0.21028806269168854,
+      "minimum_ground_truth_ttc_s": 0.8619436387586913,
+      "frame_confusion": {
+        "tp": 6,
+        "fp": 46,
+        "fn": 0,
+        "tn": 29
+      },
+      "raw_frame_confusion": {
+        "tp": 6,
+        "fp": 59,
+        "fn": 0,
+        "tn": 16
+      }
+    },
+    {
+      "case": "standard-20260717002245-95271ff7457b",
+      "risk_band": "close",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9769080281257629,
+      "minimum_predicted_ttc_s": 0.092367984354496,
+      "minimum_ground_truth_ttc_s": 0.030690311410768327,
+      "frame_confusion": {
+        "tp": 6,
+        "fp": 34,
+        "fn": 0,
+        "tn": 26
+      },
+      "raw_frame_confusion": {
+        "tp": 6,
+        "fp": 45,
+        "fn": 0,
+        "tn": 15
+      }
+    },
+    {
+      "case": "standard-20260717002599-938e9c4a6af7",
+      "risk_band": "deep",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9945136904716492,
+      "minimum_predicted_ttc_s": 0.021945226937532425,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 10,
+        "fp": 31,
+        "fn": 0,
+        "tn": 24
+      },
+      "raw_frame_confusion": {
+        "tp": 10,
+        "fp": 40,
+        "fn": 0,
+        "tn": 15
+      }
+    },
+    {
+      "case": "standard-20260717002987-91a75ecfb355",
+      "risk_band": "margin",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9899906516075134,
+      "minimum_predicted_ttc_s": 0.04003732651472092,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 19,
+        "fp": 47,
+        "fn": 5,
+        "tn": 25
+      },
+      "raw_frame_confusion": {
+        "tp": 22,
+        "fp": 58,
+        "fn": 2,
+        "tn": 14
+      }
+    },
+    {
+      "case": "standard-20260717003077-b8c7e030c6bb",
+      "risk_band": "deep",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9514034986495972,
+      "minimum_predicted_ttc_s": 0.19438610970973969,
+      "minimum_ground_truth_ttc_s": 0.18475796708206957,
+      "frame_confusion": {
+        "tp": 25,
+        "fp": 102,
+        "fn": 3,
+        "tn": 57
+      },
+      "raw_frame_confusion": {
+        "tp": 27,
+        "fp": 126,
+        "fn": 1,
+        "tn": 33
+      }
+    },
+    {
+      "case": "standard-20260717003116-91ff394307bc",
+      "risk_band": "deep",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.991693913936615,
+      "minimum_predicted_ttc_s": 0.033224426209926605,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 12,
+        "fp": 53,
+        "fn": 0,
+        "tn": 17
+      },
+      "raw_frame_confusion": {
+        "tp": 12,
+        "fp": 60,
+        "fn": 0,
+        "tn": 10
+      }
+    },
+    {
+      "case": "standard-20260717003169-86a6d0de3ba4",
+      "risk_band": "margin",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9511275887489319,
+      "minimum_predicted_ttc_s": 0.1954895704984665,
+      "minimum_ground_truth_ttc_s": 0.23182257063566702,
+      "frame_confusion": {
+        "tp": 2,
+        "fp": 37,
+        "fn": 4,
+        "tn": 19
+      },
+      "raw_frame_confusion": {
+        "tp": 5,
+        "fp": 44,
+        "fn": 1,
+        "tn": 12
+      }
+    },
+    {
+      "case": "standard-20260717003254-14ff2682eb2b",
+      "risk_band": "deep",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9942888021469116,
+      "minimum_predicted_ttc_s": 0.022844841703772545,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 10,
+        "fp": 40,
+        "fn": 2,
+        "tn": 22
+      },
+      "raw_frame_confusion": {
+        "tp": 11,
+        "fp": 50,
+        "fn": 1,
+        "tn": 12
+      }
+    },
+    {
+      "case": "standard-20260717003266-08dcb8e632c8",
+      "risk_band": "close",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.987775981426239,
+      "minimum_predicted_ttc_s": 0.04889601096510887,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 9,
+        "fp": 63,
+        "fn": 7,
+        "tn": 27
+      },
+      "raw_frame_confusion": {
+        "tp": 12,
+        "fp": 73,
+        "fn": 4,
+        "tn": 17
+      }
+    },
+    {
+      "case": "standard-20260717003463-916cc60dfe76",
+      "risk_band": "deep",
+      "pool": "standard",
+      "episode_target": false,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9723684787750244,
+      "minimum_predicted_ttc_s": 0.11052607744932175,
+      "minimum_ground_truth_ttc_s": null,
+      "frame_confusion": {
+        "tp": 0,
+        "fp": 92,
+        "fn": 0,
+        "tn": 38
+      },
+      "raw_frame_confusion": {
+        "tp": 0,
+        "fp": 109,
+        "fn": 0,
+        "tn": 21
+      }
+    },
+    {
+      "case": "standard-20260717003665-23860f847a89",
+      "risk_band": "close",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9897676110267639,
+      "minimum_predicted_ttc_s": 0.0409296490252018,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 28,
+        "fp": 41,
+        "fn": 2,
+        "tn": 24
+      },
+      "raw_frame_confusion": {
+        "tp": 29,
+        "fp": 51,
+        "fn": 1,
+        "tn": 14
+      }
+    },
+    {
+      "case": "standard-20260717003747-a2a63599cea5",
+      "risk_band": "margin",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9823639988899231,
+      "minimum_predicted_ttc_s": 0.07054398953914642,
+      "minimum_ground_truth_ttc_s": 0.46756620696389883,
+      "frame_confusion": {
+        "tp": 11,
+        "fp": 29,
+        "fn": 5,
+        "tn": 25
+      },
+      "raw_frame_confusion": {
+        "tp": 13,
+        "fp": 39,
+        "fn": 3,
+        "tn": 15
+      }
+    },
+    {
+      "case": "standard-20260717004285-3e35f5e293b2",
+      "risk_band": "deep",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9844642281532288,
+      "minimum_predicted_ttc_s": 0.062143053859472275,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 16,
+        "fp": 53,
+        "fn": 4,
+        "tn": 15
+      },
+      "raw_frame_confusion": {
+        "tp": 18,
+        "fp": 60,
+        "fn": 2,
+        "tn": 8
+      }
+    },
+    {
+      "case": "standard-20260717004311-8a38f0b55d63",
+      "risk_band": "margin",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.969249963760376,
+      "minimum_predicted_ttc_s": 0.12300018966197968,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 21,
+        "fp": 67,
+        "fn": 9,
+        "tn": 14
+      },
+      "raw_frame_confusion": {
+        "tp": 26,
+        "fp": 73,
+        "fn": 4,
+        "tn": 8
+      }
+    },
+    {
+      "case": "standard-20260717004382-dc45b126f60f",
+      "risk_band": "close",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9677714109420776,
+      "minimum_predicted_ttc_s": 0.12891432642936707,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 11,
+        "fp": 27,
+        "fn": 5,
+        "tn": 36
+      },
+      "raw_frame_confusion": {
+        "tp": 14,
+        "fp": 41,
+        "fn": 2,
+        "tn": 22
+      }
+    },
+    {
+      "case": "standard-20260717004518-eac7447a27e6",
+      "risk_band": "deep",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9901214241981506,
+      "minimum_predicted_ttc_s": 0.039514362812042236,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 10,
+        "fp": 45,
+        "fn": 0,
+        "tn": 34
+      },
+      "raw_frame_confusion": {
+        "tp": 10,
+        "fp": 59,
+        "fn": 0,
+        "tn": 20
+      }
+    },
+    {
+      "case": "standard-20260717004689-af000cb57d87",
+      "risk_band": "margin",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9858841896057129,
+      "minimum_predicted_ttc_s": 0.05646313354372978,
+      "minimum_ground_truth_ttc_s": 0.0,
+      "frame_confusion": {
+        "tp": 28,
+        "fp": 46,
+        "fn": 0,
+        "tn": 23
+      },
+      "raw_frame_confusion": {
+        "tp": 28,
+        "fp": 56,
+        "fn": 0,
+        "tn": 13
+      }
+    },
+    {
+      "case": "standard-20260717004895-c934c46ff67a",
+      "risk_band": "close",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.960288405418396,
+      "minimum_predicted_ttc_s": 0.15884627401828766,
+      "minimum_ground_truth_ttc_s": 0.40593502058843894,
+      "frame_confusion": {
+        "tp": 12,
+        "fp": 53,
+        "fn": 2,
+        "tn": 26
+      },
+      "raw_frame_confusion": {
+        "tp": 13,
+        "fp": 64,
+        "fn": 1,
+        "tn": 15
+      }
+    },
+    {
+      "case": "standard-20260717004988-b21fe1859482",
+      "risk_band": "margin",
+      "pool": "standard",
+      "episode_target": true,
+      "episode_prediction": true,
+      "episode_raw_prediction": true,
+      "max_urgency": 0.9154316782951355,
+      "minimum_predicted_ttc_s": 0.338273286819458,
+      "minimum_ground_truth_ttc_s": 0.1408335104665537,
+      "frame_confusion": {
+        "tp": 5,
+        "fp": 50,
+        "fn": 3,
+        "tn": 24
+      },
+      "raw_frame_confusion": {
+        "tp": 7,
+        "fp": 58,
+        "fn": 1,
+        "tn": 16
+      }
+    }
+  ]
+}
