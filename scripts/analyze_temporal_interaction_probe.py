@@ -125,9 +125,15 @@ def evaluate_episode(
     persistence,
 ):
     agent_names = list(scenario["agents"])
+    first_temporal_scan = frames[0].get("temporal_lidar")
+    scan_dim = (
+        len(first_temporal_scan[agent_names[0]])
+        if first_temporal_scan is not None
+        else 20
+    )
     encoders = {
         name: TemporalInteractionEncoder(
-            build_front_lidar_gaps(20),
+            build_front_lidar_gaps(scan_dim),
             collision_distance=0.35,
             ttc_horizon=4.0,
         )
@@ -173,8 +179,14 @@ def evaluate_episode(
             if name not in active_names:
                 continue
             pose = frame["actor_poses"][name]
+            temporal_scan = frame.get("temporal_lidar")
+            scan = (
+                temporal_scan[name]
+                if temporal_scan is not None
+                else frame["actor_states"][index][:20]
+            )
             result = encoders[name].update(
-                frame["actor_states"][index][:20],
+                scan,
                 [pose["x"], pose["y"], pose["yaw"]],
                 pose["timestamp"],
             )
@@ -222,6 +234,7 @@ def evaluate_episode(
         "max_urgency": max_urgency,
         "minimum_predicted_ttc_s": minimum_predicted_ttc,
         "minimum_ground_truth_ttc_s": minimum_ground_truth_ttc,
+        "lidar_sectors": scan_dim,
         "frame_confusion": frame_confusion,
         "raw_frame_confusion": raw_frame_confusion,
     }
@@ -294,6 +307,7 @@ def main():
             "prediction_persistence_frames": args.prediction_persistence,
             "deployable_inputs": ["front_lidar", "self_odometry", "timestamp"],
             "ground_truth_only_inputs": ["other_robot_positions"],
+            "lidar_sectors": sorted({item["lidar_sectors"] for item in episodes}),
         },
         "frame_metrics": combine_confusions(episodes, "frame_confusion"),
         "raw_frame_metrics": combine_confusions(episodes, "raw_frame_confusion"),

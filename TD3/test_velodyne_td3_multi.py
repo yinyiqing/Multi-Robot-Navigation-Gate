@@ -594,6 +594,14 @@ while True:
             "active_before": step_active_mask,
             "actor_states": step_actor_states,
             "actor_poses": step_actor_poses,
+            "temporal_lidar": (
+                {
+                    name: [float(value) for value in env.temporal_lidar_data[name]]
+                    for name in agent_names
+                }
+                if env.temporal_lidar_dim
+                else None
+            ),
             "actions": [[float(value) for value in action] for action in env_actions],
             "positions": {
                 name: [float(value) for value in env.robot_positions[name]]

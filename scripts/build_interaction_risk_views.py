@@ -35,6 +35,7 @@ def parse_args():
     )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--probe-per-pool", type=int, default=10)
+    parser.add_argument("--sensor-probe-per-pool", type=int, default=5)
     parser.add_argument("--seed", type=int, default=20260721)
     return parser.parse_args()
 
@@ -81,6 +82,10 @@ def main():
     args = parse_args()
     if args.probe_per_pool < 1:
         raise ValueError("--probe-per-pool must be positive")
+    if args.sensor_probe_per_pool < 1:
+        raise ValueError("--sensor-probe-per-pool must be positive")
+    if args.sensor_probe_per_pool > args.probe_per_pool:
+        raise ValueError("--sensor-probe-per-pool cannot exceed --probe-per-pool")
 
     pools = ("standard", "dense")
     splits = ("train", "validation")
@@ -122,6 +127,7 @@ def main():
     }
     summary = {"risk_bands": thresholds, "bands": {}}
     combined_probe = []
+    sensor_probe = []
 
     for band_index, (band, _, _) in enumerate(RISK_BANDS):
         band_dir = args.output / band
@@ -147,6 +153,12 @@ def main():
         random.Random(args.seed + band_index * 1000 + 500).shuffle(train)
         random.Random(args.seed + band_index * 1000 + 600).shuffle(validation)
         combined_probe.extend(train)
+        for pool in pools:
+            sensor_probe.extend(
+                [item for item in train if item["preset"] == pool][
+                    : args.sensor_probe_per_pool
+                ]
+            )
 
         config = dict(common_config)
         config.update(
@@ -207,6 +219,29 @@ def main():
     summary["combined_probe"] = {
         "path": str(combined_path),
         "scenarios": len(combined_probe),
+    }
+    random.Random(args.seed + 6000).shuffle(sensor_probe)
+    sensor_probe_path = args.output / "sensor_probe.json.gz"
+    sensor_config = dict(common_config)
+    sensor_config.update(
+        {
+            "selected_risk_band": "all",
+            "sensor_probe_per_pool_per_band": args.sensor_probe_per_pool,
+        }
+    )
+    write_gzip_json(
+        sensor_probe_path,
+        make_payload(
+            "interaction-risk-balanced-sensor-probe-v1",
+            "train",
+            sensor_probe,
+            source_records,
+            sensor_config,
+        ),
+    )
+    summary["sensor_probe"] = {
+        "path": str(sensor_probe_path),
+        "scenarios": len(sensor_probe),
     }
 
     print(json.dumps(summary, indent=2, ensure_ascii=False))

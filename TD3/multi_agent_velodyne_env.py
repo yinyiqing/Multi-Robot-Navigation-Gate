@@ -20,6 +20,7 @@ from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
 
 from scenario_manifests import load_manifest_dataset, validate_manifest_scenarios
+from temporal_interaction import build_front_lidar_gaps
 from velodyne_env import COLLISION_DIST, GOAL_REACHED_DIST, TIME_DELTA, check_pos
 
 
@@ -42,6 +43,13 @@ def _env_float(name, default):
     if value is None or value.strip() == "":
         return default
     return float(value)
+
+
+def _env_int(name, default):
+    value = os.environ.get(name)
+    if value is None or value.strip() == "":
+        return default
+    return int(value)
 
 
 def _env_range(name, default):
@@ -206,6 +214,12 @@ class MultiAgentGazeboEnv:
         self.velodyne_data = {
             name: np.ones(self.environment_dim) * 10 for name in self.agent_names
         }
+        self.temporal_lidar_dim = _env_int("DRL_MULTI_TEMPORAL_LIDAR_DIM", 0)
+        if self.temporal_lidar_dim < 0:
+            raise ValueError("DRL_MULTI_TEMPORAL_LIDAR_DIM must be non-negative")
+        self.temporal_lidar_data = {
+            name: np.ones(self.temporal_lidar_dim) * 10 for name in self.agent_names
+        }
         self.last_odom = {name: None for name in self.agent_names}
         self.previous_distances = {name: None for name in self.agent_names}
         self.goal_positions = {name: np.array([1.0, 0.0]) for name in self.agent_names}
@@ -223,6 +237,11 @@ class MultiAgentGazeboEnv:
                 [self.gaps[m][1], self.gaps[m][1] + np.pi / self.environment_dim]
             )
         self.gaps[-1][-1] += 0.03
+        self.temporal_lidar_gaps = None
+        if self.temporal_lidar_dim:
+            self.temporal_lidar_gaps = build_front_lidar_gaps(
+                self.temporal_lidar_dim
+            )
 
         port = os.environ.get("ROS_PORT_SIM", "11311")
         ros_master_uri = os.environ.get("ROS_MASTER_URI", "").strip()
@@ -507,6 +526,7 @@ class MultiAgentGazeboEnv:
         def callback(msg):
             data = list(pc2.read_points(msg, skip_nans=False, field_names=("x", "y", "z")))
             agent_scan = np.ones(self.environment_dim) * 10
+            temporal_scan = np.ones(self.temporal_lidar_dim) * 10
             for point in data:
                 if point[2] <= -0.2:
                     continue
@@ -521,7 +541,24 @@ class MultiAgentGazeboEnv:
                     if gap[0] <= beta < gap[1]:
                         agent_scan[idx] = min(agent_scan[idx], dist)
                         break
+                if self.temporal_lidar_dim:
+                    temporal_index = int(
+                        np.searchsorted(
+                            self.temporal_lidar_gaps[:, 1], beta, side="right"
+                        )
+                    )
+                    if (
+                        0 <= temporal_index < self.temporal_lidar_dim
+                        and self.temporal_lidar_gaps[temporal_index, 0]
+                        <= beta
+                        < self.temporal_lidar_gaps[temporal_index, 1]
+                    ):
+                        temporal_scan[temporal_index] = min(
+                            temporal_scan[temporal_index], dist
+                        )
             self.velodyne_data[name] = agent_scan
+            if self.temporal_lidar_dim:
+                self.temporal_lidar_data[name] = temporal_scan
 
         return callback
 

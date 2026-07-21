@@ -63,6 +63,16 @@ class ScenarioManifestTests(unittest.TestCase):
             self.assertEqual(sum(item["preset"] == "standard" for item in selected), 10)
             self.assertEqual(sum(item["preset"] == "dense" for item in selected), 10)
 
+        sensor_probe = load_manifest_dataset(view_root / "sensor_probe.json.gz")[
+            "scenarios"
+        ]
+        self.assertEqual(len(sensor_probe), 30)
+        for band, _, _ in RISK_BANDS:
+            selected = [item for item in sensor_probe if risk_band(item) == band]
+            self.assertEqual(len(selected), 10)
+            self.assertEqual(sum(item["preset"] == "standard" for item in selected), 5)
+            self.assertEqual(sum(item["preset"] == "dense" for item in selected), 5)
+
     def test_dense_generation_is_deterministic_and_valid(self):
         first = generate_scenario(1234, PRESETS["dense"])
         second = generate_scenario(1234, PRESETS["dense"])
