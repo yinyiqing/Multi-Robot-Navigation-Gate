@@ -237,6 +237,7 @@ test_stats_path = os.environ.get(
     "DRL_MULTI_TEST_STATS_PATH",
     default_test_stats_path,
 )
+trajectory_path = os.environ.get("DRL_MULTI_TRAJECTORY_JSONL", "").strip()
 print_every_episodes = 10
 environment_dim = 20
 robot_dim = 4
@@ -267,6 +268,15 @@ def append_stats(record):
         history = []
     history.append(record)
     np.save(test_stats_path, np.array(history, dtype=object))
+
+
+def append_trajectory_step(record):
+    if not trajectory_path:
+        return
+    directory = os.path.dirname(os.path.abspath(trajectory_path))
+    os.makedirs(directory, exist_ok=True)
+    with open(trajectory_path, "a", encoding="utf-8") as handle:
+        handle.write(json.dumps(record, separators=(",", ":")) + "\n")
 
 
 def current_case_name(env):
@@ -481,6 +491,7 @@ print("Starting episode:", episode_num)
 print("Starting env steps:", total_env_steps)
 print("Starting agent samples:", total_agent_samples)
 print("Target test episodes:", target_test_episodes or "unlimited")
+print("Trajectory JSONL:", trajectory_path or "disabled")
 if scenario_mode in ("curriculum", "manifest"):
     print("Case-level stats enabled")
 print("==============================================")
@@ -503,6 +514,8 @@ episode_standard_action_steps = np.zeros(len(agent_names), dtype=np.int32)
 
 while True:
     env_actions = []
+    step_active_mask = list(active_mask)
+    step_actor_states = [np.asarray(state, dtype=float).tolist() for state in states]
 
     for idx, state in enumerate(states):
         if not active_mask[idx]:
@@ -525,6 +538,29 @@ while True:
     next_states, rewards, dones, targets, collisions = env.step(env_actions, active_mask)
     total_env_steps += 1
     step_agents = env.last_step_info["agents"]
+    append_trajectory_step(
+        {
+            "episode": episode_num + 1,
+            "case": episode_case_name,
+            "step": episode_env_steps + 1,
+            "active_before": step_active_mask,
+            "actor_states": step_actor_states,
+            "actions": [[float(value) for value in action] for action in env_actions],
+            "positions": {
+                name: [float(value) for value in env.robot_positions[name]]
+                for name in agent_names
+            },
+            "agents": {
+                name: {
+                    "target": bool(targets[idx]),
+                    "collision": bool(collisions[idx]),
+                    "distance": float(step_agents[name]["distance"]),
+                    "min_laser": float(step_agents[name]["min_laser"]),
+                }
+                for idx, name in enumerate(agent_names)
+            },
+        }
+    )
 
     truncated = episode_env_steps + 1 == max_ep
     for idx in range(len(agent_names)):
