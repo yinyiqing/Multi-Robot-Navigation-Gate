@@ -40,7 +40,7 @@
 | `train-standard-expert-v2` | 5D Actor+Critic warm-start + anchor | fixed standard/train | `failed diagnostic` | epoch 1-3 agent success `0.864 -> 0.850 -> 0.818` |
 | `train-standard-expert-v3` | v2 + timeout/update-ratio fixes | fixed standard/train | `rejected candidate` | 完整 validation 不优于 5D，且平均多 `8.378` 步 |
 | `train-interaction-edge1-residual-pilot` | frozen 5D + bounded residual | balanced edge-1 view | `rejected candidate` | residual 恒定饱和，full success `0.5130 -> 0.4704` |
-| `train-interaction-edge1-conservative-v2` | normalized-Q + base-action anchor | balanced edge-1 view | `ready` | 直接验证价值高估/动作外推修复 |
+| `train-interaction-edge1-conservative-v2` | normalized-Q + base-action anchor | balanced edge-1 view | `rejected candidate` | 饱和已修复但 full success 仅 `0.5177` |
 | `train-dense-expert` | 5D warm-start full Actor | fixed dense/train | `planned` | standard expert 流程稳定后启动 |
 | `train-temporal-gate` | standard + dense experts | fixed standard/dense mix | `planned` | 专家互补性达到 D5 后才允许训练 |
 

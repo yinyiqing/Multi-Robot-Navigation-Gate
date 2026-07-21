@@ -1,0 +1,40 @@
+{
+  "result_version": 1,
+  "status": "rejected_candidate",
+  "model_id": "interaction-expert-edge1-conservative-residual-v2-s20260720",
+  "train_agent_samples": 40139,
+  "validation_scenarios": 423,
+  "result": {
+    "agent_success_count": 1779,
+    "agent_success": 0.8411347517730496,
+    "collision_count": 334,
+    "collision": 0.15791962174940896,
+    "unresolved_count": 2,
+    "unresolved": 0.0009456264775413712,
+    "full_success_count": 219,
+    "full_success": 0.5177304964539007,
+    "timeout_count": 2,
+    "timeout": 0.004728132387706856,
+    "mean_steps": 34.88179669030733,
+    "mean_final_distance": 0.3002492159430358
+  },
+  "residual_diagnostic": {
+    "replay_states": 40139,
+    "mean": [0.02090021, -0.01070414],
+    "standard_deviation": [0.00487244, 0.00418231],
+    "mean_absolute": [0.02090021, 0.01070673],
+    "max_absolute": [0.04215153, 0.03323621],
+    "boundary_share": 0.0,
+    "last_100_mean_q": 73.39949615478515,
+    "last_100_mean_max_q": 132.7843943786621,
+    "last_100_q_normalization_scale": 74.64637016296386
+  },
+  "decision": "stop_actor_objective_tuning_and_revisit_interaction_observation_or_supervision",
+  "sha256": {
+    "best_actor.pth": "549e10fd516d1ac0f343e2e98781d5b17d7cb5a95344cc1653a8e59a67f2038b",
+    "best_critic.pth": "da9cc882c80231f1a7b6528fb613e95c80b8591d6a9396f5daeada6092717c06",
+    "evaluations.npy": "1c86a92d92e5a6f8d4f8cbeb3a430c4d421573ad659f3e138c3956a23b37ce8e",
+    "tensorboard.tfevents": "a784db12d71c00924bc6346a08cb773a4c9e85a943840b6b541a4a30e8ea99a0",
+    "train.log": "5ccc9e9ef54bfe4f54e204a59ce0174ab1bcb7efdd86205018925458035fd887"
+  }
+}
