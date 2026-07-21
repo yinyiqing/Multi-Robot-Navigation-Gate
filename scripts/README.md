@@ -59,6 +59,7 @@ start|stop _ training|test _ detached _ <historical-run-name>.sh
 - `compare_interaction_probe_summaries.py`：按 scenario ID 和几何风险层配对比较两次 probe，并计算只在指定风险层采用候选策略的诊断上限。
 - `start/stop_test_interaction_risk_probe_5d.sh`：在 60 场均衡风险 probe 上运行冻结 5D，并可选记录逐帧轨迹 JSONL。
 - `start/stop_test_interaction_risk_yield_oracle.sh`：在同一 probe 上用特权冲突对标签运行固定优先级停车让行上限。
+- `start/stop_test_temporal_interaction_probe_5d.sh`：重放同一 60 场 probe，记录单机激光、位姿和时间戳，用于验证自运动补偿的时序闭合速度/TTC。
 - `stop_training_fixed_v1_standard_expert.sh`：停止 standard expert 训练进程组。
 - 训练 checkpoint 会按 validation 协议隔离 best，并在每轮验证后保存独立的 `epoch_NNN` 模型快照。
 - 多机器人训练中 timeout transition 记为 terminal，Critic 更新按有效 agent samples 归一化；旧训练结果不与修复后结果混合。

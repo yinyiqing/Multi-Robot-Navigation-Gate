@@ -543,6 +543,15 @@ while True:
     env_actions = []
     step_active_mask = list(active_mask)
     step_actor_states = [np.asarray(state, dtype=float).tolist() for state in states]
+    step_actor_poses = {
+        name: {
+            "x": float(env.last_odom[name].pose.pose.position.x),
+            "y": float(env.last_odom[name].pose.pose.position.y),
+            "yaw": float(env._get_robot_yaw(name)),
+            "timestamp": float(env.last_odom[name].header.stamp.to_sec()),
+        }
+        for name in agent_names
+    }
 
     for idx, state in enumerate(states):
         if not active_mask[idx]:
@@ -584,6 +593,7 @@ while True:
             "step": episode_env_steps + 1,
             "active_before": step_active_mask,
             "actor_states": step_actor_states,
+            "actor_poses": step_actor_poses,
             "actions": [[float(value) for value in action] for action in env_actions],
             "positions": {
                 name: [float(value) for value in env.robot_positions[name]]
