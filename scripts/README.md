@@ -55,6 +55,7 @@ start|stop _ training|test _ detached _ <historical-run-name>.sh
 - `start/stop_training_fixed_v1_edge1_residual_pilot.sh`：冻结 5D 主体，在平衡 edge-1 视图上先预热 Critic、再训练 bounded residual 的受控 pilot。
 - `start/stop_training_fixed_v1_edge1_conservative_residual_v2.sh`：复用 edge-1 epoch 1 Critic，以归一化 Q 和基础动作约束训练单轮 conservative residual。
 - `build_interaction_risk_views.py`：按同步路径最小间距将 edge-1 场景派生为 deep/close/margin 三档几何风险视图。
+- `analyze_interaction_risk_probe.py`：回连风险 probe 的 manifest、episode 结果和逐帧轨迹，统计实际冲突对间距、闭合速度和 TTC。
 - `start/stop_test_interaction_risk_probe_5d.sh`：在 60 场均衡风险 probe 上运行冻结 5D，并可选记录逐帧轨迹 JSONL。
 - `stop_training_fixed_v1_standard_expert.sh`：停止 standard expert 训练进程组。
 - 训练 checkpoint 会按 validation 协议隔离 best，并在每轮验证后保存独立的 `epoch_NNN` 模型快照。

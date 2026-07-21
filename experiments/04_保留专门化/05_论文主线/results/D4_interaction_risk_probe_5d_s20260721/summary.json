@@ -1,0 +1,1597 @@
+{
+  "protocol": {
+    "manifest": "experiments/04_保留专门化/05_论文主线/datasets/fixed_v1/views/interaction_risk_v1/probe.json.gz",
+    "manifest_sha256": "13d6abc630c8c52565981f79b03926d944a36117a35fcdc9902bcf91e041714f",
+    "log": "logs/test_interaction_risk_probe_v1_5d_s20260721_20260721_153125.log",
+    "log_sha256": "d1f1626d9a1a21b2cee87ada81fcd9ae4d8ad346d544fe599e5070d741ee712a",
+    "trajectory": "logs/interaction_risk_probe_v1_5d_s20260721_trajectory.jsonl",
+    "trajectory_sha256": "05079b2a0a89724d772d9a29783dcdfc57b4ecc4b487ff51774415c36c76e5e1",
+    "encounter_distance_m": 1.2,
+    "step_seconds": 0.2
+  },
+  "overall": {
+    "episodes": 60,
+    "agent_success": 0.83,
+    "collision": 0.17,
+    "full_success": 0.5166666666666667,
+    "actual_pair_min_distance_mean_m": 0.7111513680504254,
+    "actual_pair_min_distance_median_m": 0.7232036551725615
+  },
+  "by_risk_band": {
+    "deep": {
+      "episodes": 20,
+      "agent_success": 0.69,
+      "collision": 0.31,
+      "full_success": 0.15,
+      "actual_pair_min_distance_mean_m": 0.5246557840553833,
+      "actual_pair_min_distance_median_m": 0.42907771438489717
+    },
+    "close": {
+      "episodes": 20,
+      "agent_success": 0.86,
+      "collision": 0.14,
+      "full_success": 0.55,
+      "actual_pair_min_distance_mean_m": 0.7543295067815028,
+      "actual_pair_min_distance_median_m": 0.7265906399644486
+    },
+    "margin": {
+      "episodes": 20,
+      "agent_success": 0.94,
+      "collision": 0.06,
+      "full_success": 0.85,
+      "actual_pair_min_distance_mean_m": 0.8544688133143903,
+      "actual_pair_min_distance_median_m": 0.8918630247362278
+    }
+  },
+  "by_pool": {
+    "standard": {
+      "episodes": 30,
+      "agent_success": 0.8666666666666667,
+      "collision": 0.13333333333333333,
+      "full_success": 0.6,
+      "actual_pair_min_distance_mean_m": 0.7873948564084077,
+      "actual_pair_min_distance_median_m": 0.7789818319296028
+    },
+    "dense": {
+      "episodes": 30,
+      "agent_success": 0.7933333333333333,
+      "collision": 0.20666666666666667,
+      "full_success": 0.43333333333333335,
+      "actual_pair_min_distance_mean_m": 0.6349078796924431,
+      "actual_pair_min_distance_median_m": 0.5744484943089395
+    }
+  },
+  "failure_attribution": {
+    "failed_episodes": 29,
+    "failures_with_any_conflict_pair_member_colliding": 29,
+    "failures_with_both_conflict_pair_members_colliding": 18
+  },
+  "encounters": {
+    "success": {
+      "encounters": 29,
+      "distance_m_mean": 1.115630452523397,
+      "distance_m_median": 1.1422724393329982,
+      "closing_speed_mps_mean": 0.503291464198902,
+      "closing_speed_mps_median": 0.42760525262076965,
+      "ttc_s_mean": 3.6178423784143146,
+      "ttc_s_median": 2.5470701275760024,
+      "mean_linear_mean": 0.8266630033994543,
+      "mean_linear_median": 0.9999955743551254,
+      "mean_abs_angular_mean": 0.8225952508891451,
+      "mean_abs_angular_median": 0.9721893668174744,
+      "mean_lidar_min_m_mean": 0.9446284080671992,
+      "mean_lidar_min_m_median": 0.9948707834975667,
+      "step_seconds": 0.2
+    },
+    "failure": {
+      "encounters": 27,
+      "distance_m_mean": 1.1080149119833298,
+      "distance_m_median": 1.1336102509397723,
+      "closing_speed_mps_mean": 0.7322919826495166,
+      "closing_speed_mps_median": 0.7301548635525834,
+      "ttc_s_mean": 1.949548227362637,
+      "ttc_s_median": 1.5908802787402945,
+      "mean_linear_mean": 0.9432733235535798,
+      "mean_linear_median": 1.0,
+      "mean_abs_angular_mean": 0.912518201050935,
+      "mean_abs_angular_median": 0.9982481598854065,
+      "mean_lidar_min_m_mean": 1.0208756288089311,
+      "mean_lidar_min_m_median": 1.0350668251615964,
+      "step_seconds": 0.2
+    }
+  },
+  "episodes": [
+    {
+      "case": "standard-20260717004382-dc45b126f60f",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "close",
+      "pool": "standard",
+      "offline_separation_m": 0.4538116640881177,
+      "conflict_pair": [
+        "r1",
+        "r3"
+      ],
+      "actual_pair_min_distance_m": 0.7343817501225449,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.1223573174231791,
+        "closing_speed_mps": 0.9740955418103392,
+        "ttc_s": 1.1522045520681659,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.9179230630397797,
+        "mean_lidar_min_m": 1.0687753215319686
+      }
+    },
+    {
+      "case": "dense-20260718005909-4fb41e28c3da",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "margin",
+      "pool": "dense",
+      "offline_separation_m": 0.8624453666508717,
+      "conflict_pair": [
+        "r1",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 1.1801250759358373,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.1975525756839642,
+        "closing_speed_mps": 0.06604464263567866,
+        "ttc_s": 18.132471126992243,
+        "mean_linear": 0.0,
+        "mean_abs_angular": 0.0,
+        "mean_lidar_min_m": 1.15933959280815
+      }
+    },
+    {
+      "case": "dense-20260718003165-e41e1443308b",
+      "success": 3,
+      "collision": 2,
+      "full_success": 0,
+      "risk_band": "close",
+      "pool": "dense",
+      "offline_separation_m": 0.5957543822220354,
+      "conflict_pair": [
+        "r1",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 0.36671174905573756,
+      "collision_names": [
+        "r1",
+        "r5"
+      ],
+      "conflict_pair_collision_members": 2,
+      "encounter": {
+        "distance_m": 1.0272973743128435,
+        "closing_speed_mps": 1.1115299045687355,
+        "ttc_s": 0.9242192855903653,
+        "mean_linear": 0.9924798160791397,
+        "mean_abs_angular": 0.9999888837337494,
+        "mean_lidar_min_m": 0.9648818398526846
+      }
+    },
+    {
+      "case": "dense-20260718006570-59f98ab89f90",
+      "success": 3,
+      "collision": 2,
+      "full_success": 0,
+      "risk_band": "deep",
+      "pool": "dense",
+      "offline_separation_m": 0.03324520415225399,
+      "conflict_pair": [
+        "r3",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 0.3577687427421959,
+      "collision_names": [
+        "r3",
+        "r5"
+      ],
+      "conflict_pair_collision_members": 2,
+      "encounter": {
+        "distance_m": 1.1892705316881087,
+        "closing_speed_mps": 0.6780861364909918,
+        "ttc_s": 1.7538635103829583,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.9998141229152679,
+        "mean_lidar_min_m": 1.0727721617019803
+      }
+    },
+    {
+      "case": "dense-20260718002849-39596f378060",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "margin",
+      "pool": "dense",
+      "offline_separation_m": 0.6158460356806712,
+      "conflict_pair": [
+        "r1",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.7892592785765099,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.0838983483811886,
+        "closing_speed_mps": 0.45197846632472616,
+        "ttc_s": 2.398119444041072,
+        "mean_linear": 0.5000099837779999,
+        "mean_abs_angular": 0.9999485015869141,
+        "mean_lidar_min_m": 0.9452640772906451
+      }
+    },
+    {
+      "case": "standard-20260717000152-d6efe6c6e51e",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "margin",
+      "pool": "standard",
+      "offline_separation_m": 0.886442903028252,
+      "conflict_pair": [
+        "r4",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 0.8935829447144297,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.1800462472827309,
+        "closing_speed_mps": 0.1785564419516239,
+        "ttc_s": 6.608813629935791,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.9997769296169281,
+        "mean_lidar_min_m": 0.9948707834975667
+      }
+    },
+    {
+      "case": "standard-20260717003665-23860f847a89",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "close",
+      "pool": "standard",
+      "offline_separation_m": 0.5000227412301711,
+      "conflict_pair": [
+        "r4",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 0.7350589571090157,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.1634642381280784,
+        "closing_speed_mps": 0.7242307877362719,
+        "ttc_s": 1.6064827094201815,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.743665874004364,
+        "mean_lidar_min_m": 1.0207798106920052
+      }
+    },
+    {
+      "case": "dense-20260718004815-be26ea64b10d",
+      "success": 3,
+      "collision": 2,
+      "full_success": 0,
+      "risk_band": "close",
+      "pool": "dense",
+      "offline_separation_m": 0.4580419189649855,
+      "conflict_pair": [
+        "r3",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.35645687671896004,
+      "collision_names": [
+        "r3",
+        "r4"
+      ],
+      "conflict_pair_collision_members": 2,
+      "encounter": {
+        "distance_m": 1.1614120295645818,
+        "closing_speed_mps": 0.4443884412229304,
+        "ttc_s": 2.6135063872688615,
+        "mean_linear": 0.9999999850988388,
+        "mean_abs_angular": 0.9994665682315826,
+        "mean_lidar_min_m": 1.0350668251615964
+      }
+    },
+    {
+      "case": "standard-20260717003266-08dcb8e632c8",
+      "success": 4,
+      "collision": 1,
+      "full_success": 0,
+      "risk_band": "close",
+      "pool": "standard",
+      "offline_separation_m": 0.5530949338403692,
+      "conflict_pair": [
+        "r1",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.5664898303331123,
+      "collision_names": [
+        "r1"
+      ],
+      "conflict_pair_collision_members": 1,
+      "encounter": {
+        "distance_m": 0.9403059315250432,
+        "closing_speed_mps": 0.29609415024726804,
+        "ttc_s": 3.1756991171213422,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.9998237490653992,
+        "mean_lidar_min_m": 1.0785027610693585
+      }
+    },
+    {
+      "case": "standard-20260717002599-938e9c4a6af7",
+      "success": 2,
+      "collision": 3,
+      "full_success": 0,
+      "risk_band": "deep",
+      "pool": "standard",
+      "offline_separation_m": 0.22837075343096436,
+      "conflict_pair": [
+        "r1",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.29754928809179426,
+      "collision_names": [
+        "r1",
+        "r3",
+        "r4"
+      ],
+      "conflict_pair_collision_members": 2,
+      "encounter": {
+        "distance_m": 0.9988010197690833,
+        "closing_speed_mps": 1.0277120376608984,
+        "ttc_s": 0.9718685615888889,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.7943674921989441,
+        "mean_lidar_min_m": 0.9802709539712888
+      }
+    },
+    {
+      "case": "standard-20260717004689-af000cb57d87",
+      "success": 3,
+      "collision": 2,
+      "full_success": 0,
+      "risk_band": "margin",
+      "pool": "standard",
+      "offline_separation_m": 0.7074012460622466,
+      "conflict_pair": [
+        "r2",
+        "r3"
+      ],
+      "actual_pair_min_distance_m": 0.45706095053441986,
+      "collision_names": [
+        "r2",
+        "r3"
+      ],
+      "conflict_pair_collision_members": 2,
+      "encounter": {
+        "distance_m": 1.044718912769624,
+        "closing_speed_mps": 1.0085557439252868,
+        "ttc_s": 1.0358563907470206,
+        "mean_linear": 0.9999996721744537,
+        "mean_abs_angular": 0.9999991655349731,
+        "mean_lidar_min_m": 0.9352208207418569
+      }
+    },
+    {
+      "case": "dense-20260718003683-8cc8f31acc4d",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "margin",
+      "pool": "dense",
+      "offline_separation_m": 0.899088907897779,
+      "conflict_pair": [
+        "r3",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 1.0255842498450036,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.1388768525948205,
+        "closing_speed_mps": 0.5249281981252596,
+        "ttc_s": 2.1695859674946614,
+        "mean_linear": 0.5,
+        "mean_abs_angular": 0.49969547986984253,
+        "mean_lidar_min_m": 1.0079767598946843
+      }
+    },
+    {
+      "case": "standard-20260717002130-2aa07ff0bdb8",
+      "success": 4,
+      "collision": 1,
+      "full_success": 0,
+      "risk_band": "deep",
+      "pool": "standard",
+      "offline_separation_m": 0.25816990894933967,
+      "conflict_pair": [
+        "r2",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.7811201273043156,
+      "collision_names": [
+        "r2"
+      ],
+      "conflict_pair_collision_members": 1,
+      "encounter": {
+        "distance_m": 1.1791372552900716,
+        "closing_speed_mps": 0.47945737123353815,
+        "ttc_s": 2.459316147870271,
+        "mean_linear": 0.0729885995388031,
+        "mean_abs_angular": 0.4182438850402832,
+        "mean_lidar_min_m": 0.9619578565603067
+      }
+    },
+    {
+      "case": "dense-20260718005478-9a779e939b44",
+      "success": 3,
+      "collision": 2,
+      "full_success": 0,
+      "risk_band": "deep",
+      "pool": "dense",
+      "offline_separation_m": 0.11318539920225101,
+      "conflict_pair": [
+        "r3",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 0.28819385309332524,
+      "collision_names": [
+        "r3",
+        "r5"
+      ],
+      "conflict_pair_collision_members": 2,
+      "encounter": {
+        "distance_m": 1.1336102509397723,
+        "closing_speed_mps": 0.5507214945669925,
+        "ttc_s": 2.0584093087397632,
+        "mean_linear": 0.9997923523187637,
+        "mean_abs_angular": 0.9596530199050903,
+        "mean_lidar_min_m": 0.8370830693642553
+      }
+    },
+    {
+      "case": "standard-20260717004311-8a38f0b55d63",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "margin",
+      "pool": "standard",
+      "offline_separation_m": 0.6967696114358437,
+      "conflict_pair": [
+        "r2",
+        "r3"
+      ],
+      "actual_pair_min_distance_m": 0.7276077805387707,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 0.8492824931785997,
+        "closing_speed_mps": 0.4998997570986874,
+        "ttc_s": 1.6989055928085581,
+        "mean_linear": 0.999958872795105,
+        "mean_abs_angular": 0.9996895492076874,
+        "mean_lidar_min_m": 0.7311759349300868
+      }
+    },
+    {
+      "case": "dense-20260718003799-ce6b3738eef5",
+      "success": 3,
+      "collision": 2,
+      "full_success": 0,
+      "risk_band": "margin",
+      "pool": "dense",
+      "offline_separation_m": 0.7058156305465152,
+      "conflict_pair": [
+        "r2",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 0.3559979709693526,
+      "collision_names": [
+        "r2",
+        "r5"
+      ],
+      "conflict_pair_collision_members": 2,
+      "encounter": {
+        "distance_m": 1.1685949494658627,
+        "closing_speed_mps": 0.2936704612303498,
+        "ttc_s": 3.979273041524044,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.9973876774311066,
+        "mean_lidar_min_m": 1.2920747127325751
+      }
+    },
+    {
+      "case": "standard-20260717004285-3e35f5e293b2",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "deep",
+      "pool": "standard",
+      "offline_separation_m": 0.3680786476744691,
+      "conflict_pair": [
+        "r2",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 0.6801707901564245,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.1411969714025687,
+        "closing_speed_mps": 0.42760525262076965,
+        "ttc_s": 2.668809525627278,
+        "mean_linear": 0.49999722838401794,
+        "mean_abs_angular": 0.9999969303607941,
+        "mean_lidar_min_m": 0.6838596904822145
+      }
+    },
+    {
+      "case": "standard-20260717002245-95271ff7457b",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "close",
+      "pool": "standard",
+      "offline_separation_m": 0.5251961261098949,
+      "conflict_pair": [
+        "r1",
+        "r2"
+      ],
+      "actual_pair_min_distance_m": 0.7014977150003209,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.080499498383836,
+        "closing_speed_mps": 1.0109021144573405,
+        "ttc_s": 1.0688468081440863,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.9535629153251648,
+        "mean_lidar_min_m": 0.7899177046171755
+      }
+    },
+    {
+      "case": "standard-20260717003747-a2a63599cea5",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "margin",
+      "pool": "standard",
+      "offline_separation_m": 0.8573607293561759,
+      "conflict_pair": [
+        "r2",
+        "r3"
+      ],
+      "actual_pair_min_distance_m": 0.8901431047580258,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.1422724393329982,
+        "closing_speed_mps": 0.4762471359406184,
+        "ttc_s": 2.3984867375148355,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.999983549118042,
+        "mean_lidar_min_m": 1.082289823334074
+      }
+    },
+    {
+      "case": "dense-20260718006831-7bb861f4066a",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "close",
+      "pool": "dense",
+      "offline_separation_m": 0.43619850287984663,
+      "conflict_pair": [
+        "r1",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 0.761161156785664,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.0874691238288834,
+        "closing_speed_mps": 0.8113067076530811,
+        "ttc_s": 1.340392127380131,
+        "mean_linear": 0.9999944269657135,
+        "mean_abs_angular": 0.8505120873451233,
+        "mean_lidar_min_m": 1.0659415154417706
+      }
+    },
+    {
+      "case": "dense-20260718002446-a7a8b1f12e6e",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "margin",
+      "pool": "dense",
+      "offline_separation_m": 0.7943979360503094,
+      "conflict_pair": [
+        "r1",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 1.3742919652045644,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": null
+    },
+    {
+      "case": "standard-20260717000866-cd8ac9c85675",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "margin",
+      "pool": "standard",
+      "offline_separation_m": 0.8616301501572545,
+      "conflict_pair": [
+        "r2",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 0.9626198635798154,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.1856140993213435,
+        "closing_speed_mps": 0.09337840438357725,
+        "ttc_s": 12.696876833010664,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.9747568964958191,
+        "mean_lidar_min_m": 1.0003861064949682
+      }
+    },
+    {
+      "case": "standard-20260717001950-8e2b5659e0ef",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "deep",
+      "pool": "standard",
+      "offline_separation_m": 0.19299191503628257,
+      "conflict_pair": [
+        "r3",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 1.2492378554998596,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": null
+    },
+    {
+      "case": "dense-20260718004369-324281e4d2b2",
+      "success": 3,
+      "collision": 2,
+      "full_success": 0,
+      "risk_band": "deep",
+      "pool": "dense",
+      "offline_separation_m": 0.11536563654339561,
+      "conflict_pair": [
+        "r1",
+        "r3"
+      ],
+      "actual_pair_min_distance_m": 0.3476500767546208,
+      "collision_names": [
+        "r1",
+        "r3"
+      ],
+      "conflict_pair_collision_members": 2,
+      "encounter": {
+        "distance_m": 1.0843271307557891,
+        "closing_speed_mps": 0.5873303228456461,
+        "ttc_s": 1.8461964052905824,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.9989070296287537,
+        "mean_lidar_min_m": 0.9975019986411833
+      }
+    },
+    {
+      "case": "dense-20260718003511-3affce1c4096",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "close",
+      "pool": "dense",
+      "offline_separation_m": 0.5957683946595592,
+      "conflict_pair": [
+        "r1",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 0.7187995298063522,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.1913664119521126,
+        "closing_speed_mps": 0.3052951387357372,
+        "ttc_s": 3.902343210853929,
+        "mean_linear": 0.9732830822467804,
+        "mean_abs_angular": 0.6765380203723907,
+        "mean_lidar_min_m": 0.9958477395216908
+      }
+    },
+    {
+      "case": "dense-20260718003497-96d828817c98",
+      "success": 3,
+      "collision": 2,
+      "full_success": 0,
+      "risk_band": "close",
+      "pool": "dense",
+      "offline_separation_m": 0.5653339989855084,
+      "conflict_pair": [
+        "r2",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.5891128517078752,
+      "collision_names": [
+        "r3",
+        "r4"
+      ],
+      "conflict_pair_collision_members": 1,
+      "encounter": {
+        "distance_m": 1.180114209024036,
+        "closing_speed_mps": 0.23405652450980696,
+        "ttc_s": 5.042005180140104,
+        "mean_linear": 0.9074146449565887,
+        "mean_abs_angular": 0.9999895393848419,
+        "mean_lidar_min_m": 0.9822366953671735
+      }
+    },
+    {
+      "case": "standard-20260717003463-916cc60dfe76",
+      "success": 2,
+      "collision": 3,
+      "full_success": 0,
+      "risk_band": "deep",
+      "pool": "standard",
+      "offline_separation_m": 0.30738481088334807,
+      "conflict_pair": [
+        "r2",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 1.3246104303962623,
+      "collision_names": [
+        "r2",
+        "r4",
+        "r5"
+      ],
+      "conflict_pair_collision_members": 2,
+      "encounter": null
+    },
+    {
+      "case": "dense-20260718004795-1739c1ca1ee5",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "deep",
+      "pool": "dense",
+      "offline_separation_m": 0.3020975046196555,
+      "conflict_pair": [
+        "r3",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.7544716767282758,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.183303557401523,
+        "closing_speed_mps": 0.909657777037356,
+        "ttc_s": 1.300822778930553,
+        "mean_linear": 0.9999955743551254,
+        "mean_abs_angular": 0.9452598989009857,
+        "mean_lidar_min_m": 1.1411338237561344
+      }
+    },
+    {
+      "case": "dense-20260718004981-6128b32e7bf6",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "margin",
+      "pool": "dense",
+      "offline_separation_m": 0.844117814968205,
+      "conflict_pair": [
+        "r2",
+        "r3"
+      ],
+      "actual_pair_min_distance_m": 0.7530453701187377,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.1678375318052898,
+        "closing_speed_mps": 0.45850230787194635,
+        "ttc_s": 2.5470701275760024,
+        "mean_linear": 0.49999989569187164,
+        "mean_abs_angular": 0.49975359439849854,
+        "mean_lidar_min_m": 1.0001645701731707
+      }
+    },
+    {
+      "case": "standard-20260717002014-6b91e541130c",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "margin",
+      "pool": "standard",
+      "offline_separation_m": 0.8532840680569017,
+      "conflict_pair": [
+        "r1",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.77684353655489,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 0.9175270836352426,
+        "closing_speed_mps": 0.3483291566388047,
+        "ttc_s": 2.6340806279006386,
+        "mean_linear": 0.9999939501285553,
+        "mean_abs_angular": 0.9721893668174744,
+        "mean_lidar_min_m": 0.853352542671473
+      }
+    },
+    {
+      "case": "standard-20260717004988-b21fe1859482",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "margin",
+      "pool": "standard",
+      "offline_separation_m": 0.8779757521137119,
+      "conflict_pair": [
+        "r1",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.9706003597542238,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.1895938970932964,
+        "closing_speed_mps": 0.272069535104571,
+        "ttc_s": 4.372389200562537,
+        "mean_linear": 0.4999999701976776,
+        "mean_abs_angular": 0.9861123859882355,
+        "mean_lidar_min_m": 1.029091830589897
+      }
+    },
+    {
+      "case": "standard-20260717003116-91ff394307bc",
+      "success": 4,
+      "collision": 1,
+      "full_success": 0,
+      "risk_band": "deep",
+      "pool": "standard",
+      "offline_separation_m": 0.06737493699784967,
+      "conflict_pair": [
+        "r3",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 0.455525200728624,
+      "collision_names": [
+        "r5"
+      ],
+      "conflict_pair_collision_members": 1,
+      "encounter": {
+        "distance_m": 1.1782953898299477,
+        "closing_speed_mps": 0.7442451846223275,
+        "ttc_s": 1.5832086175040314,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.9999997913837433,
+        "mean_lidar_min_m": 1.1329508446082421
+      }
+    },
+    {
+      "case": "standard-20260717000755-a6292cd9241c",
+      "success": 3,
+      "collision": 2,
+      "full_success": 0,
+      "risk_band": "deep",
+      "pool": "standard",
+      "offline_separation_m": 0.29534310721701745,
+      "conflict_pair": [
+        "r1",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.4133944021814535,
+      "collision_names": [
+        "r1",
+        "r4"
+      ],
+      "conflict_pair_collision_members": 2,
+      "encounter": {
+        "distance_m": 0.9644729607006076,
+        "closing_speed_mps": 0.33940627154686764,
+        "ttc_s": 2.841647434223755,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.7276428937911987,
+        "mean_lidar_min_m": 0.8234478086182498
+      }
+    },
+    {
+      "case": "standard-20260717002987-91a75ecfb355",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "margin",
+      "pool": "standard",
+      "offline_separation_m": 0.6423642454610639,
+      "conflict_pair": [
+        "r1",
+        "r2"
+      ],
+      "actual_pair_min_distance_m": 0.9000429438870426,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.1570375909421808,
+        "closing_speed_mps": 0.30217064680310934,
+        "ttc_s": 3.8290866541252506,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.9999996423721313,
+        "mean_lidar_min_m": 1.2684356821402625
+      }
+    },
+    {
+      "case": "standard-20260717003077-b8c7e030c6bb",
+      "success": 4,
+      "collision": 1,
+      "full_success": 0,
+      "risk_band": "deep",
+      "pool": "standard",
+      "offline_separation_m": 0.12540155553699653,
+      "conflict_pair": [
+        "r3",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.3434906851321008,
+      "collision_names": [
+        "r4"
+      ],
+      "conflict_pair_collision_members": 1,
+      "encounter": {
+        "distance_m": 1.0895319290287535,
+        "closing_speed_mps": 0.9543921765165242,
+        "ttc_s": 1.1415977161563515,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.999999463558197,
+        "mean_lidar_min_m": 1.0880926812029539
+      }
+    },
+    {
+      "case": "dense-20260718002724-d59372b1c490",
+      "success": 4,
+      "collision": 1,
+      "full_success": 0,
+      "risk_band": "deep",
+      "pool": "dense",
+      "offline_separation_m": 0.3042381589613224,
+      "conflict_pair": [
+        "r1",
+        "r3"
+      ],
+      "actual_pair_min_distance_m": 0.44476102658834077,
+      "collision_names": [
+        "r3"
+      ],
+      "conflict_pair_collision_members": 1,
+      "encounter": {
+        "distance_m": 1.1441906268198545,
+        "closing_speed_mps": 0.6665336438573521,
+        "ttc_s": 1.7166284663414948,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.995606541633606,
+        "mean_lidar_min_m": 1.0685588459713475
+      }
+    },
+    {
+      "case": "dense-20260718005487-eead3e60507b",
+      "success": 3,
+      "collision": 2,
+      "full_success": 0,
+      "risk_band": "deep",
+      "pool": "dense",
+      "offline_separation_m": 0.2543997448885351,
+      "conflict_pair": [
+        "r3",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.46567922308555876,
+      "collision_names": [
+        "r3",
+        "r4"
+      ],
+      "conflict_pair_collision_members": 2,
+      "encounter": {
+        "distance_m": 1.0689957893017663,
+        "closing_speed_mps": 0.9949920063289608,
+        "ttc_s": 1.0743762588061825,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.9999775290489197,
+        "mean_lidar_min_m": 1.056181692174218
+      }
+    },
+    {
+      "case": "dense-20260718004326-3b6f6acb36f4",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "margin",
+      "pool": "dense",
+      "offline_separation_m": 0.8728461079917474,
+      "conflict_pair": [
+        "r1",
+        "r2"
+      ],
+      "actual_pair_min_distance_m": 1.0026547468743816,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.130811826040671,
+        "closing_speed_mps": 0.35054271083508115,
+        "ttc_s": 3.2258888605807607,
+        "mean_linear": 0.5,
+        "mean_abs_angular": 0.5,
+        "mean_lidar_min_m": 0.7669953485251477
+      }
+    },
+    {
+      "case": "dense-20260718000258-1ac59e272bcf",
+      "success": 3,
+      "collision": 2,
+      "full_success": 0,
+      "risk_band": "margin",
+      "pool": "dense",
+      "offline_separation_m": 0.7146664131587016,
+      "conflict_pair": [
+        "r1",
+        "r2"
+      ],
+      "actual_pair_min_distance_m": 0.405277177900987,
+      "collision_names": [
+        "r1",
+        "r2"
+      ],
+      "conflict_pair_collision_members": 2,
+      "encounter": {
+        "distance_m": 1.1768452213574652,
+        "closing_speed_mps": 1.145267905761701,
+        "ttc_s": 1.0275719903062879,
+        "mean_linear": 0.9999181479215622,
+        "mean_abs_angular": 0.9675467908382416,
+        "mean_lidar_min_m": 1.2123144087682531
+      }
+    },
+    {
+      "case": "dense-20260718001611-5ac6b3c51145",
+      "success": 3,
+      "collision": 2,
+      "full_success": 0,
+      "risk_band": "deep",
+      "pool": "dense",
+      "offline_separation_m": 0.3635274169088499,
+      "conflict_pair": [
+        "r1",
+        "r2"
+      ],
+      "actual_pair_min_distance_m": 0.4559526907697344,
+      "collision_names": [
+        "r1",
+        "r2"
+      ],
+      "conflict_pair_collision_members": 2,
+      "encounter": {
+        "distance_m": 1.0550747893161705,
+        "closing_speed_mps": 1.191085474469531,
+        "ttc_s": 0.8858094670208828,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.9999861121177673,
+        "mean_lidar_min_m": 1.065143747015985
+      }
+    },
+    {
+      "case": "dense-20260718001281-628e08f663c1",
+      "success": 3,
+      "collision": 2,
+      "full_success": 0,
+      "risk_band": "close",
+      "pool": "dense",
+      "offline_separation_m": 0.42556154052364425,
+      "conflict_pair": [
+        "r4",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 0.442584922844493,
+      "collision_names": [
+        "r4",
+        "r5"
+      ],
+      "conflict_pair_collision_members": 2,
+      "encounter": {
+        "distance_m": 1.0927076573761187,
+        "closing_speed_mps": 1.0886680942455707,
+        "ttc_s": 1.0037105552664767,
+        "mean_linear": 0.9962298721075058,
+        "mean_abs_angular": 0.998661994934082,
+        "mean_lidar_min_m": 1.0317621971740571
+      }
+    },
+    {
+      "case": "dense-20260718003679-d35fd9d62577",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "margin",
+      "pool": "dense",
+      "offline_separation_m": 0.8470271739119398,
+      "conflict_pair": [
+        "r1",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 1.1440371201805217,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.1940788004504392,
+        "closing_speed_mps": 0.571799387310743,
+        "ttc_s": 2.0882827560665436,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 1.0,
+        "mean_lidar_min_m": 0.9038967836402825
+      }
+    },
+    {
+      "case": "standard-20260717001260-7d08f8f30a54",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "margin",
+      "pool": "standard",
+      "offline_separation_m": 0.8571933170764054,
+      "conflict_pair": [
+        "r1",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 0.7930089086274197,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 0.9029499934898344,
+        "closing_speed_mps": 0.37810242197803934,
+        "ttc_s": 2.3881095200767555,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.5607520304620266,
+        "mean_lidar_min_m": 0.762114137646307
+      }
+    },
+    {
+      "case": "dense-20260718000703-c69e8462d5ae",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "close",
+      "pool": "dense",
+      "offline_separation_m": 0.5058024471453083,
+      "conflict_pair": [
+        "r1",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.5575815284907594,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.042716222984722,
+        "closing_speed_mps": 1.1477912876867424,
+        "ttc_s": 0.9084545545612316,
+        "mean_linear": 0.9999943524599075,
+        "mean_abs_angular": 0.9819271862506866,
+        "mean_lidar_min_m": 0.9294156815858472
+      }
+    },
+    {
+      "case": "standard-20260717003254-14ff2682eb2b",
+      "success": 3,
+      "collision": 2,
+      "full_success": 0,
+      "risk_band": "deep",
+      "pool": "standard",
+      "offline_separation_m": 0.1464037601905851,
+      "conflict_pair": [
+        "r2",
+        "r3"
+      ],
+      "actual_pair_min_distance_m": 0.2654544507746236,
+      "collision_names": [
+        "r2",
+        "r3"
+      ],
+      "conflict_pair_collision_members": 2,
+      "encounter": {
+        "distance_m": 0.9766115164259481,
+        "closing_speed_mps": 1.1440997308004808,
+        "ttc_s": 0.8536069803483409,
+        "mean_linear": 0.9999231696128845,
+        "mean_abs_angular": 0.8988480865955353,
+        "mean_lidar_min_m": 0.9360325015559403
+      }
+    },
+    {
+      "case": "standard-20260717004895-c934c46ff67a",
+      "success": 4,
+      "collision": 1,
+      "full_success": 0,
+      "risk_band": "close",
+      "pool": "standard",
+      "offline_separation_m": 0.46761385500488867,
+      "conflict_pair": [
+        "r2",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 0.9580681365760026,
+      "collision_names": [
+        "r5"
+      ],
+      "conflict_pair_collision_members": 1,
+      "encounter": {
+        "distance_m": 1.0971436918478008,
+        "closing_speed_mps": 0.8619860426333303,
+        "ttc_s": 1.272809114746306,
+        "mean_linear": 0.9996347725391388,
+        "mean_abs_angular": 0.6071459352970123,
+        "mean_lidar_min_m": 0.9265057868806691
+      }
+    },
+    {
+      "case": "dense-20260718001476-f98e3f974b2d",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "margin",
+      "pool": "dense",
+      "offline_separation_m": 0.8698075469257434,
+      "conflict_pair": [
+        "r2",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 0.705928064219793,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.0811449324597857,
+        "closing_speed_mps": 0.9527152463469812,
+        "ttc_s": 1.1348038530980222,
+        "mean_linear": 0.5,
+        "mean_abs_angular": 0.49553418159484863,
+        "mean_lidar_min_m": 0.7835425466927796
+      }
+    },
+    {
+      "case": "standard-20260717000596-6a2bae2afe4a",
+      "success": 4,
+      "collision": 1,
+      "full_success": 0,
+      "risk_band": "close",
+      "pool": "standard",
+      "offline_separation_m": 0.4986757534548262,
+      "conflict_pair": [
+        "r3",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 1.7496691679843286,
+      "collision_names": [
+        "r3"
+      ],
+      "conflict_pair_collision_members": 1,
+      "encounter": null
+    },
+    {
+      "case": "standard-20260717003169-86a6d0de3ba4",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "margin",
+      "pool": "standard",
+      "offline_separation_m": 0.8031581989693415,
+      "conflict_pair": [
+        "r1",
+        "r2"
+      ],
+      "actual_pair_min_distance_m": 0.9816648535130782,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.003683805742065,
+        "closing_speed_mps": 0.3186143131681307,
+        "ttc_s": 3.1501529098362493,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.999219685792923,
+        "mean_lidar_min_m": 0.8115467727626227
+      }
+    },
+    {
+      "case": "dense-20260718003920-8507d38e3d44",
+      "success": 3,
+      "collision": 2,
+      "full_success": 0,
+      "risk_band": "deep",
+      "pool": "dense",
+      "offline_separation_m": 0.10879744424739059,
+      "conflict_pair": [
+        "r3",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.33644433686608816,
+      "collision_names": [
+        "r3",
+        "r4"
+      ],
+      "conflict_pair_collision_members": 2,
+      "encounter": {
+        "distance_m": 1.1847286296556883,
+        "closing_speed_mps": 0.7197058315125648,
+        "ttc_s": 1.6461289846239142,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.9808925092220306,
+        "mean_lidar_min_m": 1.1302503828177088
+      }
+    },
+    {
+      "case": "standard-20260717001173-e7b56479a1cd",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "close",
+      "pool": "standard",
+      "offline_separation_m": 0.5069450138048487,
+      "conflict_pair": [
+        "r1",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.9350947810304915,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.185448695190287,
+        "closing_speed_mps": 0.2617889258337547,
+        "ttc_s": 4.52826142822821,
+        "mean_linear": 0.5,
+        "mean_abs_angular": 0.49999892711639404,
+        "mean_lidar_min_m": 0.7042344220038815
+      }
+    },
+    {
+      "case": "dense-20260718000428-58d38366cbc6",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "close",
+      "pool": "dense",
+      "offline_separation_m": 0.5087996854161579,
+      "conflict_pair": [
+        "r2",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.7852667740507921,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.1702424660069148,
+        "closing_speed_mps": 0.41286938030988707,
+        "ttc_s": 2.8344133079778566,
+        "mean_linear": 0.9999999701976776,
+        "mean_abs_angular": 0.9999999403953552,
+        "mean_lidar_min_m": 0.805893818861658
+      }
+    },
+    {
+      "case": "dense-20260718004568-fe30a135d0b6",
+      "success": 3,
+      "collision": 2,
+      "full_success": 0,
+      "risk_band": "close",
+      "pool": "dense",
+      "offline_separation_m": 0.45271226108892776,
+      "conflict_pair": [
+        "r3",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 0.8306562577697394,
+      "collision_names": [
+        "r1",
+        "r3"
+      ],
+      "conflict_pair_collision_members": 1,
+      "encounter": {
+        "distance_m": 1.1718134270084877,
+        "closing_speed_mps": 0.7585282640070168,
+        "ttc_s": 1.5448513689104244,
+        "mean_linear": 0.5,
+        "mean_abs_angular": 0.49973252415657043,
+        "mean_lidar_min_m": 0.7349049437224084
+      }
+    },
+    {
+      "case": "standard-20260717000343-25e6e795a314",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "close",
+      "pool": "standard",
+      "offline_separation_m": 0.5682605024463585,
+      "conflict_pair": [
+        "r4",
+        "r5"
+      ],
+      "actual_pair_min_distance_m": 1.1329242409993519,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.186773750829665,
+        "closing_speed_mps": 0.17998658300766857,
+        "ttc_s": 6.593678989833931,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.9951416552066803,
+        "mean_lidar_min_m": 1.079701848609802
+      }
+    },
+    {
+      "case": "dense-20260718003347-0c16c63c32f6",
+      "success": 3,
+      "collision": 2,
+      "full_success": 0,
+      "risk_band": "deep",
+      "pool": "dense",
+      "offline_separation_m": 0.09620841970030919,
+      "conflict_pair": [
+        "r3",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.2672706235238957,
+      "collision_names": [
+        "r3",
+        "r4"
+      ],
+      "conflict_pair_collision_members": 2,
+      "encounter": {
+        "distance_m": 1.1615889728521156,
+        "closing_speed_mps": 0.7301548635525834,
+        "ttc_s": 1.5908802787402945,
+        "mean_linear": 0.9999999850988388,
+        "mean_abs_angular": 1.0,
+        "mean_lidar_min_m": 1.0670347589132008
+      }
+    },
+    {
+      "case": "standard-20260717000739-f0ac7fa013c1",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "close",
+      "pool": "standard",
+      "offline_separation_m": 0.517795781938229,
+      "conflict_pair": [
+        "r2",
+        "r3"
+      ],
+      "actual_pair_min_distance_m": 0.8977090865770523,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.159939978305592,
+        "closing_speed_mps": 0.26830322323419975,
+        "ttc_s": 4.323242800900269,
+        "mean_linear": 0.9999997913837433,
+        "mean_abs_angular": 0.8046858310699463,
+        "mean_lidar_min_m": 0.968352554085816
+      }
+    },
+    {
+      "case": "dense-20260718004354-dc3b0b849e0c",
+      "success": 4,
+      "collision": 1,
+      "full_success": 0,
+      "risk_band": "deep",
+      "pool": "dense",
+      "offline_separation_m": 0.35300314665441007,
+      "conflict_pair": [
+        "r3",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.6247273366551938,
+      "collision_names": [
+        "r4"
+      ],
+      "conflict_pair_collision_members": 1,
+      "encounter": {
+        "distance_m": 1.1534618468085955,
+        "closing_speed_mps": 0.2086346080163537,
+        "ttc_s": 5.528621822503111,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.9982481598854065,
+        "mean_lidar_min_m": 0.9710283077951213
+      }
+    },
+    {
+      "case": "standard-20260717000330-8a0e064175c4",
+      "success": 5,
+      "collision": 0,
+      "full_success": 1,
+      "risk_band": "close",
+      "pool": "standard",
+      "offline_separation_m": 0.45696383920031675,
+      "conflict_pair": [
+        "r2",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.707580685757459,
+      "collision_names": [],
+      "conflict_pair_collision_members": 0,
+      "encounter": {
+        "distance_m": 1.1162963739067027,
+        "closing_speed_mps": 0.9177409691274341,
+        "ttc_s": 1.2163523384687187,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.9986381530761719,
+        "mean_lidar_min_m": 1.0399266096666944
+      }
+    },
+    {
+      "case": "standard-20260717004518-eac7447a27e6",
+      "success": 3,
+      "collision": 2,
+      "full_success": 0,
+      "risk_band": "deep",
+      "pool": "standard",
+      "offline_separation_m": 0.09691459353469122,
+      "conflict_pair": [
+        "r1",
+        "r3"
+      ],
+      "actual_pair_min_distance_m": 0.33964286403497745,
+      "collision_names": [
+        "r1",
+        "r3"
+      ],
+      "conflict_pair_collision_members": 2,
+      "encounter": {
+        "distance_m": 1.1895638228881584,
+        "closing_speed_mps": 0.6896822755377174,
+        "ttc_s": 1.7247997593684765,
+        "mean_linear": 1.0,
+        "mean_abs_angular": 0.9880337417125702,
+        "mean_lidar_min_m": 1.1293627183870323
+      }
+    },
+    {
+      "case": "dense-20260718001183-d9eb82d6befe",
+      "success": 4,
+      "collision": 1,
+      "full_success": 0,
+      "risk_band": "close",
+      "pool": "dense",
+      "offline_separation_m": 0.5226684660063425,
+      "conflict_pair": [
+        "r3",
+        "r4"
+      ],
+      "actual_pair_min_distance_m": 0.5597841369100038,
+      "collision_names": [
+        "r4"
+      ],
+      "conflict_pair_collision_members": 1,
+      "encounter": {
+        "distance_m": 1.1037867572276103,
+        "closing_speed_mps": 0.8228985696256208,
+        "ttc_s": 1.3413399876606664,
+        "mean_linear": 0.9999987185001373,
+        "mean_abs_angular": 0.8080282211303711,
+        "mean_lidar_min_m": 1.0525006570714956
+      }
+    }
+  ]
+}

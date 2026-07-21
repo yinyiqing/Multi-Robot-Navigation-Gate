@@ -192,6 +192,8 @@ pilot 实测 epoch 1/2 full success 为 `0.5130/0.4704`，碰撞率为 `0.1546/0
 
 v2 full success 为 `0.5177`，仅比现场冻结基线 `0.5130` 多 2 场，同时碰撞增加，且低于历史 5D 的 `0.5248`。Residual 边界饱和已消失，说明价值外推约束有效，但仍未形成可用的状态相关避让行为；停止继续调整 Actor objective，后续先补充相对速度/TTC 等交互观测或独立交互监督信号。完整归档见 `results/D4_interaction_edge1_conservative_residual_v2_s20260720`。
 
+60 场冻结 5D 风险 probe 进一步确认：按同步路径最小间距分层后，deep/close/margin full success 为 `0.15/0.55/0.85`；失败组在进入约 `1.2 m` 接近区时的闭合速度更高、TTC 更短，但 5D 仍保持高线速度。当前单帧 Actor 不显式观测这些动态量，因此暂停 specialist 续训，先运行固定优先级让行 oracle 验证可解上限。完整归档见 `results/D4_interaction_risk_probe_5d_s20260721`。
+
 ### S3: 专家互补性审计
 
 在完全相同的 test scenario ID 上分别运行两个 expert，记录 episode 配对结果：
@@ -334,7 +336,7 @@ success + collision + unresolved = N * episodes
 - `D7`：完整基线、消融、泛化和统计检验。
 - `D8`：论文图表冻结。
 
-当前允许进入 `D4` specialist 训练；gate 仍需等待 D5 互补性审计通过。
+当前仍处于 `D4`，但 specialist 训练暂停：先完成冲突对让行 oracle 的可解性验证，再决定是否引入相对速度/TTC 观测。gate 仍需等待 D5 互补性审计通过。
 
 ## 11. 预期贡献表述
 
