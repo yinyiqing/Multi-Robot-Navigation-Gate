@@ -11,7 +11,7 @@
 | `bridge-full-ft` | 5D 上完整 Actor dense 微调 | `TD3_multi_dense5_bridge_geo_critic_from_5d_best` | failed |
 | `bridge-head-only` | 5D 上只训练动作头 | `TD3_multi_dense5_bridge_from_5d_head_only_best` | failed |
 | `moderate-full-ft` | moderate cases 上完整 Actor 微调 | `TD3_multi_dense5_moderate_geo_critic_from_5d_best` | failed |
-| `strong-interaction-gru` | 5D 完整 warm-start + 8 帧 GRU，全部独立训练 | `interaction_expert_temporal_gru_pilot_s20260723` | pilot |
+| `strong-interaction-s1` | 5D Actor/Critic 完整 warm-start的课程Stage 1 | `strong_interaction_curriculum_stage1_s20260723` | running pilot |
 | `temporal-gate` | 本地观测历史门控 | 待 D5 后命名 | planned |
 
 ## 文件含义
@@ -46,5 +46,5 @@ residual_interaction-medium-high_n5_seed0_best
 
 - `weak-interaction-5d` 对应原 `generalist-5d` 权重；历史脚本仍可使用旧 ID。
 - 三个 `failed` 模型只作为 full fine-tune/head-only 失败证据，不作为专家。
-- `strong-interaction-gru` 必须通过 deep/close/margin 准入条件和 paired evaluation 后才能登记为 current。
+- `strong-interaction-s1` 只有close提升且margin保持后，才允许作为Stage 2 warm-start来源。
 - `temporal-gate` 只有在 specialist 达到论文协议 D5 准入条件后才允许创建。

@@ -64,9 +64,12 @@ def _evaluate_current_manifest(network, env, epoch, eval_episodes=10):
     timeout_episode_count = 0
     success_hist = np.zeros(env.num_agents + 1, dtype=np.int32)
     collision_hist = np.zeros(env.num_agents + 1, dtype=np.int32)
+    interaction_strata = {}
 
     for eval_index in range(1, eval_episodes + 1):
         states = env.reset()
+        current_case = env.current_curriculum_case or {}
+        interaction_band = current_case.get("view", {}).get("interaction_band")
         active_mask = [True] * env.num_agents
         episode_success_flags = np.zeros(env.num_agents, dtype=np.int32)
         episode_collision_flags = np.zeros(env.num_agents, dtype=np.int32)
@@ -114,6 +117,28 @@ def _evaluate_current_manifest(network, env, epoch, eval_episodes=10):
         timeout_episode_count += int(count >= max_ep)
         success_hist[episode_success_count] += 1
         collision_hist[episode_collision_count] += 1
+        if interaction_band:
+            stratum = interaction_strata.setdefault(
+                interaction_band,
+                {
+                    "episodes": 0,
+                    "successes": 0,
+                    "collisions": 0,
+                    "unresolved": 0,
+                    "full_successes": 0,
+                    "timeouts": 0,
+                    "steps": 0,
+                },
+            )
+            stratum["episodes"] += 1
+            stratum["successes"] += episode_success_count
+            stratum["collisions"] += episode_collision_count
+            stratum["unresolved"] += episode_unresolved_count
+            stratum["full_successes"] += int(
+                episode_success_count == env.num_agents
+            )
+            stratum["timeouts"] += int(count >= max_ep)
+            stratum["steps"] += count
         for name in env.agent_names:
             distance = env.last_step_info["agents"][name]["distance"]
             if distance is not None:
@@ -163,6 +188,36 @@ def _evaluate_current_manifest(network, env, epoch, eval_episodes=10):
     )
     print("Eval success_hist 0..N:", success_hist.tolist())
     print("Eval collision_hist 0..N:", collision_hist.tolist())
+    stratified_metrics = {}
+    for band in sorted(interaction_strata):
+        values = interaction_strata[band]
+        episodes = values["episodes"]
+        agents = episodes * env.num_agents
+        metrics = {
+            "episodes": episodes,
+            "success_rate": values["successes"] / agents,
+            "collision_rate": values["collisions"] / agents,
+            "unresolved_rate": values["unresolved"] / agents,
+            "full_success_rate": values["full_successes"] / episodes,
+            "timeout_episode_rate": values["timeouts"] / episodes,
+            "avg_episode_steps": values["steps"] / episodes,
+        }
+        stratified_metrics[band] = metrics
+        print(
+            "Eval interaction stratum | band=%s | episodes=%i | "
+            "success_rate=%.3f | collision_rate=%.3f | unresolved_rate=%.3f | "
+            "full_success_rate=%.3f | timeout_rate=%.3f | avg_steps=%.1f"
+            % (
+                band,
+                episodes,
+                metrics["success_rate"],
+                metrics["collision_rate"],
+                metrics["unresolved_rate"],
+                metrics["full_success_rate"],
+                metrics["timeout_episode_rate"],
+                metrics["avg_episode_steps"],
+            )
+        )
     print("..............................................")
 
     env.set_cooperative_reward(previous_mode)
@@ -180,6 +235,7 @@ def _evaluate_current_manifest(network, env, epoch, eval_episodes=10):
         "avg_final_distance": avg_final_distance,
         "success_hist": success_hist.tolist(),
         "collision_hist": collision_hist.tolist(),
+        "interaction_strata": stratified_metrics,
     }
 
 

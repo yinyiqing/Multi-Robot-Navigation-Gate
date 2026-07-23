@@ -17,7 +17,7 @@ bash scripts/experiment.sh stop train-strong-interaction
 
 | 实验 ID | 底层脚本 | 状态 |
 | --- | --- | --- |
-| `train-strong-interaction` | `start/stop_training_strong_interaction_expert_pilot.sh` | current |
+| `train-strong-interaction` | `start/stop_training_strong_interaction_curriculum_stage1.sh` | current |
 | `eval-5d-standard` | `start/stop_test_detached_multi_stage2_to_5d_geo_critic_from_5a_guarded_best.sh` | historical baseline |
 
 固定数据 baseline 使用 `start_test_fixed_v1_5d.sh standard|dense`，两组可通过独立端口并行运行；对应停止入口为 `stop_test_fixed_v1_5d.sh`。
@@ -47,8 +47,8 @@ start|stop _ training|test _ detached _ <historical-run-name>.sh
 - `generate_fixed_scenarios.py`：离线生成 standard/dense 固定候选清单。
 - `validate_fixed_scenarios.py`：用策略无关的 Gazebo reset 检查筛选清单。
 - `audit_fixed_scenarios.py`：检查固定清单 schema、split 互斥性和 Gazebo 标记。
-- `build_strong_interaction_views.py`：生成 deep 主导、close/margin 约束的固定强交互 pilot 视图。
-- `start/stop_training_strong_interaction_expert_pilot.sh`：复制 5D 完整 warm-start，训练独立的 8 帧 GRU 强交互 Actor；原始 5D 弱交互 Actor 不变。
+- `build_strong_interaction_curriculum.py`：生成 close→mixed→deep 三阶段固定课程及统一validation。
+- `start/stop_training_strong_interaction_curriculum_stage1.sh`：复制5D Actor/Critic完整warm-start，使用原MLP、原输入和原reward训练Stage 1；原始5D弱交互Actor不变。
 - 旧 standard expert 与 edge-1 residual 入口已退出当前工作流；结论和必要产物保留在实验归档中。
 - `build_interaction_risk_views.py`：按同步路径最小间距将 edge-1 场景派生为 deep/close/margin 三档几何风险视图。
 - `analyze_interaction_risk_probe.py`：回连风险 probe 的 manifest、episode 结果和逐帧轨迹，统计实际冲突对间距、闭合速度和 TTC。

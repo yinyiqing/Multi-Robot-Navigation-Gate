@@ -12,7 +12,7 @@ Usage:
   bash scripts/experiment.sh stop <experiment-id>
 
 Supported experiment IDs:
-  train-strong-interaction  Current temporal strong-interaction Actor pilot
+  train-strong-interaction  Current strong-interaction curriculum Stage 1
   eval-5d-standard          Historical metric-fixed 5D baseline
 EOF
 }
@@ -22,10 +22,10 @@ script_for() {
   local experiment_id="$2"
   case "${action}:${experiment_id}" in
     start:train-strong-interaction)
-      echo "$PROJECT_ROOT/scripts/start_training_strong_interaction_expert_pilot.sh"
+      echo "$PROJECT_ROOT/scripts/start_training_strong_interaction_curriculum_stage1.sh"
       ;;
     stop:train-strong-interaction)
-      echo "$PROJECT_ROOT/scripts/stop_training_strong_interaction_expert_pilot.sh"
+      echo "$PROJECT_ROOT/scripts/stop_training_strong_interaction_curriculum_stage1.sh"
       ;;
     start:eval-5d-standard)
       echo "$PROJECT_ROOT/scripts/start_test_detached_multi_stage2_to_5d_geo_critic_from_5a_guarded_best.sh"
@@ -43,7 +43,7 @@ show_status() {
   local found=0
   local pid_file pid
   for pid_file in \
-    "$PROJECT_ROOT/.train_strong_interaction_expert_pilot.pid" \
+    "$PROJECT_ROOT/.train_strong_interaction_curriculum_stage1.pid" \
     "$PROJECT_ROOT/.test_multi_stage2_to_5d_geo_critic_from_5a_guarded_best_detached.pid"; do
     [[ -f "$pid_file" ]] || continue
     pid="$(tr -d '[:space:]' < "$pid_file")"

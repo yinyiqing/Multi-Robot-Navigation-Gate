@@ -40,7 +40,7 @@
 | `train-standard-expert-v1-v3` | 5D 微调 | fixed standard/train | `failed diagnostic` | 混合分布微调未超过 5D，只作为退化证据 |
 | `train-interaction-edge1-residual-pilot` | frozen 5D + bounded residual | balanced edge-1 view | `rejected candidate` | residual 恒定饱和，full success `0.5130 -> 0.4704` |
 | `train-interaction-edge1-conservative-v2` | normalized-Q + base-action anchor | balanced edge-1 view | `rejected candidate` | 饱和已修复但 full success 仅 `0.5177` |
-| `train-strong-interaction-pilot` | 5D full warm-start + temporal GRU | deep/close/margin | `current` | 首轮验证 deep 提升及 close/margin 能力保持 |
+| `train-strong-interaction-stage1` | 5D Actor/Critic full warm-start | close + margin | `current` | 强交互课程第一阶段；网络、输入和reward保持5D配置 |
 | `train-temporal-gate` | weak + strong interaction Actors | mixed trajectories | `planned` | Actor 互补性达到 D5 后才允许训练 |
 
 ## 阅读顺序
