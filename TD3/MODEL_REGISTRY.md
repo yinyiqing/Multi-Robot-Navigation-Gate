@@ -11,7 +11,7 @@
 | `bridge-full-ft` | 5D 上完整 Actor dense 微调 | `TD3_multi_dense5_bridge_geo_critic_from_5d_best` | failed |
 | `bridge-head-only` | 5D 上只训练动作头 | `TD3_multi_dense5_bridge_from_5d_head_only_best` | failed |
 | `moderate-full-ft` | moderate cases 上完整 Actor 微调 | `TD3_multi_dense5_moderate_geo_critic_from_5d_best` | failed |
-| `strong-interaction-gru` | 冻结 5D + 8 帧 GRU 动作修正 | `interaction_expert_temporal_gru_pilot_s20260723` | pilot |
+| `strong-interaction-gru` | 5D 完整 warm-start + 8 帧 GRU，全部独立训练 | `interaction_expert_temporal_gru_pilot_s20260723` | pilot |
 | `temporal-gate` | 本地观测历史门控 | 待 D5 后命名 | planned |
 
 ## 文件含义

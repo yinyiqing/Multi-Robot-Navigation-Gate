@@ -8,7 +8,7 @@ import torch.nn.functional as F
 from actor_models import Actor
 
 
-class TemporalResidualActor(nn.Module):
+class TemporalStrongActor(nn.Module):
     def __init__(
         self,
         base_actor_state,
@@ -22,8 +22,9 @@ class TemporalResidualActor(nn.Module):
         super().__init__()
         self.state_dim = int(state_dim)
         self.history_len = int(history_len)
-        self.base_actor = Actor(state_dim, action_dim)
-        self.base_actor.load_state_dict(base_actor_state)
+        # This is an independent warm-started backbone, not the frozen weak actor.
+        self.backbone = Actor(state_dim, action_dim)
+        self.backbone.load_state_dict(base_actor_state)
         self.encoder = nn.GRU(state_dim, hidden_dim, batch_first=True)
         self.residual_head = nn.Sequential(
             nn.Linear(hidden_dim, hidden_dim),
@@ -39,17 +40,6 @@ class TemporalResidualActor(nn.Module):
         )
         nn.init.zeros_(self.residual_head[2].weight)
         nn.init.zeros_(self.residual_head[2].bias)
-        self.freeze_base_actor()
-
-    def freeze_base_actor(self):
-        self.base_actor.eval()
-        for parameter in self.base_actor.parameters():
-            parameter.requires_grad = False
-
-    def train(self, mode=True):
-        super().train(mode)
-        self.base_actor.eval()
-        return self
 
     def residual(self, history):
         if history.ndim != 3:
@@ -63,7 +53,7 @@ class TemporalResidualActor(nn.Module):
         return self.residual_head(hidden[-1]) * self.residual_scales
 
     def forward(self, history, return_details=False):
-        base_action = self.base_actor(history[:, -1])
+        base_action = self.backbone(history[:, -1])
         residual = self.residual(history)
         action = torch.clamp(base_action + residual, -1.0, 1.0)
         if return_details:
@@ -123,8 +113,13 @@ class StrongInteractionTD3:
             "history_len": history_len,
             "hidden_dim": hidden_dim,
         }
-        self.actor = TemporalResidualActor(**actor_kwargs).to(self.device)
+        self.actor = TemporalStrongActor(**actor_kwargs).to(self.device)
         self.actor_target = copy.deepcopy(self.actor).to(self.device)
+        self.weak_reference = Actor(state_dim, action_dim).to(self.device)
+        self.weak_reference.load_state_dict(base_actor_state)
+        self.weak_reference.eval()
+        for parameter in self.weak_reference.parameters():
+            parameter.requires_grad = False
         critic_kwargs = {
             "state_dim": state_dim,
             "action_dim": action_dim,
@@ -132,9 +127,7 @@ class StrongInteractionTD3:
         }
         self.critic = TwinTemporalCritic(**critic_kwargs).to(self.device)
         self.critic_target = copy.deepcopy(self.critic).to(self.device)
-        self.actor_optimizer = torch.optim.Adam(
-            (p for p in self.actor.parameters() if p.requires_grad), lr=actor_lr
-        )
+        self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=actor_lr)
         self.critic_optimizer = torch.optim.Adam(self.critic.parameters(), lr=critic_lr)
         self.total_updates = 0
 
@@ -186,7 +179,11 @@ class StrongInteractionTD3:
         metrics = {"critic_loss": float(critic_loss.detach().cpu())}
         if update_actor and self.total_updates % policy_delay == 0:
             self._set_requires_grad(self.critic, False)
-            actor_action, base_action, residual = self.actor(history, return_details=True)
+            actor_action, backbone_action, residual = self.actor(
+                history, return_details=True
+            )
+            with torch.no_grad():
+                weak_action = self.weak_reference(history[:, -1])
             actor_q = self.critic.first(history, actor_action)
             q_scale = actor_q.detach().abs().mean().clamp(min=1.0)
             policy_loss = -actor_q.mean() / q_scale
@@ -196,7 +193,7 @@ class StrongInteractionTD3:
                 dtype=history.dtype,
                 device=self.device,
             ).unsqueeze(1)
-            preserve_loss = (weights * (actor_action - base_action).pow(2)).mean()
+            preserve_loss = (weights * (actor_action - weak_action).pow(2)).mean()
             residual_loss = residual.pow(2).mean()
             actor_loss = policy_loss + preserve_loss + 0.05 * residual_loss
             self.actor_optimizer.zero_grad()
@@ -214,6 +211,9 @@ class StrongInteractionTD3:
                     "preserve_loss": float(preserve_loss.detach().cpu()),
                     "residual_linear_mean": float(residual[:, 0].mean().detach().cpu()),
                     "residual_angular_mean": float(residual[:, 1].mean().detach().cpu()),
+                    "backbone_drift": float(
+                        (backbone_action - weak_action).abs().mean().detach().cpu()
+                    ),
                 }
             )
         self._soft_update(self.critic, self.critic_target, tau)

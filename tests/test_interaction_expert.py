@@ -10,32 +10,33 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "TD3"))
 
 from actor_models import Actor
-from interaction_expert import StrongInteractionTD3, TemporalResidualActor
+from interaction_expert import StrongInteractionTD3, TemporalStrongActor
 from sequence_replay_buffer import SequenceReplayBuffer
 
 
-class TemporalResidualActorTests(unittest.TestCase):
+class TemporalStrongActorTests(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(23)
         self.base = Actor(24, 2)
         self.histories = torch.randn(6, 8, 24)
 
-    def test_zero_initialized_actor_exactly_matches_frozen_5d(self):
-        actor = TemporalResidualActor(self.base.state_dict())
+    def test_zero_initialized_actor_exactly_matches_5d_warm_start(self):
+        actor = TemporalStrongActor(self.base.state_dict())
         expected = self.base(self.histories[:, -1])
         actual, base_action, residual = actor(self.histories, return_details=True)
         self.assertTrue(torch.equal(actual, expected))
         self.assertTrue(torch.equal(base_action, expected))
         self.assertTrue(torch.equal(residual, torch.zeros_like(residual)))
 
-    def test_base_actor_stays_frozen_and_temporal_head_receives_gradients(self):
-        actor = TemporalResidualActor(self.base.state_dict())
+    def test_warm_started_backbone_and_temporal_head_are_trainable(self):
+        actor = TemporalStrongActor(self.base.state_dict())
         actor(self.histories).square().mean().backward()
-        self.assertTrue(all(p.grad is None for p in actor.base_actor.parameters()))
+        self.assertTrue(all(p.requires_grad for p in actor.backbone.parameters()))
+        self.assertIsNotNone(actor.backbone.layer_1.weight.grad)
         self.assertIsNotNone(actor.residual_head[2].weight.grad)
 
     def test_history_shape_is_checked(self):
-        actor = TemporalResidualActor(self.base.state_dict())
+        actor = TemporalStrongActor(self.base.state_dict())
         with self.assertRaises(ValueError):
             actor(torch.randn(2, 7, 24))
 
