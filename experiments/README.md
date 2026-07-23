@@ -36,13 +36,12 @@
 | `eval-5d-validation-strata` | `generalist-5d` | fixed validation interaction strata | `complete` | standard low/interact full `0.8544/0.4252`; dense full `0.3140` |
 | `diag-5d-random-dense` | `generalist-5d` | `random-dense-5` | `diagnostic` | 仅区分 spatial density 与 interaction density |
 | `eval-5d-canonical-moderate` | `generalist-5d` | 五个 fixed moderate cases | `baseline` | held-out interaction failure baseline |
-| `train-standard-expert-v1` | 5D Actor-only warm-start | fixed standard/train | `failed diagnostic` | best agent success `0.850`，后期 timeout 崩坏 |
-| `train-standard-expert-v2` | 5D Actor+Critic warm-start + anchor | fixed standard/train | `failed diagnostic` | epoch 1-3 agent success `0.864 -> 0.850 -> 0.818` |
-| `train-standard-expert-v3` | v2 + timeout/update-ratio fixes | fixed standard/train | `rejected candidate` | 完整 validation 不优于 5D，且平均多 `8.378` 步 |
+| `weak-interaction-actor` | frozen `generalist-5d` | low-interaction strata | `current` | standard/dense 无冲突 full `0.8544/0.9524` |
+| `train-standard-expert-v1-v3` | 5D 微调 | fixed standard/train | `failed diagnostic` | 混合分布微调未超过 5D，只作为退化证据 |
 | `train-interaction-edge1-residual-pilot` | frozen 5D + bounded residual | balanced edge-1 view | `rejected candidate` | residual 恒定饱和，full success `0.5130 -> 0.4704` |
 | `train-interaction-edge1-conservative-v2` | normalized-Q + base-action anchor | balanced edge-1 view | `rejected candidate` | 饱和已修复但 full success 仅 `0.5177` |
-| `train-dense-expert` | 5D warm-start full Actor | fixed dense/train | `planned` | standard expert 流程稳定后启动 |
-| `train-temporal-gate` | standard + dense experts | fixed standard/dense mix | `planned` | 专家互补性达到 D5 后才允许训练 |
+| `train-strong-interaction-pilot` | frozen 5D + temporal GRU residual | deep/close/margin | `current` | 首轮验证 deep 提升及 close/margin 能力保持 |
+| `train-temporal-gate` | weak + strong interaction Actors | mixed trajectories | `planned` | Actor 互补性达到 D5 后才允许训练 |
 
 ## 阅读顺序
 

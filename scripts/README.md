@@ -7,8 +7,8 @@
 ```bash
 bash scripts/experiment.sh list
 bash scripts/experiment.sh status
-bash scripts/experiment.sh start eval-5d-standard
-bash scripts/experiment.sh stop eval-5d-standard
+bash scripts/experiment.sh start train-strong-interaction
+bash scripts/experiment.sh stop train-strong-interaction
 ```
 
 `experiment.sh` 只暴露当前协议允许执行的实验。planned 训练不会提前加入入口。
@@ -17,8 +17,8 @@ bash scripts/experiment.sh stop eval-5d-standard
 
 | 实验 ID | 底层脚本 | 状态 |
 | --- | --- | --- |
-| `eval-5d-standard` | `start/stop_test_detached_multi_stage2_to_5d_geo_critic_from_5a_guarded_best.sh` | current |
-| `diag-5d-random-dense` | `start/stop_test_detached_dense5_random_5d.sh` | diagnostic |
+| `train-strong-interaction` | `start/stop_training_strong_interaction_expert_pilot.sh` | current |
+| `eval-5d-standard` | `start/stop_test_detached_multi_stage2_to_5d_geo_critic_from_5a_guarded_best.sh` | historical baseline |
 
 固定数据 baseline 使用 `start_test_fixed_v1_5d.sh standard|dense`，两组可通过独立端口并行运行；对应停止入口为 `stop_test_fixed_v1_5d.sh`。
 
@@ -47,21 +47,14 @@ start|stop _ training|test _ detached _ <historical-run-name>.sh
 - `generate_fixed_scenarios.py`：离线生成 standard/dense 固定候选清单。
 - `validate_fixed_scenarios.py`：用策略无关的 Gazebo reset 检查筛选清单。
 - `audit_fixed_scenarios.py`：检查固定清单 schema、split 互斥性和 Gazebo 标记。
-- `build_interaction_views.py`：从冻结 manifest 确定性生成交互强度训练/验证视图，不改变原始场景。
-- `start_training_fixed_v1_standard_expert.sh`：从 5D warm-start 训练 standard expert，可通过环境变量设置短检查或正式训练轮数。
-- `start_training_fixed_v1_standard_expert_v2.sh`：完整加载 5D Actor/Critic，保留 0.8/0.2 reward，并使用 Actor anchor 的 v2 实验入口。
-- `start_training_fixed_v1_standard_expert_v3.sh`：只验证 timeout terminal 和 Critic 更新比例修复的 3-epoch v3 入口。
-- `start_validation_compare_fixed_v1_standard_v3.sh`：在完整 500 场 standard validation 上顺序比较原始 5D 与 v3 epoch 2。
-- `start/stop_training_fixed_v1_edge1_residual_pilot.sh`：冻结 5D 主体，在平衡 edge-1 视图上先预热 Critic、再训练 bounded residual 的受控 pilot。
-- `start/stop_training_fixed_v1_edge1_conservative_residual_v2.sh`：复用 edge-1 epoch 1 Critic，以归一化 Q 和基础动作约束训练单轮 conservative residual。
+- `build_strong_interaction_views.py`：生成 deep 主导、close/margin 约束的固定强交互 pilot 视图。
+- `start/stop_training_strong_interaction_expert_pilot.sh`：冻结 5D，训练读取 8 帧本地观测的 GRU 强交互 Actor。
+- 旧 standard expert 与 edge-1 residual 入口已退出当前工作流；结论和必要产物保留在实验归档中。
 - `build_interaction_risk_views.py`：按同步路径最小间距将 edge-1 场景派生为 deep/close/margin 三档几何风险视图。
 - `analyze_interaction_risk_probe.py`：回连风险 probe 的 manifest、episode 结果和逐帧轨迹，统计实际冲突对间距、闭合速度和 TTC。
 - `compare_interaction_probe_summaries.py`：按 scenario ID 和几何风险层配对比较两次 probe，并计算只在指定风险层采用候选策略的诊断上限。
 - `analyze_temporal_interaction_probe.py`：以其他机器人位置生成评估真值，审计仅使用本机激光和里程计的时序闭合速度/TTC 特征。
-- `start/stop_test_interaction_risk_probe_5d.sh`：在 60 场均衡风险 probe 上运行冻结 5D，并可选记录逐帧轨迹 JSONL。
-- `start/stop_test_interaction_risk_yield_oracle.sh`：在同一 probe 上用特权冲突对标签运行固定优先级停车让行上限。
-- `start/stop_test_temporal_interaction_probe_5d.sh`：重放同一 60 场 probe，记录单机激光、位姿和时间戳，用于验证自运动补偿的时序闭合速度/TTC。
-- `stop_training_fixed_v1_standard_expert.sh`：停止 standard expert 训练进程组。
+- 风险 probe、让行 oracle 和扇区差分 TTC 的运行入口已在结论归档后移除；分析脚本保留用于复核归档数据。
 - 训练 checkpoint 会按 validation 协议隔离 best，并在每轮验证后保存独立的 `epoch_NNN` 模型快照。
 - 多机器人训练中 timeout transition 记为 terminal，Critic 更新按有效 agent samples 归一化；旧训练结果不与修复后结果混合。
 - 当前映射表中的 start/stop：受支持的底层入口。

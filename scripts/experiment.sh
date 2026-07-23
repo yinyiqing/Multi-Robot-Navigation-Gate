@@ -12,8 +12,8 @@ Usage:
   bash scripts/experiment.sh stop <experiment-id>
 
 Supported experiment IDs:
-  eval-5d-standard          Current metric-fixed generalist baseline
-  diag-5d-random-dense      Spatial-density diagnostic only
+  train-strong-interaction  Current temporal strong-interaction Actor pilot
+  eval-5d-standard          Historical metric-fixed 5D baseline
 EOF
 }
 
@@ -21,17 +21,17 @@ script_for() {
   local action="$1"
   local experiment_id="$2"
   case "${action}:${experiment_id}" in
+    start:train-strong-interaction)
+      echo "$PROJECT_ROOT/scripts/start_training_strong_interaction_expert_pilot.sh"
+      ;;
+    stop:train-strong-interaction)
+      echo "$PROJECT_ROOT/scripts/stop_training_strong_interaction_expert_pilot.sh"
+      ;;
     start:eval-5d-standard)
       echo "$PROJECT_ROOT/scripts/start_test_detached_multi_stage2_to_5d_geo_critic_from_5a_guarded_best.sh"
       ;;
     stop:eval-5d-standard)
       echo "$PROJECT_ROOT/scripts/stop_test_detached_multi_stage2_to_5d_geo_critic_from_5a_guarded_best.sh"
-      ;;
-    start:diag-5d-random-dense)
-      echo "$PROJECT_ROOT/scripts/start_test_detached_dense5_random_5d.sh"
-      ;;
-    stop:diag-5d-random-dense)
-      echo "$PROJECT_ROOT/scripts/stop_test_detached_dense5_random_5d.sh"
       ;;
     *)
       return 1
@@ -43,8 +43,8 @@ show_status() {
   local found=0
   local pid_file pid
   for pid_file in \
-    "$PROJECT_ROOT/.test_multi_stage2_to_5d_geo_critic_from_5a_guarded_best_detached.pid" \
-    "$PROJECT_ROOT/.test_dense5_random_5d_detached.pid"; do
+    "$PROJECT_ROOT/.train_strong_interaction_expert_pilot.pid" \
+    "$PROJECT_ROOT/.test_multi_stage2_to_5d_geo_critic_from_5a_guarded_best_detached.pid"; do
     [[ -f "$pid_file" ]] || continue
     pid="$(tr -d '[:space:]' < "$pid_file")"
     if [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null; then

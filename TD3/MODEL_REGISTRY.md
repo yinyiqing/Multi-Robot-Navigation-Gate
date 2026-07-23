@@ -7,11 +7,11 @@
 | 模型 ID | 角色 | 实际 artifact 前缀 | 状态 |
 | --- | --- | --- | --- |
 | `generalist-5a` | 普通五车共享 Actor 候选 | `TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best` | historical baseline |
-| `generalist-5d` | 冻结的论文 generalist | `TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best` | current baseline |
+| `weak-interaction-5d` | 冻结的弱交互 Actor / 论文 baseline | `TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best` | current |
 | `bridge-full-ft` | 5D 上完整 Actor dense 微调 | `TD3_multi_dense5_bridge_geo_critic_from_5d_best` | failed |
 | `bridge-head-only` | 5D 上只训练动作头 | `TD3_multi_dense5_bridge_from_5d_head_only_best` | failed |
 | `moderate-full-ft` | moderate cases 上完整 Actor 微调 | `TD3_multi_dense5_moderate_geo_critic_from_5d_best` | failed |
-| `residual-specialist` | 冻结 5D 的受限动作残差 | `TD3_multi_dense5_moderate_residual_from_5d_best` | planned, artifact 不应存在 |
+| `strong-interaction-gru` | 冻结 5D + 8 帧 GRU 动作修正 | `interaction_expert_temporal_gru_pilot_s20260723` | pilot |
 | `temporal-gate` | 本地观测历史门控 | 待 D5 后命名 | planned |
 
 ## 文件含义
@@ -44,7 +44,7 @@ residual_interaction-medium-high_n5_seed0_best
 
 ## 使用限制
 
-- `generalist-5d` 在正式表格中必须按修复后的互斥口径重测。
+- `weak-interaction-5d` 对应原 `generalist-5d` 权重；历史脚本仍可使用旧 ID。
 - 三个 `failed` 模型只作为 full fine-tune/head-only 失败证据，不作为专家。
-- `residual-specialist` 必须通过相同 seed 的 paired evaluation 后才能登记为 current。
+- `strong-interaction-gru` 必须通过 deep/close/margin 准入条件和 paired evaluation 后才能登记为 current。
 - `temporal-gate` 只有在 specialist 达到论文协议 D5 准入条件后才允许创建。
