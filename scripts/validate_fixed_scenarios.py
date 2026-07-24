@@ -27,6 +27,19 @@ def parse_args():
         "--launchfile", default="multi_robot_scenario_dense5_random_5d_5.launch"
     )
     parser.add_argument("--environment-dim", type=int, default=20)
+    parser.add_argument("--num-agents", type=int, default=5)
+    parser.add_argument(
+        "--ros-port",
+        type=int,
+        default=11311,
+        help="Dedicated ROS master port used by the validation environment",
+    )
+    parser.add_argument(
+        "--gazebo-port",
+        type=int,
+        default=11345,
+        help="Dedicated Gazebo master port used by the validation environment",
+    )
     parser.add_argument("--collision-distance", type=float, default=0.35)
     parser.add_argument("--position-tolerance", type=float, default=0.15)
     parser.add_argument(
@@ -101,9 +114,15 @@ def main():
     args = parse_args()
     input_path = str(Path(args.input).resolve())
     payload = load_manifest_dataset(input_path)
-    agent_names = [f"r{index}" for index in range(1, 6)]
+    if args.num_agents < 1 or args.num_agents > 10:
+        raise ValueError("--num-agents must be between 1 and 10")
+    agent_names = [f"r{index}" for index in range(1, args.num_agents + 1)]
     scenarios = validate_manifest_scenarios(payload["scenarios"], agent_names)
 
+    os.environ["ROS_HOSTNAME"] = "localhost"
+    os.environ["ROS_PORT_SIM"] = str(args.ros_port)
+    os.environ["ROS_MASTER_URI"] = f"http://localhost:{args.ros_port}"
+    os.environ["GAZEBO_MASTER_URI"] = f"http://localhost:{args.gazebo_port}"
     os.environ["DRL_MULTI_SCENARIO"] = "manifest"
     os.environ["DRL_MULTI_MANIFEST_PATH"] = input_path
     os.environ["DRL_MULTI_MANIFEST_SAMPLING"] = "cycle"

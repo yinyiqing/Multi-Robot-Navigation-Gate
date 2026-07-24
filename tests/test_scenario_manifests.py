@@ -22,6 +22,7 @@ from scenario_manifests import (
 
 sys.path.insert(0, str(ROOT / "scripts"))
 from build_interaction_risk_views import RISK_BANDS, risk_band
+from build_pair_interaction_curriculum import make_split
 
 
 class ScenarioGeometryTests(unittest.TestCase):
@@ -36,6 +37,31 @@ class ScenarioGeometryTests(unittest.TestCase):
 
 
 class ScenarioManifestTests(unittest.TestCase):
+    def test_pair_interaction_curriculum_is_balanced_and_deterministic(self):
+        first = make_split("train", 2, 17)
+        second = make_split("train", 2, 17)
+        validation = make_split("validation", 1, 18)
+        self.assertEqual(first, second)
+        self.assertEqual(len(first["scenarios"]), 6)
+        self.assertEqual(
+            {item["interaction_topology"] for item in first["scenarios"]},
+            {"head_on", "crossing", "lane_swap"},
+        )
+        self.assertTrue(
+            {item["scenario_id"] for item in first["scenarios"]}.isdisjoint(
+                item["scenario_id"] for item in validation["scenarios"]
+            )
+        )
+        for scenario in first["scenarios"] + validation["scenarios"]:
+            self.assertEqual(scenario["metrics"]["conflict_edge_count"], 1)
+            self.assertLess(
+                scenario["metrics"]["min_synchronized_path_separation_m"],
+                0.45,
+            )
+            self.assertGreaterEqual(
+                scenario["validity"]["min_start_clearance_m"], 1.2
+            )
+
     def test_interaction_risk_bands_are_contiguous_and_policy_independent(self):
         self.assertEqual(RISK_BANDS[0][1], 0.0)
         for previous, current in zip(RISK_BANDS, RISK_BANDS[1:]):

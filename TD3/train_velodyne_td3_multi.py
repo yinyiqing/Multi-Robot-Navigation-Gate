@@ -69,7 +69,9 @@ def _evaluate_current_manifest(network, env, epoch, eval_episodes=10):
     for eval_index in range(1, eval_episodes + 1):
         states = env.reset()
         current_case = env.current_curriculum_case or {}
-        interaction_band = current_case.get("view", {}).get("interaction_band")
+        interaction_band = current_case.get("view", {}).get(
+            "interaction_band"
+        ) or current_case.get("interaction_topology")
         active_mask = [True] * env.num_agents
         episode_success_flags = np.zeros(env.num_agents, dtype=np.int32)
         episode_collision_flags = np.zeros(env.num_agents, dtype=np.int32)
@@ -750,6 +752,8 @@ anti_stagnation_progress_threshold = env_float(
     "DRL_MULTI_ANTI_STAGNATION_PROGRESS_THRESHOLD", 0.005
 )
 anti_stagnation_min_laser = env_float("DRL_MULTI_ANTI_STAGNATION_MIN_LASER", 0.35)
+forward_reward_weight = env_float("DRL_MULTI_FORWARD_REWARD_WEIGHT", 0.5)
+stagnation_penalty_weight = env_float("DRL_MULTI_STAGNATION_PENALTY_WEIGHT", 0.03)
 wall_clearance_reward = env_flag("DRL_MULTI_USE_WALL_CLEARANCE_REWARD", False)
 wall_clearance_safe_distance = env_float("DRL_MULTI_WALL_CLEARANCE_SAFE_DISTANCE", 0.75)
 wall_clearance_penalty = env_float("DRL_MULTI_WALL_CLEARANCE_PENALTY", 1.5)
@@ -889,6 +893,8 @@ env = MultiAgentGazeboEnv(
     local_navigation_near_goal_distance=local_navigation_near_goal_distance,
     local_navigation_heading_error=local_navigation_heading_error,
     robot_safe_distance=0.0,
+    forward_reward_weight=forward_reward_weight,
+    stagnation_penalty_weight=stagnation_penalty_weight,
     weak_coupling_layout=True,
     scenario_mode=scenario_mode,
     active_neighbors_only=active_neighbors_only,
@@ -1008,6 +1014,8 @@ print("Anti-stagnation penalty:", anti_stagnation_penalty)
 print("Anti-stagnation linear threshold:", anti_stagnation_linear_threshold)
 print("Anti-stagnation progress threshold:", anti_stagnation_progress_threshold)
 print("Anti-stagnation min laser:", anti_stagnation_min_laser)
+print("Forward reward weight:", forward_reward_weight)
+print("Base stagnation penalty weight:", stagnation_penalty_weight)
 print("Wall-clearance reward:", wall_clearance_reward)
 print("Wall-clearance safe distance:", wall_clearance_safe_distance)
 print("Wall-clearance penalty:", wall_clearance_penalty)

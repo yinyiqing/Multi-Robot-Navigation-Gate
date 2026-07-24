@@ -8,11 +8,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT / "TD3"))
 
-from scenario_manifests import (
-    AGENT_NAMES,
-    load_manifest_dataset,
-    validate_manifest_scenarios,
-)
+from scenario_manifests import load_manifest_dataset, validate_manifest_scenarios
 
 
 def parse_args():
@@ -20,6 +16,7 @@ def parse_args():
         description="Audit fixed scenario manifests for replay and split integrity."
     )
     parser.add_argument("manifests", nargs="+", help="JSON or JSON.GZ split files")
+    parser.add_argument("--num-agents", type=int, default=5)
     return parser.parse_args()
 
 
@@ -30,7 +27,10 @@ def main():
     for source in args.manifests:
         path = Path(source)
         payload = load_manifest_dataset(path)
-        scenarios = validate_manifest_scenarios(payload["scenarios"], AGENT_NAMES)
+        if args.num_agents < 1 or args.num_agents > 10:
+            raise ValueError("--num-agents must be between 1 and 10")
+        agent_names = tuple(f"r{index}" for index in range(1, args.num_agents + 1))
+        scenarios = validate_manifest_scenarios(payload["scenarios"], agent_names)
         expected_split = str(payload.get("split", ""))
         ids = []
         for scenario in scenarios:

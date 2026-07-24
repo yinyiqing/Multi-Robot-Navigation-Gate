@@ -1,0 +1,7 @@
+{
+  "dataset_id": "pair-interaction-curriculum-v1-validation",
+  "split": "validation",
+  "candidate_count": 30,
+  "rejected_count": 0,
+  "rejected": []
+}

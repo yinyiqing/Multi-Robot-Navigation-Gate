@@ -112,6 +112,8 @@ class MultiAgentGazeboEnv:
         reward_neighbor_radius=10.0,
         reward_neighbor_fov=np.pi / 2 + 0.03,
         robot_safe_distance=1.0,
+        forward_reward_weight=0.5,
+        stagnation_penalty_weight=0.03,
         weak_coupling_layout=False,
         scenario_mode="standard",
         active_neighbors_only=False,
@@ -155,6 +157,12 @@ class MultiAgentGazeboEnv:
         self.reward_neighbor_radius = reward_neighbor_radius
         self.reward_neighbor_fov = reward_neighbor_fov
         self.robot_safe_distance = robot_safe_distance
+        self.forward_reward_weight = float(forward_reward_weight)
+        self.stagnation_penalty_weight = float(stagnation_penalty_weight)
+        if self.forward_reward_weight < 0.0:
+            raise ValueError("forward_reward_weight must be non-negative")
+        if self.stagnation_penalty_weight < 0.0:
+            raise ValueError("stagnation_penalty_weight must be non-negative")
         self.weak_coupling_layout = weak_coupling_layout
         self.active_neighbors_only = active_neighbors_only
         self.scenario_mode = scenario_mode.strip().lower()
@@ -1600,17 +1608,20 @@ class MultiAgentGazeboEnv:
             return True, True, min_laser
         return False, False, min_laser
 
-    @staticmethod
-    def get_reward(target, collision, action, min_laser, progress):
+    def get_reward(self, target, collision, action, min_laser, progress):
         if target:
             return 100.0
         if collision:
             return -100.0
         obstacle_penalty = 1 - min_laser if min_laser < 1 else 0.0
         progress_reward = 20.0 * progress
-        forward_reward = 0.5 * action[0]
+        forward_reward = self.forward_reward_weight * action[0]
         turn_penalty = 0.2 * abs(action[1])
-        stagnation_penalty = 0.03 if action[0] < 0.1 and abs(progress) < 0.01 else 0.0
+        stagnation_penalty = (
+            self.stagnation_penalty_weight
+            if action[0] < 0.1 and abs(progress) < 0.01
+            else 0.0
+        )
         return (
             progress_reward
             + forward_reward
