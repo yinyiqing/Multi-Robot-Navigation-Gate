@@ -193,7 +193,9 @@ Dense 固定参数：起点方形半宽在 `1.65-1.75 m` 连续采样，起点�
 
 五车旧 Stage 1 replay 审计发现，强Actor在无可见邻居状态上的变化反而最大，并在 `<=0.8 m` 危险状态继续增加线速度。根因是此前所谓 specialist 仍控制并更新于整个episode，本质上仍在训练generalist。当前候选改为训练期oracle分工：邻居真值距离 `<=2.0 m` 时由强Actor执行并进入其Actor更新集，其余状态始终由冻结5D执行；Critic仍学习完整五车轨迹。Actor结构、TD3目标和部署输入不变。先评估oracle组合上限，通过后才训练可部署Gate。
 
-oracle-specialist pilot 在同一批 `60 deep + 40 close + 40 margin` validation 上，epoch 1/2 的 overall agent success 为 `0.827/0.834`，collision 为 `0.173/0.166`，但 full success 从 `0.500` 降到 `0.471`。deep/close/margin full success 分别从 `0.233/0.575/0.825` 变为 `0.200/0.575/0.775`，未形成强交互专门化。replay 审计显示候选Actor在所有距离层都学到约 `+0.13--+0.16` 的同向角速度偏置，并在 `<=0.8 m` 状态增加线速度 `+0.090`；Critic对这些明显变化有 `79.38%` 偏好。因此 oracle 分流修复了“普通状态也更新强Actor”的问题，但当前Critic仍给出错误的单向转弯/危险加速梯度。该配置已停止，不增加epoch或seed重复。完整结果见 `results/D4_interaction_oracle_specialist_pilot_s20260724`。
+oracle-specialist pilot 在同一批 `60 deep + 40 close + 40 margin` validation 上，epoch 1/2 的 overall agent success 为 `0.827/0.834`，collision 为 `0.173/0.166`，但 full success 从 `0.500` 降到 `0.471`。deep/close/margin full success 分别从 `0.233/0.575/0.825` 变为 `0.200/0.575/0.775`，未形成强交互专门化。replay 审计显示候选Actor在所有距离层都学到约 `+0.13--+0.16` 的同向角速度偏置，并在 `<=0.8 m` 状态增加线速度 `+0.090`；Critic对这些明显变化有 `79.38%` 偏好。该Critic偏好只说明Actor与Critic自洽，不能单独证明动作在真实环境中更差；它与危险加速、同向转弯和分层评估一起构成训练信号偏移的警示。oracle 分流已修复“普通状态也更新强Actor”的问题，但当前候选仍未学出deep优势。该配置已停止，不增加epoch或seed重复。完整结果见 `results/D4_interaction_oracle_specialist_pilot_s20260724`。
+
+两轮额外配对评估证明单次 full success 波动较大，因此不再仅依据 `0.500 -> 0.471` 判断。三次合计后，5D/候选的 overall agent success 为 `0.8238/0.8229`，full success 为 `0.4571/0.4452`，基本持平且候选略低；但目标 deep 层 full success 在三次中均下降，合计为 `35/180 -> 27/180`。因此拒绝的是当前epoch 2 checkpoint和未修改训练配置，不是双Actor + Gate主线。
 
 Stage 1 同协议 epoch 1/2 的 overall full success 为 `0.4929/0.3357`；close、deep、margin 分别从 `0.6250/0.2167/0.7750` 降至 `0.2750/0.1333/0.7000`，未通过准入条件。离线审计进一步发现，训练后 Actor 在全部 `40001` 个 replay state 上只增加、不降低线速度；对动作变化超过 `0.05` 的状态，Critic 有 `76.80%` 错误偏好真实性能更差的新动作。因此停止 Stage 2，不用更多 epoch 或 seed 重复当前配置。完整结果见 `results/D4_strong_interaction_curriculum_stage1_s20260723`。
 

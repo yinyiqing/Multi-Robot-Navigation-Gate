@@ -1,0 +1,43 @@
+{
+  "status": "epoch2_not_specialized",
+  "episodes_per_run": 140,
+  "runs": 3,
+  "overall": {
+    "5d": {
+      "agent_success": 1730,
+      "collision": 370,
+      "full_success": 192,
+      "unresolved": 0,
+      "episodes": 420,
+      "agent_samples": 2100
+    },
+    "epoch2": {
+      "agent_success": 1728,
+      "collision": 371,
+      "full_success": 187,
+      "unresolved": 1,
+      "episodes": 420,
+      "agent_samples": 2100
+    }
+  },
+  "strata": {
+    "deep": {
+      "5d": {"agent_success": 647, "collision": 253, "full_success": 35},
+      "epoch2": {"agent_success": 640, "collision": 260, "full_success": 27},
+      "episodes": 180,
+      "agent_samples": 900
+    },
+    "close": {
+      "5d": {"agent_success": 518, "collision": 82, "full_success": 65},
+      "epoch2": {"agent_success": 521, "collision": 79, "full_success": 66},
+      "episodes": 120,
+      "agent_samples": 600
+    },
+    "margin": {
+      "5d": {"agent_success": 565, "collision": 35, "full_success": 92},
+      "epoch2": {"agent_success": 567, "collision": 32, "full_success": 94},
+      "episodes": 120,
+      "agent_samples": 600
+    }
+  }
+}
