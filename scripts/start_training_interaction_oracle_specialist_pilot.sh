@@ -5,18 +5,29 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TD3_DIR="$PROJECT_ROOT/TD3"
 VIEW_DIR="$PROJECT_ROOT/experiments/04_保留专门化/05_论文主线/datasets/fixed_v1/views/strong_interaction_curriculum_v1"
 LOG_DIR="$PROJECT_ROOT/logs"
-PID_FILE="$PROJECT_ROOT/.train_interaction_oracle_specialist_pilot.pid"
-BASE_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best"
+BASE_MODEL="${DRL_MULTI_BASE_MODEL:-TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best}"
+LOAD_ACTOR_ONLY="${DRL_MULTI_LOAD_ACTOR_ONLY:-0}"
 MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-interaction_oracle_specialist_pilot_s20260724}"
+SAFE_MODEL="${MODEL_NAME//[^A-Za-z0-9_]/_}"
+PID_FILE="${DRL_MULTI_PID_FILE:-$PROJECT_ROOT/.train_${SAFE_MODEL}.pid}"
 LAUNCHFILE="multi_robot_scenario_strong_interaction_pilot_5.launch"
 ROS_PORT="${DRL_MULTI_ROS_PORT:-13003}"
 GAZEBO_PORT="${DRL_MULTI_GAZEBO_PORT:-13103}"
 ROBOT_SAFE_DISTANCE="${DRL_MULTI_ROBOT_SAFE_DISTANCE:-0.0}"
 
+[[ "$LOAD_ACTOR_ONLY" == 0 || "$LOAD_ACTOR_ONLY" == 1 ]] || {
+  echo "DRL_MULTI_LOAD_ACTOR_ONLY must be 0 or 1."
+  exit 2
+}
+
 for path in "$VIEW_DIR/stage2_train.json.gz" "$VIEW_DIR/validation.json.gz"; do
   [[ -f "$path" ]] || { echo "Fixed five-agent interaction split is missing: $path"; exit 1; }
 done
-for suffix in actor critic; do
+required_suffixes=(actor)
+if [[ "$LOAD_ACTOR_ONLY" == 0 ]]; then
+  required_suffixes+=(critic)
+fi
+for suffix in "${required_suffixes[@]}"; do
   [[ -f "$TD3_DIR/pytorch_models/${BASE_MODEL}_${suffix}.pth" ]] || {
     echo "5D ${suffix} is missing: $TD3_DIR/pytorch_models/${BASE_MODEL}_${suffix}.pth"
     exit 1
@@ -50,7 +61,7 @@ fi
 
 mkdir -p "$LOG_DIR"
 timestamp="$(date +%Y%m%d_%H%M%S)"
-log_file="$LOG_DIR/train_interaction_oracle_specialist_pilot_${timestamp}.log"
+log_file="$LOG_DIR/train_${SAFE_MODEL}_${timestamp}.log"
 
 setsid bash -lc "
   set -eo pipefail
@@ -78,7 +89,7 @@ setsid bash -lc "
   export DRL_MULTI_MANIFEST_SAMPLING=random
   export DRL_MULTI_TRAIN_FILE_NAME='$MODEL_NAME'
   export DRL_MULTI_LOAD_MODEL=1
-  export DRL_MULTI_LOAD_ACTOR_ONLY=0
+  export DRL_MULTI_LOAD_ACTOR_ONLY='$LOAD_ACTOR_ONLY'
   export DRL_MULTI_LOAD_MODEL_NAME='$BASE_MODEL'
   export DRL_MULTI_RESUME_TRAINING=0
   export DRL_MULTI_MAX_EPOCHS=2
@@ -123,6 +134,12 @@ echo $! > "$PID_FILE"
 echo "Started five-agent oracle-specialist pilot."
 echo "PID: $(cat "$PID_FILE")"
 echo "Model: $MODEL_NAME"
+echo "Warm start: $BASE_MODEL"
+if [[ "$LOAD_ACTOR_ONLY" == 1 ]]; then
+  echo "Warm start mode: actor-only"
+else
+  echo "Warm start mode: actor-and-critic"
+fi
 echo "Train: 640 fixed five-agent deep/close/margin scenarios"
 echo "Validation: 140 fixed five-agent scenarios"
 echo "Oracle: strong Actor at <=2.0 m; frozen 5D otherwise"
