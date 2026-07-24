@@ -891,6 +891,9 @@ wall_clearance_safe_distance = env_float("DRL_MULTI_WALL_CLEARANCE_SAFE_DISTANCE
 wall_clearance_penalty = env_float("DRL_MULTI_WALL_CLEARANCE_PENALTY", 1.5)
 wall_clearance_speed_weight = env_float("DRL_MULTI_WALL_CLEARANCE_SPEED_WEIGHT", 0.8)
 wall_clearance_turn_weight = env_float("DRL_MULTI_WALL_CLEARANCE_TURN_WEIGHT", 0.4)
+robot_safe_distance = env_float("DRL_MULTI_ROBOT_SAFE_DISTANCE", 0.0)
+if robot_safe_distance < 0.0:
+    raise ValueError("DRL_MULTI_ROBOT_SAFE_DISTANCE must be non-negative")
 local_navigation_reward = env_flag("DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD", False)
 local_navigation_heading_weight = env_float(
     "DRL_MULTI_LOCAL_NAV_HEADING_WEIGHT", 0.4
@@ -1027,7 +1030,7 @@ env = MultiAgentGazeboEnv(
     local_navigation_turn_weight=local_navigation_turn_weight,
     local_navigation_near_goal_distance=local_navigation_near_goal_distance,
     local_navigation_heading_error=local_navigation_heading_error,
-    robot_safe_distance=0.0,
+    robot_safe_distance=robot_safe_distance,
     forward_reward_weight=forward_reward_weight,
     stagnation_penalty_weight=stagnation_penalty_weight,
     weak_coupling_layout=True,
@@ -1170,6 +1173,7 @@ print("Wall-clearance safe distance:", wall_clearance_safe_distance)
 print("Wall-clearance penalty:", wall_clearance_penalty)
 print("Wall-clearance speed weight:", wall_clearance_speed_weight)
 print("Wall-clearance turn weight:", wall_clearance_turn_weight)
+print("Robot safe distance:", robot_safe_distance)
 print("Local-navigation reward:", local_navigation_reward)
 print("Local-navigation heading weight:", local_navigation_heading_weight)
 print("Local-navigation wrong-way penalty:", local_navigation_wrong_way_penalty)

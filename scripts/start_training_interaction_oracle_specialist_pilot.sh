@@ -7,10 +7,11 @@ VIEW_DIR="$PROJECT_ROOT/experiments/04_保留专门化/05_论文主线/datasets/
 LOG_DIR="$PROJECT_ROOT/logs"
 PID_FILE="$PROJECT_ROOT/.train_interaction_oracle_specialist_pilot.pid"
 BASE_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best"
-MODEL_NAME="interaction_oracle_specialist_pilot_s20260724"
+MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-interaction_oracle_specialist_pilot_s20260724}"
 LAUNCHFILE="multi_robot_scenario_strong_interaction_pilot_5.launch"
 ROS_PORT="${DRL_MULTI_ROS_PORT:-13003}"
 GAZEBO_PORT="${DRL_MULTI_GAZEBO_PORT:-13103}"
+ROBOT_SAFE_DISTANCE="${DRL_MULTI_ROBOT_SAFE_DISTANCE:-0.0}"
 
 for path in "$VIEW_DIR/stage2_train.json.gz" "$VIEW_DIR/validation.json.gz"; do
   [[ -f "$path" ]] || { echo "Fixed five-agent interaction split is missing: $path"; exit 1; }
@@ -89,6 +90,7 @@ setsid bash -lc "
   export DRL_MULTI_USE_ORACLE_INTERACTION_ROLLOUT=1
   export DRL_MULTI_ORACLE_WEAK_ACTOR_NAME='$BASE_MODEL'
   export DRL_MULTI_ORACLE_INTERACTION_DISTANCE=2.0
+  export DRL_MULTI_ROBOT_SAFE_DISTANCE='$ROBOT_SAFE_DISTANCE'
   export DRL_MULTI_ACTOR_INTERACTION_ONLY=1
   export DRL_MULTI_USE_DYNAMIC_REWARD=1
   export DRL_MULTI_REWARD_MODE=average
@@ -125,6 +127,7 @@ echo "Train: 640 fixed five-agent deep/close/margin scenarios"
 echo "Validation: 140 fixed five-agent scenarios"
 echo "Oracle: strong Actor at <=2.0 m; frozen 5D otherwise"
 echo "Actor updates: interaction transitions only"
+echo "Robot safe distance reward: $ROBOT_SAFE_DISTANCE m"
 echo "Epoch 1: frozen Actor baseline; Epoch 2: interaction-only Actor training"
 echo "Log: $log_file"
 echo "Expected runtime: roughly 3-5 hours."
