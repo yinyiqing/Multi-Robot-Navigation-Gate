@@ -52,6 +52,18 @@ def _env_int(name, default):
     return int(value)
 
 
+def _env_bool(name, default=False):
+    value = os.environ.get(name)
+    if value is None or value.strip() == "":
+        return bool(default)
+    normalized = value.strip().lower()
+    if normalized in ("1", "true", "yes", "on"):
+        return True
+    if normalized in ("0", "false", "no", "off"):
+        return False
+    raise ValueError(f"{name} must be a boolean value")
+
+
 def _env_range(name, default):
     value = os.environ.get(name)
     if value is None or value.strip() == "":
@@ -219,6 +231,18 @@ class MultiAgentGazeboEnv:
             raise ValueError("DRL_MULTI_TEMPORAL_LIDAR_DIM must be non-negative")
         self.temporal_lidar_data = {
             name: np.ones(self.temporal_lidar_dim) * 10 for name in self.agent_names
+        }
+        self.record_raw_lidar = _env_bool("DRL_MULTI_RECORD_RAW_LIDAR", False)
+        self.raw_lidar_voxel_size = _env_float(
+            "DRL_MULTI_RAW_LIDAR_VOXEL_SIZE", 0.05
+        )
+        self.raw_lidar_max_range = _env_float("DRL_MULTI_RAW_LIDAR_MAX_RANGE", 6.0)
+        if self.raw_lidar_voxel_size <= 0.0:
+            raise ValueError("DRL_MULTI_RAW_LIDAR_VOXEL_SIZE must be positive")
+        if self.raw_lidar_max_range <= 0.0:
+            raise ValueError("DRL_MULTI_RAW_LIDAR_MAX_RANGE must be positive")
+        self.raw_lidar_points = {
+            name: np.empty((0, 2), dtype=np.float32) for name in self.agent_names
         }
         self.last_odom = {name: None for name in self.agent_names}
         self.previous_distances = {name: None for name in self.agent_names}
@@ -527,6 +551,7 @@ class MultiAgentGazeboEnv:
             data = list(pc2.read_points(msg, skip_nans=False, field_names=("x", "y", "z")))
             agent_scan = np.ones(self.environment_dim) * 10
             temporal_scan = np.ones(self.temporal_lidar_dim) * 10
+            raw_front_points = []
             for point in data:
                 if point[2] <= -0.2:
                     continue
@@ -536,6 +561,13 @@ class MultiAgentGazeboEnv:
                     continue
                 beta = math.acos(dot / mag1) * np.sign(point[1])
                 dist = math.sqrt(point[0] ** 2 + point[1] ** 2 + point[2] ** 2)
+
+                if (
+                    self.record_raw_lidar
+                    and self.gaps[0][0] <= beta < self.gaps[-1][1]
+                    and mag1 <= self.raw_lidar_max_range
+                ):
+                    raw_front_points.append((point[0], point[1]))
 
                 for idx, gap in enumerate(self.gaps):
                     if gap[0] <= beta < gap[1]:
@@ -559,6 +591,16 @@ class MultiAgentGazeboEnv:
             self.velodyne_data[name] = agent_scan
             if self.temporal_lidar_dim:
                 self.temporal_lidar_data[name] = temporal_scan
+            if self.record_raw_lidar:
+                if raw_front_points:
+                    points = np.asarray(raw_front_points, dtype=np.float32)
+                    voxels = np.floor(points / self.raw_lidar_voxel_size).astype(
+                        np.int32
+                    )
+                    _, indices = np.unique(voxels, axis=0, return_index=True)
+                    self.raw_lidar_points[name] = points[np.sort(indices)]
+                else:
+                    self.raw_lidar_points[name] = np.empty((0, 2), dtype=np.float32)
 
         return callback
 

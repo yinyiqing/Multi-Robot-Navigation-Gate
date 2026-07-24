@@ -516,6 +516,7 @@ print("Starting env steps:", total_env_steps)
 print("Starting agent samples:", total_agent_samples)
 print("Target test episodes:", target_test_episodes or "unlimited")
 print("Trajectory JSONL:", trajectory_path or "disabled")
+print("Raw lidar recording:", "enabled" if env.record_raw_lidar else "disabled")
 if scenario_mode in ("curriculum", "manifest"):
     print("Case-level stats enabled")
 print("==============================================")
@@ -552,6 +553,14 @@ while True:
         }
         for name in agent_names
     }
+    step_raw_lidar = (
+        {
+            name: np.asarray(env.raw_lidar_points[name], dtype=float).round(4).tolist()
+            for name in agent_names
+        }
+        if env.record_raw_lidar
+        else None
+    )
 
     for idx, state in enumerate(states):
         if not active_mask[idx]:
@@ -602,6 +611,7 @@ while True:
                 if env.temporal_lidar_dim
                 else None
             ),
+            "raw_lidar_points": step_raw_lidar,
             "actions": [[float(value) for value in action] for action in env_actions],
             "positions": {
                 name: [float(value) for value in env.robot_positions[name]]
