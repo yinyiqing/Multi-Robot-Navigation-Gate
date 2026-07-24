@@ -10,6 +10,7 @@ import torch
 from torch.utils.tensorboard import SummaryWriter
 
 from actor_models import Actor, ResidualActor, is_residual_actor_state_dict
+from interaction_oracle import interaction_mask
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
 from oracle_controllers import ConflictPairYieldOracle
 from outcome_utils import resolve_terminal_outcome
@@ -204,9 +205,15 @@ actor_selection_mode = os.environ.get("DRL_MULTI_ACTOR_SELECTION_MODE", "").stri
 dual_actor_enabled = bool(dense_actor_file)
 if not actor_selection_mode:
     actor_selection_mode = "hard_switch" if dual_actor_enabled else "single"
-if actor_selection_mode not in ("single", "hard_switch", "case_oracle"):
+if actor_selection_mode not in (
+    "single",
+    "hard_switch",
+    "case_oracle",
+    "interaction_oracle",
+):
     raise ValueError(
-        "DRL_MULTI_ACTOR_SELECTION_MODE must be one of: single, hard_switch, case_oracle"
+        "DRL_MULTI_ACTOR_SELECTION_MODE must be one of: single, hard_switch, "
+        "case_oracle, interaction_oracle"
     )
 if actor_selection_mode != "single" and not dual_actor_enabled:
     raise ValueError(
@@ -215,6 +222,11 @@ if actor_selection_mode != "single" and not dual_actor_enabled:
 switch_on_distance = env_float("DRL_MULTI_SWITCH_ON_DISTANCE", 1.6)
 switch_off_distance = env_float("DRL_MULTI_SWITCH_OFF_DISTANCE", 2.0)
 switch_on_visible_neighbors = env_int("DRL_MULTI_SWITCH_ON_VISIBLE_NEIGHBORS", 1)
+interaction_oracle_distance = env_float(
+    "DRL_MULTI_ORACLE_INTERACTION_DISTANCE", 2.0
+)
+if interaction_oracle_distance <= 0.0:
+    raise ValueError("DRL_MULTI_ORACLE_INTERACTION_DISTANCE must be positive")
 case_oracle_map_path = env_json_path("DRL_MULTI_CASE_ORACLE_MAP")
 rule_oracle_mode = os.environ.get("DRL_MULTI_RULE_ORACLE_MODE", "").strip().lower()
 if rule_oracle_mode not in ("", "conflict_pair_yield"):
@@ -389,6 +401,7 @@ env = MultiAgentGazeboEnv(
     robot_safe_distance=0.0,
     weak_coupling_layout=True,
     scenario_mode=scenario_mode,
+    active_neighbors_only=actor_selection_mode == "interaction_oracle",
 )
 time.sleep(5)
 random.seed(seed)
@@ -492,6 +505,8 @@ if dual_actor_enabled:
         print("Switch on visible neighbors:", switch_on_visible_neighbors)
     elif actor_selection_mode == "case_oracle":
         print("Case oracle map:", case_oracle_map_path)
+    elif actor_selection_mode == "interaction_oracle":
+        print("Oracle interaction distance:", interaction_oracle_distance)
 else:
     print("Dual actor mode: disabled")
 print("Rule oracle mode:", rule_oracle_mode or "disabled")
@@ -543,6 +558,19 @@ episode_rule_yield_steps = np.zeros(len(agent_names), dtype=np.int32)
 while True:
     env_actions = []
     step_active_mask = list(active_mask)
+    oracle_flags = None
+    if actor_selection_mode == "interaction_oracle":
+        oracle_contexts = env.build_neighbor_context(
+            [[0.0, 0.0] for _ in agent_names],
+            max_neighbors=9,
+            include_actions=False,
+            active_mask=active_mask,
+        )
+        oracle_flags = interaction_mask(
+            oracle_contexts,
+            interaction_oracle_distance,
+            feature_dim=5,
+        )
     step_actor_states = [np.asarray(state, dtype=float).tolist() for state in states]
     step_actor_poses = {
         name: {
@@ -579,6 +607,14 @@ while True:
             episode_standard_action_steps[idx] += 1
             if is_yielding:
                 episode_rule_yield_steps[idx] += 1
+        elif actor_selection_mode == "interaction_oracle":
+            use_dense_actor = bool(oracle_flags[idx])
+            policy = dense_network if use_dense_actor else network
+            action = policy.get_action(np.array(state))
+            if use_dense_actor:
+                episode_dense_action_steps[idx] += 1
+            else:
+                episode_standard_action_steps[idx] += 1
         elif dense_policy_controller is not None:
             action, mode, _, _ = dense_policy_controller.choose_action(
                 env, agent_names[idx], state
