@@ -142,7 +142,7 @@ else
 fi
 echo "Train: 640 fixed five-agent deep/close/margin scenarios"
 echo "Validation: 140 fixed five-agent scenarios"
-echo "Oracle: strong Actor at <=2.0 m; frozen 5D otherwise"
+echo "Oracle: trainable Actor at <=2.0 m; frozen $BASE_MODEL otherwise"
 echo "Actor updates: interaction transitions only"
 echo "Robot safe distance reward: $ROBOT_SAFE_DISTANCE m"
 echo "Epoch 1: frozen Actor baseline; Epoch 2: interaction-only Actor training"
