@@ -7,10 +7,28 @@ VIEW_DIR="$PROJECT_ROOT/experiments/04_保留专门化/05_论文主线/datasets/
 LOG_DIR="$PROJECT_ROOT/logs"
 PID_FILE="$PROJECT_ROOT/.test_lidar_cluster_sensor_probe_5d.pid"
 MODEL_NAME="TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best"
-RUN_ID="lidar_cluster_shape_probe_5d_s20260724"
-MANIFEST="$VIEW_DIR/sensor_probe.json.gz"
+PROFILE="${1:-shape}"
 ROS_PORT=12603
 GAZEBO_PORT=12703
+
+case "$PROFILE" in
+  shape)
+    RUN_ID="lidar_cluster_shape_probe_5d_s20260724"
+    MANIFEST="$VIEW_DIR/sensor_probe.json.gz"
+    RECORD_RAW_LIDAR=1
+    TEMPORAL_LIDAR_DIM=0
+    ;;
+  highres-holdout)
+    RUN_ID="temporal_risk_highres_holdout_5d_s20260724"
+    MANIFEST="$VIEW_DIR/sensor_holdout.json.gz"
+    RECORD_RAW_LIDAR=0
+    TEMPORAL_LIDAR_DIM=180
+    ;;
+  *)
+    echo "Usage: $0 [shape|highres-holdout]" >&2
+    exit 2
+    ;;
+esac
 
 [[ -f "$MANIFEST" ]] || { echo "Sensor probe manifest is missing: $MANIFEST"; exit 1; }
 [[ -f "$TD3_DIR/pytorch_models/${MODEL_NAME}_actor.pth" ]] || {
@@ -59,9 +77,10 @@ setsid bash -lc "
   export DRL_MULTI_TEST_STATE_PATH='./checkpoints/${run_tag}_state.pt'
   export DRL_MULTI_TEST_STATS_PATH='./results/${run_tag}.npy'
   export DRL_MULTI_TRAJECTORY_JSONL='$trajectory_file'
-  export DRL_MULTI_RECORD_RAW_LIDAR=1
+  export DRL_MULTI_RECORD_RAW_LIDAR=$RECORD_RAW_LIDAR
   export DRL_MULTI_RAW_LIDAR_VOXEL_SIZE=0.05
   export DRL_MULTI_RAW_LIDAR_MAX_RANGE=6.0
+  export DRL_MULTI_TEMPORAL_LIDAR_DIM=$TEMPORAL_LIDAR_DIM
   cd '$PROJECT_ROOT/catkin_ws'
   source devel_isolated/setup.bash
   cd '$TD3_DIR'
@@ -69,7 +88,7 @@ setsid bash -lc "
 " >"$log_file" 2>&1 < /dev/null &
 
 echo $! > "$PID_FILE"
-echo "Started 5D XYZ lidar cluster shape probe."
+echo "Started 5D sensor probe profile: $PROFILE"
 echo "PID: $(cat "$PID_FILE")"
 echo "Scenarios: 30 fixed cases (deep/close/margin = 10/10/10)"
 echo "Log: $log_file"

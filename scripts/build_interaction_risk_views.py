@@ -86,6 +86,11 @@ def main():
         raise ValueError("--sensor-probe-per-pool must be positive")
     if args.sensor_probe_per_pool > args.probe_per_pool:
         raise ValueError("--sensor-probe-per-pool cannot exceed --probe-per-pool")
+    if 2 * args.sensor_probe_per_pool > args.probe_per_pool:
+        raise ValueError(
+            "Two disjoint sensor probes require at least twice "
+            "--sensor-probe-per-pool scenarios in each probe pool"
+        )
 
     pools = ("standard", "dense")
     splits = ("train", "validation")
@@ -128,6 +133,7 @@ def main():
     summary = {"risk_bands": thresholds, "bands": {}}
     combined_probe = []
     sensor_probe = []
+    sensor_holdout = []
 
     for band_index, (band, _, _) in enumerate(RISK_BANDS):
         band_dir = args.output / band
@@ -154,9 +160,11 @@ def main():
         random.Random(args.seed + band_index * 1000 + 600).shuffle(validation)
         combined_probe.extend(train)
         for pool in pools:
-            sensor_probe.extend(
-                [item for item in train if item["preset"] == pool][
-                    : args.sensor_probe_per_pool
+            pool_cases = [item for item in train if item["preset"] == pool]
+            sensor_probe.extend(pool_cases[: args.sensor_probe_per_pool])
+            sensor_holdout.extend(
+                pool_cases[
+                    args.sensor_probe_per_pool : 2 * args.sensor_probe_per_pool
                 ]
             )
 
@@ -242,6 +250,30 @@ def main():
     summary["sensor_probe"] = {
         "path": str(sensor_probe_path),
         "scenarios": len(sensor_probe),
+    }
+    random.Random(args.seed + 7000).shuffle(sensor_holdout)
+    sensor_holdout_path = args.output / "sensor_holdout.json.gz"
+    holdout_config = dict(common_config)
+    holdout_config.update(
+        {
+            "selected_risk_band": "all",
+            "sensor_holdout_per_pool_per_band": args.sensor_probe_per_pool,
+            "disjoint_from": "interaction-risk-balanced-sensor-probe-v1",
+        }
+    )
+    write_gzip_json(
+        sensor_holdout_path,
+        make_payload(
+            "interaction-risk-balanced-sensor-holdout-v1",
+            "test",
+            sensor_holdout,
+            source_records,
+            holdout_config,
+        ),
+    )
+    summary["sensor_holdout"] = {
+        "path": str(sensor_holdout_path),
+        "scenarios": len(sensor_holdout),
     }
 
     print(json.dumps(summary, indent=2, ensure_ascii=False))

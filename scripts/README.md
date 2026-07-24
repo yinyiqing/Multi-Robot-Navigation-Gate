@@ -54,7 +54,7 @@ start|stop _ training|test _ detached _ <historical-run-name>.sh
 - `analyze_interaction_risk_probe.py`：回连风险 probe 的 manifest、episode 结果和逐帧轨迹，统计实际冲突对间距、闭合速度和 TTC。
 - `compare_interaction_probe_summaries.py`：按 scenario ID 和几何风险层配对比较两次 probe，并计算只在指定风险层采用候选策略的诊断上限。
 - `analyze_temporal_interaction_probe.py`：以其他机器人位置生成评估真值，审计仅使用本机激光和里程计的时序闭合速度/TTC 特征。
-- `start/stop_lidar_cluster_sensor_probe_5d.sh`：在固定30场 sensor probe 上运行冻结5D，并可选记录体素降采样后的前视原始点云，不改变Actor输入。
+- `start/stop_lidar_cluster_sensor_probe_5d.sh`：`shape`在固定30场sensor probe上记录体素降采样XYZ；`highres-holdout`在互斥的30场holdout上只记录180-bin前视激光，均不改变Actor输入。
 - `analyze_lidar_cluster_probe.py`：用本机点云、里程计和时间戳进行点簇关联与CPA/TTC估计；其他机器人轨迹只作为离线评分真值。
 - `analyze_lidar_cluster_shape_probe.py`：在独立scenario划分上审计三维高度/尺寸特征能否区分真实机器人点簇与静态环境点簇。
 - `train_temporal_risk_probe.py`：用仿真CPA/TTC privileged标签监督同输入的单帧MLP与8帧GRU风险编码器，并在scenario级独立test上比较。
