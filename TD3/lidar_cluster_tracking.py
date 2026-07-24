@@ -5,11 +5,11 @@ import numpy as np
 
 def _validate_points(points):
     values = np.asarray(points, dtype=np.float64)
-    if values.ndim != 2 or values.shape[1] != 2:
-        raise ValueError("points must have shape [N, 2]")
+    if values.ndim != 2 or values.shape[1] < 2:
+        raise ValueError("points must have shape [N, 2+] ")
     if not np.all(np.isfinite(values)):
         raise ValueError("points must be finite")
-    return values
+    return values[:, :2]
 
 
 def cluster_points(
@@ -74,6 +74,7 @@ def cluster_points(
                 "centroid": centroid,
                 "diameter": diameter,
                 "point_count": len(component),
+                "indices": np.asarray(component, dtype=np.int64),
             }
         )
     return clusters

@@ -7,7 +7,7 @@ VIEW_DIR="$PROJECT_ROOT/experiments/04_保留专门化/05_论文主线/datasets/
 LOG_DIR="$PROJECT_ROOT/logs"
 PID_FILE="$PROJECT_ROOT/.test_lidar_cluster_sensor_probe_5d.pid"
 MODEL_NAME="TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best"
-RUN_ID="lidar_cluster_sensor_probe_5d_s20260724"
+RUN_ID="lidar_cluster_shape_probe_5d_s20260724"
 MANIFEST="$VIEW_DIR/sensor_probe.json.gz"
 ROS_PORT=12603
 GAZEBO_PORT=12703
@@ -69,7 +69,7 @@ setsid bash -lc "
 " >"$log_file" 2>&1 < /dev/null &
 
 echo $! > "$PID_FILE"
-echo "Started 5D lidar cluster sensor probe."
+echo "Started 5D XYZ lidar cluster shape probe."
 echo "PID: $(cat "$PID_FILE")"
 echo "Scenarios: 30 fixed cases (deep/close/margin = 10/10/10)"
 echo "Log: $log_file"

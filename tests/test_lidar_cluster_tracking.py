@@ -27,6 +27,13 @@ class LidarClusterTrackingTests(unittest.TestCase):
         self.assertEqual(len(clusters), 1)
         np.testing.assert_allclose(clusters[0]["centroid"], [1.2, 0.1], atol=0.03)
 
+    def test_xyz_points_remain_compatible_with_xy_tracking(self):
+        xy = compact_cluster([1.2, 0.1])
+        xyz = np.column_stack([xy, np.linspace(-0.1, 0.3, len(xy))])
+        clusters = cluster_points(xyz)
+        self.assertEqual(len(clusters), 1)
+        np.testing.assert_allclose(clusters[0]["centroid"], [1.2, 0.1], atol=0.03)
+
     def test_static_cluster_is_stationary_after_ego_motion_compensation(self):
         tracker = LidarClusterTracker()
         tracker.update(compact_cluster([2.0, 0.0]), [0.0, 0.0, 0.0], 0.0)

@@ -242,7 +242,7 @@ class MultiAgentGazeboEnv:
         if self.raw_lidar_max_range <= 0.0:
             raise ValueError("DRL_MULTI_RAW_LIDAR_MAX_RANGE must be positive")
         self.raw_lidar_points = {
-            name: np.empty((0, 2), dtype=np.float32) for name in self.agent_names
+            name: np.empty((0, 3), dtype=np.float32) for name in self.agent_names
         }
         self.last_odom = {name: None for name in self.agent_names}
         self.previous_distances = {name: None for name in self.agent_names}
@@ -567,7 +567,7 @@ class MultiAgentGazeboEnv:
                     and self.gaps[0][0] <= beta < self.gaps[-1][1]
                     and mag1 <= self.raw_lidar_max_range
                 ):
-                    raw_front_points.append((point[0], point[1]))
+                    raw_front_points.append((point[0], point[1], point[2]))
 
                 for idx, gap in enumerate(self.gaps):
                     if gap[0] <= beta < gap[1]:
@@ -594,13 +594,13 @@ class MultiAgentGazeboEnv:
             if self.record_raw_lidar:
                 if raw_front_points:
                     points = np.asarray(raw_front_points, dtype=np.float32)
-                    voxels = np.floor(points / self.raw_lidar_voxel_size).astype(
-                        np.int32
-                    )
+                    voxels = np.floor(
+                        points / self.raw_lidar_voxel_size
+                    ).astype(np.int32)
                     _, indices = np.unique(voxels, axis=0, return_index=True)
                     self.raw_lidar_points[name] = points[np.sort(indices)]
                 else:
-                    self.raw_lidar_points[name] = np.empty((0, 2), dtype=np.float32)
+                    self.raw_lidar_points[name] = np.empty((0, 3), dtype=np.float32)
 
         return callback
 

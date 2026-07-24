@@ -253,7 +253,7 @@ def evaluate_episode(scenario, frames, args):
                 truth_agent_frames += 1
                 raw_points = np.asarray(
                     frame["raw_lidar_points"][name], dtype=np.float64
-                )
+                )[:, :2]
                 cluster_centroids = [track["centroid"] for track in tracks]
                 mature_centroids = [
                     track["centroid"]
