@@ -1,6 +1,6 @@
 # ICRA Paper Protocol: Preserve-and-Specialize
 
-状态：`5D 冻结为弱交互 Actor；旧 PAIR/THREE、全状态微调和时序感知路线已拒绝；当前验证五车 oracle interaction specialist`。
+状态：`5D 冻结为弱交互 Actor；旧 PAIR/THREE、全状态微调和时序感知路线已拒绝；五车 oracle interaction specialist pilot 未通过`。
 
 后续若改变方法主张、交互强度定义、数据划分或主指标，先修改本协议，再改代码和脚本。
 
@@ -193,6 +193,8 @@ Dense 固定参数：起点方形半宽在 `1.65-1.75 m` 连续采样，起点�
 
 五车旧 Stage 1 replay 审计发现，强Actor在无可见邻居状态上的变化反而最大，并在 `<=0.8 m` 危险状态继续增加线速度。根因是此前所谓 specialist 仍控制并更新于整个episode，本质上仍在训练generalist。当前候选改为训练期oracle分工：邻居真值距离 `<=2.0 m` 时由强Actor执行并进入其Actor更新集，其余状态始终由冻结5D执行；Critic仍学习完整五车轨迹。Actor结构、TD3目标和部署输入不变。先评估oracle组合上限，通过后才训练可部署Gate。
 
+oracle-specialist pilot 在同一批 `60 deep + 40 close + 40 margin` validation 上，epoch 1/2 的 overall agent success 为 `0.827/0.834`，collision 为 `0.173/0.166`，但 full success 从 `0.500` 降到 `0.471`。deep/close/margin full success 分别从 `0.233/0.575/0.825` 变为 `0.200/0.575/0.775`，未形成强交互专门化。replay 审计显示候选Actor在所有距离层都学到约 `+0.13--+0.16` 的同向角速度偏置，并在 `<=0.8 m` 状态增加线速度 `+0.090`；Critic对这些明显变化有 `79.38%` 偏好。因此 oracle 分流修复了“普通状态也更新强Actor”的问题，但当前Critic仍给出错误的单向转弯/危险加速梯度。该配置已停止，不增加epoch或seed重复。完整结果见 `results/D4_interaction_oracle_specialist_pilot_s20260724`。
+
 Stage 1 同协议 epoch 1/2 的 overall full success 为 `0.4929/0.3357`；close、deep、margin 分别从 `0.6250/0.2167/0.7750` 降至 `0.2750/0.1333/0.7000`，未通过准入条件。离线审计进一步发现，训练后 Actor 在全部 `40001` 个 replay state 上只增加、不降低线速度；对动作变化超过 `0.05` 的状态，Critic 有 `76.80%` 错误偏好真实性能更差的新动作。因此停止 Stage 2，不用更多 epoch 或 seed 重复当前配置。完整结果见 `results/D4_strong_interaction_curriculum_stage1_s20260723`。
 
 可部署相对运动观测的30场sensor probe显示：危险目标原始点云覆盖率为`97.92%`，说明Velodyne信息本身足够；但二维点簇质心跟踪的最佳precision/recall/FPR权衡未同时达到`0.70/0.80/0.10`准入线。主要误报来自静态环境点簇的质心抖动和错误关联，因此拒绝该具体特征，不接Actor；下一候选应加入三维高度轮廓或其他目标身份一致性。完整结果见 `results/D4_lidar_cluster_motion_probe_s20260724`。
@@ -359,7 +361,7 @@ success + collision + unresolved = N * episodes
 - `D7`：完整基线、消融、泛化和统计检验。
 - `D8`：论文图表冻结。
 
-当前仍处于`D4`。5D已冻结为弱交互Actor；旧 close→mixed→deep、PAIR→THREE 和双车路线均已停止。当前在固定五车 `256 deep + 256 close + 128 margin` 混合集上执行 oracle-specialist pilot：前20000 agent samples锁定Actor获得同协议基线，21000后只用oracle激活的交互transition更新完整Actor，到约40000 samples验证oracle双Actor组合。若full success不提升或碰撞上升，停止该候选；Gate仍需等待D5互补性审计通过。
+当前仍处于`D4`。5D已冻结为弱交互Actor；旧 close→mixed→deep、PAIR→THREE 和双车路线均已停止。五车 oracle-specialist pilot 也已按预先准入线判定未通过：分流机制正常，但强Actor学到统一转向偏置，deep full success 不升反降。下一步先审计固定场景的左右对称性以及Actor可见状态与Critic privileged context的对齐，不直接启动新训练。Gate仍需等待D5互补性审计通过。
 
 ## 11. 预期贡献表述
 

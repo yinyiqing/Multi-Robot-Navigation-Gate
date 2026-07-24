@@ -8,10 +8,16 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from audit_interaction_replay import interaction_band_masks
+from audit_interaction_replay import has_local_critic_replay, interaction_band_masks
 
 
 class InteractionReplayAuditTests(unittest.TestCase):
+    def test_accepts_legacy_and_interaction_labeled_replay(self):
+        self.assertTrue(has_local_critic_replay([tuple(range(7))]))
+        self.assertTrue(has_local_critic_replay([tuple(range(8))]))
+        self.assertFalse(has_local_critic_replay([]))
+        self.assertFalse(has_local_critic_replay([tuple(range(5))]))
+
     def test_distance_bands_are_disjoint_and_complete(self):
         state_dim = 2
         feature_dim = 5

@@ -54,6 +54,10 @@ def interaction_band_masks(critic_states, state_dim, feature_dim):
     return nearest, valid.sum(axis=1), masks
 
 
+def has_local_critic_replay(replay):
+    return bool(replay) and len(replay[0]) in (7, 8)
+
+
 def vector(values):
     return [float(value) for value in values]
 
@@ -180,7 +184,7 @@ def main():
         args.checkpoint, map_location="cpu", weights_only=False
     )
     replay = checkpoint["replay_buffer"]["buffer"]
-    if not replay or len(replay[0]) != 7:
+    if not has_local_critic_replay(replay):
         raise ValueError("Checkpoint does not contain local-Critic replay transitions")
 
     actor_states = np.stack([item[0] for item in replay]).astype(np.float32)

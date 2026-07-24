@@ -1,0 +1,25 @@
+{
+  "status": "rejected_pilot",
+  "seed": 20260724,
+  "train_scenarios": 640,
+  "validation_scenarios": 140,
+  "interaction_distance": 2.0,
+  "replay_states": 40036,
+  "interaction_replay_states": 17595,
+  "epoch_1": {
+    "success_rate": 0.8271428571428572,
+    "collision_rate": 0.17285714285714285,
+    "full_success_rate": 0.5,
+    "deep_full_success_rate": 0.23333333333333334,
+    "close_full_success_rate": 0.575,
+    "margin_full_success_rate": 0.825
+  },
+  "epoch_2": {
+    "success_rate": 0.8342857142857143,
+    "collision_rate": 0.1657142857142857,
+    "full_success_rate": 0.4714285714285714,
+    "deep_full_success_rate": 0.2,
+    "close_full_success_rate": 0.575,
+    "margin_full_success_rate": 0.775
+  }
+}

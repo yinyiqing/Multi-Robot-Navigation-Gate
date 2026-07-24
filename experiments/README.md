@@ -42,7 +42,7 @@
 | `train-interaction-edge1-conservative-v2` | normalized-Q + base-action anchor | balanced edge-1 view | `rejected candidate` | 饱和已修复但 full success 仅 `0.5177` |
 | `train-strong-interaction-stage1` | 5D Actor/Critic full warm-start | close + margin | `failed` | Actor只增加线速度且验证退化，停止后续阶段 |
 | `train-pair-interaction-pilot` | 5D Actor/Critic full warm-start | fixed head-on/crossing/lane-swap pairs | `failed diagnostic` | 只改善head-on且碰撞上升，不进入五车主线 |
-| `train-oracle-specialist-pilot` | frozen 5D + interaction-only TD3 Actor | fixed five-agent deep/close/margin | `current` | oracle按状态分工，验证真正specialist训练是否成立 |
+| `train-oracle-specialist-pilot` | frozen 5D + interaction-only TD3 Actor | fixed five-agent deep/close/margin | `rejected candidate` | full `0.5000 -> 0.4714`，Actor学到统一转向偏置 |
 | `train-temporal-gate` | weak + strong interaction Actors | mixed trajectories | `planned` | Actor 互补性达到 D5 后才允许训练 |
 
 ## 阅读顺序
