@@ -219,6 +219,101 @@ def apply_stump(records, rule):
     return metrics(predictions, [item["is_robot"] for item in records])
 
 
+def record_matrix(records):
+    return np.asarray(
+        [[item[feature] for feature in FEATURE_NAMES] for item in records],
+        dtype=np.float64,
+    )
+
+
+def sigmoid(values):
+    clipped = np.clip(values, -30.0, 30.0)
+    return 1.0 / (1.0 + np.exp(-clipped))
+
+
+def fit_logistic_shape_classifier(calibration, evaluation):
+    calibration_x = record_matrix(calibration)
+    evaluation_x = record_matrix(evaluation)
+    calibration_y = np.asarray(
+        [item["is_robot"] for item in calibration], dtype=np.float64
+    )
+    evaluation_y = np.asarray(
+        [item["is_robot"] for item in evaluation], dtype=bool
+    )
+    mean = np.mean(calibration_x, axis=0)
+    scale = np.std(calibration_x, axis=0)
+    scale[scale < 1e-6] = 1.0
+    calibration_x = (calibration_x - mean) / scale
+    evaluation_x = (evaluation_x - mean) / scale
+
+    positive_count = max(float(np.sum(calibration_y)), 1.0)
+    negative_count = max(float(len(calibration_y) - np.sum(calibration_y)), 1.0)
+    sample_weights = np.where(
+        calibration_y > 0.5,
+        len(calibration_y) / (2.0 * positive_count),
+        len(calibration_y) / (2.0 * negative_count),
+    )
+    weights = np.zeros(calibration_x.shape[1], dtype=np.float64)
+    bias = 0.0
+    learning_rate = 0.05
+    l2_weight = 0.01
+    for _ in range(3000):
+        probabilities = sigmoid(calibration_x @ weights + bias)
+        errors = sample_weights * (probabilities - calibration_y)
+        weights -= learning_rate * (
+            calibration_x.T @ errors / len(calibration_x) + l2_weight * weights
+        )
+        bias -= learning_rate * float(np.mean(errors))
+
+    calibration_scores = sigmoid(calibration_x @ weights + bias)
+    evaluation_scores = sigmoid(evaluation_x @ weights + bias)
+    thresholds = np.unique(
+        np.quantile(calibration_scores, np.linspace(0.0, 1.0, 501))
+    )
+    candidates = []
+    for threshold in thresholds:
+        result = metrics(calibration_scores >= threshold, calibration_y > 0.5)
+        candidates.append((threshold, result))
+    best_youden = max(
+        candidates,
+        key=lambda item: (
+            item[1]["recall"] - item[1]["false_positive_rate"],
+            item[1]["recall"],
+        ),
+    )
+    high_recall_candidates = [
+        item for item in candidates if item[1]["recall"] >= 0.90
+    ]
+    high_recall = min(
+        high_recall_candidates,
+        key=lambda item: (item[1]["false_positive_rate"], -item[1]["precision"]),
+    )
+
+    def summarize(name, selection):
+        threshold, calibration_metrics = selection
+        return {
+            "selection": name,
+            "threshold": float(threshold),
+            "calibration_metrics": calibration_metrics,
+            "evaluation_metrics": metrics(
+                evaluation_scores >= threshold, evaluation_y
+            ),
+        }
+
+    return {
+        "model": "class_balanced_logistic_regression",
+        "features": list(FEATURE_NAMES),
+        "standardization_mean": mean.tolist(),
+        "standardization_scale": scale.tolist(),
+        "weights": weights.tolist(),
+        "bias": float(bias),
+        "operating_points": [
+            summarize("maximum_youden_j", best_youden),
+            summarize("minimum_fpr_with_calibration_recall_at_least_0.90", high_recall),
+        ],
+    }
+
+
 def main():
     args = parse_args()
     payload = load_json(args.manifest)
@@ -273,6 +368,9 @@ def main():
         },
         "univariate_rules": rules,
         "best_univariate_rule": rules[0],
+        "multivariate_classifier": fit_logistic_shape_classifier(
+            calibration, evaluation
+        ),
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", encoding="utf-8") as handle:
