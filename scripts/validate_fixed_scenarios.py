@@ -123,6 +123,10 @@ def main():
     os.environ["ROS_PORT_SIM"] = str(args.ros_port)
     os.environ["ROS_MASTER_URI"] = f"http://localhost:{args.ros_port}"
     os.environ["GAZEBO_MASTER_URI"] = f"http://localhost:{args.gazebo_port}"
+    os.environ.setdefault(
+        "GAZEBO_RESOURCE_PATH",
+        str(PROJECT_ROOT / "catkin_ws/src/multi_robot_scenario/launch"),
+    )
     os.environ["DRL_MULTI_SCENARIO"] = "manifest"
     os.environ["DRL_MULTI_MANIFEST_PATH"] = input_path
     os.environ["DRL_MULTI_MANIFEST_SAMPLING"] = "cycle"
