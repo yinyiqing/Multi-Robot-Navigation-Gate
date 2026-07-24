@@ -1,6 +1,6 @@
 # ICRA Paper Protocol: Preserve-and-Specialize
 
-状态：`5D 冻结为弱交互 Actor；强交互课程 Stage 1 已拒绝；20-bin时序风险编码已拒绝`。
+状态：`5D 冻结为弱交互 Actor；强交互课程 Stage 1 已拒绝；高分辨率时序风险pilot未达标`。
 
 后续若改变方法主张、交互强度定义、数据划分或主指标，先修改本协议，再改代码和脚本。
 
@@ -193,6 +193,8 @@ Stage 1 同协议 epoch 1/2 的 overall full success 为 `0.4929/0.3357`；close
 后续三维XYZ shape probe在18个校准scenario和12个独立scenario上审计。8维形状逻辑回归在独立集达到precision/recall/FPR `0.651/0.912/0.307`，仍无法排除大量静态点簇。因此停止继续组合手工形状/速度阈值；若继续相对运动主线，下一候选必须是由仿真privileged CPA/TTC标签监督、部署时仅使用本机连续激光帧的时序编码器。完整结果见 `results/D4_lidar_cluster_shape_probe_s20260724`。
 
 20-bin时序风险编码按scenario划分为18 train / 6 validation / 6 test，在完全相同输入下比较单帧MLP与8帧GRU。两者test precision均约`0.159`，FPR为`0.525/0.486`，GRU未恢复可用的CPA/TTC风险信号。因此拒绝“5D原20-bin输入 + 时序编码”，不接Actor或Gate；下一候选必须保留更高角分辨率，并使用新的scenario-level test。完整结果见 `results/D4_temporal_risk_encoder_20bin_s20260724`。
+
+180-bin候选使用旧30场做24/6 train/validation，新的互斥30场只做最终test。GRU相对单帧有改善，但test precision/recall/FPR仅为`0.217/0.781/0.511`，仍远低于准入线。因此不在该holdout上继续调参，不接Actor或Gate。若继续，必须重新建立更大的互斥数据划分，并事先固定能利用角度局部结构的轻量时空编码器。完整结果见 `results/D4_highres_temporal_risk_encoder_s20260724`。
 
 历史 edge-1 residual v1/v2 将 deep、close、margin 混在一起且只使用单帧观测，因此不视为当前强交互 Actor 的正式训练；结果仅用于说明价值外推和静态观测问题。
 

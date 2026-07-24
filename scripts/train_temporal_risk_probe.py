@@ -277,15 +277,18 @@ def predict(model, values, batch_size=512):
     return np.concatenate(outputs)
 
 
-def train_model(model_name, samples, args):
+def train_model(model_name, samples, args, model_factory=None):
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
     random.seed(args.seed)
-    model = (
-        SingleFrameRiskEncoder(22, args.hidden_dim)
-        if model_name == "mlp"
-        else TemporalRiskEncoder(22, args.hidden_dim)
-    )
+    if model_factory is None:
+        model = (
+            SingleFrameRiskEncoder(22, args.hidden_dim)
+            if model_name == "mlp"
+            else TemporalRiskEncoder(22, args.hidden_dim)
+        )
+    else:
+        model = model_factory()
     train_x, train_y = samples["train"]["x"], samples["train"]["y"]
     validation_x = samples["validation"]["x"]
     validation_y = samples["validation"]["y"]

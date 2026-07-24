@@ -58,6 +58,7 @@ start|stop _ training|test _ detached _ <historical-run-name>.sh
 - `analyze_lidar_cluster_probe.py`：用本机点云、里程计和时间戳进行点簇关联与CPA/TTC估计；其他机器人轨迹只作为离线评分真值。
 - `analyze_lidar_cluster_shape_probe.py`：在独立scenario划分上审计三维高度/尺寸特征能否区分真实机器人点簇与静态环境点簇。
 - `train_temporal_risk_probe.py`：用仿真CPA/TTC privileged标签监督同输入的单帧MLP与8帧GRU风险编码器，并在scenario级独立test上比较。
+- `train_highres_temporal_risk_probe.py`：用旧30场的180-bin等价点云投影做train/validation，只在互斥的新30场180-bin holdout上做最终test。
 - 风险 probe、让行 oracle 和扇区差分 TTC 的运行入口已在结论归档后移除；分析脚本保留用于复核归档数据。
 - 训练 checkpoint 会按 validation 协议隔离 best，并在每轮验证后保存独立的 `epoch_NNN` 模型快照。
 - 多机器人训练中 timeout transition 记为 terminal，Critic 更新按有效 agent samples 归一化；旧训练结果不与修复后结果混合。
