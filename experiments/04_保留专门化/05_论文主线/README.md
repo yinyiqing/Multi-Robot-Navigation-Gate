@@ -1,6 +1,6 @@
 # ICRA Paper Protocol: Preserve-and-Specialize
 
-状态：`5D 冻结为弱交互 Actor；旧 close/deep Stage 1 和时序感知路线已拒绝；当前只运行原 TD3 双车结构化交互 pilot`。
+状态：`5D 冻结为弱交互 Actor；旧 PAIR/THREE、全状态微调和时序感知路线已拒绝；当前验证五车 oracle interaction specialist`。
 
 后续若改变方法主张、交互强度定义、数据划分或主指标，先修改本协议，再改代码和脚本。
 
@@ -187,7 +187,11 @@ Dense 固定参数：起点方形半宽在 `1.65-1.75 m` 连续采样，起点�
 - epoch 1在 Actor 解锁前得到同协议冻结5D基线；epoch 2训练完整Actor。validation按三种 topology 分层输出。
 - pilot 只有在 overall full success 提升、碰撞下降，且提升不是单一 topology 偶然贡献时才进入三车课程；否则先分析 replay 和分层失败，不增加 epoch 或 seed 盲试。
 
-当前数据与复现命令见 [pair interaction curriculum v1](datasets/pair_interaction_curriculum_v1/README.md)。启动脚本为 `scripts/start_training_pair_interaction_pilot.sh`。
+双车诊断数据与复现信息保留在 [pair interaction curriculum v1](datasets/pair_interaction_curriculum_v1/README.md)，不再作为当前训练入口。
+
+双车 pilot 只改善 head-on，crossing 退化且 lane-swap 未改善，碰撞率从 `0.45` 升至 `0.60`；该模型已拒绝，结果仅用于证明按episode均衡不能保证replay均衡，见 `results/D4_pair_interaction_pilot_s20260724`。后续不继续双车研究，也不重新运行 PAIR→THREE。
+
+五车旧 Stage 1 replay 审计发现，强Actor在无可见邻居状态上的变化反而最大，并在 `<=0.8 m` 危险状态继续增加线速度。根因是此前所谓 specialist 仍控制并更新于整个episode，本质上仍在训练generalist。当前候选改为训练期oracle分工：邻居真值距离 `<=2.0 m` 时由强Actor执行并进入其Actor更新集，其余状态始终由冻结5D执行；Critic仍学习完整五车轨迹。Actor结构、TD3目标和部署输入不变。先评估oracle组合上限，通过后才训练可部署Gate。
 
 Stage 1 同协议 epoch 1/2 的 overall full success 为 `0.4929/0.3357`；close、deep、margin 分别从 `0.6250/0.2167/0.7750` 降至 `0.2750/0.1333/0.7000`，未通过准入条件。离线审计进一步发现，训练后 Actor 在全部 `40001` 个 replay state 上只增加、不降低线速度；对动作变化超过 `0.05` 的状态，Critic 有 `76.80%` 错误偏好真实性能更差的新动作。因此停止 Stage 2，不用更多 epoch 或 seed 重复当前配置。完整结果见 `results/D4_strong_interaction_curriculum_stage1_s20260723`。
 
@@ -355,7 +359,7 @@ success + collision + unresolved = N * episodes
 - `D7`：完整基线、消融、泛化和统计检验。
 - `D8`：论文图表冻结。
 
-当前仍处于`D4`。5D已冻结为弱交互Actor；旧 close→mixed→deep 课程已因训练退化停止。当前只执行结构化双车交互 pilot：前约12000 agent samples锁定Actor得到同协议5D基线，13000 samples后才允许完整Actor更新，到约24000 samples进行第二次验证。只有三类双车冲突整体改善且碰撞下降，才扩展到三车课程；Gate仍需等待D5互补性审计通过。
+当前仍处于`D4`。5D已冻结为弱交互Actor；旧 close→mixed→deep、PAIR→THREE 和双车路线均已停止。当前在固定五车 `256 deep + 256 close + 128 margin` 混合集上执行 oracle-specialist pilot：前20000 agent samples锁定Actor获得同协议基线，21000后只用oracle激活的交互transition更新完整Actor，到约40000 samples验证oracle双Actor组合。若full success不提升或碰撞上升，停止该候选；Gate仍需等待D5互补性审计通过。
 
 ## 11. 预期贡献表述
 

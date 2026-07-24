@@ -15,6 +15,7 @@ from actor_models import Actor, ResidualActor, is_residual_actor_state_dict
 from actor_objectives import conservative_actor_objective
 from critic_models import Critic
 from evaluation_protocol import build_eval_protocol_id, reconcile_evaluation_state
+from interaction_oracle import interaction_mask
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
 from outcome_utils import resolve_terminal_outcome
 from replay_buffer import ReplayBuffer
@@ -25,14 +26,31 @@ from training_utils import (
 )
 
 
-def evaluate(network, env, epoch, eval_episodes=10, eval_manifest_path=None):
+def evaluate(
+    network,
+    env,
+    epoch,
+    eval_episodes=10,
+    eval_manifest_path=None,
+    weak_actor=None,
+    oracle_interaction_distance=2.0,
+    oracle_context_feature_dim=5,
+):
     previous_manifest_path = getattr(env, "manifest_path", None)
     previous_manifest_sampling = os.environ.get("DRL_MULTI_MANIFEST_SAMPLING")
     try:
         if eval_manifest_path:
             os.environ["DRL_MULTI_MANIFEST_SAMPLING"] = "cycle"
             env.set_manifest_path(eval_manifest_path)
-        return _evaluate_current_manifest(network, env, epoch, eval_episodes)
+        return _evaluate_current_manifest(
+            network,
+            env,
+            epoch,
+            eval_episodes,
+            weak_actor=weak_actor,
+            oracle_interaction_distance=oracle_interaction_distance,
+            oracle_context_feature_dim=oracle_context_feature_dim,
+        )
     finally:
         if eval_manifest_path:
             if previous_manifest_sampling is None:
@@ -43,7 +61,23 @@ def evaluate(network, env, epoch, eval_episodes=10, eval_manifest_path=None):
                 env.set_manifest_path(previous_manifest_path)
 
 
-def _evaluate_current_manifest(network, env, epoch, eval_episodes=10):
+def _model_action(model, state):
+    state_tensor = torch.as_tensor(
+        np.asarray(state, dtype=np.float32).reshape(1, -1), device=device
+    )
+    with torch.no_grad():
+        return model(state_tensor).cpu().numpy().flatten()
+
+
+def _evaluate_current_manifest(
+    network,
+    env,
+    epoch,
+    eval_episodes=10,
+    weak_actor=None,
+    oracle_interaction_distance=2.0,
+    oracle_context_feature_dim=5,
+):
     previous_mode = env.cooperative_reward
     previous_anti_stagnation = env.anti_stagnation_reward
     previous_wall_clearance = env.wall_clearance_reward
@@ -65,6 +99,8 @@ def _evaluate_current_manifest(network, env, epoch, eval_episodes=10):
     success_hist = np.zeros(env.num_agents + 1, dtype=np.int32)
     collision_hist = np.zeros(env.num_agents + 1, dtype=np.int32)
     interaction_strata = {}
+    oracle_strong_agent_steps = 0
+    oracle_active_agent_steps = 0
 
     for eval_index in range(1, eval_episodes + 1):
         states = env.reset()
@@ -77,11 +113,31 @@ def _evaluate_current_manifest(network, env, epoch, eval_episodes=10):
         episode_collision_flags = np.zeros(env.num_agents, dtype=np.int32)
         count = 0
         while any(active_mask) and count < max_ep:
+            oracle_flags = [True] * env.num_agents
+            if weak_actor is not None:
+                contexts = env.build_neighbor_context(
+                    [[0.0, 0.0] for _ in range(env.num_agents)],
+                    max_neighbors=local_critic_max_neighbors,
+                    include_actions=not local_critic_geometry_only,
+                    active_mask=active_mask,
+                )
+                oracle_flags = interaction_mask(
+                    contexts,
+                    oracle_interaction_distance,
+                    oracle_context_feature_dim,
+                )
             actions = []
             for idx in range(env.num_agents):
                 if active_mask[idx]:
-                    action = network.get_action(np.array(states[idx]))
+                    use_strong_actor = weak_actor is None or oracle_flags[idx]
+                    action = (
+                        network.get_action(np.array(states[idx]))
+                        if use_strong_actor
+                        else _model_action(weak_actor, states[idx])
+                    )
                     actions.append([(action[0] + 1) / 2, action[1]])
+                    oracle_active_agent_steps += 1
+                    oracle_strong_agent_steps += int(use_strong_actor)
                 else:
                     actions.append([0.0, 0.0])
 
@@ -170,6 +226,11 @@ def _evaluate_current_manifest(network, env, epoch, eval_episodes=10):
     timeout_episode_rate = timeout_episode_count / eval_episodes
     avg_episode_steps = total_episode_steps / eval_episodes
     avg_final_distance = total_final_distance / total_agents
+    oracle_strong_activation_rate = (
+        oracle_strong_agent_steps / oracle_active_agent_steps
+        if oracle_active_agent_steps
+        else 0.0
+    )
 
     print("..............................................")
     print(
@@ -190,6 +251,15 @@ def _evaluate_current_manifest(network, env, epoch, eval_episodes=10):
     )
     print("Eval success_hist 0..N:", success_hist.tolist())
     print("Eval collision_hist 0..N:", collision_hist.tolist())
+    if weak_actor is not None:
+        print(
+            "Eval oracle strong-actor activation rate: %.4f (%i/%i agent steps)"
+            % (
+                oracle_strong_activation_rate,
+                oracle_strong_agent_steps,
+                oracle_active_agent_steps,
+            )
+        )
     stratified_metrics = {}
     for band in sorted(interaction_strata):
         values = interaction_strata[band]
@@ -238,6 +308,7 @@ def _evaluate_current_manifest(network, env, epoch, eval_episodes=10):
         "success_hist": success_hist.tolist(),
         "collision_hist": collision_hist.tolist(),
         "interaction_strata": stratified_metrics,
+        "oracle_strong_activation_rate": oracle_strong_activation_rate,
     }
 
 
@@ -449,6 +520,10 @@ class TD3(object):
         noise_clip=0.5,
         policy_freq=2,
         update_actor=True,
+        actor_interaction_only=False,
+        weak_actor=None,
+        oracle_interaction_distance=2.0,
+        oracle_context_feature_dim=5,
     ):
         av_Q = 0
         max_Q = -inf
@@ -478,6 +553,22 @@ class TD3(object):
             noise = torch.Tensor(batch_actions).data.normal_(0, policy_noise).to(device)
             noise = noise.clamp(-noise_clip, noise_clip)
             next_action = (next_action + noise).clamp(-self.max_action, self.max_action)
+            if weak_actor is not None:
+                next_contexts = batch_next_critic_states[:, self.state_dim :]
+                next_interaction = torch.as_tensor(
+                    interaction_mask(
+                        next_contexts,
+                        oracle_interaction_distance,
+                        oracle_context_feature_dim,
+                    ),
+                    dtype=torch.bool,
+                    device=device,
+                ).unsqueeze(1)
+                with torch.no_grad():
+                    weak_next_action = weak_actor(next_state)
+                next_action = torch.where(
+                    next_interaction, next_action, weak_next_action
+                )
 
             target_Q1, target_Q2 = self.critic_target(next_critic_state, next_action)
             target_Q = torch.min(target_Q1, target_Q2)
@@ -494,32 +585,48 @@ class TD3(object):
 
             if it % policy_freq == 0:
                 if update_actor:
-                    actor_action = self.actor(state)
-                    actor_grad, _ = self.critic(critic_state, actor_action)
-                    reference_action = None
-                    if self.actor_reference is not None and self.actor_anchor_weight > 0.0:
-                        with torch.no_grad():
-                            reference_action = self.actor_reference(state)
-                    actor_loss, anchor_loss, q_scale = conservative_actor_objective(
-                        actor_grad,
-                        actor_action,
-                        reference_action,
-                        self.actor_q_normalization_alpha,
-                        self.actor_anchor_weight,
-                    )
-                    self.actor_optimizer.zero_grad()
-                    actor_loss.backward()
-                    self.actor_optimizer.step()
-                    av_actor_anchor_loss += anchor_loss.item()
-                    av_actor_q_scale += q_scale.item()
-                    actor_update_count += 1
-
-                    for param, target_param in zip(
-                        self.actor.parameters(), self.actor_target.parameters()
-                    ):
-                        target_param.data.copy_(
-                            tau * param.data + (1 - tau) * target_param.data
+                    actor_state = state
+                    actor_critic_state = critic_state
+                    actor_batch_available = True
+                    if actor_interaction_only:
+                        actor_batch = replay_buffer.sample_local_critic_batch(
+                            batch_size, interaction_only=True
                         )
+                        if actor_batch is None:
+                            actor_batch_available = False
+                        else:
+                            actor_state = torch.Tensor(actor_batch[0]).to(device)
+                            actor_critic_state = torch.Tensor(actor_batch[1]).to(device)
+                    if actor_batch_available:
+                        actor_action = self.actor(actor_state)
+                        actor_grad, _ = self.critic(actor_critic_state, actor_action)
+                        reference_action = None
+                        if (
+                            self.actor_reference is not None
+                            and self.actor_anchor_weight > 0.0
+                        ):
+                            with torch.no_grad():
+                                reference_action = self.actor_reference(actor_state)
+                        actor_loss, anchor_loss, q_scale = conservative_actor_objective(
+                            actor_grad,
+                            actor_action,
+                            reference_action,
+                            self.actor_q_normalization_alpha,
+                            self.actor_anchor_weight,
+                        )
+                        self.actor_optimizer.zero_grad()
+                        actor_loss.backward()
+                        self.actor_optimizer.step()
+                        av_actor_anchor_loss += anchor_loss.item()
+                        av_actor_q_scale += q_scale.item()
+                        actor_update_count += 1
+
+                        for param, target_param in zip(
+                            self.actor.parameters(), self.actor_target.parameters()
+                        ):
+                            target_param.data.copy_(
+                                tau * param.data + (1 - tau) * target_param.data
+                            )
 
                 for param, target_param in zip(
                     self.critic.parameters(), self.critic_target.parameters()
@@ -705,6 +812,15 @@ actor_q_normalization_alpha = (
     env_float("DRL_MULTI_ACTOR_Q_NORMALIZATION_ALPHA", 0.0) or 0.0
 )
 actor_train_mode = os.environ.get("DRL_MULTI_ACTOR_TRAIN_MODE", "full").strip().lower()
+use_oracle_interaction_rollout = env_flag(
+    "DRL_MULTI_USE_ORACLE_INTERACTION_ROLLOUT", False
+)
+actor_interaction_only = env_flag(
+    "DRL_MULTI_ACTOR_INTERACTION_ONLY", False
+)
+oracle_interaction_distance = env_float(
+    "DRL_MULTI_ORACLE_INTERACTION_DISTANCE", 2.0
+)
 residual_hidden_dim = env_int("DRL_MULTI_RESIDUAL_HIDDEN_DIM", 128)
 residual_scale = env_float("DRL_MULTI_RESIDUAL_SCALE", 0.15)
 buffer_size = 1e6
@@ -719,6 +835,18 @@ active_neighbors_only = env_flag("DRL_MULTI_ACTIVE_NEIGHBORS_ONLY", False)
 local_critic_max_agents = env_int("DRL_MULTI_LOCAL_CRITIC_MAX_AGENTS", 10)
 local_critic_max_neighbors = max(local_critic_max_agents - 1, 1)
 local_critic_feature_dim = 5 if local_critic_geometry_only else 7
+if oracle_interaction_distance <= 0.0:
+    raise ValueError("DRL_MULTI_ORACLE_INTERACTION_DISTANCE must be positive")
+if (use_oracle_interaction_rollout or actor_interaction_only) and not use_local_critic:
+    raise ValueError(
+        "Oracle interaction rollout and interaction-only Actor updates require "
+        "DRL_MULTI_USE_LOCAL_CRITIC=1"
+    )
+if actor_interaction_only and not use_oracle_interaction_rollout:
+    raise ValueError(
+        "DRL_MULTI_ACTOR_INTERACTION_ONLY requires "
+        "DRL_MULTI_USE_ORACLE_INTERACTION_ROLLOUT=1"
+    )
 best_metric = os.environ.get("DRL_MULTI_BEST_METRIC", "success").strip().lower()
 scenario_mode = os.environ.get("DRL_MULTI_SCENARIO", "standard").strip().lower()
 eval_manifest_path = os.environ.get("DRL_MULTI_EVAL_MANIFEST_PATH", "").strip()
@@ -733,6 +861,10 @@ eval_protocol_id = build_eval_protocol_id(
     eval_episodes=eval_ep,
     max_episode_steps=max_ep,
 )
+if use_oracle_interaction_rollout:
+    eval_protocol_id += "|oracle_interaction_distance=%.3f" % (
+        oracle_interaction_distance,
+    )
 use_distance_weighted_reward = env_flag(
     "DRL_MULTI_USE_DISTANCE_WEIGHTED_REWARD", False
 )
@@ -782,6 +914,9 @@ save_model = True
 load_model = env_flag("DRL_MULTI_LOAD_MODEL", False)
 load_actor_only = env_flag("DRL_MULTI_LOAD_ACTOR_ONLY", False)
 load_model_name = os.environ.get("DRL_MULTI_LOAD_MODEL_NAME", file_name)
+oracle_weak_actor_name = os.environ.get(
+    "DRL_MULTI_ORACLE_WEAK_ACTOR_NAME", load_model_name
+)
 resume_training = env_flag("DRL_MULTI_RESUME_TRAINING", True)
 launchfile = os.environ.get(
     "DRL_MULTI_TRAIN_LAUNCHFILE", "multi_robot_scenario_multi_2.launch"
@@ -966,6 +1101,20 @@ elif load_model:
     except Exception as exc:
         print("Could not load the stored model parameters, initializing randomly")
         print("Load error:", exc)
+
+weak_actor = None
+if use_oracle_interaction_rollout:
+    weak_actor_path = os.path.join(
+        "./pytorch_models", f"{oracle_weak_actor_name}_actor.pth"
+    )
+    weak_actor = Actor(state_dim, action_dim).to(device)
+    weak_actor.load_state_dict(
+        torch.load(weak_actor_path, map_location=device, weights_only=False)
+    )
+    weak_actor.eval()
+    for parameter in weak_actor.parameters():
+        parameter.requires_grad = False
+    print("Loaded frozen oracle weak Actor from:", weak_actor_path)
 (
     evaluations,
     best_eval_summary,
@@ -1048,6 +1197,10 @@ if eval_protocol_reset:
 print("Max epochs:", max_epochs or "unlimited")
 print("Actor learning rate:", actor_lr)
 print("Actor train mode:", network.actor_train_mode)
+print("Oracle interaction rollout:", use_oracle_interaction_rollout)
+print("Oracle weak Actor:", oracle_weak_actor_name)
+print("Oracle interaction distance:", oracle_interaction_distance)
+print("Actor interaction-only updates:", actor_interaction_only)
 if network.actor_train_mode == "residual":
     print("Residual hidden dim:", network.residual_hidden_dim)
     print("Residual scale:", network.residual_scale)
@@ -1169,6 +1322,10 @@ while timestep < max_timesteps:
                     noise_clip,
                     policy_freq,
                     timestep >= actor_update_delay_steps,
+                    actor_interaction_only,
+                    weak_actor,
+                    oracle_interaction_distance,
+                    local_critic_feature_dim,
                 )
             else:
                 network.train(
@@ -1317,7 +1474,7 @@ while timestep < max_timesteps:
                 "last_context_neighbors_mean=%.2f | last_context_neighbors_max=%.0f | "
                 "actor_unlocked=%i | "
                 "expl_noise=%.4f | "
-                "replay=%i | samples/sec=%.3f"
+                "replay=%i | interaction_replay=%i | samples/sec=%.3f"
                 % (
                     episode_num,
                     timestep,
@@ -1358,6 +1515,7 @@ while timestep < max_timesteps:
                     int(timestep >= actor_update_delay_steps),
                     expl_noise,
                     replay_buffer.size(),
+                    replay_buffer.interaction_size(),
                     steps_per_sec,
                 )
             )
@@ -1401,6 +1559,9 @@ while timestep < max_timesteps:
                 epoch=epoch,
                 eval_episodes=eval_ep,
                 eval_manifest_path=eval_manifest_path,
+                weak_actor=weak_actor,
+                oracle_interaction_distance=oracle_interaction_distance,
+                oracle_context_feature_dim=local_critic_feature_dim,
             )
             evaluations.append(
                 [
@@ -1575,6 +1736,15 @@ while timestep < max_timesteps:
 
     raw_actions = []
     env_actions = []
+    oracle_flags = (
+        interaction_mask(
+            neighbor_contexts,
+            oracle_interaction_distance,
+            local_critic_feature_dim,
+        )
+        if use_oracle_interaction_rollout
+        else [False] * len(agent_names)
+    )
 
     for idx, state in enumerate(states):
         if not active_mask[idx]:
@@ -1582,10 +1752,13 @@ while timestep < max_timesteps:
             env_actions.append([0.0, 0.0])
             continue
 
-        action = network.get_action(np.array(state))
-        action = (action + np.random.normal(0, expl_noise, size=action_dim)).clip(
-            -max_action, max_action
-        )
+        if use_oracle_interaction_rollout and not oracle_flags[idx]:
+            action = _model_action(weak_actor, state)
+        else:
+            action = network.get_action(np.array(state))
+            action = (
+                action + np.random.normal(0, expl_noise, size=action_dim)
+            ).clip(-max_action, max_action)
 
         raw_actions.append(action)
         env_actions.append([(action[0] + 1) / 2, action[1]])
@@ -1662,6 +1835,7 @@ while timestep < max_timesteps:
                 done_bool,
                 next_states[idx],
                 combine_critic_state(next_states[idx], next_neighbor_contexts[idx]),
+                interaction=oracle_flags[idx],
             )
         else:
             replay_buffer.add(
@@ -1714,6 +1888,9 @@ last_eval_summary = evaluate(
     epoch=epoch,
     eval_episodes=eval_ep,
     eval_manifest_path=eval_manifest_path,
+    weak_actor=weak_actor,
+    oracle_interaction_distance=oracle_interaction_distance,
+    oracle_context_feature_dim=local_critic_feature_dim,
 )
 evaluations.append(
     [

@@ -1,0 +1,34 @@
+{
+  "result_version": 1,
+  "status": "rejected_diagnostic",
+  "model_id": "pair-interaction-pilot-s20260724",
+  "epochs": {
+    "1": {
+      "actor_state": "frozen_5d",
+      "agent_success": 0.4666666667,
+      "collision": 0.45,
+      "unresolved": 0.0833333333,
+      "full_success": 0.3,
+      "timeout": 0.1666666667,
+      "strata_full_success": {
+        "head_on": 0.6,
+        "crossing": 0.3,
+        "lane_swap": 0.0
+      }
+    },
+    "2": {
+      "actor_state": "trained_full_actor",
+      "agent_success": 0.4,
+      "collision": 0.6,
+      "unresolved": 0.0,
+      "full_success": 0.3666666667,
+      "timeout": 0.0,
+      "strata_full_success": {
+        "head_on": 1.0,
+        "crossing": 0.1,
+        "lane_swap": 0.0
+      }
+    }
+  },
+  "decision": "reject_model_and_stop_pair_training"
+}
