@@ -1,0 +1,65 @@
+{
+  "result_version": 1,
+  "status": "rejected_candidate",
+  "model_id": "strong-interaction-curriculum-stage1-s20260723",
+  "train_scenarios": {
+    "close": 256,
+    "margin": 128,
+    "deep": 0
+  },
+  "validation_scenarios": {
+    "close": 40,
+    "margin": 40,
+    "deep": 60
+  },
+  "epochs": {
+    "1": {
+      "actor_state": "frozen_5d",
+      "agent_success": 0.8385714286,
+      "collision": 0.1614285714,
+      "unresolved": 0.0,
+      "full_success": 0.4928571429,
+      "timeout": 0.0,
+      "mean_steps": 32.4928571429,
+      "strata_full_success": {
+        "close": 0.625,
+        "deep": 0.2166666667,
+        "margin": 0.775
+      }
+    },
+    "2": {
+      "actor_state": "trained_full_actor",
+      "agent_success": 0.7771428571,
+      "collision": 0.21,
+      "unresolved": 0.0128571429,
+      "full_success": 0.3357142857,
+      "timeout": 0.0642857143,
+      "mean_steps": 59.4357142857,
+      "strata_full_success": {
+        "close": 0.275,
+        "deep": 0.1333333333,
+        "margin": 0.7
+      }
+    }
+  },
+  "actor_critic_diagnostic": {
+    "replay_states": 40001,
+    "change_threshold": 0.05,
+    "changed_state_share": 0.2614684633,
+    "action_delta_mean": [0.1080443934, 0.0495543145],
+    "action_delta_mean_absolute": [0.1080443934, 0.0751538724],
+    "sign_flip_share": [0.0537986550, 0.0384490388],
+    "changed_states_candidate_q_gain_mean": 2.6219592094,
+    "changed_states_candidate_preferred_share": 0.7680466584
+  },
+  "decision": "stop_before_stage2_and_fix_observability_or_learning_signal",
+  "sha256": {
+    "epoch001_critic.pth": "8d15681ec43ba42f44c93426360fe878d09a7132991b72324f4dfcb0062a6c29",
+    "epoch001_frozen_5d_actor.pth": "1077fd0b1de0b2ed0dbe34aa8aa15ce13a1b9940e33008af4a662403b7892075",
+    "epoch002_actor.pth": "4ea09b13b8fdbcaa3ccc1a703867c851cca40c45fa833987d56ef4caf144a9af",
+    "epoch002_critic.pth": "368fc033d320418305c51bdf6bbcdcf606327c2287598bb89b4278923afc3614",
+    "evaluations.npy": "7d2074c52c600fa5580c2f62f7c35d2d6dff6e7ffc95e857fcb6bf120fbeec46",
+    "tensorboard.tfevents": "877aab476d302f3a4e6b9b19395244496f8f38e1cb1ac154def48c8b82a4f42a",
+    "train.log": "09a79bcacc6969664aab86b91f2b76675519367078f33fe4e068185471ca1d05"
+  }
+}
