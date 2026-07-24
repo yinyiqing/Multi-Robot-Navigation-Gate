@@ -1,0 +1,48 @@
+{
+  "result_version": 1,
+  "fixed_parameters": {
+    "association_distance_m": 0.45,
+    "min_track_age": 3,
+    "predicted_collision_distance_m": 0.75,
+    "velocity_estimator": "five_frame_world_centroid_linear_regression"
+  },
+  "dynamic_speed_sweep": [
+    {
+      "dynamic_speed_deadband_mps": 0.2,
+      "precision": 0.530,
+      "recall": 0.726,
+      "false_positive_rate": 0.156
+    },
+    {
+      "dynamic_speed_deadband_mps": 0.3,
+      "precision": 0.599,
+      "recall": 0.691,
+      "false_positive_rate": 0.112
+    },
+    {
+      "dynamic_speed_deadband_mps": 0.35,
+      "precision": 0.630,
+      "recall": 0.674,
+      "false_positive_rate": 0.096
+    },
+    {
+      "dynamic_speed_deadband_mps": 0.4,
+      "precision": 0.660,
+      "recall": 0.645,
+      "false_positive_rate": 0.080
+    },
+    {
+      "dynamic_speed_deadband_mps": 0.5,
+      "precision": 0.690,
+      "recall": 0.575,
+      "false_positive_rate": 0.063
+    },
+    {
+      "dynamic_speed_deadband_mps": 0.6,
+      "precision": 0.716,
+      "recall": 0.504,
+      "false_positive_rate": 0.048
+    }
+  ],
+  "conclusion": "No operating point satisfies precision >= 0.70, recall >= 0.80, and false-positive rate <= 0.10."
+}

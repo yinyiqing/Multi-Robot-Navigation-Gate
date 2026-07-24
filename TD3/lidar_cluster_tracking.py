@@ -117,6 +117,7 @@ class LidarClusterTracker:
         collision_distance=0.75,
         ttc_horizon=4.0,
         closing_deadband=0.05,
+        dynamic_speed_deadband=0.1,
     ):
         if association_distance <= 0.0:
             raise ValueError("association_distance must be positive")
@@ -137,6 +138,7 @@ class LidarClusterTracker:
         self.collision_distance = float(collision_distance)
         self.ttc_horizon = float(ttc_horizon)
         self.closing_deadband = float(closing_deadband)
+        self.dynamic_speed_deadband = float(dynamic_speed_deadband)
         self.reset()
 
     def reset(self):
@@ -152,7 +154,7 @@ class LidarClusterTracker:
             raise ValueError("pose must contain finite [x, y, yaw]")
         return values
 
-    def _new_tracks(self, clusters):
+    def _new_tracks(self, clusters, current_pose, current_timestamp):
         tracks = []
         for cluster in clusters:
             tracks.append(
@@ -161,6 +163,16 @@ class LidarClusterTracker:
                     "track_id": self.next_track_id,
                     "age": 1,
                     "velocity": np.zeros(2, dtype=np.float64),
+                    "world_centroid": local_to_world(
+                        cluster["centroid"], current_pose
+                    ),
+                    "world_velocity": np.zeros(2, dtype=np.float64),
+                    "world_history": [
+                        (
+                            current_timestamp,
+                            local_to_world(cluster["centroid"], current_pose),
+                        )
+                    ],
                     "closing_speed": 0.0,
                     "time_to_closest_approach": self.ttc_horizon,
                     "closest_approach_distance": float(
@@ -181,13 +193,13 @@ class LidarClusterTracker:
         clusters = cluster_points(points, **self.cluster_kwargs)
 
         if self.previous_timestamp is None:
-            tracks = self._new_tracks(clusters)
+            tracks = self._new_tracks(clusters, current_pose, current_timestamp)
         else:
             delta_time = current_timestamp - self.previous_timestamp
             if delta_time <= 0.0:
                 raise ValueError("timestamps must increase strictly")
             if delta_time > self.max_delta_time:
-                tracks = self._new_tracks(clusters)
+                tracks = self._new_tracks(clusters, current_pose, current_timestamp)
             else:
                 projected_previous = [
                     world_to_local(
@@ -222,12 +234,53 @@ class LidarClusterTracker:
                 for current_index, cluster in enumerate(clusters):
                     previous_index = matches.get(current_index)
                     if previous_index is None:
-                        tracks.extend(self._new_tracks([cluster]))
+                        tracks.extend(
+                            self._new_tracks(
+                                [cluster], current_pose, current_timestamp
+                            )
+                        )
                         continue
                     previous = self.previous_clusters[previous_index]
-                    velocity = (
-                        cluster["centroid"] - projected_previous[previous_index]
+                    current_world_centroid = local_to_world(
+                        cluster["centroid"], current_pose
+                    )
+                    world_history = previous["world_history"] + [
+                        (current_timestamp, current_world_centroid)
+                    ]
+                    world_history = world_history[-5:]
+                    history_times = np.asarray(
+                        [item[0] for item in world_history], dtype=np.float64
+                    )
+                    history_points = np.asarray(
+                        [item[1] for item in world_history], dtype=np.float64
+                    )
+                    centered_times = history_times - np.mean(history_times)
+                    denominator = float(np.dot(centered_times, centered_times))
+                    world_velocity = (
+                        np.sum(
+                            centered_times[:, None]
+                            * (history_points - np.mean(history_points, axis=0)),
+                            axis=0,
+                        )
+                        / denominator
+                        if denominator > 1e-8
+                        else np.zeros(2, dtype=np.float64)
+                    )
+                    ego_world_velocity = (
+                        current_pose[:2] - self.previous_pose[:2]
                     ) / delta_time
+                    relative_world_velocity = world_velocity - ego_world_velocity
+                    cos_yaw = math.cos(current_pose[2])
+                    sin_yaw = math.sin(current_pose[2])
+                    velocity = np.array(
+                        [
+                            cos_yaw * relative_world_velocity[0]
+                            + sin_yaw * relative_world_velocity[1],
+                            -sin_yaw * relative_world_velocity[0]
+                            + cos_yaw * relative_world_velocity[1],
+                        ],
+                        dtype=np.float64,
+                    )
                     position = cluster["centroid"]
                     distance = float(np.linalg.norm(position))
                     closing_speed = (
@@ -244,6 +297,8 @@ class LidarClusterTracker:
                     closest_position = position + velocity * time_to_closest
                     closest_distance = float(np.linalg.norm(closest_position))
                     urgent = bool(
+                        np.linalg.norm(world_velocity) > self.dynamic_speed_deadband
+                        and
                         closing_speed > self.closing_deadband
                         and time_to_closest <= self.ttc_horizon
                         and closest_distance <= self.collision_distance
@@ -254,6 +309,9 @@ class LidarClusterTracker:
                             "track_id": previous["track_id"],
                             "age": previous["age"] + 1,
                             "velocity": velocity,
+                            "world_centroid": current_world_centroid,
+                            "world_velocity": world_velocity,
+                            "world_history": world_history,
                             "closing_speed": closing_speed,
                             "time_to_closest_approach": min(
                                 time_to_closest, self.ttc_horizon
@@ -273,6 +331,12 @@ class LidarClusterTracker:
                 "point_count": item["point_count"],
                 "track_id": item["track_id"],
                 "age": item["age"],
+                "world_centroid": item["world_centroid"].copy(),
+                "world_velocity": item["world_velocity"].copy(),
+                "world_history": [
+                    (timestamp, point.copy())
+                    for timestamp, point in item["world_history"]
+                ],
             }
             for item in tracks
         ]

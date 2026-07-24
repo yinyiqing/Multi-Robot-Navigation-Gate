@@ -34,7 +34,7 @@ class LidarClusterTrackingTests(unittest.TestCase):
             compact_cluster([1.9, 0.0]), [0.1, 0.0, 0.0], 0.2
         )
         self.assertEqual(len(tracks), 1)
-        np.testing.assert_allclose(tracks[0]["velocity"], 0.0, atol=1e-6)
+        np.testing.assert_allclose(tracks[0]["world_velocity"], 0.0, atol=1e-6)
         self.assertFalse(tracks[0]["urgent"])
 
     def test_crossing_cluster_produces_cpa_and_ttc(self):
@@ -49,6 +49,18 @@ class LidarClusterTrackingTests(unittest.TestCase):
         self.assertLess(track["closest_approach_distance"], 0.3)
         self.assertLess(track["ttc"], 1.0)
         self.assertTrue(track["urgent"])
+
+    def test_static_cluster_is_stationary_after_ego_rotation(self):
+        tracker = LidarClusterTracker()
+        tracker.update(compact_cluster([2.0, 0.0]), [0.0, 0.0, 0.0], 0.0)
+        yaw = 0.1
+        rotated_center = [2.0 * np.cos(yaw), -2.0 * np.sin(yaw)]
+        tracks = tracker.update(
+            compact_cluster(rotated_center), [0.0, 0.0, yaw], 0.2
+        )
+        self.assertEqual(len(tracks), 1)
+        np.testing.assert_allclose(tracks[0]["world_velocity"], 0.0, atol=0.01)
+        self.assertFalse(tracks[0]["urgent"])
 
     def test_timestamp_must_increase(self):
         tracker = LidarClusterTracker()

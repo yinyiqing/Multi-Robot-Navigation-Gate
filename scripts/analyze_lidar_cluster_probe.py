@@ -28,6 +28,8 @@ def parse_args():
     parser.add_argument("--ttc-horizon", type=float, default=4.0)
     parser.add_argument("--max-encounter-distance", type=float, default=4.0)
     parser.add_argument("--min-track-age", type=int, default=3)
+    parser.add_argument("--association-distance", type=float, default=0.45)
+    parser.add_argument("--dynamic-speed-deadband", type=float, default=0.2)
     return parser.parse_args()
 
 
@@ -98,18 +100,19 @@ def ground_truth_urgent(
     max_encounter_distance,
 ):
     if previous_poses is None or name not in previous_poses:
-        return False, None
+        return False, None, []
     ego_pose = poses[name]
     ego_position = pose_position(ego_pose)
     ego_dt = float(ego_pose["timestamp"]) - float(
         previous_poses[name]["timestamp"]
     )
     if ego_dt <= 0.0:
-        return False, None
+        return False, None, []
     ego_velocity = (
         ego_position - pose_position(previous_poses[name])
     ) / ego_dt
     minimum_ttc = None
+    urgent_relative_positions = []
 
     for other_name in active_names:
         if other_name == name or other_name not in previous_poses:
@@ -157,12 +160,13 @@ def ground_truth_urgent(
             and time_to_closest <= ttc_horizon
             and closest_distance <= safety_distance
         ):
+            urgent_relative_positions.append(relative_local)
             minimum_ttc = (
                 time_to_closest
                 if minimum_ttc is None
                 else min(minimum_ttc, time_to_closest)
             )
-    return minimum_ttc is not None, minimum_ttc
+    return minimum_ttc is not None, minimum_ttc, urgent_relative_positions
 
 
 def combine_confusions(items, key):
@@ -191,8 +195,10 @@ def evaluate_episode(scenario, frames, args):
     agent_names = list(scenario["agents"])
     trackers = {
         name: LidarClusterTracker(
+            association_distance=args.association_distance,
             collision_distance=args.predicted_collision_distance,
             ttc_horizon=args.ttc_horizon,
+            dynamic_speed_deadband=args.dynamic_speed_deadband,
         )
         for name in agent_names
     }
@@ -205,6 +211,12 @@ def evaluate_episode(scenario, frames, args):
     mature_tracks = 0
     minimum_predicted_ttc = None
     minimum_truth_ttc = None
+    truth_agent_frames = 0
+    truth_with_raw_support = 0
+    truth_with_cluster_support = 0
+    truth_with_mature_track_support = 0
+    false_positive_agent_frames = 0
+    false_positive_with_robot_support = 0
 
     for frame in frames:
         poses = frame["actor_poses"]
@@ -228,7 +240,7 @@ def evaluate_episode(scenario, frames, args):
                 if track["age"] >= args.min_track_age and track["urgent"]
             ]
             prediction = bool(prediction_tracks)
-            target, truth_ttc = ground_truth_urgent(
+            target, truth_ttc, truth_positions = ground_truth_urgent(
                 name,
                 active_names,
                 poses,
@@ -237,6 +249,71 @@ def evaluate_episode(scenario, frames, args):
                 args.ttc_horizon,
                 args.max_encounter_distance,
             )
+            if target:
+                truth_agent_frames += 1
+                raw_points = np.asarray(
+                    frame["raw_lidar_points"][name], dtype=np.float64
+                )
+                cluster_centroids = [track["centroid"] for track in tracks]
+                mature_centroids = [
+                    track["centroid"]
+                    for track in tracks
+                    if track["age"] >= args.min_track_age
+                ]
+
+                def has_support(points, threshold):
+                    if len(points) == 0:
+                        return False
+                    values = np.asarray(points, dtype=np.float64)
+                    return any(
+                        float(np.min(np.linalg.norm(values - target_position, axis=1)))
+                        <= threshold
+                        for target_position in truth_positions
+                    )
+
+                truth_with_raw_support += int(has_support(raw_points, 0.45))
+                truth_with_cluster_support += int(
+                    has_support(cluster_centroids, 0.60)
+                )
+                truth_with_mature_track_support += int(
+                    has_support(mature_centroids, 0.60)
+                )
+            if prediction and not target:
+                false_positive_agent_frames += 1
+                ego_pose = poses[name]
+                ego_position = pose_position(ego_pose)
+                other_robot_positions = [
+                    world_to_local(
+                        pose_position(poses[other_name]),
+                        [
+                            ego_position[0],
+                            ego_position[1],
+                            float(ego_pose["yaw"]),
+                        ],
+                    )
+                    for other_name in active_names
+                    if other_name != name
+                ]
+                predicted_centroids = [
+                    track["centroid"] for track in prediction_tracks
+                ]
+                false_positive_with_robot_support += int(
+                    any(
+                        float(
+                            np.min(
+                                np.linalg.norm(
+                                    np.asarray(other_robot_positions)
+                                    - predicted_centroid,
+                                    axis=1,
+                                )
+                            )
+                        )
+                        <= 0.60
+                        for predicted_centroid in predicted_centroids
+                    )
+                    if other_robot_positions
+                    else False
+                )
             if previous_poses is not None:
                 update_confusion(frame_confusion, prediction, target)
                 tracked_frames += 1
@@ -269,6 +346,12 @@ def evaluate_episode(scenario, frames, args):
         "mature_tracks": mature_tracks,
         "minimum_predicted_ttc_s": minimum_predicted_ttc,
         "minimum_truth_ttc_s": minimum_truth_ttc,
+        "truth_agent_frames": truth_agent_frames,
+        "truth_with_raw_support": truth_with_raw_support,
+        "truth_with_cluster_support": truth_with_cluster_support,
+        "truth_with_mature_track_support": truth_with_mature_track_support,
+        "false_positive_agent_frames": false_positive_agent_frames,
+        "false_positive_with_robot_support": false_positive_with_robot_support,
     }
 
 
@@ -279,13 +362,17 @@ def main():
     payload = load_json(args.manifest)
     scenarios = {item["scenario_id"]: item for item in payload["scenarios"]}
     frames = load_frames(args.trajectory)
-    frame_cases = {episode_frames[0]["case"] for episode_frames in frames.values()}
-    if frame_cases != set(scenarios):
+    selected_frames = {}
+    for episode_id in sorted(frames):
+        episode_frames = frames[episode_id]
+        case = episode_frames[0]["case"]
+        selected_frames.setdefault(case, episode_frames)
+    if set(selected_frames) != set(scenarios):
         raise ValueError("Trajectory cases do not exactly cover the manifest")
 
     episodes = []
-    for episode_frames in frames.values():
-        scenario = scenarios[episode_frames[0]["case"]]
+    for case, episode_frames in selected_frames.items():
+        scenario = scenarios[case]
         episodes.append(evaluate_episode(scenario, episode_frames, args))
     result = {
         "protocol": {
@@ -300,9 +387,38 @@ def main():
             "ttc_horizon_s": args.ttc_horizon,
             "max_encounter_distance_m": args.max_encounter_distance,
             "min_track_age": args.min_track_age,
+            "association_distance_m": args.association_distance,
+            "dynamic_speed_deadband_mps": args.dynamic_speed_deadband,
         },
         "frame_metrics": combine_confusions(episodes, "frame_confusion"),
         "episode_metrics": summarize_episodes(episodes),
+        "observability_diagnostic": {
+            "truth_agent_frames": sum(
+                item["truth_agent_frames"] for item in episodes
+            ),
+            "raw_support_rate": sum(
+                item["truth_with_raw_support"] for item in episodes
+            )
+            / max(sum(item["truth_agent_frames"] for item in episodes), 1),
+            "cluster_support_rate": sum(
+                item["truth_with_cluster_support"] for item in episodes
+            )
+            / max(sum(item["truth_agent_frames"] for item in episodes), 1),
+            "mature_track_support_rate": sum(
+                item["truth_with_mature_track_support"] for item in episodes
+            )
+            / max(sum(item["truth_agent_frames"] for item in episodes), 1),
+            "false_positive_agent_frames": sum(
+                item["false_positive_agent_frames"] for item in episodes
+            ),
+            "false_positive_robot_support_rate": sum(
+                item["false_positive_with_robot_support"] for item in episodes
+            )
+            / max(
+                sum(item["false_positive_agent_frames"] for item in episodes),
+                1,
+            ),
+        },
         "by_risk_band": {
             band: summarize_episodes(
                 [item for item in episodes if item["risk_band"] == band]
@@ -320,6 +436,7 @@ def main():
             {
                 "frame_metrics": result["frame_metrics"],
                 "episode_metrics": result["episode_metrics"],
+                "observability_diagnostic": result["observability_diagnostic"],
                 "by_risk_band": result["by_risk_band"],
             },
             ensure_ascii=False,

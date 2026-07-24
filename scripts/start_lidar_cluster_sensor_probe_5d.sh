@@ -30,6 +30,7 @@ mkdir -p "$LOG_DIR"
 timestamp="$(date +%Y%m%d_%H%M%S)"
 log_file="$LOG_DIR/test_${RUN_ID}_${timestamp}.log"
 trajectory_file="$LOG_DIR/${RUN_ID}_${timestamp}.jsonl"
+run_tag="${RUN_ID}_${timestamp}"
 
 setsid bash -lc "
   set -eo pipefail
@@ -54,9 +55,9 @@ setsid bash -lc "
   export DRL_MULTI_MANIFEST_PATH='$MANIFEST'
   export DRL_MULTI_MANIFEST_SAMPLING=cycle
   export DRL_MULTI_TEST_FILE_NAME='$MODEL_NAME'
-  export DRL_MULTI_TEST_EPISODES=30
-  export DRL_MULTI_TEST_STATE_PATH='./checkpoints/${RUN_ID}_state.pt'
-  export DRL_MULTI_TEST_STATS_PATH='./results/${RUN_ID}.npy'
+  export DRL_MULTI_TEST_TARGET_EPISODES=30
+  export DRL_MULTI_TEST_STATE_PATH='./checkpoints/${run_tag}_state.pt'
+  export DRL_MULTI_TEST_STATS_PATH='./results/${run_tag}.npy'
   export DRL_MULTI_TRAJECTORY_JSONL='$trajectory_file'
   export DRL_MULTI_RECORD_RAW_LIDAR=1
   export DRL_MULTI_RAW_LIDAR_VOXEL_SIZE=0.05
