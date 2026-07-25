@@ -1,0 +1,26 @@
+{
+  "status": "rejected",
+  "model": "interaction_dense_safety_reward_from_5a_s20260725",
+  "seed": 20260724,
+  "epoch_1": {
+    "actor_updated": false,
+    "agent_success_rate": 0.82714286,
+    "collision_rate": 0.17285714,
+    "full_success_rate": 0.45714286,
+    "deep_full_success_rate": 0.15,
+    "close_full_success_rate": 0.525,
+    "margin_full_success_rate": 0.85,
+    "average_episode_steps": 30.9
+  },
+  "epoch_2": {
+    "actor_updated": true,
+    "agent_success_rate": 0.82714286,
+    "collision_rate": 0.17285714,
+    "full_success_rate": 0.42857143,
+    "deep_full_success_rate": 0.10,
+    "close_full_success_rate": 0.525,
+    "margin_full_success_rate": 0.825,
+    "average_episode_steps": 37.05714286
+  },
+  "decision": "reject_and_fix_critic_sampling_and_unlock"
+}
