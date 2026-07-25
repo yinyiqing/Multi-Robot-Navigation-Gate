@@ -1,0 +1,33 @@
+{
+  "status": "promising_repeat_validation_required",
+  "model": "interaction_focused_actor_from_5a_s20260725",
+  "seed": 20260724,
+  "best_epoch": 2,
+  "epoch_1": {
+    "agent_success_rate": 0.82,
+    "collision_rate": 0.17857143,
+    "unresolved_rate": 0.00142857,
+    "full_success_rate": 0.43571429,
+    "deep_full_success_rate": 0.15,
+    "close_full_success_rate": 0.5,
+    "margin_full_success_rate": 0.8,
+    "average_episode_steps": 35.08571429
+  },
+  "epoch_2": {
+    "agent_success_rate": 0.84,
+    "collision_rate": 0.16,
+    "unresolved_rate": 0.0,
+    "full_success_rate": 0.5,
+    "deep_full_success_rate": 0.21666667,
+    "close_full_success_rate": 0.6,
+    "margin_full_success_rate": 0.825,
+    "average_episode_steps": 34.55
+  },
+  "behavior": {
+    "linear_delta_distance_le_1_2m": -0.0493,
+    "linear_delta_distance_le_0_8m": -0.0787,
+    "linear_delta_close_approaching": -0.0703,
+    "global_angular_delta": -0.0545
+  },
+  "decision": "repeat_fixed_validation_then_independent_training_seed"
+}

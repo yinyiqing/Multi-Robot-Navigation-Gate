@@ -373,6 +373,8 @@ success + collision + unresolved = N * episodes
 
 Critic反事实排序正式pilot将危险线速度正梯度稳定降到约`20%-35%`，但Actor解冻后full success仍从`0.500`降至`0.464`，deep从`0.217`降至`0.133`。Replay对照显示Actor在`<=1.2m`状态仍增加线速度`+0.012`，并产生全局角速度偏移`+0.093`。根因是Actor仍从全部`<=2.0m`交互样本更新，而Critic安全约束只覆盖近距离接近样本。下一次对照保留Critic修复，只让Actor从`<=1.0m`且闭合速度`>=0.1m/s`的候选池更新，并仅对角速度锚定5A；不约束线速度，以保留学习减速的空间。
 
+安全聚焦Actor pilot首次在同一轮冻结基线对照中全面提升：agent success从`0.820`升至`0.840`，collision从`0.179`降至`0.160`，full success从`0.436`升至`0.500`；deep/close/margin full success分别从`0.150/0.500/0.800`升至`0.217/0.600/0.825`。Replay行为审计确认`<=0.8m`线速度下降`0.079`，危险加速问题已消除；仍存在`-0.055`全局角速度漂移。该epoch 2暂列强交互Actor候选，但考虑固定Gazebo验证仍有波动，下一步先重复140场固定验证，再决定是否运行独立训练seed和进入D5互补性审计。完整归档见`results/D4_interaction_focused_actor_from_5a_s20260725`。
+
 ## 11. 预期贡献表述
 
 如果实验支持假设，贡献收敛为三点：
