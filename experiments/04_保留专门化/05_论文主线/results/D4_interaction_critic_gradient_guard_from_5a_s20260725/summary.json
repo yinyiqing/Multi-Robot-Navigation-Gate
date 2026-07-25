@@ -1,0 +1,13 @@
+{
+  "status": "rejected",
+  "model": "interaction_critic_gradient_guard_from_5a_s20260725",
+  "seed": 20260724,
+  "gradient_gate_checks": 226,
+  "gradient_gate_passes": 0,
+  "actor_parameter_change": 0.0,
+  "epoch_1_full_success_rate": 0.45,
+  "epoch_2_full_success_rate": 0.42142857,
+  "final_linear_positive_gradient_share_range": [0.96, 1.0],
+  "final_angular_one_sided_gradient_share_range": [0.50, 0.63],
+  "decision": "add_close_approaching_counterfactual_action_ranking"
+}

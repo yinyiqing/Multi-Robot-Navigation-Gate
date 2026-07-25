@@ -14,6 +14,7 @@ from torch.utils.tensorboard import SummaryWriter
 from actor_models import Actor, ResidualActor, is_residual_actor_state_dict
 from actor_objectives import conservative_actor_objective
 from critic_models import Critic
+from critic_safety_ranking import critic_safety_ranking_loss
 from evaluation_protocol import build_eval_protocol_id, reconcile_evaluation_state
 from interaction_oracle import interaction_mask
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
@@ -537,6 +538,11 @@ class TD3(object):
         actor_gradient_gate_min_samples=32,
         actor_gradient_max_linear_positive_share=0.9,
         actor_gradient_max_angular_one_sided_share=0.9,
+        critic_safety_ranking_weight=0.0,
+        critic_safety_ranking_distance=1.0,
+        critic_safety_ranking_min_closing_speed=0.1,
+        critic_safety_ranking_linear_delta=0.4,
+        critic_safety_ranking_margin=0.1,
     ):
         av_Q = 0
         max_Q = -inf
@@ -544,6 +550,8 @@ class TD3(object):
         av_actor_anchor_loss = 0
         av_actor_q_scale = 0
         actor_update_count = 0
+        av_critic_safety_ranking_loss = 0
+        critic_safety_ranking_samples = 0
         actor_update_enabled = bool(update_actor)
         self.last_actor_gradient_gate = None
         if actor_update_enabled and actor_gradient_gate:
@@ -618,6 +626,23 @@ class TD3(object):
 
             current_Q1, current_Q2 = self.critic(critic_state, action)
             loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q)
+            if critic_safety_ranking_weight > 0.0:
+                safety_ranking_loss, safety_ranking_samples = (
+                    critic_safety_ranking_loss(
+                        self.critic,
+                        critic_state,
+                        action,
+                        self.state_dim,
+                        oracle_context_feature_dim,
+                        critic_safety_ranking_distance,
+                        critic_safety_ranking_min_closing_speed,
+                        critic_safety_ranking_linear_delta,
+                        critic_safety_ranking_margin,
+                    )
+                )
+                loss = loss + critic_safety_ranking_weight * safety_ranking_loss
+                av_critic_safety_ranking_loss += float(safety_ranking_loss.detach())
+                critic_safety_ranking_samples += safety_ranking_samples
 
             self.critic_optimizer.zero_grad()
             loss.backward()
@@ -681,6 +706,16 @@ class TD3(object):
         self.writer.add_scalar("loss", av_loss / iterations, self.iter_count)
         self.writer.add_scalar("Av. Q", av_Q / iterations, self.iter_count)
         self.writer.add_scalar("Max. Q", max_Q, self.iter_count)
+        self.writer.add_scalar(
+            "Critic safety ranking loss",
+            av_critic_safety_ranking_loss / max(iterations, 1),
+            self.iter_count,
+        )
+        self.writer.add_scalar(
+            "Critic safety ranking samples",
+            critic_safety_ranking_samples,
+            self.iter_count,
+        )
         self.writer.add_scalar(
             "Actor anchor loss", av_actor_anchor_loss / iterations, self.iter_count
         )
@@ -975,6 +1010,21 @@ actor_gradient_max_linear_positive_share = env_float(
 actor_gradient_max_angular_one_sided_share = env_float(
     "DRL_MULTI_ACTOR_GRADIENT_MAX_ANGULAR_ONE_SIDED_SHARE", 0.9
 )
+critic_safety_ranking_weight = env_float(
+    "DRL_MULTI_CRITIC_SAFETY_RANKING_WEIGHT", 0.0
+)
+critic_safety_ranking_distance = env_float(
+    "DRL_MULTI_CRITIC_SAFETY_RANKING_DISTANCE", 1.0
+)
+critic_safety_ranking_min_closing_speed = env_float(
+    "DRL_MULTI_CRITIC_SAFETY_RANKING_MIN_CLOSING_SPEED", 0.1
+)
+critic_safety_ranking_linear_delta = env_float(
+    "DRL_MULTI_CRITIC_SAFETY_RANKING_LINEAR_DELTA", 0.4
+)
+critic_safety_ranking_margin = env_float(
+    "DRL_MULTI_CRITIC_SAFETY_RANKING_MARGIN", 0.1
+)
 active_neighbors_only = env_flag("DRL_MULTI_ACTIVE_NEIGHBORS_ONLY", False)
 local_critic_max_agents = env_int("DRL_MULTI_LOCAL_CRITIC_MAX_AGENTS", 10)
 local_critic_max_neighbors = max(local_critic_max_agents - 1, 1)
@@ -997,6 +1047,10 @@ if actor_interaction_only and not use_oracle_interaction_rollout:
 if use_actor_gradient_gate and not use_local_critic:
     raise ValueError(
         "DRL_MULTI_USE_ACTOR_GRADIENT_GATE requires DRL_MULTI_USE_LOCAL_CRITIC=1"
+    )
+if critic_safety_ranking_weight > 0.0 and local_critic_context_mode != "ego_motion":
+    raise ValueError(
+        "Critic safety ranking requires DRL_MULTI_LOCAL_CRITIC_CONTEXT_MODE=ego_motion"
     )
 if not 0.0 <= critic_interaction_fraction <= 1.0:
     raise ValueError("DRL_MULTI_CRITIC_INTERACTION_FRACTION must be in [0, 1]")
@@ -1022,6 +1076,20 @@ for name, value in (
 ):
     if not 0.5 <= value <= 1.0:
         raise ValueError(f"{name} must be in [0.5, 1]")
+for name, value in (
+    ("DRL_MULTI_CRITIC_SAFETY_RANKING_WEIGHT", critic_safety_ranking_weight),
+    (
+        "DRL_MULTI_CRITIC_SAFETY_RANKING_MIN_CLOSING_SPEED",
+        critic_safety_ranking_min_closing_speed,
+    ),
+    ("DRL_MULTI_CRITIC_SAFETY_RANKING_MARGIN", critic_safety_ranking_margin),
+):
+    if value < 0.0:
+        raise ValueError(f"{name} must be non-negative")
+if critic_safety_ranking_distance <= 0.0:
+    raise ValueError("DRL_MULTI_CRITIC_SAFETY_RANKING_DISTANCE must be positive")
+if not 0.0 < critic_safety_ranking_linear_delta <= 2.0:
+    raise ValueError("DRL_MULTI_CRITIC_SAFETY_RANKING_LINEAR_DELTA must be in (0, 2]")
 best_metric = os.environ.get("DRL_MULTI_BEST_METRIC", "success").strip().lower()
 scenario_mode = os.environ.get("DRL_MULTI_SCENARIO", "standard").strip().lower()
 eval_manifest_path = os.environ.get("DRL_MULTI_EVAL_MANIFEST_PATH", "").strip()
@@ -1422,6 +1490,14 @@ print("Actor gradient gate:", use_actor_gradient_gate)
 print("Actor gradient safety distance:", actor_gradient_safety_distance)
 print("Actor gradient gate batch size:", actor_gradient_gate_batch_size)
 print("Actor gradient gate min samples:", actor_gradient_gate_min_samples)
+print("Critic safety ranking weight:", critic_safety_ranking_weight)
+print("Critic safety ranking distance:", critic_safety_ranking_distance)
+print(
+    "Critic safety ranking min closing speed:",
+    critic_safety_ranking_min_closing_speed,
+)
+print("Critic safety ranking linear delta:", critic_safety_ranking_linear_delta)
+print("Critic safety ranking margin:", critic_safety_ranking_margin)
 if network.actor_train_mode == "residual":
     print("Residual hidden dim:", network.residual_hidden_dim)
     print("Residual scale:", network.residual_scale)
@@ -1555,6 +1631,11 @@ while timestep < max_timesteps:
                     actor_gradient_gate_min_samples,
                     actor_gradient_max_linear_positive_share,
                     actor_gradient_max_angular_one_sided_share,
+                    critic_safety_ranking_weight,
+                    critic_safety_ranking_distance,
+                    critic_safety_ranking_min_closing_speed,
+                    critic_safety_ranking_linear_delta,
+                    critic_safety_ranking_margin,
                 )
             else:
                 network.train(
