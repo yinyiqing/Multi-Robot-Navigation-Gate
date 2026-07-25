@@ -19,6 +19,8 @@ ROBOT_PROXIMITY_SPEED_PENALTY_WEIGHT="${DRL_MULTI_ROBOT_PROXIMITY_SPEED_PENALTY_
 ROBOT_CLEARANCE_REWARD_WEIGHT="${DRL_MULTI_ROBOT_CLEARANCE_REWARD_WEIGHT:-20.0}"
 ROBOT_CLEARANCE_REWARD_MAX_GAIN="${DRL_MULTI_ROBOT_CLEARANCE_REWARD_MAX_GAIN:-0.1}"
 RESUME_TRAINING="${DRL_MULTI_RESUME_TRAINING:-0}"
+TRAIN_SEED="${DRL_MULTI_SEED:-20260724}"
+MAX_EPOCHS="${DRL_MULTI_MAX_EPOCHS:-2}"
 
 [[ "$LOAD_ACTOR_ONLY" == 0 || "$LOAD_ACTOR_ONLY" == 1 ]] || {
   echo "DRL_MULTI_LOAD_ACTOR_ONLY must be 0 or 1."
@@ -26,6 +28,14 @@ RESUME_TRAINING="${DRL_MULTI_RESUME_TRAINING:-0}"
 }
 [[ "$RESUME_TRAINING" == 0 || "$RESUME_TRAINING" == 1 ]] || {
   echo "DRL_MULTI_RESUME_TRAINING must be 0 or 1."
+  exit 2
+}
+[[ "$TRAIN_SEED" =~ ^[0-9]+$ ]] || {
+  echo "DRL_MULTI_SEED must be a non-negative integer."
+  exit 2
+}
+[[ "$MAX_EPOCHS" =~ ^[1-9][0-9]*$ ]] || {
+  echo "DRL_MULTI_MAX_EPOCHS must be a positive integer."
   exit 2
 }
 
@@ -94,7 +104,7 @@ setsid bash -lc "
   export GAZEBO_MASTER_URI=http://localhost:$GAZEBO_PORT
   export GAZEBO_RESOURCE_PATH='$PROJECT_ROOT/catkin_ws/src/multi_robot_scenario/launch'
   export DRL_MULTI_NUM_AGENTS=5
-  export DRL_MULTI_SEED=20260724
+  export DRL_MULTI_SEED='$TRAIN_SEED'
   export DRL_MULTI_TRAIN_LAUNCHFILE='$LAUNCHFILE'
   export DRL_MULTI_SCENARIO=manifest
   export DRL_MULTI_MANIFEST_PATH='$VIEW_DIR/stage2_train.json.gz'
@@ -105,7 +115,7 @@ setsid bash -lc "
   export DRL_MULTI_LOAD_ACTOR_ONLY='$LOAD_ACTOR_ONLY'
   export DRL_MULTI_LOAD_MODEL_NAME='$BASE_MODEL'
   export DRL_MULTI_RESUME_TRAINING='$RESUME_TRAINING'
-  export DRL_MULTI_MAX_EPOCHS=2
+  export DRL_MULTI_MAX_EPOCHS='$MAX_EPOCHS'
   export DRL_MULTI_EVAL_EPISODES=140
   export DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES=20000
   export DRL_MULTI_BEST_METRIC=full_success
@@ -187,6 +197,8 @@ echo "Robot proximity speed penalty weight: $ROBOT_PROXIMITY_SPEED_PENALTY_WEIGH
 echo "Robot clearance reward weight: $ROBOT_CLEARANCE_REWARD_WEIGHT"
 echo "Robot clearance reward max gain: $ROBOT_CLEARANCE_REWARD_MAX_GAIN m/step"
 echo "Resume training: $RESUME_TRAINING"
-echo "Epoch 1: frozen Actor baseline; Epoch 2: interaction-only Actor training"
+echo "Seed: $TRAIN_SEED"
+echo "Maximum epochs: $MAX_EPOCHS"
+echo "Epoch 1: frozen Actor baseline; Epoch 2 onward: interaction-only Actor training"
 echo "Log: $log_file"
-echo "Expected runtime: roughly 3-5 hours."
+echo "Expected runtime: roughly 45-55 minutes per epoch."
