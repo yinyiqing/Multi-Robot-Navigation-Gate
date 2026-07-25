@@ -14,9 +14,14 @@ LAUNCHFILE="multi_robot_scenario_strong_interaction_pilot_5.launch"
 ROS_PORT="${DRL_MULTI_ROS_PORT:-13003}"
 GAZEBO_PORT="${DRL_MULTI_GAZEBO_PORT:-13103}"
 ROBOT_SAFE_DISTANCE="${DRL_MULTI_ROBOT_SAFE_DISTANCE:-0.0}"
+RESUME_TRAINING="${DRL_MULTI_RESUME_TRAINING:-0}"
 
 [[ "$LOAD_ACTOR_ONLY" == 0 || "$LOAD_ACTOR_ONLY" == 1 ]] || {
   echo "DRL_MULTI_LOAD_ACTOR_ONLY must be 0 or 1."
+  exit 2
+}
+[[ "$RESUME_TRAINING" == 0 || "$RESUME_TRAINING" == 1 ]] || {
+  echo "DRL_MULTI_RESUME_TRAINING must be 0 or 1."
   exit 2
 }
 
@@ -46,8 +51,12 @@ if [[ -f "$PID_FILE" ]]; then
   fi
   unlink "$PID_FILE"
 fi
-if [[ -e "$TD3_DIR/checkpoints/${MODEL_NAME}_latest.pt" ]]; then
+if [[ "$RESUME_TRAINING" == 0 && -e "$TD3_DIR/checkpoints/${MODEL_NAME}_latest.pt" ]]; then
   echo "Pilot checkpoint already exists; archive it before starting a fresh run."
+  exit 1
+fi
+if [[ "$RESUME_TRAINING" == 1 && ! -e "$TD3_DIR/checkpoints/${MODEL_NAME}_latest.pt" ]]; then
+  echo "Cannot resume because checkpoint is missing: $TD3_DIR/checkpoints/${MODEL_NAME}_latest.pt"
   exit 1
 fi
 if ss -ltn | awk '{print $4}' | grep -Eq ":${ROS_PORT}$"; then
@@ -91,7 +100,7 @@ setsid bash -lc "
   export DRL_MULTI_LOAD_MODEL=1
   export DRL_MULTI_LOAD_ACTOR_ONLY='$LOAD_ACTOR_ONLY'
   export DRL_MULTI_LOAD_MODEL_NAME='$BASE_MODEL'
-  export DRL_MULTI_RESUME_TRAINING=0
+  export DRL_MULTI_RESUME_TRAINING='$RESUME_TRAINING'
   export DRL_MULTI_MAX_EPOCHS=2
   export DRL_MULTI_EVAL_EPISODES=140
   export DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES=20000
@@ -145,6 +154,7 @@ echo "Validation: 140 fixed five-agent scenarios"
 echo "Oracle: trainable Actor at <=2.0 m; frozen $BASE_MODEL otherwise"
 echo "Actor updates: interaction transitions only"
 echo "Robot safe distance reward: $ROBOT_SAFE_DISTANCE m"
+echo "Resume training: $RESUME_TRAINING"
 echo "Epoch 1: frozen Actor baseline; Epoch 2: interaction-only Actor training"
 echo "Log: $log_file"
 echo "Expected runtime: roughly 3-5 hours."
