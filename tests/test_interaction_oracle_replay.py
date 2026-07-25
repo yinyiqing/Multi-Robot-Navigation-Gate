@@ -95,6 +95,23 @@ class InteractionReplayTests(unittest.TestCase):
             legacy.sample_local_critic_batch(4, interaction_only=True)
         )
 
+    def test_mixed_sampling_prioritizes_interaction_experiences(self):
+        buffer = ReplayBuffer(20, random_seed=1)
+        for value in range(10):
+            self.add(buffer, value, interaction=value < 8)
+        rewards = buffer.sample_local_critic_batch(
+            8, interaction_fraction=0.75
+        )[3].ravel()
+        interaction_draws = sum(value < 8 for value in rewards)
+        self.assertEqual(len(set(rewards)), 8)
+        self.assertGreaterEqual(interaction_draws, 6)
+
+    def test_mixed_sampling_rejects_invalid_fraction(self):
+        buffer = ReplayBuffer(4, random_seed=1)
+        self.add(buffer, 1, True)
+        with self.assertRaises(ValueError):
+            buffer.sample_local_critic_batch(2, interaction_fraction=1.1)
+
 
 if __name__ == "__main__":
     unittest.main()

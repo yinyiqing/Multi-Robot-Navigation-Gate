@@ -2,6 +2,8 @@ import sys
 import unittest
 from pathlib import Path
 
+import numpy as np
+
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "TD3"))
@@ -105,6 +107,25 @@ class MultiAgentRewardTests(unittest.TestCase):
             False, False, 0.01, 0.7, 1.1
         )
         self.assertAlmostEqual(reward, 2.0)
+
+    def test_safety_distance_uses_only_critic_visible_active_neighbors(self):
+        environment = MultiAgentGazeboEnv.__new__(MultiAgentGazeboEnv)
+        environment.robot_positions = {
+            "r1": np.array([0.0, 0.0]),
+            "r2": np.array([0.8, 0.0]),
+            "r3": np.array([0.4, 0.0]),
+        }
+        environment._compute_visible_neighbors = lambda name, active_names: [
+            other for other in ("r2",) if other in active_names
+        ]
+        self.assertAlmostEqual(
+            environment._nearest_visible_robot_distance("r1", {"r1", "r2"}),
+            0.8,
+        )
+        self.assertEqual(
+            environment._nearest_visible_robot_distance("r1", {"r1"}),
+            float("inf"),
+        )
 
 
 if __name__ == "__main__":

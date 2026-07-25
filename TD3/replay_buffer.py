@@ -70,15 +70,35 @@ class ReplayBuffer(object):
 
         return s_batch, a_batch, r_batch, t_batch, s2_batch
 
-    def sample_local_critic_batch(self, batch_size, interaction_only=False):
+    def sample_local_critic_batch(
+        self, batch_size, interaction_only=False, interaction_fraction=0.0
+    ):
+        if interaction_fraction < 0.0 or interaction_fraction > 1.0:
+            raise ValueError("interaction_fraction must be in [0, 1]")
         source = self.interaction_buffer if interaction_only else self.buffer
-        count = len(source)
-        if count == 0:
+        if not source:
             return None
-        if count < batch_size:
-            batch = random.sample(source, count)
+
+        if interaction_only or interaction_fraction <= 0.0:
+            count = len(source)
+            batch = random.sample(source, min(count, batch_size))
         else:
-            batch = random.sample(source, batch_size)
+            total_count = min(len(self.buffer), batch_size)
+            interaction_count = min(
+                len(self.interaction_buffer),
+                int(round(total_count * interaction_fraction)),
+            )
+            batch = random.sample(self.interaction_buffer, interaction_count)
+            selected_ids = {id(experience) for experience in batch}
+            background = [
+                experience
+                for experience in self.buffer
+                if id(experience) not in selected_ids
+            ]
+            batch.extend(
+                random.sample(background, min(len(background), total_count - len(batch)))
+            )
+            random.shuffle(batch)
 
         s_batch = np.array([_[0] for _ in batch])
         cs_batch = np.array([_[1] for _ in batch])

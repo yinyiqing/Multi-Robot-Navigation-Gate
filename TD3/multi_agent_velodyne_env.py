@@ -1142,6 +1142,20 @@ class MultiAgentGazeboEnv:
             return float("inf")
         return float(min(distances))
 
+    def _nearest_visible_robot_distance(self, name, active_names):
+        visible_neighbors = self._compute_visible_neighbors(
+            name, active_names=active_names
+        )
+        if not visible_neighbors:
+            return float("inf")
+        origin = self.robot_positions[name]
+        return float(
+            min(
+                np.linalg.norm(self.robot_positions[other_name] - origin)
+                for other_name in visible_neighbors
+            )
+        )
+
     def _uses_capacity_layout(self):
         return (
             (
@@ -1278,6 +1292,11 @@ class MultiAgentGazeboEnv:
         targets = []
         collisions = []
         step_agents_info = {}
+        active_names = {
+            name
+            for idx, name in enumerate(self.agent_names)
+            if idx < len(active_mask) and active_mask[idx]
+        }
 
         for idx, name in enumerate(self.agent_names):
             state, distance = self._build_state(name, actions[idx])
@@ -1305,7 +1324,9 @@ class MultiAgentGazeboEnv:
             )
             reward += local_navigation_bonus
             self.previous_distances[name] = distance
-            nearest_robot_distance = self._nearest_robot_distance(name)
+            nearest_robot_distance = self._nearest_visible_robot_distance(
+                name, active_names
+            )
             robot_proximity_penalty = self._compute_robot_proximity_penalty(
                 actions[idx], nearest_robot_distance
             )
@@ -1552,7 +1573,9 @@ class MultiAgentGazeboEnv:
             )
             initial_states.append(state)
         for name in self.agent_names:
-            nearest_robot_distance = self._nearest_robot_distance(name)
+            nearest_robot_distance = self._nearest_visible_robot_distance(
+                name, set(self.agent_names)
+            )
             self.previous_nearest_robot_distances[name] = nearest_robot_distance
             self.last_step_info["agents"][name][
                 "nearest_robot_distance"

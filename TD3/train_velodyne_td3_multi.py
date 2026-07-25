@@ -20,6 +20,7 @@ from multi_agent_velodyne_env import MultiAgentGazeboEnv
 from neighbor_context import context_feature_dim, normalize_context_mode
 from outcome_utils import resolve_terminal_outcome
 from replay_buffer import ReplayBuffer
+from actor_gradient_guard import actor_gradient_gate_decision
 from training_utils import (
     decay_exploration_noise,
     episode_train_iterations,
@@ -355,6 +356,8 @@ class TD3(object):
         self.iter_count = 0
         self.actor_reference = None
         self.actor_anchor_weight = 0.0
+        self.last_actor_update_enabled = False
+        self.last_actor_gradient_gate = None
 
     def _make_actor(self):
         if self.actor_train_mode == "residual":
@@ -527,6 +530,13 @@ class TD3(object):
         weak_actor=None,
         oracle_interaction_distance=2.0,
         oracle_context_feature_dim=5,
+        critic_interaction_fraction=0.0,
+        actor_gradient_gate=False,
+        actor_gradient_safety_distance=1.2,
+        actor_gradient_gate_batch_size=512,
+        actor_gradient_gate_min_samples=32,
+        actor_gradient_max_linear_positive_share=0.9,
+        actor_gradient_max_angular_one_sided_share=0.9,
     ):
         av_Q = 0
         max_Q = -inf
@@ -534,6 +544,30 @@ class TD3(object):
         av_actor_anchor_loss = 0
         av_actor_q_scale = 0
         actor_update_count = 0
+        actor_update_enabled = bool(update_actor)
+        self.last_actor_gradient_gate = None
+        if actor_update_enabled and actor_gradient_gate:
+            self.last_actor_gradient_gate = self.audit_actor_gradient(
+                replay_buffer,
+                actor_gradient_gate_batch_size,
+                actor_gradient_safety_distance,
+                oracle_context_feature_dim,
+                actor_gradient_gate_min_samples,
+                actor_gradient_max_linear_positive_share,
+                actor_gradient_max_angular_one_sided_share,
+            )
+            actor_update_enabled = self.last_actor_gradient_gate["passed"]
+            print(
+                "Actor gradient gate | passed=%i | safety_samples=%i | "
+                "linear_positive_share=%.3f | angular_one_sided_share=%.3f"
+                % (
+                    int(actor_update_enabled),
+                    self.last_actor_gradient_gate["safety_samples"],
+                    self.last_actor_gradient_gate["linear_positive_share"],
+                    self.last_actor_gradient_gate["angular_one_sided_share"],
+                )
+            )
+        self.last_actor_update_enabled = actor_update_enabled
         for it in range(iterations):
             (
                 batch_states,
@@ -543,7 +577,10 @@ class TD3(object):
                 batch_dones,
                 batch_next_states,
                 batch_next_critic_states,
-            ) = replay_buffer.sample_local_critic_batch(batch_size)
+            ) = replay_buffer.sample_local_critic_batch(
+                batch_size,
+                interaction_fraction=critic_interaction_fraction,
+            )
             state = torch.Tensor(batch_states).to(device)
             critic_state = torch.Tensor(batch_critic_states).to(device)
             next_state = torch.Tensor(batch_next_states).to(device)
@@ -587,7 +624,7 @@ class TD3(object):
             self.critic_optimizer.step()
 
             if it % policy_freq == 0:
-                if update_actor:
+                if actor_update_enabled:
                     actor_state = state
                     actor_critic_state = critic_state
                     actor_batch_available = True
@@ -652,6 +689,76 @@ class TD3(object):
             av_actor_q_scale / max(actor_update_count, 1),
             self.iter_count,
         )
+
+    def audit_actor_gradient(
+        self,
+        replay_buffer,
+        batch_size,
+        safety_distance,
+        context_feature_dim,
+        min_samples,
+        max_linear_positive_share,
+        max_angular_one_sided_share,
+    ):
+        batch = replay_buffer.sample_local_critic_batch(
+            batch_size, interaction_only=True
+        )
+        if batch is None:
+            return {
+                "passed": False,
+                "safety_samples": 0,
+                "linear_positive_share": float("nan"),
+                "angular_one_sided_share": float("nan"),
+            }
+
+        actor_states = batch[0]
+        critic_states = batch[1]
+        contexts = critic_states[:, self.state_dim :]
+        slots = contexts.reshape(len(contexts), -1, context_feature_dim)
+        valid = slots[:, :, context_feature_dim - 1] > 0.5
+        distances = np.where(valid, slots[:, :, 2], np.inf)
+        safety_mask = np.min(distances, axis=1) <= safety_distance
+        safety_samples = int(np.sum(safety_mask))
+        if safety_samples < min_samples:
+            return {
+                "passed": False,
+                "safety_samples": safety_samples,
+                "linear_positive_share": float("nan"),
+                "angular_one_sided_share": float("nan"),
+            }
+
+        actor_state = torch.as_tensor(
+            actor_states[safety_mask], dtype=torch.float32, device=device
+        )
+        critic_state = torch.as_tensor(
+            critic_states[safety_mask], dtype=torch.float32, device=device
+        )
+        actor_action = self.actor(actor_state).detach().requires_grad_(True)
+        actor_q, _ = self.critic(critic_state, actor_action)
+        action_gradient = torch.autograd.grad(actor_q.sum(), actor_action)[0]
+        linear_positive_share = float(
+            torch.mean((action_gradient[:, 0] > 0.0).float()).item()
+        )
+        angular_positive_share = float(
+            torch.mean((action_gradient[:, 1] > 0.0).float()).item()
+        )
+        angular_one_sided_share = max(
+            angular_positive_share, 1.0 - angular_positive_share
+        )
+        passed, angular_one_sided_share = actor_gradient_gate_decision(
+            safety_samples,
+            linear_positive_share,
+            angular_positive_share,
+            min_samples,
+            max_linear_positive_share,
+            max_angular_one_sided_share,
+        )
+        return {
+            "passed": bool(passed),
+            "safety_samples": safety_samples,
+            "linear_positive_share": linear_positive_share,
+            "angular_one_sided_share": angular_one_sided_share,
+        }
 
     def save(self, filename, directory):
         torch.save(self.actor.state_dict(), "%s/%s_actor.pth" % (directory, filename))
@@ -805,6 +912,9 @@ max_epochs = env_int("DRL_MULTI_MAX_EPOCHS", 0)
 max_timesteps = 5e6
 expl_noise = env_float("DRL_MULTI_EXPL_NOISE", 1.0)
 initial_expl_noise = expl_noise
+critic_warmup_expl_noise = env_float(
+    "DRL_MULTI_CRITIC_WARMUP_EXPL_NOISE", expl_noise
+)
 expl_decay_steps = env_int("DRL_MULTI_EXPL_DECAY_STEPS", 500000)
 expl_min = env_float("DRL_MULTI_EXPL_MIN", 0.1)
 actor_lr = env_float("DRL_MULTI_ACTOR_LR", 1e-3)
@@ -846,6 +956,25 @@ local_critic_geometry_only = env_flag(
 local_critic_context_mode = normalize_context_mode(
     os.environ.get("DRL_MULTI_LOCAL_CRITIC_CONTEXT_MODE", "legacy")
 )
+critic_interaction_fraction = env_float(
+    "DRL_MULTI_CRITIC_INTERACTION_FRACTION", 0.0
+)
+use_actor_gradient_gate = env_flag("DRL_MULTI_USE_ACTOR_GRADIENT_GATE", False)
+actor_gradient_safety_distance = env_float(
+    "DRL_MULTI_ACTOR_GRADIENT_SAFETY_DISTANCE", 1.2
+)
+actor_gradient_gate_batch_size = env_int(
+    "DRL_MULTI_ACTOR_GRADIENT_GATE_BATCH_SIZE", 512
+)
+actor_gradient_gate_min_samples = env_int(
+    "DRL_MULTI_ACTOR_GRADIENT_GATE_MIN_SAMPLES", 32
+)
+actor_gradient_max_linear_positive_share = env_float(
+    "DRL_MULTI_ACTOR_GRADIENT_MAX_LINEAR_POSITIVE_SHARE", 0.9
+)
+actor_gradient_max_angular_one_sided_share = env_float(
+    "DRL_MULTI_ACTOR_GRADIENT_MAX_ANGULAR_ONE_SIDED_SHARE", 0.9
+)
 active_neighbors_only = env_flag("DRL_MULTI_ACTIVE_NEIGHBORS_ONLY", False)
 local_critic_max_agents = env_int("DRL_MULTI_LOCAL_CRITIC_MAX_AGENTS", 10)
 local_critic_max_neighbors = max(local_critic_max_agents - 1, 1)
@@ -865,6 +994,34 @@ if actor_interaction_only and not use_oracle_interaction_rollout:
         "DRL_MULTI_ACTOR_INTERACTION_ONLY requires "
         "DRL_MULTI_USE_ORACLE_INTERACTION_ROLLOUT=1"
     )
+if use_actor_gradient_gate and not use_local_critic:
+    raise ValueError(
+        "DRL_MULTI_USE_ACTOR_GRADIENT_GATE requires DRL_MULTI_USE_LOCAL_CRITIC=1"
+    )
+if not 0.0 <= critic_interaction_fraction <= 1.0:
+    raise ValueError("DRL_MULTI_CRITIC_INTERACTION_FRACTION must be in [0, 1]")
+if critic_warmup_expl_noise < 0.0:
+    raise ValueError("DRL_MULTI_CRITIC_WARMUP_EXPL_NOISE must be non-negative")
+if actor_gradient_safety_distance <= 0.0:
+    raise ValueError("DRL_MULTI_ACTOR_GRADIENT_SAFETY_DISTANCE must be positive")
+if actor_gradient_gate_batch_size < 1 or actor_gradient_gate_min_samples < 1:
+    raise ValueError("Actor gradient gate sample counts must be positive")
+if actor_gradient_gate_min_samples > actor_gradient_gate_batch_size:
+    raise ValueError(
+        "DRL_MULTI_ACTOR_GRADIENT_GATE_MIN_SAMPLES cannot exceed gate batch size"
+    )
+for name, value in (
+    (
+        "DRL_MULTI_ACTOR_GRADIENT_MAX_LINEAR_POSITIVE_SHARE",
+        actor_gradient_max_linear_positive_share,
+    ),
+    (
+        "DRL_MULTI_ACTOR_GRADIENT_MAX_ANGULAR_ONE_SIDED_SHARE",
+        actor_gradient_max_angular_one_sided_share,
+    ),
+):
+    if not 0.5 <= value <= 1.0:
+        raise ValueError(f"{name} must be in [0.5, 1]")
 best_metric = os.environ.get("DRL_MULTI_BEST_METRIC", "success").strip().lower()
 scenario_mode = os.environ.get("DRL_MULTI_SCENARIO", "standard").strip().lower()
 eval_manifest_path = os.environ.get("DRL_MULTI_EVAL_MANIFEST_PATH", "").strip()
@@ -1260,6 +1417,11 @@ print("Oracle interaction rollout:", use_oracle_interaction_rollout)
 print("Oracle weak Actor:", oracle_weak_actor_name)
 print("Oracle interaction distance:", oracle_interaction_distance)
 print("Actor interaction-only updates:", actor_interaction_only)
+print("Critic interaction fraction:", critic_interaction_fraction)
+print("Actor gradient gate:", use_actor_gradient_gate)
+print("Actor gradient safety distance:", actor_gradient_safety_distance)
+print("Actor gradient gate batch size:", actor_gradient_gate_batch_size)
+print("Actor gradient gate min samples:", actor_gradient_gate_min_samples)
 if network.actor_train_mode == "residual":
     print("Residual hidden dim:", network.residual_hidden_dim)
     print("Residual scale:", network.residual_scale)
@@ -1280,6 +1442,7 @@ print("Policy freq:", policy_freq)
 print("Actor anchor weight:", actor_anchor_weight)
 print("Actor Q normalization alpha:", actor_q_normalization_alpha)
 print("Exploration noise:", expl_noise)
+print("Critic warmup exploration noise:", critic_warmup_expl_noise)
 print("Exploration min:", expl_min)
 print("Exploration decay steps:", expl_decay_steps)
 print("Exploration decay unit: environment steps")
@@ -1385,6 +1548,13 @@ while timestep < max_timesteps:
                     weak_actor,
                     oracle_interaction_distance,
                     local_critic_feature_dim,
+                    critic_interaction_fraction,
+                    use_actor_gradient_gate,
+                    actor_gradient_safety_distance,
+                    actor_gradient_gate_batch_size,
+                    actor_gradient_gate_min_samples,
+                    actor_gradient_max_linear_positive_share,
+                    actor_gradient_max_angular_one_sided_share,
                 )
             else:
                 network.train(
@@ -1591,7 +1761,7 @@ while timestep < max_timesteps:
                     max_context_neighbors,
                     last_context_neighbors_mean,
                     last_context_neighbors_max,
-                    int(timestep >= actor_update_delay_steps),
+                    int(network.last_actor_update_enabled),
                     expl_noise,
                     replay_buffer.size(),
                     replay_buffer.interaction_size(),
@@ -1838,8 +2008,13 @@ while timestep < max_timesteps:
             action = _model_action(weak_actor, state)
         else:
             action = network.get_action(np.array(state))
+            noise_scale = (
+                critic_warmup_expl_noise
+                if timestep < actor_update_delay_steps
+                else expl_noise
+            )
             action = (
-                action + np.random.normal(0, expl_noise, size=action_dim)
+                action + np.random.normal(0, noise_scale, size=action_dim)
             ).clip(-max_action, max_action)
 
         raw_actions.append(action)
