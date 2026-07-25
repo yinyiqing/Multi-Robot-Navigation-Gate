@@ -14,7 +14,7 @@ from torch.utils.tensorboard import SummaryWriter
 from actor_models import Actor, ResidualActor, is_residual_actor_state_dict
 from actor_objectives import conservative_actor_objective
 from critic_models import Critic
-from critic_safety_ranking import critic_safety_ranking_loss
+from critic_safety_ranking import approaching_safety_mask, critic_safety_ranking_loss
 from evaluation_protocol import build_eval_protocol_id, reconcile_evaluation_state
 from interaction_oracle import interaction_mask
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
@@ -543,12 +543,19 @@ class TD3(object):
         critic_safety_ranking_min_closing_speed=0.1,
         critic_safety_ranking_linear_delta=0.4,
         critic_safety_ranking_margin=0.1,
+        actor_safety_focused=False,
+        actor_safety_candidate_batch_size=256,
+        actor_safety_min_samples=16,
+        actor_safety_distance=1.0,
+        actor_safety_min_closing_speed=0.1,
+        actor_angular_anchor_weight=0.0,
     ):
         av_Q = 0
         max_Q = -inf
         av_loss = 0
         av_actor_anchor_loss = 0
         av_actor_q_scale = 0
+        av_actor_angular_anchor_loss = 0
         actor_update_count = 0
         av_critic_safety_ranking_loss = 0
         critic_safety_ranking_samples = 0
@@ -655,13 +662,40 @@ class TD3(object):
                     actor_batch_available = True
                     if actor_interaction_only:
                         actor_batch = replay_buffer.sample_local_critic_batch(
-                            batch_size, interaction_only=True
+                            (
+                                actor_safety_candidate_batch_size
+                                if actor_safety_focused
+                                else batch_size
+                            ),
+                            interaction_only=True,
                         )
                         if actor_batch is None:
                             actor_batch_available = False
                         else:
                             actor_state = torch.Tensor(actor_batch[0]).to(device)
                             actor_critic_state = torch.Tensor(actor_batch[1]).to(device)
+                            if actor_safety_focused:
+                                focused_mask = approaching_safety_mask(
+                                    actor_critic_state,
+                                    self.state_dim,
+                                    oracle_context_feature_dim,
+                                    actor_safety_distance,
+                                    actor_safety_min_closing_speed,
+                                )
+                                focused_indices = torch.where(focused_mask)[0]
+                                if len(focused_indices) < actor_safety_min_samples:
+                                    actor_batch_available = False
+                                else:
+                                    if len(focused_indices) > batch_size:
+                                        focused_indices = focused_indices[
+                                            torch.randperm(
+                                                len(focused_indices), device=device
+                                            )[:batch_size]
+                                        ]
+                                    actor_state = actor_state[focused_indices]
+                                    actor_critic_state = actor_critic_state[
+                                        focused_indices
+                                    ]
                     if actor_batch_available:
                         actor_action = self.actor(actor_state)
                         actor_grad, _ = self.critic(actor_critic_state, actor_action)
@@ -679,11 +713,23 @@ class TD3(object):
                             self.actor_q_normalization_alpha,
                             self.actor_anchor_weight,
                         )
+                        angular_anchor_loss = torch.zeros((), device=device)
+                        if actor_angular_anchor_weight > 0.0:
+                            with torch.no_grad():
+                                angular_reference = weak_actor(actor_state)[:, 1]
+                            angular_anchor_loss = F.mse_loss(
+                                actor_action[:, 1], angular_reference
+                            )
+                            actor_loss = (
+                                actor_loss
+                                + actor_angular_anchor_weight * angular_anchor_loss
+                            )
                         self.actor_optimizer.zero_grad()
                         actor_loss.backward()
                         self.actor_optimizer.step()
                         av_actor_anchor_loss += anchor_loss.item()
                         av_actor_q_scale += q_scale.item()
+                        av_actor_angular_anchor_loss += angular_anchor_loss.item()
                         actor_update_count += 1
 
                         for param, target_param in zip(
@@ -722,6 +768,11 @@ class TD3(object):
         self.writer.add_scalar(
             "Actor Q normalization scale",
             av_actor_q_scale / max(actor_update_count, 1),
+            self.iter_count,
+        )
+        self.writer.add_scalar(
+            "Actor angular anchor loss",
+            av_actor_angular_anchor_loss / max(actor_update_count, 1),
             self.iter_count,
         )
 
@@ -1025,6 +1076,18 @@ critic_safety_ranking_linear_delta = env_float(
 critic_safety_ranking_margin = env_float(
     "DRL_MULTI_CRITIC_SAFETY_RANKING_MARGIN", 0.1
 )
+actor_safety_focused = env_flag("DRL_MULTI_ACTOR_SAFETY_FOCUSED", False)
+actor_safety_candidate_batch_size = env_int(
+    "DRL_MULTI_ACTOR_SAFETY_CANDIDATE_BATCH_SIZE", 256
+)
+actor_safety_min_samples = env_int("DRL_MULTI_ACTOR_SAFETY_MIN_SAMPLES", 16)
+actor_safety_distance = env_float("DRL_MULTI_ACTOR_SAFETY_DISTANCE", 1.0)
+actor_safety_min_closing_speed = env_float(
+    "DRL_MULTI_ACTOR_SAFETY_MIN_CLOSING_SPEED", 0.1
+)
+actor_angular_anchor_weight = env_float(
+    "DRL_MULTI_ACTOR_ANGULAR_ANCHOR_WEIGHT", 0.0
+)
 active_neighbors_only = env_flag("DRL_MULTI_ACTIVE_NEIGHBORS_ONLY", False)
 local_critic_max_agents = env_int("DRL_MULTI_LOCAL_CRITIC_MAX_AGENTS", 10)
 local_critic_max_neighbors = max(local_critic_max_agents - 1, 1)
@@ -1051,6 +1114,19 @@ if use_actor_gradient_gate and not use_local_critic:
 if critic_safety_ranking_weight > 0.0 and local_critic_context_mode != "ego_motion":
     raise ValueError(
         "Critic safety ranking requires DRL_MULTI_LOCAL_CRITIC_CONTEXT_MODE=ego_motion"
+    )
+if actor_safety_focused and local_critic_context_mode != "ego_motion":
+    raise ValueError(
+        "Safety-focused Actor updates require ego-motion local-Critic context"
+    )
+if actor_safety_focused and not actor_interaction_only:
+    raise ValueError(
+        "DRL_MULTI_ACTOR_SAFETY_FOCUSED requires "
+        "DRL_MULTI_ACTOR_INTERACTION_ONLY=1"
+    )
+if actor_angular_anchor_weight > 0.0 and not use_oracle_interaction_rollout:
+    raise ValueError(
+        "DRL_MULTI_ACTOR_ANGULAR_ANCHOR_WEIGHT requires an oracle weak Actor"
     )
 if not 0.0 <= critic_interaction_fraction <= 1.0:
     raise ValueError("DRL_MULTI_CRITIC_INTERACTION_FRACTION must be in [0, 1]")
@@ -1083,6 +1159,11 @@ for name, value in (
         critic_safety_ranking_min_closing_speed,
     ),
     ("DRL_MULTI_CRITIC_SAFETY_RANKING_MARGIN", critic_safety_ranking_margin),
+    (
+        "DRL_MULTI_ACTOR_SAFETY_MIN_CLOSING_SPEED",
+        actor_safety_min_closing_speed,
+    ),
+    ("DRL_MULTI_ACTOR_ANGULAR_ANCHOR_WEIGHT", actor_angular_anchor_weight),
 ):
     if value < 0.0:
         raise ValueError(f"{name} must be non-negative")
@@ -1090,6 +1171,12 @@ if critic_safety_ranking_distance <= 0.0:
     raise ValueError("DRL_MULTI_CRITIC_SAFETY_RANKING_DISTANCE must be positive")
 if not 0.0 < critic_safety_ranking_linear_delta <= 2.0:
     raise ValueError("DRL_MULTI_CRITIC_SAFETY_RANKING_LINEAR_DELTA must be in (0, 2]")
+if actor_safety_candidate_batch_size < 1 or actor_safety_min_samples < 1:
+    raise ValueError("Safety-focused Actor sample counts must be positive")
+if actor_safety_min_samples > actor_safety_candidate_batch_size:
+    raise ValueError("Actor safety minimum samples cannot exceed candidate batch size")
+if actor_safety_distance <= 0.0:
+    raise ValueError("DRL_MULTI_ACTOR_SAFETY_DISTANCE must be positive")
 best_metric = os.environ.get("DRL_MULTI_BEST_METRIC", "success").strip().lower()
 scenario_mode = os.environ.get("DRL_MULTI_SCENARIO", "standard").strip().lower()
 eval_manifest_path = os.environ.get("DRL_MULTI_EVAL_MANIFEST_PATH", "").strip()
@@ -1498,6 +1585,12 @@ print(
 )
 print("Critic safety ranking linear delta:", critic_safety_ranking_linear_delta)
 print("Critic safety ranking margin:", critic_safety_ranking_margin)
+print("Safety-focused Actor updates:", actor_safety_focused)
+print("Actor safety candidate batch size:", actor_safety_candidate_batch_size)
+print("Actor safety min samples:", actor_safety_min_samples)
+print("Actor safety distance:", actor_safety_distance)
+print("Actor safety min closing speed:", actor_safety_min_closing_speed)
+print("Actor angular anchor weight:", actor_angular_anchor_weight)
 if network.actor_train_mode == "residual":
     print("Residual hidden dim:", network.residual_hidden_dim)
     print("Residual scale:", network.residual_scale)
@@ -1636,6 +1729,12 @@ while timestep < max_timesteps:
                     critic_safety_ranking_min_closing_speed,
                     critic_safety_ranking_linear_delta,
                     critic_safety_ranking_margin,
+                    actor_safety_focused,
+                    actor_safety_candidate_batch_size,
+                    actor_safety_min_samples,
+                    actor_safety_distance,
+                    actor_safety_min_closing_speed,
+                    actor_angular_anchor_weight,
                 )
             else:
                 network.train(

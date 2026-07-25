@@ -1,0 +1,12 @@
+{
+  "status": "rejected",
+  "model": "interaction_safety_ranking_from_5a_s20260725",
+  "seed": 20260724,
+  "epoch_1_full_success_rate": 0.5,
+  "epoch_2_full_success_rate": 0.46428571,
+  "epoch_1_deep_full_success_rate": 0.21666667,
+  "epoch_2_deep_full_success_rate": 0.13333333,
+  "dangerous_linear_action_delta": 0.012,
+  "global_angular_action_delta": 0.093,
+  "decision": "retain_critic_ranking_and_focus_actor_updates"
+}
