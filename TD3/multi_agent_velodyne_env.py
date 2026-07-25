@@ -120,6 +120,8 @@ class MultiAgentGazeboEnv:
         robot_safe_distance=1.0,
         robot_proximity_penalty_weight=5.0,
         robot_proximity_speed_penalty_weight=0.0,
+        robot_clearance_reward_weight=0.0,
+        robot_clearance_reward_max_gain=0.1,
         forward_reward_weight=0.5,
         stagnation_penalty_weight=0.03,
         weak_coupling_layout=False,
@@ -172,6 +174,10 @@ class MultiAgentGazeboEnv:
         self.robot_proximity_speed_penalty_weight = float(
             robot_proximity_speed_penalty_weight
         )
+        self.robot_clearance_reward_weight = float(robot_clearance_reward_weight)
+        self.robot_clearance_reward_max_gain = float(
+            robot_clearance_reward_max_gain
+        )
         self.forward_reward_weight = float(forward_reward_weight)
         self.stagnation_penalty_weight = float(stagnation_penalty_weight)
         if self.forward_reward_weight < 0.0:
@@ -186,6 +192,10 @@ class MultiAgentGazeboEnv:
             raise ValueError(
                 "robot_proximity_speed_penalty_weight must be non-negative"
             )
+        if self.robot_clearance_reward_weight < 0.0:
+            raise ValueError("robot_clearance_reward_weight must be non-negative")
+        if self.robot_clearance_reward_max_gain <= 0.0:
+            raise ValueError("robot_clearance_reward_max_gain must be positive")
         self.weak_coupling_layout = weak_coupling_layout
         self.active_neighbors_only = active_neighbors_only
         self.neighbor_context_mode = normalize_context_mode(neighbor_context_mode)
@@ -278,6 +288,9 @@ class MultiAgentGazeboEnv:
         }
         self.last_odom = {name: None for name in self.agent_names}
         self.previous_distances = {name: None for name in self.agent_names}
+        self.previous_nearest_robot_distances = {
+            name: None for name in self.agent_names
+        }
         self.goal_positions = {name: np.array([1.0, 0.0]) for name in self.agent_names}
         self.robot_positions = {name: np.array([0.0, 0.0]) for name in self.agent_names}
         self.set_self_states = {name: self._create_model_state(name) for name in self.agent_names}
@@ -658,6 +671,8 @@ class MultiAgentGazeboEnv:
                     "anti_stagnation_reward": 0.0,
                     "wall_clearance_reward": 0.0,
                     "local_navigation_reward": 0.0,
+                    "robot_proximity_reward": 0.0,
+                    "robot_clearance_reward": 0.0,
                     "reward_neighbors": [],
                     "active_visible_neighbor_count": 0,
                     "nearest_active_visible_neighbor_distance": None,
@@ -792,6 +807,13 @@ class MultiAgentGazeboEnv:
 
         robot_state = [distance, theta, action[0], action[1]]
         return np.append([self.velodyne_data[name]], robot_state), distance
+
+    def _sync_robot_positions_from_odom(self):
+        for name in self.agent_names:
+            odom = self.last_odom[name]
+            self.robot_positions[name] = np.array(
+                [odom.pose.pose.position.x, odom.pose.pose.position.y]
+            )
 
     def _compute_visible_neighbors(self, name, active_names=None):
         neighbors = []
@@ -1080,6 +1102,35 @@ class MultiAgentGazeboEnv:
             * linear_speed
         )
 
+    def _compute_robot_clearance_reward(
+        self,
+        target,
+        collision,
+        progress,
+        previous_robot_distance,
+        nearest_robot_distance,
+    ):
+        if target or collision or progress <= 0.0:
+            return 0.0
+        if previous_robot_distance is None:
+            return 0.0
+        if not (
+            np.isfinite(previous_robot_distance)
+            and np.isfinite(nearest_robot_distance)
+        ):
+            return 0.0
+        if (
+            min(previous_robot_distance, nearest_robot_distance)
+            >= self.robot_safe_distance
+        ):
+            return 0.0
+
+        clearance_gain = nearest_robot_distance - previous_robot_distance
+        if clearance_gain <= 0.0:
+            return 0.0
+        capped_gain = min(clearance_gain, self.robot_clearance_reward_max_gain)
+        return self.robot_clearance_reward_weight * capped_gain
+
     def _nearest_robot_distance(self, name):
         origin = self.robot_positions[name]
         distances = []
@@ -1219,6 +1270,8 @@ class MultiAgentGazeboEnv:
         except rospy.ServiceException:
             print("/gazebo/pause_physics service call failed")
 
+        self._sync_robot_positions_from_odom()
+
         next_states = []
         rewards = []
         dones = []
@@ -1257,6 +1310,14 @@ class MultiAgentGazeboEnv:
                 actions[idx], nearest_robot_distance
             )
             reward -= robot_proximity_penalty
+            robot_clearance_reward = self._compute_robot_clearance_reward(
+                target,
+                collision,
+                progress,
+                self.previous_nearest_robot_distances[name],
+                nearest_robot_distance,
+            )
+            reward += robot_clearance_reward
 
             if not active_mask[idx]:
                 reward = 0.0
@@ -1268,7 +1329,10 @@ class MultiAgentGazeboEnv:
                 wall_clearance_penalty = 0.0
                 local_navigation_bonus = 0.0
                 robot_proximity_penalty = 0.0
+                robot_clearance_reward = 0.0
                 nearest_robot_distance = None
+            else:
+                self.previous_nearest_robot_distances[name] = nearest_robot_distance
 
             next_states.append(state)
             rewards.append(reward)
@@ -1289,6 +1353,7 @@ class MultiAgentGazeboEnv:
                 "wall_clearance_reward": -wall_clearance_penalty,
                 "local_navigation_reward": local_navigation_bonus,
                 "robot_proximity_reward": -robot_proximity_penalty,
+                "robot_clearance_reward": robot_clearance_reward,
                 "reward_neighbors": [],
                 "active_visible_neighbor_count": 0,
                 "nearest_active_visible_neighbor_distance": None,
@@ -1353,6 +1418,11 @@ class MultiAgentGazeboEnv:
             for idx, name in enumerate(self.agent_names)
             if idx < len(active_mask) and active_mask[idx]
         ]
+        robot_clearance_rewards = [
+            step_agents_info[name]["robot_clearance_reward"]
+            for idx, name in enumerate(self.agent_names)
+            if idx < len(active_mask) and active_mask[idx]
+        ]
         self.last_step_info = {
             "agents": step_agents_info,
             "mean_reward": float(np.mean(rewards)) if rewards else 0.0,
@@ -1390,6 +1460,11 @@ class MultiAgentGazeboEnv:
                 if robot_proximity_rewards
                 else 0.0
             ),
+            "mean_robot_clearance_reward": (
+                float(np.mean(robot_clearance_rewards))
+                if robot_clearance_rewards
+                else 0.0
+            ),
         }
 
         return next_states, rewards, dones, targets, collisions
@@ -1408,6 +1483,9 @@ class MultiAgentGazeboEnv:
 
         self.last_odom = {name: None for name in self.agent_names}
         self.previous_distances = {name: None for name in self.agent_names}
+        self.previous_nearest_robot_distances = {
+            name: None for name in self.agent_names
+        }
         self.last_step_info = self._empty_last_step_info()
 
         last_error = None
@@ -1473,6 +1551,12 @@ class MultiAgentGazeboEnv:
                 np.min(self.velodyne_data[name])
             )
             initial_states.append(state)
+        for name in self.agent_names:
+            nearest_robot_distance = self._nearest_robot_distance(name)
+            self.previous_nearest_robot_distances[name] = nearest_robot_distance
+            self.last_step_info["agents"][name][
+                "nearest_robot_distance"
+            ] = nearest_robot_distance
         return initial_states
 
     def _sample_robot_positions(self, min_clearance=1.2):

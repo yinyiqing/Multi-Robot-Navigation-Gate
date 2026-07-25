@@ -916,6 +916,12 @@ robot_proximity_penalty_weight = env_float(
 robot_proximity_speed_penalty_weight = env_float(
     "DRL_MULTI_ROBOT_PROXIMITY_SPEED_PENALTY_WEIGHT", 0.0
 )
+robot_clearance_reward_weight = env_float(
+    "DRL_MULTI_ROBOT_CLEARANCE_REWARD_WEIGHT", 0.0
+)
+robot_clearance_reward_max_gain = env_float(
+    "DRL_MULTI_ROBOT_CLEARANCE_REWARD_MAX_GAIN", 0.1
+)
 for name, value in (
     ("DRL_MULTI_ROBOT_SAFE_DISTANCE", robot_safe_distance),
     ("DRL_MULTI_ROBOT_PROXIMITY_PENALTY_WEIGHT", robot_proximity_penalty_weight),
@@ -923,9 +929,12 @@ for name, value in (
         "DRL_MULTI_ROBOT_PROXIMITY_SPEED_PENALTY_WEIGHT",
         robot_proximity_speed_penalty_weight,
     ),
+    ("DRL_MULTI_ROBOT_CLEARANCE_REWARD_WEIGHT", robot_clearance_reward_weight),
 ):
     if value < 0.0:
         raise ValueError(f"{name} must be non-negative")
+if robot_clearance_reward_max_gain <= 0.0:
+    raise ValueError("DRL_MULTI_ROBOT_CLEARANCE_REWARD_MAX_GAIN must be positive")
 local_navigation_reward = env_flag("DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD", False)
 local_navigation_heading_weight = env_float(
     "DRL_MULTI_LOCAL_NAV_HEADING_WEIGHT", 0.4
@@ -1065,6 +1074,8 @@ env = MultiAgentGazeboEnv(
     robot_safe_distance=robot_safe_distance,
     robot_proximity_penalty_weight=robot_proximity_penalty_weight,
     robot_proximity_speed_penalty_weight=robot_proximity_speed_penalty_weight,
+    robot_clearance_reward_weight=robot_clearance_reward_weight,
+    robot_clearance_reward_max_gain=robot_clearance_reward_max_gain,
     forward_reward_weight=forward_reward_weight,
     stagnation_penalty_weight=stagnation_penalty_weight,
     weak_coupling_layout=True,
@@ -1215,6 +1226,8 @@ print(
     "Robot proximity speed penalty weight:",
     robot_proximity_speed_penalty_weight,
 )
+print("Robot clearance reward weight:", robot_clearance_reward_weight)
+print("Robot clearance reward max gain:", robot_clearance_reward_max_gain)
 print("Local-navigation reward:", local_navigation_reward)
 print("Local-navigation heading weight:", local_navigation_heading_weight)
 print("Local-navigation wrong-way penalty:", local_navigation_wrong_way_penalty)
@@ -1489,6 +1502,11 @@ while timestep < max_timesteps:
                 if episode_sample_count > 0
                 else 0.0
             )
+            mean_robot_clearance_reward_step = (
+                episode_robot_clearance_reward_sum / episode_sample_count
+                if episode_sample_count > 0
+                else 0.0
+            )
             mean_abs_local_navigation_reward_step = (
                 episode_abs_local_navigation_reward_sum / episode_sample_count
                 if episode_sample_count > 0
@@ -1527,6 +1545,7 @@ while timestep < max_timesteps:
                 "abs_wall_clear_reward=%.4f | local_nav_reward=%.4f | "
                 "abs_local_nav_reward=%.4f | "
                 "robot_proximity_reward=%.4f | abs_robot_proximity_reward=%.4f | "
+                "robot_clearance_reward=%.4f | "
                 "context_neighbors_mean=%.2f | context_neighbors_max=%.0f | "
                 "last_context_neighbors_mean=%.2f | last_context_neighbors_max=%.0f | "
                 "actor_unlocked=%i | "
@@ -1567,6 +1586,7 @@ while timestep < max_timesteps:
                     mean_abs_local_navigation_reward_step,
                     mean_robot_proximity_reward_step,
                     mean_abs_robot_proximity_reward_step,
+                    mean_robot_clearance_reward_step,
                     mean_context_neighbors,
                     max_context_neighbors,
                     last_context_neighbors_mean,
@@ -1786,6 +1806,7 @@ while timestep < max_timesteps:
         episode_abs_local_navigation_reward_sum = 0.0
         episode_robot_proximity_reward_sum = 0.0
         episode_abs_robot_proximity_reward_sum = 0.0
+        episode_robot_clearance_reward_sum = 0.0
         episode_num += 1
 
     expl_noise = decay_exploration_noise(
@@ -1872,6 +1893,9 @@ while timestep < max_timesteps:
         )
         episode_robot_proximity_reward_sum += robot_proximity_reward_step
         episode_abs_robot_proximity_reward_sum += abs(robot_proximity_reward_step)
+        episode_robot_clearance_reward_sum += float(
+            step_agents[name].get("robot_clearance_reward", 0.0)
+        )
 
     truncated = episode_timesteps + 1 == max_ep
     next_active_mask = [

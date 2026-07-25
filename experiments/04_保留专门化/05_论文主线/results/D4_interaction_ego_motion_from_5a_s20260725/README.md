@@ -27,7 +27,7 @@ The new context did not prevent post-unlock regression. Its epoch 2 overall full
 
 Replay contains `40047` transitions, but only `1139` (`2.84%`) are at nearest-neighbor distance `<=0.8 m`. In that critical band, the trained Actor increases raw linear action by `+0.128` instead of slowing down. For critical states whose action changes by more than `0.05`, the trained Critic prefers the candidate action in `76.77%` of cases.
 
-The coordinate-frame and relative-motion context correction was necessary for a coherent Critic input, but it is not sufficient. The remaining failure is consistent with sparse, delayed collision supervision and a weak action-independent proximity penalty. Do not add epochs to this configuration. The next controlled pilot keeps the same 5A warm-start and ego-motion Critic, and changes only the proximity reward to provide dense speed-dependent supervision from `1.2 m` inward.
+The coordinate-frame and relative-motion context correction was necessary for a coherent Critic input, but it is not sufficient. The remaining failure is consistent with sparse, delayed collision supervision and a weak action-independent proximity penalty. Do not add epochs to this configuration. The next controlled pilot keeps the same 5A warm-start and ego-motion Critic, and changes only the safety reward: dense speed-dependent proximity penalties from `1.2 m` inward plus a positive reward for increasing robot clearance while making positive goal progress.
 
 ## Files
 

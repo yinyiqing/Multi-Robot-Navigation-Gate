@@ -70,6 +70,42 @@ class MultiAgentRewardTests(unittest.TestCase):
             1.0,
         )
 
+    @staticmethod
+    def clearance_environment():
+        environment = MultiAgentGazeboEnv.__new__(MultiAgentGazeboEnv)
+        environment.robot_safe_distance = 1.2
+        environment.robot_clearance_reward_weight = 20.0
+        environment.robot_clearance_reward_max_gain = 0.1
+        return environment
+
+    def test_robot_clearance_rewards_safe_separation_with_goal_progress(self):
+        environment = self.clearance_environment()
+        reward = environment._compute_robot_clearance_reward(
+            False, False, 0.01, 0.8, 0.86
+        )
+        self.assertAlmostEqual(reward, 1.2)
+
+    def test_robot_clearance_does_not_reward_retreat_from_goal(self):
+        environment = self.clearance_environment()
+        reward = environment._compute_robot_clearance_reward(
+            False, False, -0.01, 0.8, 0.9
+        )
+        self.assertEqual(reward, 0.0)
+
+    def test_robot_clearance_does_not_reward_stopping_or_turning_in_place(self):
+        environment = self.clearance_environment()
+        reward = environment._compute_robot_clearance_reward(
+            False, False, 0.0, 0.8, 0.9
+        )
+        self.assertEqual(reward, 0.0)
+
+    def test_robot_clearance_reward_is_capped_per_step(self):
+        environment = self.clearance_environment()
+        reward = environment._compute_robot_clearance_reward(
+            False, False, 0.01, 0.7, 1.1
+        )
+        self.assertAlmostEqual(reward, 2.0)
+
 
 if __name__ == "__main__":
     unittest.main()
