@@ -17,6 +17,7 @@ from critic_models import Critic
 from evaluation_protocol import build_eval_protocol_id, reconcile_evaluation_state
 from interaction_oracle import interaction_mask
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
+from neighbor_context import context_feature_dim, normalize_context_mode
 from outcome_utils import resolve_terminal_outcome
 from replay_buffer import ReplayBuffer
 from training_utils import (
@@ -326,6 +327,7 @@ class TD3(object):
         residual_hidden_dim=128,
         residual_scale=0.15,
         actor_q_normalization_alpha=0.0,
+        critic_context_mode="legacy",
     ):
         self.state_dim = state_dim
         self.critic_state_dim = critic_state_dim or state_dim
@@ -334,6 +336,7 @@ class TD3(object):
         self.residual_scale = float(residual_scale)
         self.actor_train_mode = (actor_train_mode or "full").strip().lower()
         self.actor_q_normalization_alpha = float(actor_q_normalization_alpha)
+        self.critic_context_mode = normalize_context_mode(critic_context_mode)
         if self.actor_q_normalization_alpha < 0.0:
             raise ValueError("actor_q_normalization_alpha must be non-negative")
         self.actor = self._make_actor().to(device)
@@ -711,9 +714,18 @@ class TD3(object):
             ),
             "actor_anchor_weight": self.actor_anchor_weight,
             "actor_q_normalization_alpha": self.actor_q_normalization_alpha,
+            "critic_context_mode": self.critic_context_mode,
         }
 
     def load_state_dict(self, state):
+        saved_context_mode = normalize_context_mode(
+            state.get("critic_context_mode", "legacy")
+        )
+        if saved_context_mode != self.critic_context_mode:
+            raise ValueError(
+                "Checkpoint Critic context mode %s does not match configured mode %s"
+                % (saved_context_mode, self.critic_context_mode)
+            )
         saved_mode = state.get("actor_train_mode")
         if saved_mode is None and self.actor_train_mode == "residual":
             raise ValueError("Legacy checkpoint does not contain a residual actor")
@@ -831,10 +843,16 @@ use_local_critic = env_flag("DRL_MULTI_USE_LOCAL_CRITIC", False)
 local_critic_geometry_only = env_flag(
     "DRL_MULTI_LOCAL_CRITIC_GEOMETRY_ONLY", False
 )
+local_critic_context_mode = normalize_context_mode(
+    os.environ.get("DRL_MULTI_LOCAL_CRITIC_CONTEXT_MODE", "legacy")
+)
 active_neighbors_only = env_flag("DRL_MULTI_ACTIVE_NEIGHBORS_ONLY", False)
 local_critic_max_agents = env_int("DRL_MULTI_LOCAL_CRITIC_MAX_AGENTS", 10)
 local_critic_max_neighbors = max(local_critic_max_agents - 1, 1)
-local_critic_feature_dim = 5 if local_critic_geometry_only else 7
+local_critic_feature_dim = context_feature_dim(
+    local_critic_context_mode,
+    legacy_include_actions=not local_critic_geometry_only,
+)
 if oracle_interaction_distance <= 0.0:
     raise ValueError("DRL_MULTI_ORACLE_INTERACTION_DISTANCE must be positive")
 if (use_oracle_interaction_rollout or actor_interaction_only) and not use_local_critic:
@@ -1036,6 +1054,7 @@ env = MultiAgentGazeboEnv(
     weak_coupling_layout=True,
     scenario_mode=scenario_mode,
     active_neighbors_only=active_neighbors_only,
+    neighbor_context_mode=local_critic_context_mode,
 )
 time.sleep(5)
 random.seed(seed)
@@ -1067,6 +1086,7 @@ network = TD3(
     residual_hidden_dim=residual_hidden_dim,
     residual_scale=residual_scale,
     actor_q_normalization_alpha=actor_q_normalization_alpha,
+    critic_context_mode=local_critic_context_mode,
 )
 replay_buffer = ReplayBuffer(buffer_size, seed)
 
@@ -1182,6 +1202,7 @@ print("Local-navigation near-goal distance:", local_navigation_near_goal_distanc
 print("Local-navigation heading error:", local_navigation_heading_error)
 print("Local critic enabled:", use_local_critic)
 print("Local critic geometry only:", local_critic_geometry_only)
+print("Local critic context mode:", local_critic_context_mode)
 print("Active neighbors only:", active_neighbors_only)
 print("Actor state dim:", state_dim)
 print("Critic state dim:", critic_state_dim)

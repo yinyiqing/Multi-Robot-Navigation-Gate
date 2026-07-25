@@ -22,6 +22,12 @@ from visualization_msgs.msg import MarkerArray
 from scenario_manifests import load_manifest_dataset, validate_manifest_scenarios
 from temporal_interaction import build_front_lidar_gaps
 from velodyne_env import COLLISION_DIST, GOAL_REACHED_DIST, TIME_DELTA, check_pos
+from neighbor_context import (
+    context_feature_dim,
+    ego_motion_features,
+    normalize_context_mode,
+    world_to_ego,
+)
 
 
 AGENT_COLORS = [
@@ -117,6 +123,7 @@ class MultiAgentGazeboEnv:
         weak_coupling_layout=False,
         scenario_mode="standard",
         active_neighbors_only=False,
+        neighbor_context_mode="legacy",
     ):
         self.environment_dim = environment_dim
         self.agent_names = agent_names or ["r1", "r2", "r3"]
@@ -165,6 +172,7 @@ class MultiAgentGazeboEnv:
             raise ValueError("stagnation_penalty_weight must be non-negative")
         self.weak_coupling_layout = weak_coupling_layout
         self.active_neighbors_only = active_neighbors_only
+        self.neighbor_context_mode = normalize_context_mode(neighbor_context_mode)
         self.scenario_mode = scenario_mode.strip().lower()
         if self.scenario_mode not in ("standard", "dense", "curriculum", "manifest"):
             raise ValueError(
@@ -799,7 +807,9 @@ class MultiAgentGazeboEnv:
         self, actions, max_neighbors=9, include_actions=True, active_mask=None
     ):
         contexts = []
-        feature_dim = 7 if include_actions else 5
+        feature_dim = context_feature_dim(
+            self.neighbor_context_mode, legacy_include_actions=include_actions
+        )
         active_names = None
         if self.active_neighbors_only and active_mask is not None:
             active_names = {
@@ -829,18 +839,31 @@ class MultiAgentGazeboEnv:
                     bearing -= 2 * np.pi
                 while bearing < -np.pi:
                     bearing += 2 * np.pi
-                neighbor_features = [
-                    float(offset[0]),
-                    float(offset[1]),
-                    distance,
-                    float(bearing),
-                ]
-                if include_actions:
+                if self.neighbor_context_mode == "ego_motion":
+                    neighbor_features = ego_motion_features(
+                        offset,
+                        yaw,
+                        self._get_robot_yaw(other_name),
+                        action_by_name.get(name, np.zeros(2)),
+                        action_by_name.get(other_name, np.zeros(2)),
+                    )
+                else:
+                    relative_position = offset
+                    if self.neighbor_context_mode == "ego_geometry":
+                        relative_position = world_to_ego(offset, yaw)
+                    neighbor_features = [
+                        float(relative_position[0]),
+                        float(relative_position[1]),
+                        distance,
+                        float(bearing),
+                    ]
+                if self.neighbor_context_mode == "legacy" and include_actions:
                     other_action = action_by_name.get(other_name, np.zeros(2))
                     neighbor_features.extend(
                         [float(other_action[0]), float(other_action[1])]
                     )
-                neighbor_features.append(1.0)
+                if self.neighbor_context_mode != "ego_motion":
+                    neighbor_features.append(1.0)
                 context.extend(neighbor_features)
 
             missing = max_neighbors - len(context) // feature_dim
