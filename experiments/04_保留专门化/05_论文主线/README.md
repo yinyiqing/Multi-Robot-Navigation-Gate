@@ -365,6 +365,8 @@ success + collision + unresolved = N * episodes
 
 当前仍处于`D4`。5D已冻结为弱交互Actor；旧 close→mixed→deep、PAIR→THREE 和双车路线均已停止。五车 oracle-specialist pilot 也已按预先准入线判定未通过：分流机制正常，但强Actor学到统一转向偏置，deep full success 不升反降。下一步先审计固定场景的左右对称性以及Actor可见状态与Critic privileged context的对齐，不直接启动新训练。Gate仍需等待D5互补性审计通过。
 
+后续完成了5A warm-start下的Critic context严格对照：将旧世界坐标几何context修正为本车坐标系相对位置与相对速度后，epoch 2 full success仍从`0.500`降至`0.421`，deep从`0.200`降至`0.133`。Replay审计显示`<=0.8m`危险状态只占`2.84%`，且训练后Actor在该层增加线速度`+0.128`，Critic对明显变化动作的错误偏好率为`76.77%`。因此context修复保留，但不再增加epoch；下一次严格对照只把近车处罚扩展到`1.2m`并加入随线速度增长的稠密处罚。完整结果见`results/D4_interaction_ego_motion_from_5a_s20260725`。
+
 ## 11. 预期贡献表述
 
 如果实验支持假设，贡献收敛为三点：

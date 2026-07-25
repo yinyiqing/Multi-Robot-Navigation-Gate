@@ -13,7 +13,9 @@ PID_FILE="${DRL_MULTI_PID_FILE:-$PROJECT_ROOT/.train_${SAFE_MODEL}.pid}"
 LAUNCHFILE="multi_robot_scenario_strong_interaction_pilot_5.launch"
 ROS_PORT="${DRL_MULTI_ROS_PORT:-13003}"
 GAZEBO_PORT="${DRL_MULTI_GAZEBO_PORT:-13103}"
-ROBOT_SAFE_DISTANCE="${DRL_MULTI_ROBOT_SAFE_DISTANCE:-0.0}"
+ROBOT_SAFE_DISTANCE="${DRL_MULTI_ROBOT_SAFE_DISTANCE:-1.2}"
+ROBOT_PROXIMITY_PENALTY_WEIGHT="${DRL_MULTI_ROBOT_PROXIMITY_PENALTY_WEIGHT:-5.0}"
+ROBOT_PROXIMITY_SPEED_PENALTY_WEIGHT="${DRL_MULTI_ROBOT_PROXIMITY_SPEED_PENALTY_WEIGHT:-10.0}"
 RESUME_TRAINING="${DRL_MULTI_RESUME_TRAINING:-0}"
 
 [[ "$LOAD_ACTOR_ONLY" == 0 || "$LOAD_ACTOR_ONLY" == 1 ]] || {
@@ -111,6 +113,8 @@ setsid bash -lc "
   export DRL_MULTI_ORACLE_WEAK_ACTOR_NAME='$BASE_MODEL'
   export DRL_MULTI_ORACLE_INTERACTION_DISTANCE=2.0
   export DRL_MULTI_ROBOT_SAFE_DISTANCE='$ROBOT_SAFE_DISTANCE'
+  export DRL_MULTI_ROBOT_PROXIMITY_PENALTY_WEIGHT='$ROBOT_PROXIMITY_PENALTY_WEIGHT'
+  export DRL_MULTI_ROBOT_PROXIMITY_SPEED_PENALTY_WEIGHT='$ROBOT_PROXIMITY_SPEED_PENALTY_WEIGHT'
   export DRL_MULTI_ACTOR_INTERACTION_ONLY=1
   export DRL_MULTI_USE_DYNAMIC_REWARD=1
   export DRL_MULTI_REWARD_MODE=average
@@ -155,6 +159,8 @@ echo "Validation: 140 fixed five-agent scenarios"
 echo "Oracle: trainable Actor at <=2.0 m; frozen $BASE_MODEL otherwise"
 echo "Actor updates: interaction transitions only"
 echo "Robot safe distance reward: $ROBOT_SAFE_DISTANCE m"
+echo "Robot proximity penalty weight: $ROBOT_PROXIMITY_PENALTY_WEIGHT"
+echo "Robot proximity speed penalty weight: $ROBOT_PROXIMITY_SPEED_PENALTY_WEIGHT"
 echo "Resume training: $RESUME_TRAINING"
 echo "Epoch 1: frozen Actor baseline; Epoch 2: interaction-only Actor training"
 echo "Log: $log_file"

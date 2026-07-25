@@ -118,6 +118,8 @@ class MultiAgentGazeboEnv:
         reward_neighbor_radius=10.0,
         reward_neighbor_fov=np.pi / 2 + 0.03,
         robot_safe_distance=1.0,
+        robot_proximity_penalty_weight=5.0,
+        robot_proximity_speed_penalty_weight=0.0,
         forward_reward_weight=0.5,
         stagnation_penalty_weight=0.03,
         weak_coupling_layout=False,
@@ -163,13 +165,27 @@ class MultiAgentGazeboEnv:
         self.local_navigation_heading_error = local_navigation_heading_error
         self.reward_neighbor_radius = reward_neighbor_radius
         self.reward_neighbor_fov = reward_neighbor_fov
-        self.robot_safe_distance = robot_safe_distance
+        self.robot_safe_distance = float(robot_safe_distance)
+        self.robot_proximity_penalty_weight = float(
+            robot_proximity_penalty_weight
+        )
+        self.robot_proximity_speed_penalty_weight = float(
+            robot_proximity_speed_penalty_weight
+        )
         self.forward_reward_weight = float(forward_reward_weight)
         self.stagnation_penalty_weight = float(stagnation_penalty_weight)
         if self.forward_reward_weight < 0.0:
             raise ValueError("forward_reward_weight must be non-negative")
         if self.stagnation_penalty_weight < 0.0:
             raise ValueError("stagnation_penalty_weight must be non-negative")
+        if self.robot_safe_distance < 0.0:
+            raise ValueError("robot_safe_distance must be non-negative")
+        if self.robot_proximity_penalty_weight < 0.0:
+            raise ValueError("robot_proximity_penalty_weight must be non-negative")
+        if self.robot_proximity_speed_penalty_weight < 0.0:
+            raise ValueError(
+                "robot_proximity_speed_penalty_weight must be non-negative"
+            )
         self.weak_coupling_layout = weak_coupling_layout
         self.active_neighbors_only = active_neighbors_only
         self.neighbor_context_mode = normalize_context_mode(neighbor_context_mode)
@@ -1045,6 +1061,25 @@ class MultiAgentGazeboEnv:
 
         return float(aligned_forward_bonus + near_goal_turn_bonus - wrong_way_penalty)
 
+    def _compute_robot_proximity_penalty(self, action, nearest_robot_distance):
+        safe_distance = self.robot_safe_distance
+        if (
+            safe_distance <= 0.0
+            or not np.isfinite(nearest_robot_distance)
+            or nearest_robot_distance >= safe_distance
+        ):
+            return 0.0
+
+        clearance_deficit = safe_distance - nearest_robot_distance
+        proximity_pressure = clearance_deficit / safe_distance
+        linear_speed = max(float(action[0]), 0.0)
+        return (
+            self.robot_proximity_penalty_weight * clearance_deficit
+            + self.robot_proximity_speed_penalty_weight
+            * proximity_pressure
+            * linear_speed
+        )
+
     def _nearest_robot_distance(self, name):
         origin = self.robot_positions[name]
         distances = []
@@ -1218,12 +1253,10 @@ class MultiAgentGazeboEnv:
             reward += local_navigation_bonus
             self.previous_distances[name] = distance
             nearest_robot_distance = self._nearest_robot_distance(name)
-            if (
-                self.robot_safe_distance > 0.0
-                and np.isfinite(nearest_robot_distance)
-                and nearest_robot_distance < self.robot_safe_distance
-            ):
-                reward -= 5.0 * (self.robot_safe_distance - nearest_robot_distance)
+            robot_proximity_penalty = self._compute_robot_proximity_penalty(
+                actions[idx], nearest_robot_distance
+            )
+            reward -= robot_proximity_penalty
 
             if not active_mask[idx]:
                 reward = 0.0
@@ -1234,6 +1267,7 @@ class MultiAgentGazeboEnv:
                 anti_stagnation_penalty = 0.0
                 wall_clearance_penalty = 0.0
                 local_navigation_bonus = 0.0
+                robot_proximity_penalty = 0.0
                 nearest_robot_distance = None
 
             next_states.append(state)
@@ -1254,6 +1288,7 @@ class MultiAgentGazeboEnv:
                 "anti_stagnation_reward": -anti_stagnation_penalty,
                 "wall_clearance_reward": -wall_clearance_penalty,
                 "local_navigation_reward": local_navigation_bonus,
+                "robot_proximity_reward": -robot_proximity_penalty,
                 "reward_neighbors": [],
                 "active_visible_neighbor_count": 0,
                 "nearest_active_visible_neighbor_distance": None,
@@ -1313,6 +1348,11 @@ class MultiAgentGazeboEnv:
             for idx, name in enumerate(self.agent_names)
             if idx < len(active_mask) and active_mask[idx]
         ]
+        robot_proximity_rewards = [
+            step_agents_info[name]["robot_proximity_reward"]
+            for idx, name in enumerate(self.agent_names)
+            if idx < len(active_mask) and active_mask[idx]
+        ]
         self.last_step_info = {
             "agents": step_agents_info,
             "mean_reward": float(np.mean(rewards)) if rewards else 0.0,
@@ -1343,6 +1383,11 @@ class MultiAgentGazeboEnv:
             "mean_local_navigation_reward": (
                 float(np.mean(local_navigation_rewards))
                 if local_navigation_rewards
+                else 0.0
+            ),
+            "mean_robot_proximity_reward": (
+                float(np.mean(robot_proximity_rewards))
+                if robot_proximity_rewards
                 else 0.0
             ),
         }
