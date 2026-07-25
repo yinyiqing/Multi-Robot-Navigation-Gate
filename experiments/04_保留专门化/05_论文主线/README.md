@@ -375,6 +375,8 @@ Critic反事实排序正式pilot将危险线速度正梯度稳定降到约`20%-3
 
 安全聚焦Actor pilot首次在同一轮冻结基线对照中全面提升：agent success从`0.820`升至`0.840`，collision从`0.179`降至`0.160`，full success从`0.436`升至`0.500`；deep/close/margin full success分别从`0.150/0.500/0.800`升至`0.217/0.600/0.825`。Replay行为审计确认`<=0.8m`线速度下降`0.079`，危险加速问题已消除；仍存在`-0.055`全局角速度漂移。该epoch 2暂列强交互Actor候选，但考虑固定Gazebo验证仍有波动，下一步先重复140场固定验证，再决定是否运行独立训练seed和进入D5互补性审计。完整归档见`results/D4_interaction_focused_actor_from_5a_s20260725`。
 
+同配置的全套5D对照中，epoch 2相对冻结epoch 1仅将agent/full success从`0.824/0.471`提高到`0.830/0.479`，即full仅多成功`1/140`场；deep/close有所提高，但margin full从`0.875`降至`0.800`。其改善明显弱于全套5A配置的`0.436 -> 0.500`。由于当时启动脚本把强Actor warm-start和oracle弱Actor绑定为同一模型，该结果比较的是“全套5A”与“全套5D”，不是纯初始化消融。下一次正式长跑将二者解耦：强Actor从5A初始化，非强交互状态固定由5D执行。完整归档见`results/D4_interaction_focused_actor_from_5d_s20260725`。
+
 ## 11. 预期贡献表述
 
 如果实验支持假设，贡献收敛为三点：

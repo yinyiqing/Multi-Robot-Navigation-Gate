@@ -1,0 +1,28 @@
+{
+  "status": "comparison_complete_do_not_continue",
+  "model": "interaction_focused_actor_from_5d_s20260725",
+  "seed": 20260724,
+  "best_epoch": 2,
+  "epoch_1": {
+    "agent_success_rate": 0.824,
+    "collision_rate": 0.173,
+    "unresolved_rate": 0.003,
+    "full_success_rate": 0.471,
+    "deep_full_success_rate": 0.15,
+    "close_full_success_rate": 0.55,
+    "margin_full_success_rate": 0.875,
+    "average_episode_steps": 36.0
+  },
+  "epoch_2": {
+    "agent_success_rate": 0.83,
+    "collision_rate": 0.169,
+    "unresolved_rate": 0.001,
+    "full_success_rate": 0.479,
+    "deep_full_success_rate": 0.183,
+    "close_full_success_rate": 0.6,
+    "margin_full_success_rate": 0.8,
+    "average_episode_steps": 35.1
+  },
+  "limitation": "warm_start_and_oracle_weak_actor_changed_together",
+  "decision": "initialize_strong_actor_from_5a_and_keep_frozen_5d_as_weak_actor"
+}

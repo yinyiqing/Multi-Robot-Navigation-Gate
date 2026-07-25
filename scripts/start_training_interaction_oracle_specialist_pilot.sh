@@ -6,6 +6,7 @@ TD3_DIR="$PROJECT_ROOT/TD3"
 VIEW_DIR="$PROJECT_ROOT/experiments/04_保留专门化/05_论文主线/datasets/fixed_v1/views/strong_interaction_curriculum_v1"
 LOG_DIR="$PROJECT_ROOT/logs"
 BASE_MODEL="${DRL_MULTI_BASE_MODEL:-TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best}"
+ORACLE_WEAK_ACTOR_NAME="${DRL_MULTI_ORACLE_WEAK_ACTOR_NAME:-$BASE_MODEL}"
 LOAD_ACTOR_ONLY="${DRL_MULTI_LOAD_ACTOR_ONLY:-0}"
 MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-interaction_oracle_specialist_pilot_s20260724}"
 SAFE_MODEL="${MODEL_NAME//[^A-Za-z0-9_]/_}"
@@ -48,10 +49,14 @@ if [[ "$LOAD_ACTOR_ONLY" == 0 ]]; then
 fi
 for suffix in "${required_suffixes[@]}"; do
   [[ -f "$TD3_DIR/pytorch_models/${BASE_MODEL}_${suffix}.pth" ]] || {
-    echo "5D ${suffix} is missing: $TD3_DIR/pytorch_models/${BASE_MODEL}_${suffix}.pth"
+    echo "Warm-start ${suffix} is missing: $TD3_DIR/pytorch_models/${BASE_MODEL}_${suffix}.pth"
     exit 1
   }
 done
+[[ -f "$TD3_DIR/pytorch_models/${ORACLE_WEAK_ACTOR_NAME}_actor.pth" ]] || {
+  echo "Oracle weak Actor is missing: $TD3_DIR/pytorch_models/${ORACLE_WEAK_ACTOR_NAME}_actor.pth"
+  exit 1
+}
 [[ -f "$TD3_DIR/assets/$LAUNCHFILE" ]] || {
   echo "Five-agent launch file is missing: $TD3_DIR/assets/$LAUNCHFILE"
   exit 1
@@ -122,7 +127,7 @@ setsid bash -lc "
   export DRL_MULTI_TRAINING_VERSION='interaction-oracle-specialist-pilot-v6-focused-actor'
   export DRL_MULTI_ACTOR_TRAIN_MODE=full
   export DRL_MULTI_USE_ORACLE_INTERACTION_ROLLOUT=1
-  export DRL_MULTI_ORACLE_WEAK_ACTOR_NAME='$BASE_MODEL'
+  export DRL_MULTI_ORACLE_WEAK_ACTOR_NAME='$ORACLE_WEAK_ACTOR_NAME'
   export DRL_MULTI_ORACLE_INTERACTION_DISTANCE=2.0
   export DRL_MULTI_ROBOT_SAFE_DISTANCE='$ROBOT_SAFE_DISTANCE'
   export DRL_MULTI_ROBOT_PROXIMITY_PENALTY_WEIGHT='$ROBOT_PROXIMITY_PENALTY_WEIGHT'
@@ -189,7 +194,7 @@ else
 fi
 echo "Train: 640 fixed five-agent deep/close/margin scenarios"
 echo "Validation: 140 fixed five-agent scenarios"
-echo "Oracle: trainable Actor at <=2.0 m; frozen $BASE_MODEL otherwise"
+echo "Oracle: trainable Actor at <=2.0 m; frozen $ORACLE_WEAK_ACTOR_NAME otherwise"
 echo "Actor updates: interaction transitions only"
 echo "Robot safe distance reward: $ROBOT_SAFE_DISTANCE m"
 echo "Robot proximity penalty weight: $ROBOT_PROXIMITY_PENALTY_WEIGHT"
