@@ -4,6 +4,8 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TD3_DIR="$PROJECT_ROOT/TD3"
 VIEW_DIR="$PROJECT_ROOT/experiments/04_保留专门化/05_论文主线/datasets/fixed_v1/views/strong_interaction_curriculum_v1"
+TRAIN_MANIFEST="${DRL_MULTI_TRAIN_MANIFEST:-$VIEW_DIR/stage2_train.json.gz}"
+EVAL_MANIFEST="${DRL_MULTI_EVAL_MANIFEST:-$VIEW_DIR/validation.json.gz}"
 LOG_DIR="$PROJECT_ROOT/logs"
 BASE_MODEL="${DRL_MULTI_BASE_MODEL:-TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best}"
 ORACLE_WEAK_ACTOR_NAME="${DRL_MULTI_ORACLE_WEAK_ACTOR_NAME:-$BASE_MODEL}"
@@ -40,7 +42,7 @@ MAX_EPOCHS="${DRL_MULTI_MAX_EPOCHS:-2}"
   exit 2
 }
 
-for path in "$VIEW_DIR/stage2_train.json.gz" "$VIEW_DIR/validation.json.gz"; do
+for path in "$TRAIN_MANIFEST" "$EVAL_MANIFEST"; do
   [[ -f "$path" ]] || { echo "Fixed five-agent interaction split is missing: $path"; exit 1; }
 done
 required_suffixes=(actor)
@@ -112,8 +114,8 @@ setsid bash -lc "
   export DRL_MULTI_SEED='$TRAIN_SEED'
   export DRL_MULTI_TRAIN_LAUNCHFILE='$LAUNCHFILE'
   export DRL_MULTI_SCENARIO=manifest
-  export DRL_MULTI_MANIFEST_PATH='$VIEW_DIR/stage2_train.json.gz'
-  export DRL_MULTI_EVAL_MANIFEST_PATH='$VIEW_DIR/validation.json.gz'
+  export DRL_MULTI_MANIFEST_PATH='$TRAIN_MANIFEST'
+  export DRL_MULTI_EVAL_MANIFEST_PATH='$EVAL_MANIFEST'
   export DRL_MULTI_MANIFEST_SAMPLING=random
   export DRL_MULTI_TRAIN_FILE_NAME='$MODEL_NAME'
   export DRL_MULTI_LOAD_MODEL=1
@@ -192,8 +194,8 @@ if [[ "$LOAD_ACTOR_ONLY" == 1 ]]; then
 else
   echo "Warm start mode: actor-and-critic"
 fi
-echo "Train: 640 fixed five-agent deep/close/margin scenarios"
-echo "Validation: 140 fixed five-agent scenarios"
+echo "Train manifest: $TRAIN_MANIFEST"
+echo "Validation manifest: $EVAL_MANIFEST"
 echo "Oracle: trainable Actor at <=2.0 m; frozen $ORACLE_WEAK_ACTOR_NAME otherwise"
 echo "Actor updates: interaction transitions only"
 echo "Robot safe distance reward: $ROBOT_SAFE_DISTANCE m"
@@ -206,4 +208,4 @@ echo "Seed: $TRAIN_SEED"
 echo "Maximum epochs: $MAX_EPOCHS"
 echo "Epoch 1: frozen Actor baseline; Epoch 2 onward: interaction-only Actor training"
 echo "Log: $log_file"
-echo "Expected runtime: roughly 45-55 minutes per epoch."
+echo "Expected runtime: depends on manifest size; the full 2560-scene pool is roughly 3-4 hours per epoch."
