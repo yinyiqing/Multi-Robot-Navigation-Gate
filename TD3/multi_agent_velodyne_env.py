@@ -575,6 +575,30 @@ class MultiAgentGazeboEnv:
                 self.manifest_band_cases.setdefault(band, []).append(case)
                 self.manifest_band_indices.setdefault(band, 0)
 
+    def manifest_sampling_state(self):
+        return {
+            "curriculum_case_index": int(self.curriculum_case_index),
+            "band_indices": {
+                str(band): int(index)
+                for band, index in self.manifest_band_indices.items()
+            },
+            "band_schedule_index": int(self.manifest_band_schedule_index),
+        }
+
+    def restore_manifest_sampling_state(self, state):
+        if not state:
+            return
+        self.curriculum_case_index = int(state.get("curriculum_case_index", 0))
+        saved_band_indices = state.get("band_indices") or {}
+        for band in self.manifest_band_indices:
+            index = int(saved_band_indices.get(band, 0))
+            self.manifest_band_indices[band] = min(
+                max(index, 0), len(self.manifest_band_cases.get(band, ()))
+            )
+        self.manifest_band_schedule_index = int(
+            state.get("band_schedule_index", 0)
+        ) % 5
+
     def _curriculum_agent_position(self, name, key):
         value = self.current_curriculum_case["agents"][name][key]
         if len(value) != 2:

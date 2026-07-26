@@ -41,6 +41,9 @@ def evaluate(
 ):
     previous_manifest_path = getattr(env, "manifest_path", None)
     previous_manifest_sampling = os.environ.get("DRL_MULTI_MANIFEST_SAMPLING")
+    previous_manifest_sampling_state = (
+        env.manifest_sampling_state() if eval_manifest_path else None
+    )
     try:
         if eval_manifest_path:
             os.environ["DRL_MULTI_MANIFEST_SAMPLING"] = "cycle"
@@ -62,6 +65,7 @@ def evaluate(
                 os.environ["DRL_MULTI_MANIFEST_SAMPLING"] = previous_manifest_sampling
             if previous_manifest_path:
                 env.set_manifest_path(previous_manifest_path)
+                env.restore_manifest_sampling_state(previous_manifest_sampling_state)
 
 
 def _model_action(model, state):
@@ -1334,6 +1338,9 @@ def save_training_checkpoint(
             "best_epoch": best_epoch,
             "eval_protocol_id": eval_protocol_id,
             "evaluation_history": evaluation_history,
+            "manifest_sampling_state": env.manifest_sampling_state(),
+            "train_seen_scenario_ids": sorted(train_seen_scenario_ids),
+            "train_seen_band_counts": dict(train_seen_band_counts),
         },
         path,
     )
@@ -1627,8 +1634,15 @@ print("Starting epoch:", epoch)
 print("==============================================")
 
 last_eval_summary = None
-train_seen_scenario_ids = set()
+train_seen_scenario_ids = set(
+    checkpoint.get("train_seen_scenario_ids", ()) if checkpoint else ()
+)
 train_seen_band_counts = {"deep": 0, "close": 0, "margin": 0}
+if checkpoint:
+    for band, count in (checkpoint.get("train_seen_band_counts") or {}).items():
+        if band in train_seen_band_counts:
+            train_seen_band_counts[band] = int(count)
+    env.restore_manifest_sampling_state(checkpoint.get("manifest_sampling_state"))
 
 
 def combine_critic_state(state, context):
