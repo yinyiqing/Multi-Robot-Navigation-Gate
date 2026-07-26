@@ -389,6 +389,8 @@ Critic反事实排序正式pilot将危险线速度正梯度稳定降到约`20%-3
 
 解耦后的`5A强Actor初始化 + 5D弱Actor`对照没有通过：冻结epoch 1的agent/full success为`0.839/0.514`，Actor更新后的epoch 2降至`0.811/0.407`；deep/close full分别从`0.217/0.650`降至`0.100/0.475`。恢复过程、Replay、Critic和epoch计数正常，退化发生在Actor解冻后。该结果说明不能在改变弱Actor轨迹分布的同时直接外推此前全套5A训练结论；停止该checkpoint。接下来回到唯一产生明确正向结果的全套5A实验，从其epoch 2 checkpoint原样续训，再独立评估最佳强Actor与5D的oracle配对。完整归档见`results/D4_interaction_focused_actor_5a_init_5d_weak_s20260726`。
 
+后续续训到旧epoch 8进一步确认了安全聚焦Actor配置能够产生正向候选，但旧640场训练使用随机有放回抽样，实际场景覆盖和deep/close/margin短窗口比例均不受保证，因此旧epoch 1-8只作为配置筛选依据，不作为正式长跑曲线。正式长跑从原始5A重新开始，保持已验证有效的全套5A rollout、TD3、reward、Critic ranking、Actor安全聚焦更新和解冻条件不变；唯一实验变量是改用不含validation/test的2560场`full_train`以及修复后的`balanced_cycle`。上限设为16个固定样本epoch，预计足以完成至少一次全池遍历，并在每20,000 agent samples后继续使用同一140场validation选择best。旧epoch 7 + 新Critic的短暂重热实验在Actor解冻前停止，见`results/D4_aborted_e7_rewarm_balanced_preunlock_s20260726`。
+
 ## 11. 预期贡献表述
 
 如果实验支持假设，贡献收敛为三点：
