@@ -223,7 +223,10 @@ v2 full success 为 `0.5177`，仅比现场冻结基线 `0.5130` 多 2 场，同
 
 ### S3: Actor 互补性审计
 
-在完全相同的 test scenario ID 上分别运行两个 expert，记录 episode 配对结果：
+强交互 Actor 训练完成后，先在完全相同的固定 validation scenario ID 上让
+5D 与强交互 Actor **分别单独运行**，禁止用 oracle 切换结果代替单 Actor
+对照。分层至少包含 `edge=0`、margin、close 和 deep，并记录 episode 配对
+结果：
 
 | 5D 弱交互 Actor | 强交互 Actor | 统计名称 |
 | --- | --- | --- |
@@ -241,11 +244,18 @@ interaction_gain = interaction_only - weak_only
 
 Gate 准入条件：
 
+- 强交互 Actor 若在弱交互、margin、close 和 deep 上均不差于 5D，则取消
+  双 Actor + Gate，直接采用单一强交互 Actor；Gate 只有在两个 Actor 存在
+  明确互补时才有方法意义。
+- `edge=0` 存在成功率天花板，弱交互对照还必须报告平均完成步数、timeout
+  和路径效率，并纳入无路径冲突但任务距离较长或静态障碍更复杂的固定场景。
 - 强交互 Actor 在 deep 上相对 5D 至少 `+15 percentage points` full success。
 - interaction-only success 至少占强交互 paired episodes 的 `10%`。
 - oracle union 相对最佳单专家至少 `+8 percentage points`。
 
-未达到任一条件则停止 gate，回到 expert 的观测、场景生成或优化问题。
+未达到任一条件则停止 gate，回到 expert 的观测、场景生成或优化问题。只有
+validation 完成上述判断并冻结模型与协议后，才允许在 test 上运行最终一次
+对照。
 
 ### S4: Gate
 
