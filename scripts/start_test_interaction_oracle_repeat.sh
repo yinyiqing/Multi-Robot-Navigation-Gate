@@ -7,11 +7,15 @@ VIEW_DIR="$PROJECT_ROOT/experiments/04_保留专门化/05_论文主线/datasets/
 LOG_DIR="$PROJECT_ROOT/logs"
 MANIFEST_PATH="$VIEW_DIR/validation.json.gz"
 LAUNCHFILE="multi_robot_scenario_strong_interaction_pilot_5.launch"
-BASE_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best"
-CANDIDATE_MODEL="interaction_oracle_specialist_pilot_s20260724_epoch_002"
+BASE_MODEL="${DRL_MULTI_BASE_MODEL:-TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best}"
+CANDIDATE_MODEL="${DRL_MULTI_CANDIDATE_MODEL:-interaction_oracle_specialist_pilot_s20260724_epoch_002}"
+BASE_LABEL="${DRL_MULTI_BASE_LABEL:-5d}"
+CANDIDATE_LABEL="${DRL_MULTI_CANDIDATE_LABEL:-epoch2}"
 REPEAT="${1:-1}"
 
 [[ "$REPEAT" =~ ^[1-9][0-9]*$ ]] || { echo "Repeat must be a positive integer."; exit 2; }
+[[ "$BASE_LABEL" =~ ^[A-Za-z0-9_]+$ ]] || { echo "Base label contains invalid characters."; exit 2; }
+[[ "$CANDIDATE_LABEL" =~ ^[A-Za-z0-9_]+$ ]] || { echo "Candidate label contains invalid characters."; exit 2; }
 [[ -f "$MANIFEST_PATH" ]] || { echo "Validation manifest is missing: $MANIFEST_PATH"; exit 1; }
 [[ -f "$TD3_DIR/assets/$LAUNCHFILE" ]] || { echo "Launch file is missing: $LAUNCHFILE"; exit 1; }
 for model in "$BASE_MODEL" "$CANDIDATE_MODEL"; do
@@ -95,10 +99,12 @@ start_one() {
   echo "$label log: $log_file"
 }
 
-start_one "5d" "$base_ros_port" "$base_gazebo_port" "single" ""
-start_one "epoch2" "$((base_ros_port + 1))" "$((base_gazebo_port + 1))" \
+start_one "$BASE_LABEL" "$base_ros_port" "$base_gazebo_port" "single" ""
+start_one "$CANDIDATE_LABEL" "$((base_ros_port + 1))" "$((base_gazebo_port + 1))" \
   "interaction_oracle" "$CANDIDATE_MODEL"
 
 echo "Started paired repeat $REPEAT with seed $seed."
+echo "Baseline: $BASE_MODEL"
+echo "Candidate: $CANDIDATE_MODEL"
 echo "Both tests use the same ordered 140-scenario validation manifest."
 echo "Expected runtime: roughly 15-25 minutes."
