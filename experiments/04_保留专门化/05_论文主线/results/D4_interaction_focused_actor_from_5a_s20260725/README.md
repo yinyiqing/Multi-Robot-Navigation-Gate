@@ -1,6 +1,6 @@
 # D4 Safety-Focused Actor Pilot From 5A
 
-Status: promising candidate; repeat validation required.
+Status: useful configuration pilot; superseded by the formal balanced full-pool run.
 
 ## Protocol
 
@@ -37,12 +37,33 @@ This is the first controlled strong-Actor pilot to improve full success and ever
 
 The intended deceleration behavior was learned and the previous dangerous acceleration failure was removed. The remaining angular drift and Gazebo evaluation variance mean this is not yet a final accepted expert. Repeat the fixed 140-scenario validation and then run an independent training seed before D5 gate admission.
 
+## Continuation
+
+The same checkpoint, Replay, Critic and optimizer state were resumed through
+epoch 8 on the original 640-scenario random-sampling protocol. Full success for
+epochs 3-8 was `0.521, 0.493, 0.471, 0.450, 0.579, 0.529`; epoch 7 was the best
+old-protocol checkpoint. This continuation confirmed that the focused update
+configuration can produce a positive candidate, but random sampling with
+replacement did not guarantee finite-pool coverage or an exact short-window
+deep/close/margin ratio. These results select the training configuration; they
+are not the formal paper training curve.
+
+One paired 140-scenario oracle diagnostic compared the frozen 5A rollout with
+the epoch-7 oracle combination. Full-success outcomes were: both `48`, 5A-only
+`18`, epoch-7-combination-only `29`, neither `45`. The combination reached
+`77/140` full successes versus `66/140` for 5A. Because this evaluation uses
+the privileged distance oracle, it does not replace the required standalone
+5D and strong-Actor evaluation and is not Gate-admission evidence.
+
 ## Files
 
 - `epoch001_frozen_5a_actor.pth`, `epoch001_critic.pth`: frozen baseline snapshot.
 - `epoch002_actor.pth`, `epoch002_critic.pth`: promising trained candidate.
 - `evaluations.npy`: both fixed-validation summaries.
-- `train.log`: complete training and validation log.
+- `train.log`: original epoch 1-2 training and validation log.
+- `train_resume_attempt_failed.log`: startup failure before the successful resume; no training result.
+- `train_epoch003_to_008.log`: complete resumed epoch 3-8 log.
+- `paired_evaluation/`: fixed-manifest 5A versus epoch-7 oracle diagnostic.
 - `tensorboard.tfevents`: training curves.
 
 Large replay checkpoints remain local and are not included in Git.
