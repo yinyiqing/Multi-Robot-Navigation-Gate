@@ -1,0 +1,27 @@
+{
+  "status": "rejected_after_actor_update",
+  "model": "interaction_focused_actor_5a_init_5d_weak_s20260726",
+  "seed": 20260724,
+  "best_epoch": 1,
+  "epoch_1": {
+    "agent_success_rate": 0.839,
+    "collision_rate": 0.16,
+    "unresolved_rate": 0.001,
+    "full_success_rate": 0.514,
+    "deep_full_success_rate": 0.217,
+    "close_full_success_rate": 0.65,
+    "margin_full_success_rate": 0.825,
+    "average_episode_steps": 36.8
+  },
+  "epoch_2": {
+    "agent_success_rate": 0.811,
+    "collision_rate": 0.187,
+    "unresolved_rate": 0.001,
+    "full_success_rate": 0.407,
+    "deep_full_success_rate": 0.1,
+    "close_full_success_rate": 0.475,
+    "margin_full_success_rate": 0.8,
+    "average_episode_steps": 36.2
+  },
+  "decision": "resume_unchanged_successful_all_5a_checkpoint"
+}

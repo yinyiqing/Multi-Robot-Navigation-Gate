@@ -377,6 +377,8 @@ Critic反事实排序正式pilot将危险线速度正梯度稳定降到约`20%-3
 
 同配置的全套5D对照中，epoch 2相对冻结epoch 1仅将agent/full success从`0.824/0.471`提高到`0.830/0.479`，即full仅多成功`1/140`场；deep/close有所提高，但margin full从`0.875`降至`0.800`。其改善明显弱于全套5A配置的`0.436 -> 0.500`。由于当时启动脚本把强Actor warm-start和oracle弱Actor绑定为同一模型，该结果比较的是“全套5A”与“全套5D”，不是纯初始化消融。下一次正式长跑将二者解耦：强Actor从5A初始化，非强交互状态固定由5D执行。完整归档见`results/D4_interaction_focused_actor_from_5d_s20260725`。
 
+解耦后的`5A强Actor初始化 + 5D弱Actor`对照没有通过：冻结epoch 1的agent/full success为`0.839/0.514`，Actor更新后的epoch 2降至`0.811/0.407`；deep/close full分别从`0.217/0.650`降至`0.100/0.475`。恢复过程、Replay、Critic和epoch计数正常，退化发生在Actor解冻后。该结果说明不能在改变弱Actor轨迹分布的同时直接外推此前全套5A训练结论；停止该checkpoint。接下来回到唯一产生明确正向结果的全套5A实验，从其epoch 2 checkpoint原样续训，再独立评估最佳强Actor与5D的oracle配对。完整归档见`results/D4_interaction_focused_actor_5a_init_5d_weak_s20260726`。
+
 ## 11. 预期贡献表述
 
 如果实验支持假设，贡献收敛为三点：
