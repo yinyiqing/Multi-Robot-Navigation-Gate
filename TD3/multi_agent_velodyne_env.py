@@ -206,6 +206,9 @@ class MultiAgentGazeboEnv:
             )
         self.curriculum_cases = []
         self.curriculum_case_index = 0
+        self.manifest_band_cases = {}
+        self.manifest_band_indices = {}
+        self.manifest_band_schedule_index = 0
         self.current_curriculum_case = None
         self.roscore_process = None
         self.roslaunch_process = None
@@ -263,6 +266,7 @@ class MultiAgentGazeboEnv:
             )
         elif self.scenario_mode == "manifest":
             self.curriculum_cases = self._load_manifest_cases()
+            self._reset_manifest_band_sampling()
             print("Fixed manifest enabled: %i scenarios loaded" % len(self.curriculum_cases))
 
         self.velodyne_data = {
@@ -497,6 +501,7 @@ class MultiAgentGazeboEnv:
                 os.environ["DRL_MULTI_MANIFEST_PATH"] = previous_path
         self.curriculum_cases = cases
         self.curriculum_case_index = 0
+        self._reset_manifest_band_sampling()
         self.current_curriculum_case = None
         sampling = os.environ.get("DRL_MULTI_MANIFEST_SAMPLING", "cycle")
         print(
@@ -532,11 +537,43 @@ class MultiAgentGazeboEnv:
             if sum(weights) <= 0:
                 return random.choice(self.curriculum_cases)
             return random.choices(self.curriculum_cases, weights=weights, k=1)[0]
+        if mode == "balanced_cycle":
+            schedule = ("deep", "deep", "close", "close", "margin")
+            if not self.manifest_band_cases:
+                raise ValueError(
+                    "balanced_cycle requires manifest scenarios with view.interaction_band"
+                )
+            # Interleave the bands while all are available. Once a band is
+            # exhausted, skip it rather than duplicating cases; this preserves
+            # complete finite-pool coverage without silently oversampling easy
+            # or hard strata. A new pass starts after every case is consumed.
+            for offset in range(len(schedule)):
+                slot = (self.manifest_band_schedule_index + offset) % len(schedule)
+                band = schedule[slot]
+                cases = self.manifest_band_cases.get(band, ())
+                if self.manifest_band_indices.get(band, 0) >= len(cases):
+                    continue
+                index = self.manifest_band_indices[band]
+                self.manifest_band_indices[band] += 1
+                self.manifest_band_schedule_index = (slot + 1) % len(schedule)
+                return cases[index]
+            self._reset_manifest_band_sampling()
+            return self._select_curriculum_case()
         if mode != "cycle":
-            raise ValueError(f"{variable} must be cycle or random")
+            raise ValueError(f"{variable} must be cycle, random, or balanced_cycle")
         case = self.curriculum_cases[self.curriculum_case_index % len(self.curriculum_cases)]
         self.curriculum_case_index += 1
         return case
+
+    def _reset_manifest_band_sampling(self):
+        self.manifest_band_cases = {}
+        self.manifest_band_indices = {}
+        self.manifest_band_schedule_index = 0
+        for case in self.curriculum_cases:
+            band = case.get("view", {}).get("interaction_band")
+            if band in ("deep", "close", "margin"):
+                self.manifest_band_cases.setdefault(band, []).append(case)
+                self.manifest_band_indices.setdefault(band, 0)
 
     def _curriculum_agent_position(self, name, key):
         value = self.current_curriculum_case["agents"][name][key]

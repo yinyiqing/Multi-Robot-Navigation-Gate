@@ -6,6 +6,7 @@ TD3_DIR="$PROJECT_ROOT/TD3"
 VIEW_DIR="$PROJECT_ROOT/experiments/04_保留专门化/05_论文主线/datasets/fixed_v1/views/strong_interaction_curriculum_v1"
 TRAIN_MANIFEST="${DRL_MULTI_TRAIN_MANIFEST:-$VIEW_DIR/stage2_train.json.gz}"
 EVAL_MANIFEST="${DRL_MULTI_EVAL_MANIFEST:-$VIEW_DIR/validation.json.gz}"
+MANIFEST_SAMPLING="${DRL_MULTI_MANIFEST_SAMPLING:-random}"
 LOG_DIR="$PROJECT_ROOT/logs"
 BASE_MODEL="${DRL_MULTI_BASE_MODEL:-TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best}"
 ORACLE_WEAK_ACTOR_NAME="${DRL_MULTI_ORACLE_WEAK_ACTOR_NAME:-$BASE_MODEL}"
@@ -116,7 +117,7 @@ setsid bash -lc "
   export DRL_MULTI_SCENARIO=manifest
   export DRL_MULTI_MANIFEST_PATH='$TRAIN_MANIFEST'
   export DRL_MULTI_EVAL_MANIFEST_PATH='$EVAL_MANIFEST'
-  export DRL_MULTI_MANIFEST_SAMPLING=random
+  export DRL_MULTI_MANIFEST_SAMPLING='$MANIFEST_SAMPLING'
   export DRL_MULTI_TRAIN_FILE_NAME='$MODEL_NAME'
   export DRL_MULTI_LOAD_MODEL=1
   export DRL_MULTI_LOAD_ACTOR_ONLY='$LOAD_ACTOR_ONLY'
@@ -196,6 +197,7 @@ else
 fi
 echo "Train manifest: $TRAIN_MANIFEST"
 echo "Validation manifest: $EVAL_MANIFEST"
+echo "Training manifest sampling: $MANIFEST_SAMPLING"
 echo "Oracle: trainable Actor at <=2.0 m; frozen $ORACLE_WEAK_ACTOR_NAME otherwise"
 echo "Actor updates: interaction transitions only"
 echo "Robot safe distance reward: $ROBOT_SAFE_DISTANCE m"

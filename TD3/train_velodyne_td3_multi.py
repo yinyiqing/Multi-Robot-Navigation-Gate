@@ -1627,6 +1627,8 @@ print("Starting epoch:", epoch)
 print("==============================================")
 
 last_eval_summary = None
+train_seen_scenario_ids = set()
+train_seen_band_counts = {"deep": 0, "close": 0, "margin": 0}
 
 
 def combine_critic_state(state, context):
@@ -1960,6 +1962,18 @@ while timestep < max_timesteps:
                         file_name,
                     )
                 )
+                if scenario_mode == "manifest":
+                    print(
+                        "Coverage | unique_train_scenarios=%i/%i | "
+                        "deep=%i | close=%i | margin=%i"
+                        % (
+                            len(train_seen_scenario_ids),
+                            len(getattr(env, "curriculum_cases", ())),
+                            train_seen_band_counts["deep"],
+                            train_seen_band_counts["close"],
+                            train_seen_band_counts["margin"],
+                        )
+                    )
             if episode_num % checkpoint_interval_episodes == 0:
                 save_training_checkpoint(
                     network,
@@ -2112,6 +2126,14 @@ while timestep < max_timesteps:
                 break
 
         states = env.reset()
+        if scenario_mode == "manifest":
+            current_case = getattr(env, "current_curriculum_case", None) or {}
+            scenario_id = current_case.get("scenario_id")
+            if scenario_id:
+                train_seen_scenario_ids.add(str(scenario_id))
+            band = (current_case.get("view") or {}).get("interaction_band")
+            if band in train_seen_band_counts:
+                train_seen_band_counts[band] += 1
         zero_env_actions = [[0.0, 0.0] for _ in agent_names]
         active_mask = [True] * len(agent_names)
         neighbor_contexts = (

@@ -13,6 +13,18 @@
 
 每个风险档在 standard/dense 来源池间等量抽取。三个训练阶段使用嵌套的确定性样本顺序；train 与 validation 继承原始 split，scenario ID 无交叉。
 
+## Full train pool
+
+`full_train.json.gz` contains all 2560 eligible strong-interaction scenarios from
+the two source `train` manifests. It excludes validation and test. The formal
+training protocol uses `DRL_MULTI_MANIFEST_SAMPLING=balanced_cycle`: scenarios
+are selected in a deterministic `deep, deep, close, close, margin` schedule
+(40/40/20) while all three bands have unused scenarios. A band is skipped after
+it is exhausted, so each scenario is used once per finite-pool pass; the next
+pass begins only after all 2560 scenarios have been consumed. Training logs
+report the number of unique scenario IDs seen; an epoch is still a fixed
+agent-sample validation interval, not one complete pass over the manifest.
+
 Actor和Critic不读取 `interaction_band`。该标签只用于构造课程和输出分层validation指标。
 
 ## Stage 1 协议
