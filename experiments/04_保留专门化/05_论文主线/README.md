@@ -1,6 +1,6 @@
 # ICRA Paper Protocol: Preserve-and-Specialize
 
-状态：`5D 冻结为弱交互 Actor；旧 PAIR/THREE、全状态微调和时序感知路线已拒绝；五车 oracle interaction specialist pilot 未通过`。
+状态：`5D 冻结为弱交互 Actor；正式均衡强交互训练已产生候选；等待重复验证与单 Actor 配对审计，尚未进入 Gate`。
 
 后续若改变方法主张、交互强度定义、数据划分或主指标，先修改本协议，再改代码和脚本。
 
@@ -390,6 +390,8 @@ Critic反事实排序正式pilot将危险线速度正梯度稳定降到约`20%-3
 解耦后的`5A强Actor初始化 + 5D弱Actor`对照没有通过：冻结epoch 1的agent/full success为`0.839/0.514`，Actor更新后的epoch 2降至`0.811/0.407`；deep/close full分别从`0.217/0.650`降至`0.100/0.475`。恢复过程、Replay、Critic和epoch计数正常，退化发生在Actor解冻后。该结果说明不能在改变弱Actor轨迹分布的同时直接外推此前全套5A训练结论；停止该checkpoint。接下来回到唯一产生明确正向结果的全套5A实验，从其epoch 2 checkpoint原样续训，再独立评估最佳强Actor与5D的oracle配对。完整归档见`results/D4_interaction_focused_actor_5a_init_5d_weak_s20260726`。
 
 后续续训到旧epoch 8进一步确认了安全聚焦Actor配置能够产生正向候选，但旧640场训练使用随机有放回抽样，实际场景覆盖和deep/close/margin短窗口比例均不受保证，因此旧epoch 1-8只作为配置筛选依据，不作为正式长跑曲线。正式长跑从原始5A重新开始，保持已验证有效的全套5A rollout、TD3、reward、Critic ranking、Actor安全聚焦更新和解冻条件不变；唯一实验变量是改用不含validation/test的2560场`full_train`以及修复后的`balanced_cycle`。上限设为16个固定样本epoch，预计足以完成至少一次全池遍历，并在每20,000 agent samples后继续使用同一140场validation选择best。旧epoch 7 + 新Critic的短暂重热实验在Actor解冻前停止，见`results/D4_aborted_e7_rewarm_balanced_preunlock_s20260726`。
+
+正式均衡长跑已正常完成16个epoch和`320,000` agent samples，覆盖全部`2560/2560`个训练场景。训练期oracle组合的固定validation full success从epoch 1冻结5A的`0.436`提高到epoch 16的`0.707`，deep/close/margin分别从`0.183/0.475/0.775`提高到`0.617/0.675/0.875`，碰撞率从`0.174`降至`0.079`；同时平均步数从`33.1`升至`54.5`，表明策略更慢、更保守。epoch 16暂存为候选，但该validation同时用于选best，且结果包含privileged oracle分工，不能当作强Actor单独成绩或Gate成绩。下一步只做重复固定validation，以及5D与epoch 16强Actor在相同scenario ID上的单独配对评估；完成前不读取test、不训练Gate。完整归档见`results/D4_interaction_focused_actor_from_5a_fullstrong_balanced_formal_s20260726`。
 
 ## 11. 预期贡献表述
 
