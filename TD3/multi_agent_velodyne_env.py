@@ -11,6 +11,7 @@ import numpy as np
 import rospy
 import sensor_msgs.point_cloud2 as pc2
 from gazebo_msgs.msg import ModelState
+from gazebo_msgs.srv import SetModelState
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import PointCloud2
@@ -128,6 +129,7 @@ class MultiAgentGazeboEnv:
         scenario_mode="standard",
         active_neighbors_only=False,
         neighbor_context_mode="legacy",
+        fixed_physics_step_size=None,
     ):
         self.environment_dim = environment_dim
         self.agent_names = agent_names or ["r1", "r2", "r3"]
@@ -199,6 +201,16 @@ class MultiAgentGazeboEnv:
         self.weak_coupling_layout = weak_coupling_layout
         self.active_neighbors_only = active_neighbors_only
         self.neighbor_context_mode = normalize_context_mode(neighbor_context_mode)
+        self.fixed_physics_step_size = (
+            None
+            if fixed_physics_step_size is None
+            else float(fixed_physics_step_size)
+        )
+        if (
+            self.fixed_physics_step_size is not None
+            and self.fixed_physics_step_size <= 0.0
+        ):
+            raise ValueError("fixed_physics_step_size must be positive")
         self.scenario_mode = scenario_mode.strip().lower()
         if self.scenario_mode not in ("standard", "dense", "curriculum", "manifest"):
             raise ValueError(
@@ -290,6 +302,8 @@ class MultiAgentGazeboEnv:
         self.raw_lidar_points = {
             name: np.empty((0, 3), dtype=np.float32) for name in self.agent_names
         }
+        self.velodyne_update_counts = {name: 0 for name in self.agent_names}
+        self.odom_update_counts = {name: 0 for name in self.agent_names}
         self.last_odom = {name: None for name in self.agent_names}
         self.previous_distances = {name: None for name in self.agent_names}
         self.previous_nearest_robot_distances = {
@@ -349,9 +363,15 @@ class MultiAgentGazeboEnv:
             for name in self.agent_names
         }
         self.set_state = rospy.Publisher("gazebo/set_model_state", ModelState, queue_size=20)
+        self.set_model_state_service = rospy.ServiceProxy(
+            "/gazebo/set_model_state", SetModelState
+        )
         self.unpause = rospy.ServiceProxy("/gazebo/unpause_physics", Empty)
         self.pause = rospy.ServiceProxy("/gazebo/pause_physics", Empty)
         self.reset_proxy = rospy.ServiceProxy("/gazebo/reset_world", Empty)
+        self.reset_simulation_proxy = rospy.ServiceProxy(
+            "/gazebo/reset_simulation", Empty
+        )
         self.goal_publisher = rospy.Publisher("goal_points", MarkerArray, queue_size=10)
 
         self.velodyne_subscribers = []
@@ -386,6 +406,27 @@ class MultiAgentGazeboEnv:
         state.pose.orientation.z = 0.0
         state.pose.orientation.w = 1.0
         return state
+
+    def _set_model_state(self, state, timeout=10.0):
+        if self.fixed_physics_step_size is None:
+            self.set_state.publish(state)
+            return
+        rospy.wait_for_service("/gazebo/set_model_state")
+        deadline = time.monotonic() + timeout
+        last_status = ""
+        while time.monotonic() < deadline:
+            try:
+                response = self.set_model_state_service(state)
+                if response.success:
+                    return
+                last_status = response.status_message
+            except rospy.ServiceException as exc:
+                last_status = str(exc)
+            time.sleep(0.05)
+        raise RuntimeError(
+            "Could not set Gazebo model state for %s: %s"
+            % (state.model_name, last_status)
+        )
 
     def close(self):
         for process in (self.roslaunch_process, self.roscore_process):
@@ -650,7 +691,7 @@ class MultiAgentGazeboEnv:
             box_state.pose.orientation.y = 0.0
             box_state.pose.orientation.z = 0.0
             box_state.pose.orientation.w = 1.0
-            self.set_state.publish(box_state)
+            self._set_model_state(box_state)
 
     def _make_velodyne_callback(self, name):
         def callback(msg):
@@ -707,12 +748,14 @@ class MultiAgentGazeboEnv:
                     self.raw_lidar_points[name] = points[np.sort(indices)]
                 else:
                     self.raw_lidar_points[name] = np.empty((0, 3), dtype=np.float32)
+            self.velodyne_update_counts[name] += 1
 
         return callback
 
     def _make_odom_callback(self, name):
         def callback(msg):
             self.last_odom[name] = msg
+            self.odom_update_counts[name] += 1
 
         return callback
 
@@ -1317,33 +1360,114 @@ class MultiAgentGazeboEnv:
         goal_heading = math.atan2(goal_offset[1], goal_offset[0])
         return goal_heading + np.random.uniform(-0.2, 0.2)
 
+    def _advance_fixed_physics(self, duration):
+        if self.fixed_physics_step_size is None:
+            raise RuntimeError("fixed physics stepping is not enabled")
+        iterations = max(1, int(round(duration / self.fixed_physics_step_size)))
+        start_time = rospy.Time.now().to_sec()
+        target_time = start_time + iterations * self.fixed_physics_step_size
+        errors = []
+        for _ in range(3):
+            current_time = rospy.Time.now().to_sec()
+            remaining = max(
+                1,
+                int(
+                    round(
+                        (target_time - current_time)
+                        / self.fixed_physics_step_size
+                    )
+                ),
+            )
+            result = subprocess.run(
+                ["gz", "world", "--multi-step", str(remaining)],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=15.0,
+                check=False,
+            )
+            if result.returncode != 0:
+                errors.append(result.stderr.strip())
+            deadline = time.monotonic() + 3.0
+            while (
+                rospy.Time.now().to_sec() + self.fixed_physics_step_size
+                < target_time
+                and time.monotonic() < deadline
+            ):
+                time.sleep(0.001)
+            if rospy.Time.now().to_sec() + self.fixed_physics_step_size >= target_time:
+                return
+        raise TimeoutError(
+            "Gazebo did not complete %d fixed physics steps: %s"
+            % (iterations, " | ".join(error for error in errors if error))
+        )
+
+    def _wait_for_fixed_sensor_updates(
+        self,
+        previous_velodyne_counts,
+        previous_odom_counts,
+        timeout=5.0,
+    ):
+        deadline = time.monotonic() + timeout
+        while True:
+            missing = [
+                name
+                for name in self.agent_names
+                if self.velodyne_update_counts[name]
+                <= previous_velodyne_counts[name]
+                or self.odom_update_counts[name] <= previous_odom_counts[name]
+            ]
+            if not missing:
+                return
+            if time.monotonic() >= deadline:
+                raise TimeoutError(
+                    "Timed out waiting for fresh fixed-step sensors: %s"
+                    % ", ".join(missing)
+                )
+            time.sleep(0.001)
+
     def step(self, actions, active_mask=None):
         if active_mask is None:
             active_mask = [True] * self.num_agents
 
+        commands = {}
         for idx, name in enumerate(self.agent_names):
             command = Twist()
             if active_mask[idx]:
                 command.linear.x = actions[idx][0]
                 command.angular.z = actions[idx][1]
+            commands[name] = command
             self.vel_pubs[name].publish(command)
 
         self.publish_goal_markers()
+        if self.fixed_physics_step_size is not None:
+            for _ in range(3):
+                time.sleep(0.02)
+                for name, command in commands.items():
+                    self.vel_pubs[name].publish(command)
+            previous_velodyne_counts = dict(self.velodyne_update_counts)
+            previous_odom_counts = dict(self.odom_update_counts)
+            self._advance_fixed_physics(max(TIME_DELTA, 0.2))
+            self._wait_for_fixed_sensor_updates(
+                previous_velodyne_counts,
+                previous_odom_counts,
+            )
+            self.wait_for_all_odom()
+        else:
+            rospy.wait_for_service("/gazebo/unpause_physics")
+            try:
+                self.unpause()
+            except rospy.ServiceException:
+                print("/gazebo/unpause_physics service call failed")
 
-        rospy.wait_for_service("/gazebo/unpause_physics")
-        try:
-            self.unpause()
-        except rospy.ServiceException:
-            print("/gazebo/unpause_physics service call failed")
+            time.sleep(max(TIME_DELTA, 0.2))
+            self.wait_for_all_odom()
 
-        time.sleep(max(TIME_DELTA, 0.2))
-        self.wait_for_all_odom()
-
-        rospy.wait_for_service("/gazebo/pause_physics")
-        try:
-            self.pause()
-        except rospy.ServiceException:
-            print("/gazebo/pause_physics service call failed")
+            rospy.wait_for_service("/gazebo/pause_physics")
+            try:
+                self.pause()
+            except rospy.ServiceException:
+                print("/gazebo/pause_physics service call failed")
 
         self._sync_robot_positions_from_odom()
 
@@ -1552,11 +1676,19 @@ class MultiAgentGazeboEnv:
         return next_states, rewards, dones, targets, collisions
 
     def reset(self):
-        rospy.wait_for_service("/gazebo/reset_world")
+        reset_service = (
+            "/gazebo/reset_simulation"
+            if self.fixed_physics_step_size is not None
+            else "/gazebo/reset_world"
+        )
+        rospy.wait_for_service(reset_service)
         try:
-            self.reset_proxy()
+            if self.fixed_physics_step_size is not None:
+                self.reset_simulation_proxy()
+            else:
+                self.reset_proxy()
         except rospy.ServiceException:
-            print("/gazebo/reset_simulation service call failed")
+            print("%s service call failed" % reset_service)
 
         if self.upper < 10:
             self.upper += 0.004
@@ -1602,27 +1734,36 @@ class MultiAgentGazeboEnv:
             state.pose.orientation.y = quaternion.y
             state.pose.orientation.z = quaternion.z
             state.pose.orientation.w = quaternion.w
-            self.set_state.publish(state)
+            self._set_model_state(state)
 
         if self.scenario_mode in ("curriculum", "manifest"):
             self._apply_curriculum_boxes()
         else:
             self.random_box()
         self.publish_goal_markers()
+        if self.fixed_physics_step_size is not None:
+            time.sleep(0.05)
+            previous_velodyne_counts = dict(self.velodyne_update_counts)
+            previous_odom_counts = dict(self.odom_update_counts)
+            self._advance_fixed_physics(TIME_DELTA)
+            self._wait_for_fixed_sensor_updates(
+                previous_velodyne_counts,
+                previous_odom_counts,
+            )
+        else:
+            rospy.wait_for_service("/gazebo/unpause_physics")
+            try:
+                self.unpause()
+            except rospy.ServiceException:
+                print("/gazebo/unpause_physics service call failed")
 
-        rospy.wait_for_service("/gazebo/unpause_physics")
-        try:
-            self.unpause()
-        except rospy.ServiceException:
-            print("/gazebo/unpause_physics service call failed")
+            time.sleep(TIME_DELTA)
 
-        time.sleep(TIME_DELTA)
-
-        rospy.wait_for_service("/gazebo/pause_physics")
-        try:
-            self.pause()
-        except rospy.ServiceException:
-            print("/gazebo/pause_physics service call failed")
+            rospy.wait_for_service("/gazebo/pause_physics")
+            try:
+                self.pause()
+            except rospy.ServiceException:
+                print("/gazebo/pause_physics service call failed")
 
         initial_states = []
         for name in self.agent_names:
@@ -1811,7 +1952,7 @@ class MultiAgentGazeboEnv:
             box_state.pose.orientation.y = 0.0
             box_state.pose.orientation.z = 0.0
             box_state.pose.orientation.w = 1.0
-            self.set_state.publish(box_state)
+            self._set_model_state(box_state)
 
     def publish_goal_markers(self):
         marker_array = MarkerArray()

@@ -1,12 +1,12 @@
 # D5-G2 Interaction Gate V1
 
-状态：`G2-A pilot完成但未通过准入线；G2-B/G2-C暂停；两个Actor冻结；sealed test封存`。
+状态：`G2-A诊断完成；G2-B v1单次反事实标签已拒绝；两个Actor冻结；sealed test封存`。
 
-完整结果见 [PILOT_REPORT.md](PILOT_REPORT.md)。前方 180 度 Gate 的最佳 validation recall/FPR 为 `0.861/0.111`，standard/0-edge FPR 为 `0.070`；在两项 FPR 都不超过 `0.10` 时，最高 recall 只有 `0.845`。因此当前输入不能按预定标准复现 `2.0 m` Oracle。
+完整结果见 [PILOT_REPORT.md](PILOT_REPORT.md)。前方 180 度 Gate 的最佳 validation recall/FPR 为 `0.861/0.111`，并明显优于最小 LiDAR 距离规则。该结果只用于证明本机观测包含交互信息，不再作为 G2-B 的硬准入门槛。
 
 ## 目标
 
-Gate 最终回答的是“当前状态应该调用哪个冻结 Actor”，不是单独回答“眼前物体是不是机器人”。开发分成四步，禁止跳过可观测性检查直接做端到端调参。
+Gate 最终回答的是“当前状态应该调用哪个冻结 Actor”，不是单独回答“眼前物体是不是机器人”。G2-A是诊断和辅助基线，G2-B才生成最终Actor选择监督；禁止把`2.0 m`分类准确率当成最终Gate目标。
 
 ## G2-A：可部署 Oracle 模仿
 
@@ -20,7 +20,7 @@ Gate 最终回答的是“当前状态应该调用哪个冻结 Actor”，不是
 
 `2.0 m` 真值只在仿真中生成训练标签。G2-A 不是最终方法，而是确认“已证明有效的 Oracle 切换能否由本机传感器近似”。两个标签必须同时报告，不能用前方标签的较高成绩冒充完整Oracle复现。
 
-初始准入线：
+诊断参考线：
 
 | 指标 | 要求 |
 | --- | ---: |
@@ -30,18 +30,20 @@ Gate 最终回答的是“当前状态应该调用哪个冻结 Actor”，不是
 
 阈值和滞回参数只由 validation 选择，sealed test 不参与。
 
-## G2-B：冻结 Actor 反事实标签
+## G2-B v1：冻结 Actor 单次反事实标签（已拒绝）
 
-G2-A 通过后，才从固定训练场景的同一仿真状态分别执行两个冻结 Actor 的短期分支。其他机器人、目标和初始物理状态保持一致。
+从固定训练场景的同一仿真状态分别执行两个冻结 Actor 的8步分支。该思路本身直接回答“哪个Actor更好”，但v1把一次带噪rollout当作确定标签，经重复性审计后被拒绝。完整证据见[PILOT_REPORT.md](PILOT_REPORT.md)。
 
 标签优先级：
 
-1. 避免碰撞；
-2. 提高机器人间最小净空；
-3. 保持目标进展；
-4. 减少停滞和无意义转向。
+1. 避免本车碰撞，再减少受影响机器人碰撞数；
+2. 本车到达目标；
+3. 在不明显牺牲目标进展时提高本车最小车间距；
+4. 在不明显损害车间距时提高本车目标进展。
 
-只有两个分支差异超过预先固定的 margin 时才生成 Actor-choice 标签；不明确状态保持 5A。该阶段解决“附近有机器人”不等于“强 Actor 一定更好”的问题。
+短期分支第一版固定为8个环境步。净空margin为`0.10 m`，目标进展margin为`0.05 m`，允许的净空优先分支进展退化最多为`0.05 m`。只有差异超过margin才生成Actor-choice标签；不明确状态标记为ambiguous，执行时默认5A。正式采集前要求同一Actor重复分支的碰撞/到达一致，净空误差不超过`0.05 m`，进展误差不超过`0.03 m`。最终8步pilot未满足该要求，因此未扩大数据，也未训练Gate。
+
+下一候选G2-B v2不再要求单次轨迹逐点相同，而是对两个Actor分别做多次独立带噪rollout，比较碰撞率、到达率、净空和进展的期望与置信区间。只有小规模pilot显示标签稳定且非ambiguous比例足够，才扩大采集。
 
 ## G2-C：最终 Gate
 
@@ -65,10 +67,21 @@ G2-A 通过后，才从固定训练场景的同一仿真状态分别执行两个
 
 ## 当前执行顺序
 
-1. 扩展 v3 shard，逐帧保存24维状态和 privileged教师标签。
-2. 固定采集 G2-A train/validation pilot。
-3. 训练小型 Oracle 模仿 Gate并检查准入线。
-4. 通过后实现可复现的短期仿真分支，不提前做 G2-B。
+1. G2-A完成，保留为可观测性诊断与距离规则基线。
+2. G2-B v1完成重复性审计并拒绝，禁止扩大或据此训练Gate。
+3. 设计G2-B v2多次rollout统计标签，先固定重复次数、置信区间和准入线。
+4. 仅在小规模pilot通过后，才扩大train/validation并训练G2-C。
+
+## G2-B Pilot入口
+
+以下入口只用于复现v1重复性失败，默认只跑1场；不是Gate训练数据入口：
+
+```bash
+bash scripts/experiment.sh start gate-counterfactual-pilot-train
+bash scripts/experiment.sh status
+```
+
+禁止用`DRL_G2B_TARGET_EPISODES`扩大v1。validation入口仅保留代码完整性，sealed test没有入口。
 
 ## G2-A 采集入口
 

@@ -20,6 +20,8 @@ Supported current experiment IDs:
   gate-robot-tracking-pilot-validation
   gate-interaction-pilot-train
   gate-interaction-pilot-validation
+  gate-counterfactual-pilot-train
+  gate-counterfactual-pilot-validation
 EOF
 }
 
@@ -75,6 +77,18 @@ script_for() {
     stop:gate-interaction-pilot-validation)
       echo "$PROJECT_ROOT/scripts/stop_robot_perception_collection.sh gate-pilot-validation"
       ;;
+    start:gate-counterfactual-pilot-train)
+      echo "$PROJECT_ROOT/scripts/start_actor_counterfactual_collection.sh pilot-train"
+      ;;
+    stop:gate-counterfactual-pilot-train)
+      echo "$PROJECT_ROOT/scripts/stop_actor_counterfactual_collection.sh pilot-train"
+      ;;
+    start:gate-counterfactual-pilot-validation)
+      echo "$PROJECT_ROOT/scripts/start_actor_counterfactual_collection.sh pilot-validation"
+      ;;
+    stop:gate-counterfactual-pilot-validation)
+      echo "$PROJECT_ROOT/scripts/stop_actor_counterfactual_collection.sh pilot-validation"
+      ;;
     *)
       return 1
       ;;
@@ -93,7 +107,9 @@ show_status() {
     "$PROJECT_ROOT/.robot_perception_collection_tracking_pilot_train.pid" \
     "$PROJECT_ROOT/.robot_perception_collection_tracking_pilot_validation.pid" \
     "$PROJECT_ROOT/.robot_perception_collection_gate_pilot_train.pid" \
-    "$PROJECT_ROOT/.robot_perception_collection_gate_pilot_validation.pid"; do
+    "$PROJECT_ROOT/.robot_perception_collection_gate_pilot_validation.pid" \
+    "$PROJECT_ROOT/.actor_counterfactual_pilot_train.pid" \
+    "$PROJECT_ROOT/.actor_counterfactual_pilot_validation.pid"; do
     [[ -f "$pid_file" ]] || continue
     pid="$(tr -d '[:space:]' < "$pid_file")"
     if [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null; then

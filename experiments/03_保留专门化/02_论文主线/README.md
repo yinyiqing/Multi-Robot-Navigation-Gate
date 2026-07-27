@@ -1,6 +1,6 @@
 # ICRA Paper Protocol: Preserve-and-Specialize
 
-状态：`冻结5A普通导航Actor和epoch-16条件交互Actor；G2-A可观测性pilot未过线，暂停G2-B/G2-C并重新确认监督契约`。
+状态：`冻结5A普通导航Actor和epoch-16条件交互Actor；G2-A完成诊断；G2-B v1单次反事实标签因带噪闭环不可重复而拒绝`。
 
 后续若改变方法主张、交互强度定义、数据划分或主指标，先修改本协议，再改代码和脚本。
 
@@ -15,7 +15,7 @@
 | `generalist-5a` | 普通导航、目标推进和静态避障 | 冻结 |
 | `strong-interaction-5a-balanced` | 紧迫机器人交互中的减速与避让 | 冻结；epoch 16 |
 | `robot perception` | 从本机激光提取机器人形状软分数与相对运动 | G0/G1 pilot完成；硬分类未过线 |
-| `interaction-gate` | 根据可部署交互证据选择两个冻结Actor | G2-A未过线；G2-B/G2-C暂停 |
+| `interaction-gate` | 根据可部署交互证据选择两个冻结Actor | G2-B v1已拒绝；下一步验证多次rollout统计标签 |
 
 此前工作的最终结论：
 
@@ -325,11 +325,11 @@ G1完成自运动补偿和候选关联，输出相对距离、方位、速度、
 
 #### G2-A: Oracle模仿可观测性
 
-100+100场pilot中，前方180度Gate的最佳recall/FPR为`0.861/0.111`，standard/0-edge FPR为`0.070`；360度Gate更差。当前特征明显优于最小LiDAR距离规则，但未达到预定的`recall>=0.90, FPR<=0.10`准入线。G2-B和G2-C暂停，完整结果见 `results/06_Gate开发/D5_G2_interaction_gate_v1`。
+100+100场pilot中，前方180度Gate的最佳recall/FPR为`0.861/0.111`，standard/0-edge FPR为`0.070`；360度Gate更差。当前特征明显优于最小LiDAR距离规则，证明本机观测包含交互信息。精确判断`2.0 m`内是否有机器人不是Actor切换的必要或充分条件，因此G2-A只保留为诊断，不阻止G2-B。
 
 #### G2-B/G2-C: Actor反事实标签与最终Gate
 
-只有G2-A通过或主协议明确修改监督契约后，才从同一状态运行两个冻结Actor的短期分支并生成Actor-choice标签。最终Gate加入switch-on/off滞回和最短保持时间。当前禁止跳过G2-A直接做端到端调参。
+G2-B v1尝试从同一状态各运行一次冻结Actor，并以碰撞、本车到达、车间距和目标进展生成Actor-choice标签。固定物理步、同步reset和新传感器帧屏障已将锚点误差降到约`0.0001 m / 0.0001 rad`，但VLP-16的`0.008 m`高斯噪声仍会令8步闭环结果翻转，因此单次硬标签已拒绝。下一候选是每个Actor多次独立带噪rollout，比较期望结果和置信区间；最终Gate仍使用switch-on/off滞回和最短保持时间，两个Actor始终冻结。
 
 最终 gate 准入条件：
 
@@ -441,12 +441,14 @@ success + collision + unresolved = N * episodes
 - `D4`：条件交互Actor训练、匹配重复validation与普通导航Actor选择。
 - `D5-G0`：单帧硬分类未过线，保留高召回候选与形状软分数。
 - `D5-G1`：自运动补偿、关联和连续运动特征完成，拒绝简单EMA硬分类。
-- `D5-G2A`：Oracle模仿可观测性pilot完成但未过线，G2-B/G2-C暂停。
+- `D5-G2A`：Oracle模仿可观测性诊断完成，确认特征优于距离规则。
+- `D5-G2B-v1`：单次反事实标签未通过可重复性，已拒绝且禁止扩大。
+- `D5-G2B-v2`：多次带噪rollout统计标签pilot，尚未开始。
 - `D6-G3`：冻结两个Actor，只训练learned Gate。
 - `D7`：完整基线、消融、泛化和统计检验。
 - `D8`：论文图表冻结。
 
-当前停在`D5-G2A`。D4已经得到冻结组合，G0/G1也完成了形状和运动特征前端；但可部署输入尚不能按准入线复现Oracle。下一步先确认监督契约，不继续训练Actor或端到端Gate，test保持未读。
+当前停在`D5-G2B-v1`结论处。D4已经得到冻结组合，G0/G1完成形状和运动特征前端，G2-A证明这些特征优于距离规则。下一步先固定G2-B-v2的重复次数、统计标签和准入线，再做小规模pilot；不继续训练Actor，test保持未读。
 
 ### D4机制排查与训练记录（历史）
 
