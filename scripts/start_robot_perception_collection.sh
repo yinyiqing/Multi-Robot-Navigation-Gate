@@ -7,6 +7,7 @@ VIEW_DIR="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/datasets/
 LOG_DIR="$PROJECT_ROOT/logs"
 MODEL_NAME="TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best"
 PROFILE="${1:-}"
+OUTPUT_PROFILE="${PROFILE//-/_}"
 EXPERIMENT_NAME="D5_G0_robot_detector_v1"
 RUN_PREFIX="robot_perception_v1"
 
@@ -42,6 +43,7 @@ case "$PROFILE" in
     GAZEBO_PORT=12913
     EXPERIMENT_NAME="D5_G1_robot_tracking_v1"
     RUN_PREFIX="robot_tracking_v1"
+    OUTPUT_PROFILE="pilot_train"
     ;;
   tracking-pilot-validation)
     SPLIT=validation
@@ -50,9 +52,28 @@ case "$PROFILE" in
     GAZEBO_PORT=13113
     EXPERIMENT_NAME="D5_G1_robot_tracking_v1"
     RUN_PREFIX="robot_tracking_v1"
+    OUTPUT_PROFILE="pilot_validation"
+    ;;
+  gate-pilot-train)
+    SPLIT=train
+    MANIFEST_NAME=pilot_train
+    ROS_PORT=12823
+    GAZEBO_PORT=12923
+    EXPERIMENT_NAME="D5_G2_interaction_gate_v1"
+    RUN_PREFIX="interaction_gate_v1"
+    OUTPUT_PROFILE="pilot_train"
+    ;;
+  gate-pilot-validation)
+    SPLIT=validation
+    MANIFEST_NAME=pilot_validation
+    ROS_PORT=13023
+    GAZEBO_PORT=13123
+    EXPERIMENT_NAME="D5_G2_interaction_gate_v1"
+    RUN_PREFIX="interaction_gate_v1"
+    OUTPUT_PROFILE="pilot_validation"
     ;;
   *)
-    echo "Usage: $0 <train|validation|pilot-train|pilot-validation|tracking-pilot-train|tracking-pilot-validation>" >&2
+    echo "Usage: $0 <train|validation|pilot-train|pilot-validation|tracking-pilot-train|tracking-pilot-validation|gate-pilot-train|gate-pilot-validation>" >&2
     echo "The sealed test split cannot be collected through this development script." >&2
     exit 2
     ;;
@@ -60,8 +81,6 @@ esac
 
 MANIFEST="$VIEW_DIR/$MANIFEST_NAME.json.gz"
 EXPERIMENT_DIR="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/results/06_Gate开发/$EXPERIMENT_NAME"
-OUTPUT_PROFILE="${PROFILE#tracking-}"
-OUTPUT_PROFILE="${OUTPUT_PROFILE//-/_}"
 OUTPUT_DIR="$EXPERIMENT_DIR/local_data/shards/$OUTPUT_PROFILE"
 PID_FILE="$PROJECT_ROOT/.robot_perception_collection_${PROFILE//-/_}.pid"
 RUN_ID="${RUN_PREFIX}_${PROFILE#tracking-}"

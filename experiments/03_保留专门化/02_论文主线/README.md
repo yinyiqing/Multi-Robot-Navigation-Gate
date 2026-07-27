@@ -1,6 +1,6 @@
 # ICRA Paper Protocol: Preserve-and-Specialize
 
-状态：`冻结5A普通导航Actor和epoch-16条件交互Actor；G0/G1 pilot完成，下一步用privileged交互标签训练只读本机感知的G2 Gate`。
+状态：`冻结5A普通导航Actor和epoch-16条件交互Actor；G2-A可观测性pilot未过线，暂停G2-B/G2-C并重新确认监督契约`。
 
 后续若改变方法主张、交互强度定义、数据划分或主指标，先修改本协议，再改代码和脚本。
 
@@ -14,8 +14,8 @@
 | --- | --- | --- |
 | `generalist-5a` | 普通导航、目标推进和静态避障 | 冻结 |
 | `strong-interaction-5a-balanced` | 紧迫机器人交互中的减速与避让 | 冻结；epoch 16 |
-| `robot perception` | 从本机激光中区分机器人与静态障碍，并估计相对运动 | 当前工作 |
-| `interaction-gate` | 根据可部署交互证据选择两个冻结Actor | 感知通过后训练 |
+| `robot perception` | 从本机激光提取机器人形状软分数与相对运动 | G0/G1 pilot完成；硬分类未过线 |
+| `interaction-gate` | 根据可部署交互证据选择两个冻结Actor | G2-A未过线；G2-B/G2-C暂停 |
 
 此前工作的最终结论：
 
@@ -295,7 +295,7 @@ Actor侧Gate准入条件已经通过：
 - Gate训练混合读取strong/weak与standard/dense的train轨迹；validation固定，test保持未读。
 - 不使用case名称、全局density标签、其他机器人odom或Critic特权context作为部署输入。
 
-#### G0: 机器人/静态障碍区分（当前）
+#### G0: 机器人/静态障碍区分
 
 现有Actor的20维扇区最小距离会把机器人、墙和箱子压成同一种障碍。此前可部署探针已经完成，但都未达到准入线：
 
@@ -317,17 +317,19 @@ Actor侧Gate准入条件已经通过：
 5. G0至少达到既定validation准入线：precision `>=0.70`、recall `>=0.90`、FPR `<=0.10`；同时报告静态障碍专属FPR。
 6. 旧`sensor_probe/sensor_holdout`已经用于方法选择，只作为历史基线；G0重新冻结互斥train/validation/test，新test在感知结构与阈值冻结前不得读取。
 
+G0 pilot 的 proposal recall 为 `0.965`，但单帧 CNN validation precision/recall/FPR 只有 `0.663/0.892/0.195`。因此不输出机器人硬标签，只保留形状软分数。完整结果见 `results/06_Gate开发/D5_G0_robot_detector_v1`。
+
 #### G1: 机器人相对运动
 
-G0通过后，只对检测为机器人的点簇做跨帧关联，输出置信度、相对距离、方位、闭合速度、CPA和TTC。静止机器人也必须靠形状被保留，不能只把“会动的物体”定义为机器人。G1沿用仿真真值只做训练标签和validation评估的原则。
+G1完成自运动补偿和候选关联，输出相对距离、方位、速度、闭合速度、CPA和TTC。机器人/静态候选的世界速度中位数为 `0.608/0.220 m/s`，但简单轨迹EMA使FPR从`0.191`恶化到`0.215`，因此只保留连续特征，不做速度硬阈值。完整结果见 `results/06_Gate开发/D5_G1_robot_tracking_v1`。
 
-#### G2: 可部署启发式Gate
+#### G2-A: Oracle模仿可观测性
 
-在train上固定距离/TTC阈值、滞回和最短保持时间，在validation上比较：5A always-on、最小激光距离Gate、robot-aware Gate和特权`2.0 m` oracle。该阶段只验证感知和切换链路是否可行，不训练Actor。
+100+100场pilot中，前方180度Gate的最佳recall/FPR为`0.861/0.111`，standard/0-edge FPR为`0.070`；360度Gate更差。当前特征明显优于最小LiDAR距离规则，但未达到预定的`recall>=0.90, FPR<=0.10`准入线。G2-B和G2-C暂停，完整结果见 `results/06_Gate开发/D5_G2_interaction_gate_v1`。
 
-#### G3: Learned Gate
+#### G2-B/G2-C: Actor反事实标签与最终Gate
 
-只有G0-G2证明可部署输入有信息增益后才训练Gate。两个Actor保持冻结，Gate根据机器人检测与相对运动特征选择`pi_N`或`pi_I`；优化目标使用导航成功、碰撞、超时和效率，不把`distance <= 2.0 m`当作唯一监督答案。学习Gate必须与调优后的可部署启发式Gate做配对对照，否则不能形成论文贡献。
+只有G2-A通过或主协议明确修改监督契约后，才从同一状态运行两个冻结Actor的短期分支并生成Actor-choice标签。最终Gate加入switch-on/off滞回和最短保持时间。当前禁止跳过G2-A直接做端到端调参。
 
 最终 gate 准入条件：
 
@@ -437,14 +439,14 @@ success + collision + unresolved = N * episodes
 - `D2`：固定数据划分生成，检查 density 分布和场景有效性。
 - `D3`：修复口径下的 fixed-v1 standard/dense generalist baseline 完成。
 - `D4`：条件交互Actor训练、匹配重复validation与普通导航Actor选择。
-- `D5-G0`：机器人/静态障碍分类达到独立validation准入线。
-- `D5-G1`：机器人相对运动估计达到准入线。
-- `D5-G2`：可部署启发式Gate完成，确认感知与切换链路有正向上限。
+- `D5-G0`：单帧硬分类未过线，保留高召回候选与形状软分数。
+- `D5-G1`：自运动补偿、关联和连续运动特征完成，拒绝简单EMA硬分类。
+- `D5-G2A`：Oracle模仿可观测性pilot完成但未过线，G2-B/G2-C暂停。
 - `D6-G3`：冻结两个Actor，只训练learned Gate。
 - `D7`：完整基线、消融、泛化和统计检验。
 - `D8`：论文图表冻结。
 
-当前处于`D5-G0`。D4已经得到可供Gate可行性开发的冻结组合：5A普通导航Actor和epoch-16条件交互Actor；独立Actor训练seed留到D7正式统计前补齐，不在当前继续微调。Gate尚未训练，test保持未读。
+当前停在`D5-G2A`。D4已经得到冻结组合，G0/G1也完成了形状和运动特征前端；但可部署输入尚不能按准入线复现Oracle。下一步先确认监督契约，不继续训练Actor或端到端Gate，test保持未读。
 
 ### D4机制排查与训练记录（历史）
 

@@ -104,6 +104,10 @@ class DatasetTest(unittest.TestCase):
                 [True, True],
                 ["r1", "r2"],
                 timestamps_by_agent={"r1": 1.25, "r2": 1.25},
+                actor_states_by_agent={
+                    "r1": np.arange(24, dtype=np.float32),
+                    "r2": np.arange(24, dtype=np.float32) + 1.0,
+                },
             )
             result = recorder.finish_scenario()
             self.assertTrue(result["written"])
@@ -111,15 +115,49 @@ class DatasetTest(unittest.TestCase):
             self.assertEqual(int(shard["visible_robot_count"]), 1)
             self.assertEqual(str(shard["scenario_pool"]), "standard")
             self.assertEqual(str(shard["interaction_band"]), "weak")
-            self.assertEqual(int(shard["format_version"]), 2)
+            self.assertEqual(int(shard["format_version"]), 3)
             self.assertEqual(shard["ego_poses"].shape[1], 3)
             self.assertTrue(np.all(shard["timestamps"] == 1.25))
             self.assertEqual(
                 shard["target_agent_indices"][shard["labels"] == 1].tolist(), [1]
             )
+            self.assertEqual(shard["frame_actor_states"].shape, (2, 24))
+            self.assertEqual(shard["frame_oracle_interaction_labels"].tolist(), [1, 1])
+            self.assertEqual(shard["frame_front_interaction_labels"].tolist(), [1, 1])
+            np.testing.assert_allclose(
+                shard["frame_nearest_robot_distances"], [1.0, 1.0]
+            )
+            np.testing.assert_allclose(
+                shard["frame_nearest_front_robot_distances"], [1.0, 1.0]
+            )
+            self.assertTrue(
+                np.all(
+                    shard["frame_ego_indices"][shard["frame_record_indices"]]
+                    == shard["ego_indices"]
+                )
+            )
             self.assertFalse(recorder.begin_scenario("case/one"))
             result = recorder.finish_scenario()
             self.assertFalse(result["written"])
+
+    def test_shard_recorder_separates_front_and_360_degree_labels(self):
+        with tempfile.TemporaryDirectory() as directory:
+            recorder = PerceptionShardRecorder(directory, "train", frame_stride=1)
+            recorder.begin_scenario("rear-robot")
+            recorder.record_frame(
+                {"ego": np.empty((0, 3)), "other": np.empty((0, 3))},
+                {"ego": [0.0, 0.0, 0.0], "other": [-1.0, 0.0, 0.0]},
+                [True, True],
+                ["ego", "other"],
+                actor_states_by_agent={
+                    "ego": np.zeros(24, dtype=np.float32),
+                    "other": np.zeros(24, dtype=np.float32),
+                },
+            )
+            recorder.finish_scenario()
+            shard = load_shard(Path(directory) / "rear-robot.npz")
+            self.assertEqual(shard["frame_oracle_interaction_labels"].tolist(), [1, 1])
+            self.assertEqual(shard["frame_front_interaction_labels"].tolist(), [0, 1])
 
 
 class ModelAndSplitTest(unittest.TestCase):

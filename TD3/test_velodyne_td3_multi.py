@@ -517,6 +517,8 @@ perception_recorder = (
         perception_split,
         frame_stride=perception_frame_stride,
         max_background_candidates=perception_max_background,
+        actor_state_dim=state_dim,
+        oracle_interaction_distance=interaction_oracle_distance,
     )
     if perception_output_dir
     else None
@@ -650,6 +652,10 @@ while True:
             agent_names,
             timestamps_by_agent={
                 name: step_actor_poses[name]["timestamp"] for name in agent_names
+            },
+            actor_states_by_agent={
+                name: step_actor_states[index]
+                for index, name in enumerate(agent_names)
             },
         )
 

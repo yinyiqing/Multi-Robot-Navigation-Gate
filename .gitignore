@@ -43,3 +43,4 @@ experiments/03_保留专门化/02_论文主线/datasets/candidates_*/
 # Regenerable robot-perception shards and learned checkpoints.
 experiments/03_保留专门化/02_论文主线/results/06_Gate开发/D5_G0_robot_detector_v1/local_data/
 experiments/03_保留专门化/02_论文主线/results/06_Gate开发/D5_G1_robot_tracking_v1/local_data/
+experiments/03_保留专门化/02_论文主线/results/06_Gate开发/D5_G2_interaction_gate_v1/local_data/
