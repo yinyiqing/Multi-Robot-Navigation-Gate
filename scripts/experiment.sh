@@ -11,25 +11,13 @@ Usage:
   bash scripts/experiment.sh start <experiment-id>
   bash scripts/experiment.sh stop <experiment-id>
 
-Supported experiment IDs:
-  probe-lidar-motion  Frozen-5D raw-lidar cluster motion feasibility probe
+Supported current experiment IDs:
+  (none; gate-robot-perception is pending its G0 data protocol)
 EOF
 }
 
 script_for() {
-  local action="$1"
-  local experiment_id="$2"
-  case "${action}:${experiment_id}" in
-    start:probe-lidar-motion)
-      echo "$PROJECT_ROOT/scripts/start_lidar_cluster_sensor_probe_5d.sh"
-      ;;
-    stop:probe-lidar-motion)
-      echo "$PROJECT_ROOT/scripts/stop_lidar_cluster_sensor_probe_5d.sh"
-      ;;
-    *)
-      return 1
-      ;;
-  esac
+  return 1
 }
 
 show_status() {
@@ -40,7 +28,7 @@ show_status() {
     [[ -f "$pid_file" ]] || continue
     pid="$(tr -d '[:space:]' < "$pid_file")"
     if [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null; then
-      printf 'running  pid=%s  pid_file=%s\n' "$pid" "${pid_file#$PROJECT_ROOT/}"
+      printf 'legacy-running  pid=%s  pid_file=%s\n' "$pid" "${pid_file#$PROJECT_ROOT/}"
       found=1
     else
       printf 'stale    pid=%s  pid_file=%s\n' "${pid:-invalid}" "${pid_file#$PROJECT_ROOT/}"

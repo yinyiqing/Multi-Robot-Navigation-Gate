@@ -9,6 +9,7 @@
 | `current` | 当前论文协议或正在补齐的正式实验 |
 | `diagnostic` | 用来定位问题，不进入论文主表 |
 | `baseline` | 可以按新口径重跑的正式对照 |
+| `frozen` | 已选定且当前阶段禁止继续更新参数 |
 | `failed` | 结论有价值，但该方法分支停止 |
 | `historical` | 仅用于追溯研究演进 |
 | `planned` | 尚未实现或尚未达到准入条件 |
@@ -37,15 +38,17 @@
 | `diag-5d-random-dense` | `generalist-5d` | `random-dense-5` | `diagnostic` | 仅区分 spatial density 与 interaction density |
 | `eval-5d-canonical-moderate` | `generalist-5d` | 五个 fixed moderate cases | `baseline` | held-out interaction failure baseline |
 | `eval-weak-5a-vs-5d` | frozen 5A / 5D | fixed 0-edge validation | `complete` | full `0.8750/0.8710`，逐场无显著差异，选择5A以匹配交互Actor |
-| `weak-interaction-actor` | frozen `generalist-5a` | low-interaction strata | `current` | 248场agent/full `0.9726/0.8750` |
+| `ordinary-navigation-actor` | frozen `generalist-5a` | low-interaction strata | `frozen` | 248场agent/full `0.9726/0.8750` |
 | `train-standard-expert-v1-v3` | 5D 微调 | fixed standard/train | `failed diagnostic` | 混合分布微调未超过 5D，只作为退化证据 |
 | `train-interaction-edge1-residual-pilot` | frozen 5D + bounded residual | balanced edge-1 view | `rejected candidate` | residual 恒定饱和，full success `0.5130 -> 0.4704` |
 | `train-interaction-edge1-conservative-v2` | normalized-Q + base-action anchor | balanced edge-1 view | `rejected candidate` | 饱和已修复但 full success 仅 `0.5177` |
 | `train-strong-interaction-stage1` | 5D Actor/Critic full warm-start | close + margin | `failed` | Actor只增加线速度且验证退化，停止后续阶段 |
 | `train-pair-interaction-pilot` | 5D Actor/Critic full warm-start | fixed head-on/crossing/lane-swap pairs | `failed diagnostic` | 只改善head-on且碰撞上升，不进入五车主线 |
 | `train-oracle-specialist-pilot` | frozen 5D + interaction-only TD3 Actor | fixed five-agent deep/close/margin | `rejected candidate` | full `0.5000 -> 0.4714`，Actor学到统一转向偏置 |
-| `train-strong-interaction-balanced-formal` | 5A warm-start interaction-focused TD3 Actor | fixed full strong-interaction train/validation | `candidate; matched repeat passed` | 匹配重复full `0.421 -> 0.700`，训练效果可复现；代价是平均步数增加 |
-| `train-temporal-gate` | weak + strong interaction Actors | mixed trajectories | `planned` | Actor 互补性达到 D5 后才允许训练 |
+| `train-strong-interaction-balanced-formal` | 5A warm-start conditional TD3 Actor | fixed full strong-interaction train/validation | `frozen candidate` | 匹配重复full `0.421 -> 0.700`，训练效果可复现；代价是平均步数增加 |
+| `gate-robot-perception` | raw local 3D lidar | scenario-disjoint perception train/validation | `current` | 先区分机器人与静态障碍；不得更新两个Actor |
+| `eval-heuristic-interaction-gate` | frozen 5A + conditional Actor | mixed validation | `planned` | G0/G1通过后建立可部署距离/TTC Gate基线 |
+| `train-interaction-gate` | frozen 5A + conditional Actor | mixed train/validation | `planned` | G2证明链路可行后只更新Gate参数 |
 
 ## 阅读顺序
 

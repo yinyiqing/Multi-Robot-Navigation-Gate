@@ -1,8 +1,32 @@
 # ICRA Paper Protocol: Preserve-and-Specialize
 
-状态：`5A/5D弱交互对照完成并选择5A；正式交互Actor的匹配重复验证通过；尚未训练可部署Gate`。
+状态：`冻结5A普通导航Actor和epoch-16条件交互Actor；进入D5-G0，先解决机器人/静态障碍区分，再训练可部署Gate`。
 
 后续若改变方法主张、交互强度定义、数据划分或主指标，先修改本协议，再改代码和脚本。
+
+## 0. 当前决策快照
+
+当前方法不是“standard场景使用一个完整Actor、dense场景使用另一个完整Actor”。强弱交互会在同一条轨迹中变化，当前方法采用状态级分工：
+
+| 组件 | 固定角色 | 当前状态 |
+| --- | --- | --- |
+| `generalist-5a` | 普通导航、目标推进和静态避障 | 冻结 |
+| `strong-interaction-5a-balanced` | 紧迫机器人交互中的减速与避让 | 冻结；epoch 16 |
+| `robot perception` | 从本机激光中区分机器人与静态障碍，并估计相对运动 | 当前工作 |
+| `interaction-gate` | 根据可部署交互证据选择两个冻结Actor | 感知通过后训练 |
+
+此前工作的最终结论：
+
+| 工作 | 结果 | 决策 |
+| --- | --- | --- |
+| fixed-v1场景、冲突图和互斥数据划分 | 完成 | 继续使用；test保持未读 |
+| 5A与5D弱交互对照 | full success `0.8750/0.8710`，无显著差异 | 选择与交互Actor训练分布一致的5A |
+| standard/full/head-only/residual微调 | 没有稳定超过冻结模型，多次出现退化 | 不再训练独立standard/dense完整Actor |
+| 条件交互Actor正式训练 | oracle组合full success `0.421 -> 0.700`，重复验证复现 | 冻结epoch 16候选 |
+| 条件交互Actor全程运行 | 不符合训练契约，出现连续timeout | 只作为局部条件策略调用 |
+| 可部署交互感知探针 | 原始点云覆盖充分，但现有分类和时序表示误报过高 | 从机器人/静态障碍区分重新开始 |
+
+两个Actor从本决策开始不再更新。独立Actor训练seed仍是论文最终统计要求，但不在Gate可行性确认前继续消耗训练时间。
 
 执行进度（2026-07-18）：`generalist-5d` 已完成 fixed-v1 standard 1000 场和 dense 2000 场。standard full success `0.5750`，dense `0.2795`；完整归档见 [D3 fixed-v1 baseline](results/D3_fixed_v1_generalist_baseline/README.md)。
 
@@ -12,19 +36,20 @@ validation 交互分层（2026-07-19）：5D 在 standard low-interaction、stan
 
 ## 1. 一句话主线
 
-在无通信、局部观测的多机器人导航中，单一策略难以同时覆盖弱交互导航与紧迫冲突；因此保留5A作为弱交互Actor，训练一个条件交互Actor，再用本地Gate按当前交互风险选择两者。
+在无通信、局部观测的多机器人导航中，冻结可靠的普通导航Actor和已经学会局部避让的条件交互Actor，再通过机器人感知驱动的本地Gate进行状态级选择，避免完整策略微调造成能力覆盖。
 
 最终执行策略：
 
 ```text
-a_t = clip((1 - g(h_t)) * pi_W(o_t) + g(h_t) * pi_I(o_t), action_bounds)
+a_t = pi_I(o_t),  if g(z_t) = 1
+      pi_N(o_t),  otherwise
 ```
 
-- `pi_W`：冻结的5A，作为弱交互Actor。
+- `pi_N`：冻结的5A，作为普通导航Actor。
 - `pi_I`：从5A Actor初始化、使用新Critic和安全聚焦TD3更新训练的条件交互Actor。
 - `standard/dense`：两种场景生成分布，不再表示两个 Actor 的身份。
-- `h_t = o_{t-H+1:t}`：本车最近 `H` 帧观测。
-- `g(h_t) in [0, 1]`：本地时序 interaction gate。
+- `z_t`：本机激光产生的机器人检测、距离、方位和相对运动证据，可附加Actor原24维观测。
+- `g(z_t) in {0, 1}`：状态级interaction gate；第一版采用硬选择和滞回，soft blend只作为后续消融。
 - 执行阶段不读取其他机器人真值，不要求通信。
 - 训练阶段允许 Critic 使用局部邻居几何，属于 CTDE。
 
@@ -34,22 +59,27 @@ a_t = clip((1 - g(h_t)) * pi_W(o_t) + g(h_t) * pi_I(o_t), action_bounds)
 
 机器人数量或单位面积密度不足以描述导航难度。真正影响协作的是具有时间重叠的路径冲突，即 interaction density。
 
-### RQ2: 为什么保留弱交互 Actor
+### RQ2: 为什么保留普通导航 Actor
 
 5A与5D在同一248个无冲突validation场景上的full success为`0.8750/0.8710`，逐场5A-only/5D-only为`12/11`，没有显著差异。选择5A不是因为它显著更强，而是它已与条件交互Actor共同训练并完成匹配验证，可避免额外的5D到5A轨迹分布切换。历史full fine-tune又反复出现能力覆盖与退化，因此冻结可靠的弱交互能力，只单独学习交互修正。
 
-### RQ3: 为什么需要 specialist 和 gate
+### RQ3: 为什么需要条件交互 Actor 和 Gate
 
-弱交互与紧迫冲突需要不同的行为偏好，但执行阶段不能读取离线风险标签。假设安全聚焦训练能形成与5A互补的条件交互Actor，Gate最终仅凭本车局部观测在状态级选择更合适的Actor。
+普通导航与紧迫机器人冲突需要不同的行为偏好，但执行阶段不能读取其他机器人真值。条件交互Actor已经在oracle调用下显示净收益；Gate的任务是依据可部署的机器人身份和交互风险证据选择更合适的Actor，而不是简单模仿`2.0 m`真值阈值。
 
 ### 可证伪假设
 
 - `H1`：加入条件交互Actor的匹配组合在deep validation上显著高于冻结5A，同时不明显损害close/margin。
 - `H2`：匹配配对中combination-only显著多于weak-only，证明调用交互Actor具有净收益。
-- `H3`：可部署Gate接近固定oracle组合，同时保持5A的弱交互能力。
-- `H4`：模型收益随 interaction density 增大，而不是只对五个手工 case 有效。
+- `H3`：本机传感器能够以足够低的静态障碍误报率识别机器人目标，这是Gate的可观测性前提。
+- `H4`：可部署Gate显著超过调优后的最小激光距离Gate，并接近固定oracle组合，同时保持5A的普通导航能力。
+- `H5`：模型收益随 interaction density 增大，而不是只对五个手工 case 有效。
 
-任何一个假设均允许被实验否定。若 `H2` 不成立，停止 gate 路线。
+任何一个假设均允许被实验否定。若`H2`不成立，停止双Actor路线；若`H3`不成立，停止训练Gate并先解决可观测性。
+
+### 与已有工作的边界
+
+状态级控制器切换本身不是本文创新。[HNRN（ROBIO 2018）](https://doi.org/10.1109/ROBIO.2018.8664803)已经在目标推进与DRL避碰之间切换；[Fan等（IJRR 2020）](https://doi.org/10.1177/0278364920916531)使用距离规则在PID、RL避碰和保守策略之间切换；[All-in-One（ICRA 2022）](https://doi.org/10.1109/ICRA46639.2022.9811797)进一步训练DRL控制器选择器。因此本文只有在以下组合被实验证实时才有方法价值：保留既有多机器人导航能力、只对稀有交互状态训练TD3条件策略、仅用本机机器人感知学习Gate，并在固定随机交互分层上显著超过可部署距离规则。
 
 ## 3. Dense 的操作化定义
 
@@ -123,16 +153,16 @@ rho_I = 2 * |E| / (N * (N - 1))
 - Gazebo reset 后传感器正常、无初始碰撞，实际位置与 manifest 一致。
 - 保存完整 manifest，禁止仅保存 `tight1` 之类人工标签。
 
-筛选只能依据上述策略无关的有效性条件。禁止依据 `5D`、dense Actor 或本文方法的成功/失败删除 test 场景。
+筛选只能依据上述策略无关的有效性条件。禁止依据`5A`、`5D`、条件交互Actor、Gate或本文方法的成功/失败删除test场景。
 
 ### 4.2 两个场景池
 
 只生成两类环境：
 
-1. `standard`：普通五车随机场景，训练/验证普通 Actor，并检查 gate 是否保留普通能力。
-2. `dense`：在 tight1 与 tight2 之间连续随机采样的五车场景，训练/验证 dense Actor。
+1. `standard`：普通五车随机空间分布，用于普通导航能力、静态障碍误激活和Gate能力保持评估。
+2. `dense`：在tight1与tight2之间连续随机采样的五车空间分布，用于覆盖更小空间中的弱/强交互状态。
 
-Gate 不需要第三种环境。它直接混合读取 `standard/train` 和 `dense/train`。validation 和 test 只是两个场景池各自互不重叠的数据划分，不是新环境。
+两个场景池都不对应某个Actor身份。Gate不需要第三种环境，直接混合读取`standard/train`和`dense/train`；validation和test只是各自互不重叠的数据划分，不是新环境。
 
 Dense 固定参数：起点方形半宽在 `1.65-1.75 m` 连续采样，起点间距至少 `1.2 m`，任务距离 `0.9-2.3 m`，五车、四个随机箱子。越界 goal 直接重采样，不做 clip。
 
@@ -161,7 +191,7 @@ Dense 固定参数：起点方形半宽在 `1.65-1.75 m` 连续采样，起点�
 - validation 分层确认 5D 的低交互导航能力较强，性能下降主要集中在 standard/dense 的冲突子集。
 - 旧口径结果只能作为历史诊断。
 
-### S1: 弱交互 Actor
+### S1: 普通导航 Actor
 
 - 直接冻结`generalist-5a`，不再训练独立的standard expert。
 - standard/dense 的无冲突子集用于确认弱交互能力，不作为运行时 Gate 标签。
@@ -174,18 +204,19 @@ Dense 固定参数：起点方形半宽在 `1.65-1.75 m` 连续采样，起点�
 - v3 的 100 场正向信号未在完整 500 场 validation 复现：5D agent/full `0.8776/0.6020`，v3 epoch 2 为 `0.8712/0.5920`，且平均多用 `8.378` 步；拒绝该候选，不读取 test。
 - `standard/test` 只在模型和超参数冻结后运行一次。
 
-完整弱交互对照中，5A/5D在248个固定0-edge场景上的agent success为`0.9726/0.9718`，full success为`0.8750/0.8710`；两者逐场无显著差异。最终选择5A作为弱交互Actor，以匹配已验证的交互Actor训练分布；完整结果见`results/D4_weak_actor_5a_vs_5d_s20260727`。旧standard expert v1-v3只保留为“直接微调全能策略会退化”的失败对照。
+完整弱交互对照中，5A/5D在248个固定0-edge场景上的agent success为`0.9726/0.9718`，full success为`0.8750/0.8710`；两者逐场无显著差异。最终选择5A作为普通导航Actor，以匹配已验证的交互Actor训练分布；完整结果见`results/D4_weak_actor_5a_vs_5d_s20260727`。旧standard expert v1-v3只保留为“直接微调全能策略会退化”的失败对照。
 
-### S2: 强交互 Actor
+### S2: 条件交互 Actor
 
-- 当前正式候选保留原始5A作为弱交互Actor；条件交互Actor从5A Actor warm-start并使用新Critic，全部Actor参数可更新。
-- 当前候选保持单帧24维输入、`24 -> 800 -> 600 -> 2` Actor和原TD3，不使用CNN、GRU、PointNet或residual。
-- 第一阶段只使用基本双车冲突：`head_on`、`crossing`、`lane_swap`。每类场景内部随机化距离、偏移、中心、旋转和朝向，而不是反复训练少数手工坐标。
-- 固定 train `90` 场、validation `30` 场，每类分别为 `30/10`；两个 split 的 scenario ID 和 seed 互斥，并全部通过策略无关 Gazebo reset 检查。
-- Actor 和后续 Gate 都不读取离线 risk、standard 或 dense 标签。
-- reward保留`0.8 self + 0.2`距离加权邻居项；强交互 pilot 仅关闭原 reward 中鼓励持续前进的 `+0.5*v` 和低速停滞 `-0.03`，避免把必要让行直接视为坏行为，goal/collision与进度项不变。
-- epoch 1在 Actor 解锁前得到同协议冻结5D基线；epoch 2训练完整Actor。validation按三种 topology 分层输出。
-- pilot 只有在 overall full success 提升、碰撞下降，且提升不是单一 topology 偶然贡献时才进入三车课程；否则先分析 replay 和分层失败，不增加 epoch 或 seed 盲试。
+- 正式候选从5A Actor warm-start并使用新Critic；Actor仍是原TD3的单帧24维`24 -> 800 -> 600 -> 2`网络。
+- 训练轨迹中，冻结5A负责普通状态；其他机器人真值距离`<=2.0 m`时才由条件交互Actor执行。
+- Actor只从安全聚焦交互样本更新；Critic使用本车坐标系的邻车相对位置和相对速度，并保留反事实减速排序约束。
+- reward保留`0.8 self + 0.2`距离加权邻居项，不改成纯个体reward。
+- 正式`full_train`包含2560个五车强交互场景，按deep/close/margin均衡循环采样，16个epoch完整覆盖。
+- 当前冻结候选是`interaction_focused_actor_from_5a_fullstrong_balanced_formal_s20260726_epoch_016_actor.pth`。
+- Actor和最终Gate均不得读取离线risk、standard/dense标签或其他机器人真值。
+
+#### 已拒绝的路线与机制诊断
 
 双车诊断数据与复现信息保留在 [pair interaction curriculum v1](datasets/pair_interaction_curriculum_v1/README.md)，不再作为当前训练入口。
 
@@ -223,16 +254,16 @@ v2 full success 为 `0.5177`，仅比现场冻结基线 `0.5130` 多 2 场，同
 
 ### S3: 条件交互Actor有效性审计
 
-当前交互Actor按状态级分工训练：冻结弱Actor负责普通状态，交互Actor只在
+当前交互Actor按状态级分工训练：冻结普通导航Actor负责普通状态，交互Actor只在
 oracle距离阈值内执行，并只从安全聚焦样本更新。因此首先验证其真实训练契约，
 而不是强制它全程独立导航：
 
-1. 冻结弱Actor全程运行固定strong-interaction validation。
-2. 相同seed和scenario顺序下，按训练时相同的`2.0 m` oracle在弱Actor与
+1. 冻结普通导航Actor全程运行固定strong-interaction validation。
+2. 相同seed和scenario顺序下，按训练时相同的`2.0 m` oracle在普通导航Actor与
    交互Actor之间切换。
 3. 按scenario ID记录both、weak-only、combination-only和neither，并按
    deep/close/margin分层。
-4. 另用固定`edge=0` validation比较5A与5D，先确定弱Actor身份。
+4. 另用固定`edge=0` validation比较5A与5D，先确定普通导航Actor身份。
 
 匹配重复验证中，5A与`5A + interaction Actor`的full success为
 `0.421/0.700`；deep/close/margin从`0.183/0.400/0.800`变为
@@ -245,25 +276,63 @@ oracle距离阈值内执行，并只从安全聚焦样本更新。因此首先�
 全程运行的83场partial诊断只证明其不具备训练契约之外的普通导航能力，不用于
 否定条件专家，也不进入正式对照。
 
-进入Gate训练前的准入条件：
+Actor侧Gate准入条件已经通过：
 
-- 匹配组合在deep上相对弱Actor至少`+15 percentage points` full success。
+- 匹配组合在deep上相对普通导航Actor至少`+15 percentage points` full success。
 - combination-only显著多于weak-only，且提升不是由单一场景池贡献。
-- 弱Actor在固定0-edge场景上达到可靠基线，并报告平均步数与timeout。
-- test保持未读；Gate只能使用部署可见的本车局部观测。
+- 普通导航Actor在固定0-edge场景上达到可靠基线，并报告平均步数与timeout。
+- test保持未读。
+
+尚未通过的是部署感知准入：Gate必须使用本机传感器区分机器人与静态障碍，不能直接复用oracle真值距离。
 
 ### S4: Gate
 
-- 冻结5A和通过准入条件的条件交互Actor。
-- 混合 strong/weak 状态轨迹训练 Gate；standard/dense 只用于覆盖不同空间分布。
-- gate第一版只使用本车当前24维观测；时序模型只有在单帧证据不足时才作为后续消融。
-- 输出 soft gate，并加入时间平滑约束，避免动作模式频繁抖动。
-- 不使用 case 名称或全局 density label作为执行输入。
+- 从本阶段开始冻结5A和epoch-16条件交互Actor。所有训练命令只能更新感知模块或Gate参数。
+- Gate进行状态级硬选择，不把standard/dense当作Actor标签；切换使用滞回或最短保持时间避免抖动。
+- 固定`2.0 m`邻车真值分流只保留为不可部署上界。学习Gate的目标是提高真实导航回报，不是单纯拟合该距离标签。
+- Gate训练混合读取strong/weak与standard/dense的train轨迹；validation固定，test保持未读。
+- 不使用case名称、全局density标签、其他机器人odom或Critic特权context作为部署输入。
+
+#### G0: 机器人/静态障碍区分（当前）
+
+现有Actor的20维扇区最小距离会把机器人、墙和箱子压成同一种障碍。此前可部署探针已经完成，但都未达到准入线：
+
+| 表示 | precision | recall | FPR | 决策 |
+| --- | ---: | ---: | ---: | --- |
+| 二维点簇运动 | 0.530 | 0.726 | 0.156 | 拒绝手工质心跟踪 |
+| 三维8特征逻辑回归 | 0.651 | 0.912 | 0.307 | 拒绝手工形状阈值 |
+| 20-bin 8帧GRU风险分类 | 0.159 | 0.684 | 0.486 | 拒绝压缩激光时序表示 |
+| 180-bin 8帧GRU风险分类 | 0.217 | 0.781 | 0.511 | 拒绝小样本逐帧MLP+GRU |
+
+前两项分别审计机器人点簇/运动，后两项审计CPA/TTC风险，标签任务不同，数值不能直接横向比较；共同结论只是它们都未达到各自预先固定的准入线。
+
+原始点云对真值危险机器人的覆盖率为`97.92%`，形成有效点簇的比例为`97.55%`，说明瓶颈在目标分类和关联，不在传感器覆盖。G0使用新的、按scenario互斥的数据划分：
+
+1. 只从train场景采集本机前视三维Velodyne XYZ、本机odometry和时间戳。
+2. 其他机器人Gazebo位置只用于离线生成`robot/static`监督标签，不进入推理输入。
+3. 先复现8维逻辑回归作为下界，再评估能利用点内结构的轻量点簇分类器；不修改两个TD3 Actor。
+4. validation必须覆盖standard/dense、strong/weak、墙角和箱体等困难负样本，并按scenario划分，禁止逐帧随机泄漏。
+5. G0至少达到既定validation准入线：precision `>=0.70`、recall `>=0.90`、FPR `<=0.10`；同时报告静态障碍专属FPR。
+6. 旧`sensor_probe/sensor_holdout`已经用于方法选择，只作为历史基线；G0重新冻结互斥train/validation/test，新test在感知结构与阈值冻结前不得读取。
+
+#### G1: 机器人相对运动
+
+G0通过后，只对检测为机器人的点簇做跨帧关联，输出置信度、相对距离、方位、闭合速度、CPA和TTC。静止机器人也必须靠形状被保留，不能只把“会动的物体”定义为机器人。G1沿用仿真真值只做训练标签和validation评估的原则。
+
+#### G2: 可部署启发式Gate
+
+在train上固定距离/TTC阈值、滞回和最短保持时间，在validation上比较：5A always-on、最小激光距离Gate、robot-aware Gate和特权`2.0 m` oracle。该阶段只验证感知和切换链路是否可行，不训练Actor。
+
+#### G3: Learned Gate
+
+只有G0-G2证明可部署输入有信息增益后才训练Gate。两个Actor保持冻结，Gate根据机器人检测与相对运动特征选择`pi_N`或`pi_I`；优化目标使用导航成功、碰撞、超时和效率，不把`distance <= 2.0 m`当作唯一监督答案。学习Gate必须与调优后的可部署启发式Gate做配对对照，否则不能形成论文贡献。
 
 最终 gate 准入条件：
 
 - 弱交互full success相对5A下降不超过`3 percentage points`。
 - high-interaction full success距固定oracle组合不超过`5 percentage points`。
+- learned Gate在固定validation上显著超过可部署启发式Gate。
+- 静态障碍引发的错误激活不会形成新的系统性碰撞或timeout。
 - gate activation 随 `rho_I` 单调增加，但在 low density 不应长期激活。
 
 ## 6. 必须对照与消融
@@ -271,10 +340,10 @@ oracle距离阈值内执行，并只从安全聚焦样本更新。因此首先�
 ### 主基线
 
 - Frozen `5D` historical baseline。
-- 冻结5A弱交互Actor。
+- 冻结5A普通导航Actor。
 - 修复后 Critic 下的 full Actor fine-tune。
 - 修复后 Critic 下的 head-only。
-- 强交互课程 Actor。
+- 条件交互 Actor及其oracle组合。
 - ORCA/RVO 或项目环境中可接入的经典去中心化避碰基线。
 - 单一 recurrent/attention policy，回应“为何不训练一个全能策略”。
 
@@ -282,13 +351,14 @@ oracle距离阈值内执行，并只从安全聚焦样本更新。因此首先�
 
 - 5A always on。
 - 5D always on。
-- 强交互 Actor always on。
+- 条件交互 Actor always-on诊断。
 - random/fixed gate：排除选择机制本身的作用。
-- heuristic gate：按最小激光距离或邻居数量切换。
-- single-frame learned gate。
-- temporal learned gate。
-- oracle episode union：不可执行上界。
-- 不同 gate 平滑强度和切换滞回。
+- min-laser gate：不区分机器人和静态障碍的可部署下界。
+- robot-distance/TTC heuristic gate。
+- learned gate without robot identity：验证语义区分是否必要。
+- robot-aware learned gate：完整方法。
+- privileged `2.0 m` oracle：不可部署上界。
+- 不同gate滞回和最短保持时间。
 - shared Critic 与 geometry-local Critic。
 
 ## 7. 指标与统计
@@ -314,6 +384,8 @@ success + collision + unresolved = N * episodes
 - angular action variation / smoothness
 - gate confidence / expert usage ratio
 - gate activation ratio 与切换次数
+- robot detector precision / recall / FPR，另报静态障碍FPR
+- relative-distance、closing-speed、CPA与TTC误差
 - 按 `rho_I` 分桶的性能曲线
 
 当前代码尚未完整记录 path length、最小机器人距离和 gate smoothness；在正式实验前补齐。
@@ -330,15 +402,15 @@ success + collision + unresolved = N * episodes
 
 | 阶段 | 模型 | low | medium | high | held-out | standard | 目的 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| E0 | Frozen 5D | yes | yes | yes | yes | yes | 基线曲线 |
+| E0 | Frozen 5A / 5D | yes | yes | yes | yes | yes | generalist基线曲线 |
 | E1 | Full fine-tune | yes | yes | yes | yes | yes | 退化对照 |
 | E2 | Head-only | yes | yes | yes | yes | yes | 容量对照 |
-| E3 | Residual always-on | yes | yes | yes | yes | yes | specialist |
-| E4 | Temporal interaction Actor | yes | yes | yes | yes | yes | 强交互 Actor |
-| E5 | Heuristic gate | yes | yes | yes | yes | yes | 非学习切换 |
-| E6 | Single-frame gate | yes | yes | yes | yes | yes | 时序消融 |
-| E7 | Temporal gate | yes | yes | yes | yes | yes | 完整方法 |
-| E8 | Oracle union | yes | yes | yes | yes | yes | 上界 |
+| E3 | 5A + conditional Actor oracle | yes | yes | yes | yes | yes | 条件策略上界 |
+| E4 | Min-laser Gate | yes | yes | yes | yes | yes | 无机器人身份的可部署下界 |
+| E5 | Robot-aware heuristic Gate | yes | yes | yes | yes | yes | 感知与规则切换基线 |
+| E6 | Learned Gate without identity | yes | yes | yes | yes | yes | 机器人区分消融 |
+| E7 | Robot-aware learned Gate | yes | yes | yes | yes | yes | 完整方法 |
+| E8 | Privileged distance oracle | yes | yes | yes | yes | yes | 不可部署上界 |
 
 ## 9. 旧实验如何进入论文
 
@@ -362,13 +434,19 @@ success + collision + unresolved = N * episodes
 - `D1`：scenario manifest、冲突图计算和程序化生成器完成并单测。
 - `D2`：固定数据划分生成，检查 density 分布和场景有效性。
 - `D3`：修复口径下的 fixed-v1 standard/dense generalist baseline 完成。
-- `D4`：specialist 训练与三 seed 复现。
-- `D5`：互补性达到 gate 准入条件。
-- `D6`：gate 训练。
+- `D4`：条件交互Actor训练、匹配重复validation与普通导航Actor选择。
+- `D5-G0`：机器人/静态障碍分类达到独立validation准入线。
+- `D5-G1`：机器人相对运动估计达到准入线。
+- `D5-G2`：可部署启发式Gate完成，确认感知与切换链路有正向上限。
+- `D6-G3`：冻结两个Actor，只训练learned Gate。
 - `D7`：完整基线、消融、泛化和统计检验。
 - `D8`：论文图表冻结。
 
-当前仍处于`D4`：单seed正式交互Actor训练、训练同口径重复validation和弱Actor选择已经完成，但独立训练seed尚未补齐。5A已选为弱交互Actor；旧close→mixed→deep、PAIR→THREE和双车路线均已停止。Gate尚未训练，test保持未读。
+当前处于`D5-G0`。D4已经得到可供Gate可行性开发的冻结组合：5A普通导航Actor和epoch-16条件交互Actor；独立Actor训练seed留到D7正式统计前补齐，不在当前继续微调。Gate尚未训练，test保持未读。
+
+### D4机制排查与训练记录（历史）
+
+以下段落记录当时每一步为什么继续或停止，只用于追溯，不覆盖上面的当前决策。
 
 后续完成了5A warm-start下的Critic context严格对照：将旧世界坐标几何context修正为本车坐标系相对位置与相对速度后，epoch 2 full success仍从`0.500`降至`0.421`，deep从`0.200`降至`0.133`。Replay审计显示`<=0.8m`危险状态只占`2.84%`，且训练后Actor在该层增加线速度`+0.128`，Critic对明显变化动作的错误偏好率为`76.77%`。因此context修复保留，但不再增加epoch；下一次严格对照只修改安全reward：在`1.2m`内加入随线速度增长的近车处罚，并奖励“机器人间距增大且自身仍向目标前进”的有效避让结果。完整结果见`results/D4_interaction_ego_motion_from_5a_s20260725`。
 
@@ -386,7 +464,7 @@ Critic反事实排序正式pilot将危险线速度正梯度稳定降到约`20%-3
 
 后续续训到旧epoch 8进一步确认了安全聚焦Actor配置能够产生正向候选，但旧640场训练使用随机有放回抽样，实际场景覆盖和deep/close/margin短窗口比例均不受保证，因此旧epoch 1-8只作为配置筛选依据，不作为正式长跑曲线。正式长跑从原始5A重新开始，保持已验证有效的全套5A rollout、TD3、reward、Critic ranking、Actor安全聚焦更新和解冻条件不变；唯一实验变量是改用不含validation/test的2560场`full_train`以及修复后的`balanced_cycle`。上限设为16个固定样本epoch，预计足以完成至少一次全池遍历，并在每20,000 agent samples后继续使用同一140场validation选择best。旧epoch 7 + 新Critic的短暂重热实验在Actor解冻前停止，见`results/D4_aborted_e7_rewarm_balanced_preunlock_s20260726`。
 
-正式均衡长跑已正常完成16个epoch和`320,000` agent samples，覆盖全部`2560/2560`个训练场景。训练期oracle组合的固定validation full success从epoch 1冻结5A的`0.436`提高到epoch 16的`0.707`，deep/close/margin分别从`0.183/0.475/0.775`提高到`0.617/0.675/0.875`，碰撞率从`0.174`降至`0.079`；同时平均步数从`33.1`升至`54.5`，表明策略更慢、更保守。epoch 16暂存为候选，但该validation同时用于选best，且结果包含privileged oracle分工，不能当作强Actor单独成绩或Gate成绩。下一步只做重复固定validation，以及5D与epoch 16强Actor在相同scenario ID上的单独配对评估；完成前不读取test、不训练Gate。完整归档见`results/D4_interaction_focused_actor_from_5a_fullstrong_balanced_formal_s20260726`。
+正式均衡长跑已正常完成16个epoch和`320,000` agent samples，覆盖全部`2560/2560`个训练场景。训练期oracle组合的固定validation full success从epoch 1冻结5A的`0.436`提高到epoch 16的`0.707`，deep/close/margin分别从`0.183/0.475/0.775`提高到`0.617/0.675/0.875`，碰撞率从`0.174`降至`0.079`；同时平均步数从`33.1`升至`54.5`，表明策略更慢、更保守。epoch 16随后通过匹配重复validation并冻结；该结果包含privileged oracle分工，不能当作条件Actor全程独立成绩或Gate成绩。完整归档见`results/D4_interaction_focused_actor_from_5a_fullstrong_balanced_formal_s20260726`。
 
 训练同口径的独立重复validation已完成：5A基线与`5A + epoch16 interaction Actor`的full success为`0.421/0.700`，几乎复现训练时的`0.436/0.707`；agent success、collision和平均步数也分别复现为`0.916/0.080/54.3`。因此训练效果不是单次epoch 16偶然峰值，但结论只适用于条件交互Actor的匹配调用方式。完整归档见`results/D4_interaction_actor_matched_validation_s20260727`。
 
@@ -397,7 +475,7 @@ Critic反事实排序正式pilot将危险线速度正梯度稳定降到约`20%-3
 如果实验支持假设，贡献收敛为三点：
 
 1. 区分 spatial density 与 interaction density，并提出基于同步名义冲突图的程序化评测协议。
-2. 保留可靠的弱交互导航能力，并通过渐进交互课程训练强交互Actor，以配对评估验证互补性。
-3. 提出仅依赖本地观测历史的 temporal gate，并在 density sweep、held-out archetypes 和不同机器人数量上验证能力保持与专家调用。
+2. 冻结可靠的普通导航Actor，只在稀有紧迫交互状态中训练条件TD3 Actor，避免完整微调造成能力覆盖。
+3. 提出机器人感知驱动的去中心化Gate，并在density sweep、held-out archetypes和不同机器人数量上验证能力保持与条件策略调用。
 
 如果 interaction-density 定义没有形成稳定难度曲线，不把它作为独立方法贡献，只作为实验协议；如果 gate 未接近 oracle，不宣称自适应专家选择成功。

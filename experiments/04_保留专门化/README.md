@@ -14,7 +14,7 @@
   -> 5A + 5D switch/oracle：专家互补性不足
 ```
 
-因此当前假设是：保留 `generalist-5d` 作为共同初始化和 baseline，分别训练完整的 standard expert 与 dense expert；只有 paired evaluation 证明专家互补后，才训练 temporal gate。
+当前结论不再是训练两个完整的 standard/dense 场景专家。正式路线冻结 `generalist-5a` 作为普通导航 Actor，并冻结已经通过匹配重复验证的 `strong-interaction-5a-balanced` 作为条件交互 Actor。下一阶段只训练状态级 Gate；开始前必须先让本机传感器可靠地区分机器人与静态障碍。
 
 ## 子目录角色
 
@@ -28,29 +28,33 @@
 
 ## 已确认的证据
 
-- 5D 是当前 generalist 候选，但旧 standard 结果必须按互斥指标重跑。
+- 5A 与 5D 在固定弱交互 validation 上能力等价，当前选择 5A 作为冻结普通导航 Actor。
 - full Actor fine-tune 在 moderate fixed cases 上逐轮退化。
 - head-only 限制了破坏，但没有超过冻结 5D。
 - random dense 同时缩短了任务距离，不能证明策略擅长高交互。
 - 五个 fixed moderate cases 能暴露同步冲突，但不是正式训练分布，只保留为 canonical held-out。
 - 历史 5A + 5D 没有足够的 `specialist-only success`，不能直接支撑 gate。
+- 正式条件交互 Actor 在冻结 5A 外围控制的匹配协议下，将强交互 full success 从 `0.421` 提高到 `0.700`；它不作为全程独立导航 Actor。
+- 当前 oracle 按其他机器人真实距离切换，不可部署；现有 20 维激光又不能区分机器人和静态障碍，因此 Gate 感知是当前首要问题。
 
 ## 当前允许的工作
 
 ```text
 D1  实现 conflict graph、standard/dense 生成器和 manifest 回放（已完成）
-D2  完成 Gazebo 有效性筛选并冻结两个场景池的 train/validation/test（已完成）
-D3  在固定 test manifest 上重跑 generalist-5d baseline（已完成）
+D2  完成 Gazebo 有效性筛选并冻结两个场景池的数据划分（已完成）
+D3  完成 fixed-v1 generalist baseline 和交互分层（已完成）
+D4  选择 5A 并训练条件交互 Actor，完成匹配重复 validation（已完成当前候选）
+D5-G0  冻结两个 Actor，先解决机器人/静态障碍区分（当前）
 ```
 
-现在允许推进 specialist；gate 仍必须等待 paired evaluation 证明专家互补。
+当前禁止继续更新两个 Actor。机器人感知通过独立 validation 后，先建立可部署启发式 Gate，再训练 learned Gate；test 继续保持未读。
 
 ## 名称
 
 新文档统一使用短 ID：
 
-- 模型：`generalist-5d`, `standard-expert`, `dense-expert`, `temporal-gate`
+- 模型：`generalist-5a`, `strong-interaction-5a-balanced`, `interaction-gate`
 - 场景池：`standard`, `dense`
-- 当前评估：`eval-5d-standard`
+- 当前阶段：`gate-robot-perception`
 
 历史 artifact 原名不修改，映射见 [模型注册表](../../TD3/MODEL_REGISTRY.md)。
