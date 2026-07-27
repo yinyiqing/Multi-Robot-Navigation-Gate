@@ -1,0 +1,38 @@
+{
+  "result_version": 1,
+  "status": "complete",
+  "protocol": {
+    "seed": 20260727,
+    "episodes": 140,
+    "weak_actor": "generalist-5a",
+    "interaction_actor": "strong-interaction-5a-balanced",
+    "oracle_interaction_distance_m": 2.0,
+    "test_read": false
+  },
+  "5a": {
+    "agent_success": 0.8185714285714286,
+    "collision": 0.18142857142857144,
+    "full_success_count": 59,
+    "full_success": 0.42142857142857143,
+    "timeout_count": 0,
+    "mean_steps": 35.16428571428571
+  },
+  "5a_plus_interaction_actor": {
+    "agent_success": 0.9157142857142857,
+    "collision": 0.08,
+    "unresolved": 0.004285714285714286,
+    "full_success_count": 98,
+    "full_success": 0.7,
+    "timeout_count": 2,
+    "mean_steps": 54.27142857142857,
+    "full_success_by_band": {"deep": 0.5333333333333333, "close": 0.825, "margin": 0.825}
+  },
+  "paired_full_success": {
+    "both": 51,
+    "5a_only": 8,
+    "candidate_only": 47,
+    "neither": 34,
+    "mcnemar_exact_p": 8.067609591488889e-8
+  },
+  "decision": "matched_interaction_actor_effect_reproduced"
+}

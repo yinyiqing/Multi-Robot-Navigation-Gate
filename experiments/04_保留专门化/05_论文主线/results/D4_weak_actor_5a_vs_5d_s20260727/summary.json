@@ -1,0 +1,39 @@
+{
+  "result_version": 1,
+  "status": "complete",
+  "protocol": {
+    "manifest_id": "weak-interaction-validation-v1",
+    "seed": 20260719,
+    "episodes": 248,
+    "pool_counts": {"standard": 206, "dense": 42},
+    "selection": {"conflict_edge_count": 0}
+  },
+  "overall": {
+    "5d": {
+      "agent_success": 0.9717741935483871,
+      "collision": 0.025,
+      "unresolved": 0.0032258064516129032,
+      "full_success_count": 216,
+      "full_success": 0.8709677419354839,
+      "timeout_count": 4,
+      "mean_steps": 38.58064516129032
+    },
+    "5a": {
+      "agent_success": 0.9725806451612903,
+      "collision": 0.025806451612903226,
+      "unresolved": 0.0016129032258064516,
+      "full_success_count": 217,
+      "full_success": 0.875,
+      "timeout_count": 2,
+      "mean_steps": 39.25403225806452
+    }
+  },
+  "paired_full_success": {
+    "both": 205,
+    "5d_only": 11,
+    "5a_only": 12,
+    "neither": 20,
+    "mcnemar_exact_p": 1.0
+  },
+  "decision": "select_5a_as_weak_actor_due_to_equivalent_performance_and_training_compatibility"
+}

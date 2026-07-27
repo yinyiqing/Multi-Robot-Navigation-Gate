@@ -36,14 +36,15 @@
 | `eval-5d-validation-strata` | `generalist-5d` | fixed validation interaction strata | `complete` | standard low/interact full `0.8544/0.4252`; dense full `0.3140` |
 | `diag-5d-random-dense` | `generalist-5d` | `random-dense-5` | `diagnostic` | 仅区分 spatial density 与 interaction density |
 | `eval-5d-canonical-moderate` | `generalist-5d` | 五个 fixed moderate cases | `baseline` | held-out interaction failure baseline |
-| `weak-interaction-actor` | frozen `generalist-5d` | low-interaction strata | `current` | standard/dense 无冲突 full `0.8544/0.9524` |
+| `eval-weak-5a-vs-5d` | frozen 5A / 5D | fixed 0-edge validation | `complete` | full `0.8750/0.8710`，逐场无显著差异，选择5A以匹配交互Actor |
+| `weak-interaction-actor` | frozen `generalist-5a` | low-interaction strata | `current` | 248场agent/full `0.9726/0.8750` |
 | `train-standard-expert-v1-v3` | 5D 微调 | fixed standard/train | `failed diagnostic` | 混合分布微调未超过 5D，只作为退化证据 |
 | `train-interaction-edge1-residual-pilot` | frozen 5D + bounded residual | balanced edge-1 view | `rejected candidate` | residual 恒定饱和，full success `0.5130 -> 0.4704` |
 | `train-interaction-edge1-conservative-v2` | normalized-Q + base-action anchor | balanced edge-1 view | `rejected candidate` | 饱和已修复但 full success 仅 `0.5177` |
 | `train-strong-interaction-stage1` | 5D Actor/Critic full warm-start | close + margin | `failed` | Actor只增加线速度且验证退化，停止后续阶段 |
 | `train-pair-interaction-pilot` | 5D Actor/Critic full warm-start | fixed head-on/crossing/lane-swap pairs | `failed diagnostic` | 只改善head-on且碰撞上升，不进入五车主线 |
 | `train-oracle-specialist-pilot` | frozen 5D + interaction-only TD3 Actor | fixed five-agent deep/close/margin | `rejected candidate` | full `0.5000 -> 0.4714`，Actor学到统一转向偏置 |
-| `train-strong-interaction-balanced-formal` | 5A warm-start interaction-focused TD3 Actor | fixed full strong-interaction train/validation | `candidate; repeat pending` | oracle组合full `0.436 -> 0.707`，已覆盖全部2560个训练场景；尚待单Actor配对审计 |
+| `train-strong-interaction-balanced-formal` | 5A warm-start interaction-focused TD3 Actor | fixed full strong-interaction train/validation | `candidate; matched repeat passed` | 匹配重复full `0.421 -> 0.700`，训练效果可复现；代价是平均步数增加 |
 | `train-temporal-gate` | weak + strong interaction Actors | mixed trajectories | `planned` | Actor 互补性达到 D5 后才允许训练 |
 
 ## 阅读顺序
