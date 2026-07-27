@@ -648,6 +648,9 @@ while True:
             },
             step_active_mask,
             agent_names,
+            timestamps_by_agent={
+                name: step_actor_poses[name]["timestamp"] for name in agent_names
+            },
         )
 
     for idx, state in enumerate(states):

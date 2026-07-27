@@ -1,6 +1,6 @@
 # ICRA Paper Protocol: Preserve-and-Specialize
 
-状态：`冻结5A普通导航Actor和epoch-16条件交互Actor；D5-G0代码与固定感知清单已完成，下一步采集train/validation并验证机器人/静态障碍区分`。
+状态：`冻结5A普通导航Actor和epoch-16条件交互Actor；G0/G1 pilot完成，下一步用privileged交互标签训练只读本机感知的G2 Gate`。
 
 后续若改变方法主张、交互强度定义、数据划分或主指标，先修改本协议，再改代码和脚本。
 
@@ -73,11 +73,11 @@ a_t = pi_I(o_t),  if g(z_t) = 1
 
 - `H1`：加入条件交互Actor的匹配组合在deep validation上显著高于冻结5A，同时不明显损害close/margin。
 - `H2`：匹配配对中combination-only显著多于weak-only，证明调用交互Actor具有净收益。
-- `H3`：本机传感器能够以足够低的静态障碍误报率识别机器人目标，这是Gate的可观测性前提。
+- `H3`：本机形状与相对运动证据能够识别需要切换Actor的机器人交互，同时在静态障碍附近保持低误激活率。
 - `H4`：可部署Gate显著超过调优后的最小激光距离Gate，并接近固定oracle组合，同时保持5A的普通导航能力。
 - `H5`：模型收益随 interaction density 增大，而不是只对五个手工 case 有效。
 
-任何一个假设均允许被实验否定。若`H2`不成立，停止双Actor路线；若`H3`不成立，停止训练Gate并先解决可观测性。
+任何一个假设均允许被实验否定。若`H2`不成立，停止双Actor路线；若`H3`不成立，停止Gate路线。H3不要求先得到完美的机器人语义硬标签，而以最终交互召回和静态场景误激活判断。
 
 ### 与已有工作的边界
 

@@ -13,7 +13,7 @@
 | `moderate-full-ft` | moderate cases 上完整 Actor 微调 | `TD3_multi_dense5_moderate_geo_critic_from_5d_best` | failed |
 | `strong-interaction-s1` | 5D Actor/Critic 完整 warm-start的课程Stage 1 | `strong_interaction_curriculum_stage1_s20260723` | failed |
 | `strong-interaction-5a-balanced` | 冻结的安全聚焦条件交互Actor | `interaction_focused_actor_from_5a_fullstrong_balanced_formal_s20260726_epoch_016` | frozen candidate; matched repeat passed |
-| `gate-robot-perception` | 本机激光机器人检测与相对运动前端 | 待G0/G1验证后命名 | current development |
+| `gate-robot-perception` | 本机激光候选形状与相对运动前端 | G0/G1 pilot protocol | frozen frontend candidate |
 | `interaction-gate` | 两个冻结Actor之间的状态级选择器 | 待G2后命名 | planned |
 
 ## 文件含义
@@ -52,4 +52,4 @@ residual_interaction-medium-high_n5_seed0_best
 - `generalist-5a`和`strong-interaction-5a-balanced`从D5-G0开始冻结；Gate阶段不得更新其参数。
 - `strong-interaction-5a-balanced`已通过训练同口径的独立重复validation；它是只在交互状态调用的条件Actor，不是全程独立导航策略。
 - `gate-robot-perception`推理时只能使用本机传感器；仿真邻车位置只能生成训练标签和validation真值。
-- `interaction-gate`只有在机器人感知、相对运动估计和可部署启发式Gate依次通过G0-G2后才允许训练。
+- `interaction-gate`读取G0/G1连续证据，不要求感知前端先输出机器人硬标签；仿真真值只用于G2监督和validation。

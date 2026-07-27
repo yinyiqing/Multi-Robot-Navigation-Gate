@@ -16,6 +16,8 @@ Supported current experiment IDs:
   gate-robot-perception-validation
   gate-robot-perception-pilot-train
   gate-robot-perception-pilot-validation
+  gate-robot-tracking-pilot-train
+  gate-robot-tracking-pilot-validation
 EOF
 }
 
@@ -47,6 +49,18 @@ script_for() {
     stop:gate-robot-perception-pilot-validation)
       echo "$PROJECT_ROOT/scripts/stop_robot_perception_collection.sh pilot-validation"
       ;;
+    start:gate-robot-tracking-pilot-train)
+      echo "$PROJECT_ROOT/scripts/start_robot_perception_collection.sh tracking-pilot-train"
+      ;;
+    stop:gate-robot-tracking-pilot-train)
+      echo "$PROJECT_ROOT/scripts/stop_robot_perception_collection.sh tracking-pilot-train"
+      ;;
+    start:gate-robot-tracking-pilot-validation)
+      echo "$PROJECT_ROOT/scripts/start_robot_perception_collection.sh tracking-pilot-validation"
+      ;;
+    stop:gate-robot-tracking-pilot-validation)
+      echo "$PROJECT_ROOT/scripts/stop_robot_perception_collection.sh tracking-pilot-validation"
+      ;;
     *)
       return 1
       ;;
@@ -61,7 +75,9 @@ show_status() {
     "$PROJECT_ROOT/.robot_perception_collection_train.pid" \
     "$PROJECT_ROOT/.robot_perception_collection_validation.pid" \
     "$PROJECT_ROOT/.robot_perception_collection_pilot_train.pid" \
-    "$PROJECT_ROOT/.robot_perception_collection_pilot_validation.pid"; do
+    "$PROJECT_ROOT/.robot_perception_collection_pilot_validation.pid" \
+    "$PROJECT_ROOT/.robot_perception_collection_tracking_pilot_train.pid" \
+    "$PROJECT_ROOT/.robot_perception_collection_tracking_pilot_validation.pid"; do
     [[ -f "$pid_file" ]] || continue
     pid="$(tr -d '[:space:]' < "$pid_file")"
     if [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null; then

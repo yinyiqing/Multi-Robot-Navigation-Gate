@@ -4,8 +4,8 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROFILE="${1:-}"
 case "$PROFILE" in
-  train|validation|pilot-train|pilot-validation) ;;
-  *) echo "Usage: $0 <train|validation|pilot-train|pilot-validation>" >&2; exit 2 ;;
+  train|validation|pilot-train|pilot-validation|tracking-pilot-train|tracking-pilot-validation) ;;
+  *) echo "Usage: $0 <train|validation|pilot-train|pilot-validation|tracking-pilot-train|tracking-pilot-validation>" >&2; exit 2 ;;
 esac
 PID_FILE="$PROJECT_ROOT/.robot_perception_collection_${PROFILE//-/_}.pid"
 

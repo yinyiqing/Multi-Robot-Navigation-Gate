@@ -1,6 +1,6 @@
 # D5-G1 Robot Tracking V1
 
-状态：`协议已确定，待实现与重新采集小规模 pilot`。
+状态：`跟踪器、v2 shard和20+20场pilot完成；保留连续运动特征，拒绝简单概率平滑硬分类`。
 
 ## 目的
 
@@ -31,3 +31,25 @@ Gate 后续读取这些可部署特征，不读取 Gazebo 模型位置。
 3. G0 checkpoint 冻结，所有跟踪阈值只由 validation 选择。
 4. 先比较单帧 G0 与 G0+G1 的 precision、recall、FPR，再决定是否开始正式数据采集。
 5. sealed test 继续封存；两个 Actor 全程冻结。
+
+结果与决策见 [PILOT_REPORT.md](PILOT_REPORT.md)。
+
+## 运行
+
+先各跑一场检查 v2 shard，再扩大场景数：
+
+```bash
+DRL_ROBOT_PERCEPTION_TARGET_EPISODES=1 \
+  bash scripts/experiment.sh start gate-robot-tracking-pilot-train
+DRL_ROBOT_PERCEPTION_TARGET_EPISODES=1 \
+  bash scripts/experiment.sh start gate-robot-tracking-pilot-validation
+```
+
+离线比较单帧和跟踪结果：
+
+```bash
+source env.python.sh
+python scripts/evaluate_robot_tracking.py \
+  --checkpoint experiments/03_保留专门化/02_论文主线/results/06_Gate开发/D5_G0_robot_detector_v1/local_data/model/pilot_v1/best.pt \
+  --shard-dir experiments/03_保留专门化/02_论文主线/results/06_Gate开发/D5_G1_robot_tracking_v1/local_data/shards/pilot_validation
+```

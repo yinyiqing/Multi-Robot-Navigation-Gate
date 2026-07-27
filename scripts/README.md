@@ -9,15 +9,15 @@ bash scripts/experiment.sh list
 bash scripts/experiment.sh status
 ```
 
-`experiment.sh`只暴露当前协议允许执行的实验。两个Actor已经冻结，当前没有可启动的Actor训练。G0数据与模型协议实现完成前，`gate-robot-perception`只登记为planned，不提前加入启动入口。
+`experiment.sh`只暴露当前协议允许执行的实验。两个Actor已经冻结，当前没有可启动的Actor训练。G0/G1只开放固定pilot数据采集，不开放sealed test或Actor更新。
 
 ## 当前映射
 
 | 实验 ID | 底层脚本 | 状态 |
 | --- | --- | --- |
-| `gate-robot-perception` | 待G0数据协议实现后登记 | planned；当前工作 |
-| `eval-heuristic-interaction-gate` | 待G0/G1通过后实现 | planned |
-| `train-interaction-gate` | 待G2通过后实现 | planned |
+| `gate-robot-perception-pilot-{train,validation}` | `start/stop_robot_perception_collection.sh` | G0单帧感知pilot |
+| `gate-robot-tracking-pilot-{train,validation}` | `start/stop_robot_perception_collection.sh` | G1 v2 shard采集 |
+| `train-interaction-gate` | 待G2数据协议实现 | next |
 
 历史fixed-v1 baseline、强交互Actor训练和点云probe仍保留底层脚本用于复现，但不再属于统一入口支持的当前实验。
 
@@ -57,6 +57,7 @@ start|stop _ training|test _ detached _ <historical-run-name>.sh
 - `start/stop_lidar_cluster_sensor_probe_5d.sh`：`shape`在固定30场sensor probe上记录体素降采样XYZ；`highres-holdout`在互斥的30场holdout上只记录180-bin前视激光，均不改变Actor输入。
 - `analyze_lidar_cluster_probe.py`：用本机点云、里程计和时间戳进行点簇关联与CPA/TTC估计；其他机器人轨迹只作为离线评分真值。
 - `analyze_lidar_cluster_shape_probe.py`：在独立scenario划分上审计三维高度/尺寸特征能否区分真实机器人点簇与静态环境点簇。
+- `evaluate_robot_tracking.py`：在v2 shard上比较冻结G0单帧分数、轨迹平滑和自运动补偿后的候选速度与关联质量。
 - `train_temporal_risk_probe.py`：用仿真CPA/TTC privileged标签监督同输入的单帧MLP与8帧GRU风险编码器，并在scenario级独立test上比较。
 - `train_highres_temporal_risk_probe.py`：用旧30场的180-bin等价点云投影做train/validation，只在互斥的新30场180-bin holdout上做最终test。
 - 风险 probe、让行 oracle 和扇区差分 TTC 的运行入口已在结论归档后移除；分析脚本保留用于复核归档数据。

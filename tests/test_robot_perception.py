@@ -20,6 +20,7 @@ from robot_perception.metrics import detection_metrics
 from robot_perception.models import LocalRobotDetector
 from robot_perception.range_view import extract_local_patch, project_range_view
 from robot_perception.recorder import PerceptionShardRecorder
+from robot_perception.tracker import RobotCandidateTracker
 
 
 def synthetic_points():
@@ -70,6 +71,16 @@ class DatasetTest(unittest.TestCase):
         self.assertEqual(examples.missed_visible_robot_count, 0)
         self.assertEqual(int(examples.labels.sum()), 1)
         self.assertIn(0, examples.labels.tolist())
+        self.assertEqual(examples.target_agent_indices[examples.labels == 1].tolist(), [0])
+
+    def test_candidate_matching_preserves_global_robot_id(self):
+        examples = build_frame_examples(
+            synthetic_points(),
+            ego_pose=np.asarray([0.0, 0.0, 0.0]),
+            other_world_positions=[np.asarray([1.0, 0.0])],
+            other_robot_ids=[4],
+        )
+        self.assertEqual(examples.target_agent_indices[examples.labels == 1].tolist(), [4])
 
     def test_metrics_recall_includes_missed_proposals(self):
         metrics = detection_metrics(
@@ -92,6 +103,7 @@ class DatasetTest(unittest.TestCase):
                 {"r1": [0.0, 0.0, 0.0], "r2": [1.0, 0.0, math.pi]},
                 [True, True],
                 ["r1", "r2"],
+                timestamps_by_agent={"r1": 1.25, "r2": 1.25},
             )
             result = recorder.finish_scenario()
             self.assertTrue(result["written"])
@@ -99,12 +111,37 @@ class DatasetTest(unittest.TestCase):
             self.assertEqual(int(shard["visible_robot_count"]), 1)
             self.assertEqual(str(shard["scenario_pool"]), "standard")
             self.assertEqual(str(shard["interaction_band"]), "weak")
+            self.assertEqual(int(shard["format_version"]), 2)
+            self.assertEqual(shard["ego_poses"].shape[1], 3)
+            self.assertTrue(np.all(shard["timestamps"] == 1.25))
+            self.assertEqual(
+                shard["target_agent_indices"][shard["labels"] == 1].tolist(), [1]
+            )
             self.assertFalse(recorder.begin_scenario("case/one"))
             result = recorder.finish_scenario()
             self.assertFalse(result["written"])
 
 
 class ModelAndSplitTest(unittest.TestCase):
+    def test_tracker_compensates_ego_motion(self):
+        tracker = RobotCandidateTracker(association_distance=0.4)
+        first = tracker.update([[1.875, 0.0]], [0.8], [0.0, 0.0, 0.0], 0.0)[0]
+        second = tracker.update([[1.675, 0.0]], [0.6], [0.2, 0.0, 0.0], 0.2)[0]
+        self.assertEqual(first.track_id, second.track_id)
+        self.assertEqual(second.age, 2)
+        np.testing.assert_allclose(second.world_velocity, [0.0, 0.0], atol=1e-5)
+        np.testing.assert_allclose(second.relative_velocity, [-1.0, 0.0], atol=1e-5)
+        self.assertAlmostEqual(second.smoothed_shape_probability, 0.73, places=5)
+        self.assertGreater(second.closing_speed, 0.9)
+
+    def test_tracker_measures_independent_target_motion(self):
+        tracker = RobotCandidateTracker(association_distance=0.4)
+        tracker.update([[1.875, 0.0]], [0.8], [0.0, 0.0, 0.0], 0.0)
+        tracked = tracker.update([[1.575, 0.0]], [0.8], [0.2, 0.0, 0.0], 0.2)[0]
+        np.testing.assert_allclose(tracked.world_velocity, [-0.5, 0.0], atol=1e-5)
+        np.testing.assert_allclose(tracked.relative_velocity, [-1.5, 0.0], atol=1e-5)
+        self.assertAlmostEqual(tracked.dynamic_speed, 0.5, places=5)
+
     def test_detector_output_shapes(self):
         model = LocalRobotDetector()
         logits, offsets = model(torch.zeros(4, 3, 16, 64))

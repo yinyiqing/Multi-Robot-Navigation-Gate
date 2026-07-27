@@ -16,6 +16,7 @@ class FrameExamples:
     center_offsets: np.ndarray
     candidate_centers: np.ndarray
     candidate_ranges: np.ndarray
+    target_agent_indices: np.ndarray
     visible_robot_count: int
     missed_visible_robot_count: int
 
@@ -27,6 +28,7 @@ def _empty_examples(vertical_bins=16, patch_width=64, visible_count=0):
         center_offsets=np.empty((0, 2), dtype=np.float32),
         candidate_centers=np.empty((0, 2), dtype=np.float32),
         candidate_ranges=np.empty((0,), dtype=np.float32),
+        target_agent_indices=np.empty((0,), dtype=np.int16),
         visible_robot_count=int(visible_count),
         missed_visible_robot_count=int(visible_count),
     )
@@ -101,6 +103,7 @@ def build_frame_examples(
     points,
     ego_pose,
     other_world_positions,
+    other_robot_ids=None,
     max_candidate_range=4.0,
     max_sensor_range=6.0,
     physical_width=1.2,
@@ -117,6 +120,12 @@ def build_frame_examples(
     if max_background_candidates < 0:
         raise ValueError("max_background_candidates must be non-negative")
     robot_centers = robot_centers_in_sensor_frame(ego_pose, other_world_positions)
+    if other_robot_ids is None:
+        robot_ids = np.arange(len(robot_centers), dtype=np.int16)
+    else:
+        robot_ids = np.asarray(other_robot_ids, dtype=np.int16)
+        if robot_ids.shape != (len(robot_centers),):
+            raise ValueError("other_robot_ids must match other_world_positions")
     visible_mask = visible_robot_mask(
         values,
         robot_centers,
@@ -124,6 +133,7 @@ def build_frame_examples(
         max_range=max_candidate_range,
     )
     visible_centers = robot_centers[visible_mask]
+    visible_robot_ids = robot_ids[visible_mask]
     visible_count = len(visible_centers)
 
     kwargs = {
@@ -158,6 +168,7 @@ def build_frame_examples(
     labels = []
     offsets = []
     selected_centers = []
+    target_agent_indices = []
     for candidate_index in selected_indices:
         center = centers[candidate_index]
         patches.append(
@@ -176,6 +187,9 @@ def build_frame_examples(
             if is_robot
             else np.zeros(2, dtype=np.float32)
         )
+        target_agent_indices.append(
+            int(visible_robot_ids[robot_index]) if is_robot else -1
+        )
         selected_centers.append(center)
 
     labels_array = np.asarray(labels, dtype=np.uint8)
@@ -185,6 +199,7 @@ def build_frame_examples(
         center_offsets=np.asarray(offsets, dtype=np.float32),
         candidate_centers=np.asarray(selected_centers, dtype=np.float32),
         candidate_ranges=np.linalg.norm(selected_centers, axis=1).astype(np.float32),
+        target_agent_indices=np.asarray(target_agent_indices, dtype=np.int16),
         visible_robot_count=int(visible_count),
         missed_visible_robot_count=max(int(visible_count - labels_array.sum()), 0),
     )

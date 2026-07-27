@@ -62,12 +62,22 @@ class PerceptionShardRecorder:
             "center_offsets": [],
             "candidate_centers": [],
             "candidate_ranges": [],
+            "target_agent_indices": [],
+            "ego_poses": [],
+            "timestamps": [],
             "ego_indices": [],
             "frame_indices": [],
         }
         return not self.skip_current
 
-    def record_frame(self, raw_lidar_by_agent, poses_by_agent, active_mask, agent_names):
+    def record_frame(
+        self,
+        raw_lidar_by_agent,
+        poses_by_agent,
+        active_mask,
+        agent_names,
+        timestamps_by_agent=None,
+    ):
         if self.current_scenario_id is None:
             raise RuntimeError("begin_scenario must be called before record_frame")
         current_frame = self.frame_index
@@ -83,15 +93,20 @@ class PerceptionShardRecorder:
         for ego_index, ego_name in enumerate(agent_names):
             if ego_name not in active_names or ego_name not in poses_by_agent:
                 continue
+            other_entries = [
+                (index, name)
+                for index, name in enumerate(agent_names)
+                if name in active_names and name != ego_name and name in poses_by_agent
+            ]
             other_positions = [
                 np.asarray(poses_by_agent[name], dtype=np.float32)[:2]
-                for name in active_names
-                if name != ego_name and name in poses_by_agent
+                for _, name in other_entries
             ]
             examples = build_frame_examples(
                 raw_lidar_by_agent.get(ego_name, np.empty((0, 3), dtype=np.float32)),
                 np.asarray(poses_by_agent[ego_name], dtype=np.float32),
                 other_positions,
+                other_robot_ids=[index for index, _ in other_entries],
                 max_background_candidates=self.max_background_candidates,
             )
             self.visible_robot_count += examples.visible_robot_count
@@ -109,6 +124,24 @@ class PerceptionShardRecorder:
             )
             self.records["candidate_ranges"].append(
                 examples.candidate_ranges.astype(np.float16)
+            )
+            self.records["target_agent_indices"].append(
+                examples.target_agent_indices.astype(np.int16)
+            )
+            self.records["ego_poses"].append(
+                np.repeat(
+                    np.asarray(poses_by_agent[ego_name], dtype=np.float32)[None, :3],
+                    count,
+                    axis=0,
+                )
+            )
+            timestamp = (
+                float(timestamps_by_agent[ego_name])
+                if timestamps_by_agent is not None
+                else float(current_frame)
+            )
+            self.records["timestamps"].append(
+                np.full(count, timestamp, dtype=np.float64)
             )
             self.records["ego_indices"].append(
                 np.full(count, ego_index, dtype=np.uint8)
@@ -136,6 +169,15 @@ class PerceptionShardRecorder:
                 "candidate_ranges": self._concatenate(
                     "candidate_ranges", (0,), np.float16
                 ),
+                "target_agent_indices": self._concatenate(
+                    "target_agent_indices", (0,), np.int16
+                ),
+                "ego_poses": self._concatenate(
+                    "ego_poses", (0, 3), np.float32
+                ),
+                "timestamps": self._concatenate(
+                    "timestamps", (0,), np.float64
+                ),
                 "ego_indices": self._concatenate("ego_indices", (0,), np.uint8),
                 "frame_indices": self._concatenate(
                     "frame_indices", (0,), np.int32
@@ -153,7 +195,7 @@ class PerceptionShardRecorder:
                 "split": np.asarray(self.split),
                 "scenario_pool": np.asarray(self.current_pool),
                 "interaction_band": np.asarray(self.current_interaction_band),
-                "format_version": np.asarray(1, dtype=np.int32),
+                "format_version": np.asarray(2, dtype=np.int32),
             }
             temporary_path = path.with_suffix(path.suffix + ".tmp")
             with temporary_path.open("wb") as handle:
