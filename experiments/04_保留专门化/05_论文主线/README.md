@@ -4,6 +4,8 @@
 
 后续若改变方法主张、交互强度定义、数据划分或主指标，先修改本协议，再改代码和脚本。
 
+目录入口：[固定数据](datasets/README.md) | [结果分类](results/README.md) | [场景对照](SCENARIO_COMPARISON.md)
+
 ## 0. 当前决策快照
 
 当前方法不是“standard场景使用一个完整Actor、dense场景使用另一个完整Actor”。强弱交互会在同一条轨迹中变化，当前方法采用状态级分工：
@@ -28,9 +30,9 @@
 
 两个Actor从本决策开始不再更新。独立Actor训练seed仍是论文最终统计要求，但不在Gate可行性确认前继续消耗训练时间。
 
-执行进度（2026-07-18）：`generalist-5d` 已完成 fixed-v1 standard 1000 场和 dense 2000 场。standard full success `0.5750`，dense `0.2795`；完整归档见 [D3 fixed-v1 baseline](results/D3_fixed_v1_generalist_baseline/README.md)。
+执行进度（2026-07-18）：`generalist-5d` 已完成 fixed-v1 standard 1000 场和 dense 2000 场。standard full success `0.5750`，dense `0.2795`；完整归档见 [D3 fixed-v1 baseline](results/01_基线评估/D3_fixed_v1_generalist_baseline/README.md)。
 
-validation 交互分层（2026-07-19）：5D 在 standard low-interaction、standard interaction、dense overall 上的 agent/full success 分别为 `0.9680/0.8544`、`0.8143/0.4252`、`0.7122/0.3140`。dense 中 0-edge 的 full success 为 `0.9524`，edges>0 时为 `0.2860`，确认主要难度来自交互冲突而非空间缩小；见 [D3 validation](results/D3_fixed_v1_generalist_validation/README.md)。
+validation 交互分层（2026-07-19）：5D 在 standard low-interaction、standard interaction、dense overall 上的 agent/full success 分别为 `0.9680/0.8544`、`0.8143/0.4252`、`0.7122/0.3140`。dense 中 0-edge 的 full success 为 `0.9524`，edges>0 时为 `0.2860`，确认主要难度来自交互冲突而非空间缩小；见 [D3 validation](results/01_基线评估/D3_fixed_v1_generalist_validation/README.md)。
 
 现有 standard、random dense 和五个 fixed moderate case 的参数与结果汇总见 [场景对照](SCENARIO_COMPARISON.md)。
 
@@ -198,13 +200,13 @@ Dense 固定参数：起点方形半宽在 `1.65-1.75 m` 连续采样，起点�
 - checkpoint 记录 validation manifest 哈希、场景数和采样协议；协议变化时旧曲线归入 history，不参与新 best 比较。
 - 每个 validation epoch 保存独立 Actor/Critic 快照，完整 latest 用于续训，完整 best 只在同一 validation 协议内选择。
 - v1 前 6 epoch 只有两轮 Actor 更新，续训到 epoch 12 后确认该配置会发生后期退化。
-- v1 actor-only warm-start 在 epoch 10 达到 `0.850` agent success 后退化，结果归档于 `results/D4_standard_expert_actor_only_v1`。
+- v1 actor-only warm-start 在 epoch 10 达到 `0.850` agent success 后退化，结果归档于 `results/02_普通Actor_失败对照/D4_standard_expert_actor_only_v1`。
 - v2 保持原 `0.8/0.2` cooperative reward，完整加载形状兼容的 5D Actor/Critic，并用弱 Actor anchor 控制策略漂移。
 - 训练 transition 将 timeout 视为 terminal；Critic 更新次数按有效 agent samples 归一化到 collective environment steps，避免跨 reset bootstrap 和 timeout 过度更新。
 - v3 的 100 场正向信号未在完整 500 场 validation 复现：5D agent/full `0.8776/0.6020`，v3 epoch 2 为 `0.8712/0.5920`，且平均多用 `8.378` 步；拒绝该候选，不读取 test。
 - `standard/test` 只在模型和超参数冻结后运行一次。
 
-完整弱交互对照中，5A/5D在248个固定0-edge场景上的agent success为`0.9726/0.9718`，full success为`0.8750/0.8710`；两者逐场无显著差异。最终选择5A作为普通导航Actor，以匹配已验证的交互Actor训练分布；完整结果见`results/D4_weak_actor_5a_vs_5d_s20260727`。旧standard expert v1-v3只保留为“直接微调全能策略会退化”的失败对照。
+完整弱交互对照中，5A/5D在248个固定0-edge场景上的agent success为`0.9726/0.9718`，full success为`0.8750/0.8710`；两者逐场无显著差异。最终选择5A作为普通导航Actor，以匹配已验证的交互Actor训练分布；完整结果见`results/05_当前冻结方案/D4_weak_actor_5a_vs_5d_s20260727`。旧standard expert v1-v3只保留为“直接微调全能策略会退化”的失败对照。
 
 ### S2: 条件交互 Actor
 
@@ -220,37 +222,37 @@ Dense 固定参数：起点方形半宽在 `1.65-1.75 m` 连续采样，起点�
 
 双车诊断数据与复现信息保留在 [pair interaction curriculum v1](datasets/pair_interaction_curriculum_v1/README.md)，不再作为当前训练入口。
 
-双车 pilot 只改善 head-on，crossing 退化且 lane-swap 未改善，碰撞率从 `0.45` 升至 `0.60`；该模型已拒绝，结果仅用于证明按episode均衡不能保证replay均衡，见 `results/D4_pair_interaction_pilot_s20260724`。后续不继续双车研究，也不重新运行 PAIR→THREE。
+双车 pilot 只改善 head-on，crossing 退化且 lane-swap 未改善，碰撞率从 `0.45` 升至 `0.60`；该模型已拒绝，结果仅用于证明按episode均衡不能保证replay均衡，见 `results/03_强交互Actor_研发记录/D4_pair_interaction_pilot_s20260724`。后续不继续双车研究，也不重新运行 PAIR→THREE。
 
 五车旧 Stage 1 replay 审计发现，强Actor在无可见邻居状态上的变化反而最大，并在 `<=0.8 m` 危险状态继续增加线速度。根因是此前所谓 specialist 仍控制并更新于整个episode，本质上仍在训练generalist。当前候选改为训练期oracle分工：邻居真值距离 `<=2.0 m` 时由强Actor执行并进入其Actor更新集，其余状态始终由冻结5D执行；Critic仍学习完整五车轨迹。Actor结构、TD3目标和部署输入不变。先评估oracle组合上限，通过后才训练可部署Gate。
 
-oracle-specialist pilot 在同一批 `60 deep + 40 close + 40 margin` validation 上，epoch 1/2 的 overall agent success 为 `0.827/0.834`，collision 为 `0.173/0.166`，但 full success 从 `0.500` 降到 `0.471`。deep/close/margin full success 分别从 `0.233/0.575/0.825` 变为 `0.200/0.575/0.775`，未形成强交互专门化。replay 审计显示候选Actor在所有距离层都学到约 `+0.13--+0.16` 的同向角速度偏置，并在 `<=0.8 m` 状态增加线速度 `+0.090`；Critic对这些明显变化有 `79.38%` 偏好。该Critic偏好只说明Actor与Critic自洽，不能单独证明动作在真实环境中更差；它与危险加速、同向转弯和分层评估一起构成训练信号偏移的警示。oracle 分流已修复“普通状态也更新强Actor”的问题，但当前候选仍未学出deep优势。该配置已停止，不增加epoch或seed重复。完整结果见 `results/D4_interaction_oracle_specialist_pilot_s20260724`。
+oracle-specialist pilot 在同一批 `60 deep + 40 close + 40 margin` validation 上，epoch 1/2 的 overall agent success 为 `0.827/0.834`，collision 为 `0.173/0.166`，但 full success 从 `0.500` 降到 `0.471`。deep/close/margin full success 分别从 `0.233/0.575/0.825` 变为 `0.200/0.575/0.775`，未形成强交互专门化。replay 审计显示候选Actor在所有距离层都学到约 `+0.13--+0.16` 的同向角速度偏置，并在 `<=0.8 m` 状态增加线速度 `+0.090`；Critic对这些明显变化有 `79.38%` 偏好。该Critic偏好只说明Actor与Critic自洽，不能单独证明动作在真实环境中更差；它与危险加速、同向转弯和分层评估一起构成训练信号偏移的警示。oracle 分流已修复“普通状态也更新强Actor”的问题，但当前候选仍未学出deep优势。该配置已停止，不增加epoch或seed重复。完整结果见 `results/03_强交互Actor_研发记录/D4_interaction_oracle_specialist_pilot_s20260724`。
 
 两轮额外配对评估证明单次 full success 波动较大，因此不再仅依据 `0.500 -> 0.471` 判断。三次合计后，5D/候选的 overall agent success 为 `0.8238/0.8229`，full success 为 `0.4571/0.4452`，基本持平且候选略低；但目标 deep 层 full success 在三次中均下降，合计为 `35/180 -> 27/180`。因此拒绝的是当前epoch 2 checkpoint和未修改训练配置，不是双Actor + Gate主线。
 
-Stage 1 同协议 epoch 1/2 的 overall full success 为 `0.4929/0.3357`；close、deep、margin 分别从 `0.6250/0.2167/0.7750` 降至 `0.2750/0.1333/0.7000`，未通过准入条件。离线审计进一步发现，训练后 Actor 在全部 `40001` 个 replay state 上只增加、不降低线速度；对动作变化超过 `0.05` 的状态，Critic 有 `76.80%` 错误偏好真实性能更差的新动作。因此停止 Stage 2，不用更多 epoch 或 seed 重复当前配置。完整结果见 `results/D4_strong_interaction_curriculum_stage1_s20260723`。
+Stage 1 同协议 epoch 1/2 的 overall full success 为 `0.4929/0.3357`；close、deep、margin 分别从 `0.6250/0.2167/0.7750` 降至 `0.2750/0.1333/0.7000`，未通过准入条件。离线审计进一步发现，训练后 Actor 在全部 `40001` 个 replay state 上只增加、不降低线速度；对动作变化超过 `0.05` 的状态，Critic 有 `76.80%` 错误偏好真实性能更差的新动作。因此停止 Stage 2，不用更多 epoch 或 seed 重复当前配置。完整结果见 `results/03_强交互Actor_研发记录/D4_strong_interaction_curriculum_stage1_s20260723`。
 
-可部署相对运动观测的30场sensor probe显示：危险目标原始点云覆盖率为`97.92%`，说明Velodyne信息本身足够；但二维点簇质心跟踪的最佳precision/recall/FPR权衡未同时达到`0.70/0.80/0.10`准入线。主要误报来自静态环境点簇的质心抖动和错误关联，因此拒绝该具体特征，不接Actor；下一候选应加入三维高度轮廓或其他目标身份一致性。完整结果见 `results/D4_lidar_cluster_motion_probe_s20260724`。
+可部署相对运动观测的30场sensor probe显示：危险目标原始点云覆盖率为`97.92%`，说明Velodyne信息本身足够；但二维点簇质心跟踪的最佳precision/recall/FPR权衡未同时达到`0.70/0.80/0.10`准入线。主要误报来自静态环境点簇的质心抖动和错误关联，因此拒绝该具体特征，不接Actor；下一候选应加入三维高度轮廓或其他目标身份一致性。完整结果见 `results/04_Gate前置验证/D4_lidar_cluster_motion_probe_s20260724`。
 
-后续三维XYZ shape probe在18个校准scenario和12个独立scenario上审计。8维形状逻辑回归在独立集达到precision/recall/FPR `0.651/0.912/0.307`，仍无法排除大量静态点簇。因此停止继续组合手工形状/速度阈值；若继续相对运动主线，下一候选必须是由仿真privileged CPA/TTC标签监督、部署时仅使用本机连续激光帧的时序编码器。完整结果见 `results/D4_lidar_cluster_shape_probe_s20260724`。
+后续三维XYZ shape probe在18个校准scenario和12个独立scenario上审计。8维形状逻辑回归在独立集达到precision/recall/FPR `0.651/0.912/0.307`，仍无法排除大量静态点簇。因此停止继续组合手工形状/速度阈值；若继续相对运动主线，下一候选必须是由仿真privileged CPA/TTC标签监督、部署时仅使用本机连续激光帧的时序编码器。完整结果见 `results/04_Gate前置验证/D4_lidar_cluster_shape_probe_s20260724`。
 
-20-bin时序风险编码按scenario划分为18 train / 6 validation / 6 test，在完全相同输入下比较单帧MLP与8帧GRU。两者test precision均约`0.159`，FPR为`0.525/0.486`，GRU未恢复可用的CPA/TTC风险信号。因此拒绝“5D原20-bin输入 + 时序编码”，不接Actor或Gate；下一候选必须保留更高角分辨率，并使用新的scenario-level test。完整结果见 `results/D4_temporal_risk_encoder_20bin_s20260724`。
+20-bin时序风险编码按scenario划分为18 train / 6 validation / 6 test，在完全相同输入下比较单帧MLP与8帧GRU。两者test precision均约`0.159`，FPR为`0.525/0.486`，GRU未恢复可用的CPA/TTC风险信号。因此拒绝“5D原20-bin输入 + 时序编码”，不接Actor或Gate；下一候选必须保留更高角分辨率，并使用新的scenario-level test。完整结果见 `results/04_Gate前置验证/D4_temporal_risk_encoder_20bin_s20260724`。
 
-180-bin候选使用旧30场做24/6 train/validation，新的互斥30场只做最终test。GRU相对单帧有改善，但test precision/recall/FPR仅为`0.217/0.781/0.511`，仍远低于准入线。因此不在该holdout上继续调参，不接Actor或Gate。若继续，必须重新建立更大的互斥数据划分，并事先固定能利用角度局部结构的轻量时空编码器。完整结果见 `results/D4_highres_temporal_risk_encoder_s20260724`。
+180-bin候选使用旧30场做24/6 train/validation，新的互斥30场只做最终test。GRU相对单帧有改善，但test precision/recall/FPR仅为`0.217/0.781/0.511`，仍远低于准入线。因此不在该holdout上继续调参，不接Actor或Gate。若继续，必须重新建立更大的互斥数据划分，并事先固定能利用角度局部结构的轻量时空编码器。完整结果见 `results/04_Gate前置验证/D4_highres_temporal_risk_encoder_s20260724`。
 
 历史 edge-1 residual v1/v2 将 deep、close、margin 混在一起且只使用单帧观测，因此不视为当前强交互 Actor 的正式训练；结果仅用于说明价值外推和静态观测问题。
 
-pilot 实测 epoch 1/2 full success 为 `0.5130/0.4704`，碰撞率为 `0.1546/0.1721`。更新后的 residual 几乎恒定饱和到 `[+0.10, -0.10]`，同时 Critic Q 上升而真实性能下降；拒绝当前 residual TD3 配置，不启动更多 seed 或 edge 1-2，完整归档见 `results/D4_interaction_edge1_residual_pilot_s20260720`。
+pilot 实测 epoch 1/2 full success 为 `0.5130/0.4704`，碰撞率为 `0.1546/0.1721`。更新后的 residual 几乎恒定饱和到 `[+0.10, -0.10]`，同时 Critic Q 上升而真实性能下降；拒绝当前 residual TD3 配置，不启动更多 seed 或 edge 1-2，完整归档见 `results/03_强交互Actor_研发记录/D4_interaction_edge1_residual_pilot_s20260720`。
 
 后续只允许一个直接针对该机制的 v2：复用 epoch 1 已预热 Critic，将 Actor Q 项按 batch mean absolute Q 归一化，并以权重 `2.5` 约束到冻结 5D 动作；训练一轮 40000 agent samples 后在相同 423 场 validation 上判定。除该 objective 外不扩大网络、不增加交互难度。
 
-v2 full success 为 `0.5177`，仅比现场冻结基线 `0.5130` 多 2 场，同时碰撞增加，且低于历史 5D 的 `0.5248`。Residual 边界饱和已消失，说明价值外推约束有效，但仍未形成可用的状态相关避让行为；停止继续调整 Actor objective，后续先补充相对速度/TTC 等交互观测或独立交互监督信号。完整归档见 `results/D4_interaction_edge1_conservative_residual_v2_s20260720`。
+v2 full success 为 `0.5177`，仅比现场冻结基线 `0.5130` 多 2 场，同时碰撞增加，且低于历史 5D 的 `0.5248`。Residual 边界饱和已消失，说明价值外推约束有效，但仍未形成可用的状态相关避让行为；停止继续调整 Actor objective，后续先补充相对速度/TTC 等交互观测或独立交互监督信号。完整归档见 `results/03_强交互Actor_研发记录/D4_interaction_edge1_conservative_residual_v2_s20260720`。
 
-60 场冻结 5D 风险 probe 进一步确认：按同步路径最小间距分层后，deep/close/margin full success 为 `0.15/0.55/0.85`；失败组在进入约 `1.2 m` 接近区时的闭合速度更高、TTC 更短，但 5D 仍保持高线速度。当前单帧 Actor 不显式观测这些动态量，因此暂停 specialist 续训，先运行固定优先级让行 oracle 验证可解上限。完整归档见 `results/D4_interaction_risk_probe_5d_s20260721`。
+60 场冻结 5D 风险 probe 进一步确认：按同步路径最小间距分层后，deep/close/margin full success 为 `0.15/0.55/0.85`；失败组在进入约 `1.2 m` 接近区时的闭合速度更高、TTC 更短，但 5D 仍保持高线速度。当前单帧 Actor 不显式观测这些动态量，因此暂停 specialist 续训，先运行固定优先级让行 oracle 验证可解上限。完整归档见 `results/04_Gate前置验证/D4_interaction_risk_probe_5d_s20260721`。
 
-固定优先级让行 oracle 在全部 edge-1 上将碰撞率从 `0.170` 降到 `0.147`，但 full success 从 `0.517` 降到 `0.450`。分层后，deep full success 从 `0.15` 升到 `0.35`，close/margin 却从 `0.55/0.85` 降到 `0.30/0.70`。因此拒绝“只要有交互就停车”，但保留“仅在紧迫冲突切换到交互专家”的主线。下一阶段先定义可部署的时序闭合速度/TTC 观测，不直接继续训练。完整归档见 `results/D4_interaction_risk_yield_oracle_s20260721`。
+固定优先级让行 oracle 在全部 edge-1 上将碰撞率从 `0.170` 降到 `0.147`，但 full success 从 `0.517` 降到 `0.450`。分层后，deep full success 从 `0.15` 升到 `0.35`，close/margin 却从 `0.55/0.85` 降到 `0.30/0.70`。因此拒绝“只要有交互就停车”，但保留“仅在紧迫冲突切换到交互专家”的主线。下一阶段先定义可部署的时序闭合速度/TTC 观测，不直接继续训练。完整归档见 `results/04_Gate前置验证/D4_interaction_risk_yield_oracle_s20260721`。
 
-基于扇区最小距离的自运动补偿时序差分已在 20-bin 和独立 180-bin 输入上审计。两者 frame recall 为 `0.808/0.909`，但 false-positive rate 高达 `0.636/0.738`，且所有 episode 都被激活。根因是扇区最小值没有稳定物体关联；该特征族已拒绝，不接入 Actor/Gate，不继续调阈值。下一步只做原始二维点的自运动补偿移动簇可行性验证。完整归档见 `results/D4_temporal_interaction_scan_diff_s20260721`。
+基于扇区最小距离的自运动补偿时序差分已在 20-bin 和独立 180-bin 输入上审计。两者 frame recall 为 `0.808/0.909`，但 false-positive rate 高达 `0.636/0.738`，且所有 episode 都被激活。根因是扇区最小值没有稳定物体关联；该特征族已拒绝，不接入 Actor/Gate，不继续调阈值。下一步只做原始二维点的自运动补偿移动簇可行性验证。完整归档见 `results/04_Gate前置验证/D4_temporal_interaction_scan_diff_s20260721`。
 
 ### S3: 条件交互Actor有效性审计
 
@@ -270,7 +272,7 @@ oracle距离阈值内执行，并只从安全聚焦样本更新。因此首先�
 `0.533/0.825/0.825`。逐场weak-only/combination-only为`8/47`，说明条件
 交互Actor在其实际调用方式下有效；同时平均步数`35.2 -> 54.3`和2个timeout
 表明其行为偏保守。完整结果见
-`results/D4_interaction_actor_matched_validation_s20260727`。
+`results/05_当前冻结方案/D4_interaction_actor_matched_validation_s20260727`。
 
 固定`2.0 m` oracle只用于验证训练上限，不能作为部署方法。强制交互Actor
 全程运行的83场partial诊断只证明其不具备训练契约之外的普通导航能力，不用于
@@ -448,7 +450,7 @@ success + collision + unresolved = N * episodes
 
 以下段落记录当时每一步为什么继续或停止，只用于追溯，不覆盖上面的当前决策。
 
-后续完成了5A warm-start下的Critic context严格对照：将旧世界坐标几何context修正为本车坐标系相对位置与相对速度后，epoch 2 full success仍从`0.500`降至`0.421`，deep从`0.200`降至`0.133`。Replay审计显示`<=0.8m`危险状态只占`2.84%`，且训练后Actor在该层增加线速度`+0.128`，Critic对明显变化动作的错误偏好率为`76.77%`。因此context修复保留，但不再增加epoch；下一次严格对照只修改安全reward：在`1.2m`内加入随线速度增长的近车处罚，并奖励“机器人间距增大且自身仍向目标前进”的有效避让结果。完整结果见`results/D4_interaction_ego_motion_from_5a_s20260725`。
+后续完成了5A warm-start下的Critic context严格对照：将旧世界坐标几何context修正为本车坐标系相对位置与相对速度后，epoch 2 full success仍从`0.500`降至`0.421`，deep从`0.200`降至`0.133`。Replay审计显示`<=0.8m`危险状态只占`2.84%`，且训练后Actor在该层增加线速度`+0.128`，Critic对明显变化动作的错误偏好率为`76.77%`。因此context修复保留，但不再增加epoch；下一次严格对照只修改安全reward：在`1.2m`内加入随线速度增长的近车处罚，并奖励“机器人间距增大且自身仍向目标前进”的有效避让结果。完整结果见`results/03_强交互Actor_研发记录/D4_interaction_ego_motion_from_5a_s20260725`。
 
 安全reward对照仍未解决退化：epoch 2 full success从`0.457`降至`0.429`，deep从`0.150`降至`0.100`。进一步审计确认，fresh Critic在训练前就因随机初始化产生几乎单向的动作梯度；冻结Actor训练一个epoch后，该偏置被放大到危险状态中线速度和角速度正梯度均接近`100%`。同时Critic均匀采样全部Replay，而危险样本仅约`2.6%`；安全reward还曾计入Critic不可见或已结束的邻车。当前修复统一reward与Critic的可见active邻车口径、令Critic batch中`75%`来自交互样本，并在Actor解冻前检查危险样本动作梯度；样本不足或梯度近乎单向时继续冻结Actor，不再让错误Critic直接更新Actor。
 
@@ -456,19 +458,19 @@ success + collision + unresolved = N * episodes
 
 Critic反事实排序正式pilot将危险线速度正梯度稳定降到约`20%-35%`，但Actor解冻后full success仍从`0.500`降至`0.464`，deep从`0.217`降至`0.133`。Replay对照显示Actor在`<=1.2m`状态仍增加线速度`+0.012`，并产生全局角速度偏移`+0.093`。根因是Actor仍从全部`<=2.0m`交互样本更新，而Critic安全约束只覆盖近距离接近样本。下一次对照保留Critic修复，只让Actor从`<=1.0m`且闭合速度`>=0.1m/s`的候选池更新，并仅对角速度锚定5A；不约束线速度，以保留学习减速的空间。
 
-安全聚焦Actor pilot首次在同一轮冻结基线对照中全面提升：agent success从`0.820`升至`0.840`，collision从`0.179`降至`0.160`，full success从`0.436`升至`0.500`；deep/close/margin full success分别从`0.150/0.500/0.800`升至`0.217/0.600/0.825`。Replay行为审计确认`<=0.8m`线速度下降`0.079`，危险加速问题已消除；仍存在`-0.055`全局角速度漂移。该epoch 2暂列强交互Actor候选，但考虑固定Gazebo验证仍有波动，下一步先重复140场固定验证，再决定是否运行独立训练seed和进入D5互补性审计。完整归档见`results/D4_interaction_focused_actor_from_5a_s20260725`。
+安全聚焦Actor pilot首次在同一轮冻结基线对照中全面提升：agent success从`0.820`升至`0.840`，collision从`0.179`降至`0.160`，full success从`0.436`升至`0.500`；deep/close/margin full success分别从`0.150/0.500/0.800`升至`0.217/0.600/0.825`。Replay行为审计确认`<=0.8m`线速度下降`0.079`，危险加速问题已消除；仍存在`-0.055`全局角速度漂移。该epoch 2暂列强交互Actor候选，但考虑固定Gazebo验证仍有波动，下一步先重复140场固定验证，再决定是否运行独立训练seed和进入D5互补性审计。完整归档见`results/03_强交互Actor_研发记录/D4_interaction_focused_actor_from_5a_s20260725`。
 
-同配置的全套5D对照中，epoch 2相对冻结epoch 1仅将agent/full success从`0.824/0.471`提高到`0.830/0.479`，即full仅多成功`1/140`场；deep/close有所提高，但margin full从`0.875`降至`0.800`。其改善明显弱于全套5A配置的`0.436 -> 0.500`。由于当时启动脚本把强Actor warm-start和oracle弱Actor绑定为同一模型，该结果比较的是“全套5A”与“全套5D”，不是纯初始化消融。下一次正式长跑将二者解耦：强Actor从5A初始化，非强交互状态固定由5D执行。完整归档见`results/D4_interaction_focused_actor_from_5d_s20260725`。
+同配置的全套5D对照中，epoch 2相对冻结epoch 1仅将agent/full success从`0.824/0.471`提高到`0.830/0.479`，即full仅多成功`1/140`场；deep/close有所提高，但margin full从`0.875`降至`0.800`。其改善明显弱于全套5A配置的`0.436 -> 0.500`。由于当时启动脚本把强Actor warm-start和oracle弱Actor绑定为同一模型，该结果比较的是“全套5A”与“全套5D”，不是纯初始化消融。下一次正式长跑将二者解耦：强Actor从5A初始化，非强交互状态固定由5D执行。完整归档见`results/03_强交互Actor_研发记录/D4_interaction_focused_actor_from_5d_s20260725`。
 
-解耦后的`5A强Actor初始化 + 5D弱Actor`对照没有通过：冻结epoch 1的agent/full success为`0.839/0.514`，Actor更新后的epoch 2降至`0.811/0.407`；deep/close full分别从`0.217/0.650`降至`0.100/0.475`。恢复过程、Replay、Critic和epoch计数正常，退化发生在Actor解冻后。该结果说明不能在改变弱Actor轨迹分布的同时直接外推此前全套5A训练结论；停止该checkpoint。接下来回到唯一产生明确正向结果的全套5A实验，从其epoch 2 checkpoint原样续训，再独立评估最佳强Actor与5D的oracle配对。完整归档见`results/D4_interaction_focused_actor_5a_init_5d_weak_s20260726`。
+解耦后的`5A强Actor初始化 + 5D弱Actor`对照没有通过：冻结epoch 1的agent/full success为`0.839/0.514`，Actor更新后的epoch 2降至`0.811/0.407`；deep/close full分别从`0.217/0.650`降至`0.100/0.475`。恢复过程、Replay、Critic和epoch计数正常，退化发生在Actor解冻后。该结果说明不能在改变弱Actor轨迹分布的同时直接外推此前全套5A训练结论；停止该checkpoint。接下来回到唯一产生明确正向结果的全套5A实验，从其epoch 2 checkpoint原样续训，再独立评估最佳强Actor与5D的oracle配对。完整归档见`results/03_强交互Actor_研发记录/D4_interaction_focused_actor_5a_init_5d_weak_s20260726`。
 
-后续续训到旧epoch 8进一步确认了安全聚焦Actor配置能够产生正向候选，但旧640场训练使用随机有放回抽样，实际场景覆盖和deep/close/margin短窗口比例均不受保证，因此旧epoch 1-8只作为配置筛选依据，不作为正式长跑曲线。正式长跑从原始5A重新开始，保持已验证有效的全套5A rollout、TD3、reward、Critic ranking、Actor安全聚焦更新和解冻条件不变；唯一实验变量是改用不含validation/test的2560场`full_train`以及修复后的`balanced_cycle`。上限设为16个固定样本epoch，预计足以完成至少一次全池遍历，并在每20,000 agent samples后继续使用同一140场validation选择best。旧epoch 7 + 新Critic的短暂重热实验在Actor解冻前停止，见`results/D4_aborted_e7_rewarm_balanced_preunlock_s20260726`。
+后续续训到旧epoch 8进一步确认了安全聚焦Actor配置能够产生正向候选，但旧640场训练使用随机有放回抽样，实际场景覆盖和deep/close/margin短窗口比例均不受保证，因此旧epoch 1-8只作为配置筛选依据，不作为正式长跑曲线。正式长跑从原始5A重新开始，保持已验证有效的全套5A rollout、TD3、reward、Critic ranking、Actor安全聚焦更新和解冻条件不变；唯一实验变量是改用不含validation/test的2560场`full_train`以及修复后的`balanced_cycle`。上限设为16个固定样本epoch，预计足以完成至少一次全池遍历，并在每20,000 agent samples后继续使用同一140场validation选择best。旧epoch 7 + 新Critic的短暂重热实验在Actor解冻前停止，见`results/90_中止与无效运行/D4_aborted_e7_rewarm_balanced_preunlock_s20260726`。
 
-正式均衡长跑已正常完成16个epoch和`320,000` agent samples，覆盖全部`2560/2560`个训练场景。训练期oracle组合的固定validation full success从epoch 1冻结5A的`0.436`提高到epoch 16的`0.707`，deep/close/margin分别从`0.183/0.475/0.775`提高到`0.617/0.675/0.875`，碰撞率从`0.174`降至`0.079`；同时平均步数从`33.1`升至`54.5`，表明策略更慢、更保守。epoch 16随后通过匹配重复validation并冻结；该结果包含privileged oracle分工，不能当作条件Actor全程独立成绩或Gate成绩。完整归档见`results/D4_interaction_focused_actor_from_5a_fullstrong_balanced_formal_s20260726`。
+正式均衡长跑已正常完成16个epoch和`320,000` agent samples，覆盖全部`2560/2560`个训练场景。训练期oracle组合的固定validation full success从epoch 1冻结5A的`0.436`提高到epoch 16的`0.707`，deep/close/margin分别从`0.183/0.475/0.775`提高到`0.617/0.675/0.875`，碰撞率从`0.174`降至`0.079`；同时平均步数从`33.1`升至`54.5`，表明策略更慢、更保守。epoch 16随后通过匹配重复validation并冻结；该结果包含privileged oracle分工，不能当作条件Actor全程独立成绩或Gate成绩。完整归档见`results/05_当前冻结方案/D4_interaction_focused_actor_from_5a_fullstrong_balanced_formal_s20260726`。
 
-训练同口径的独立重复validation已完成：5A基线与`5A + epoch16 interaction Actor`的full success为`0.421/0.700`，几乎复现训练时的`0.436/0.707`；agent success、collision和平均步数也分别复现为`0.916/0.080/54.3`。因此训练效果不是单次epoch 16偶然峰值，但结论只适用于条件交互Actor的匹配调用方式。完整归档见`results/D4_interaction_actor_matched_validation_s20260727`。
+训练同口径的独立重复validation已完成：5A基线与`5A + epoch16 interaction Actor`的full success为`0.421/0.700`，几乎复现训练时的`0.436/0.707`；agent success、collision和平均步数也分别复现为`0.916/0.080/54.3`。因此训练效果不是单次epoch 16偶然峰值，但结论只适用于条件交互Actor的匹配调用方式。完整归档见`results/05_当前冻结方案/D4_interaction_actor_matched_validation_s20260727`。
 
-弱交互补测进一步显示，5A/5D在相同248个固定0-edge validation场景上的full success为`0.8750/0.8710`，逐场5A-only/5D-only为`12/11`，McNemar exact `p=1.0`。两者能力等价，因此主线选择与交互Actor训练分布一致的5A作为弱Actor，不再引入5D到5A的额外切换层。完整归档见`results/D4_weak_actor_5a_vs_5d_s20260727`。
+弱交互补测进一步显示，5A/5D在相同248个固定0-edge validation场景上的full success为`0.8750/0.8710`，逐场5A-only/5D-only为`12/11`，McNemar exact `p=1.0`。两者能力等价，因此主线选择与交互Actor训练分布一致的5A作为弱Actor，不再引入5D到5A的额外切换层。完整归档见`results/05_当前冻结方案/D4_weak_actor_5a_vs_5d_s20260727`。
 
 ## 11. 预期贡献表述
 

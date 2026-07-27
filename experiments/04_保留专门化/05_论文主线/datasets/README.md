@@ -1,8 +1,19 @@
-# Fixed Scenario Datasets
+# 数据集索引
 
-这里只保留两个场景池：`standard` 和 `dense`。每个 JSON 场景都完整保存五台机器人的起点、目标、初始朝向、四个箱子、生成 seed、静态可行性和同步冲突指标。
+数据目录保持稳定路径，不随结果归档改名。训练、validation 和 test 的角色以各数据集自己的 README 与 manifest 为准。
 
-`pilot/` 是管线测试样本，不能作为论文结果。已经冻结的正式数据和校验值见 [fixed_v1](fixed_v1/README.md)。正式数据按以下顺序产生：
+| 目录 | 状态 | 用途 | 是否用于当前正式方法 |
+| --- | --- | --- | --- |
+| [`fixed_v1/`](fixed_v1/README.md) | frozen | standard/dense 固定随机场景及互斥划分 | 是，主场景池与基线 |
+| `candidates_20260717/` | provenance | fixed-v1 筛选前候选清单 | 否，不直接训练或测试 |
+| [`pilot/`](pilot/README.md) | pilot | 生成、筛选和 manifest 回放冒烟验证 | 否 |
+| [`pair_interaction_curriculum_v1/`](pair_interaction_curriculum_v1/README.md) | historical diagnostic | 两车 head-on/crossing/lane-swap 诊断 | 否，不再继续双车路线 |
+
+`fixed_v1` 下的 test 在方法和阈值冻结前不得用于调参。运行时 Gate 不得读取场景池名称、冲突边或其他离线标签。
+
+## 固定场景内容
+
+正式 manifest 中每个场景完整保存五台机器人的起点、目标、初始朝向、四个箱子、生成 seed、静态可行性和同步冲突指标。正式数据按以下顺序产生：
 
 ```bash
 source env.python.sh
@@ -34,4 +45,4 @@ export DRL_MULTI_MANIFEST_PATH=/path/to/dense/train.json.gz
 export DRL_MULTI_MANIFEST_SAMPLING=random  # 训练；测试使用 cycle
 ```
 
-Gate 直接混合 standard 与 dense 的 train split，不生成第三类 gate 场景。
+Gate 直接混合 standard 与 dense 的 train split，不生成第三类 Gate 场景。

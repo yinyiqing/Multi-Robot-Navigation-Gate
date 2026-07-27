@@ -1,6 +1,6 @@
-# Existing Scenario Comparison
+# 历史场景对照与当前替代
 
-本文整理 2026-07-17 之前已经实际运行的五车场景。它回答“现在手里有什么”，不代表 procedural low/medium/high 已经完成。
+本文整理 2026-07-17 之前实际运行的五车场景，并说明它们后来被什么替代。前 3 节是历史口径，不能覆盖当前 fixed-v1 协议。
 
 ## 1. 四种随机场景参数
 
@@ -65,21 +65,24 @@
 
 第一条 case 中有一台 retention robot 的任务距离只有 `0.304 m`，几乎等于 `0.3 m` 到达阈值。这是明显的 case-specific 设计，不适合作为统一难度训练样本。
 
-## 4. 当前定位
+## 4. 历史场景的当前定位
 
-| 场景 | 后续角色 |
+| 场景 | 当前角色 |
 | --- | --- |
-| `standard-5` | generalist retention baseline |
-| random dense default | spatial-density 机制诊断 |
-| random tight1 | spatial-density 诊断；证明仅缩小随机空间会显著增加碰撞压力 |
-| random tight2 | 当前最合适的 5 车 dense-specialist 训练入口候选，5D baseline 约 `0.802` |
-| fixed moderate cases | canonical held-out interaction tests |
-| procedural low/medium/high | 尚未实现；未来正式训练和 density sweep 数据 |
+| `standard-5` | 历史 generalist 基线；正式随机池已由 fixed-v1 standard 替代 |
+| random dense default | 历史 spatial-density 诊断，不进入当前训练或主表 |
+| random tight1 / tight2 | 历史参数敏感性诊断，不再作为 dense expert 训练入口 |
+| fixed moderate cases | 历史人工难例与失败诊断，不作为正式 held-out test |
+| fixed-v1 standard / dense | 当前两个固定随机场景池 |
+| `strong_interaction_curriculum_v1` | 从 fixed-v1 训练集派生的强交互训练视图；已完成条件 Actor 训练 |
+| `weak_interaction_validation_v1` | 从 fixed-v1 validation 派生的 0-edge 评估视图 |
 
-正式 low/medium/high 必须统一任务距离分布、静态/随机障碍条件和安全间距，只按 synchronized conflict graph 改变 interaction density。
+strong/weak 只是同一 fixed-v1 场景池的冲突分层视图，不是第三、第四种环境，也不对应新的 Actor 身份。
 
 ## 5. 数据位置
 
-- standard 1000-episode 结果：[D3 generalist baseline](results/D3_generalist_baseline/README.md)
+- 当前数据总入口：[datasets](datasets/README.md)
+- fixed-v1 正式场景与哈希：[fixed_v1](datasets/fixed_v1/README.md)
+- standard 1000-episode 结果：[D3 generalist baseline](results/01_基线评估/D3_generalist_baseline/README.md)
 - random/fixed dense 日志与诊断：[dense definition diagnostics](../03_dense专家训练/logs/test/dense_definition_20260716/README.md)
 - fixed moderate case 坐标：`experiments/02_课程学习/cases/stage4_asym_dense_5_moderate_cases.json`

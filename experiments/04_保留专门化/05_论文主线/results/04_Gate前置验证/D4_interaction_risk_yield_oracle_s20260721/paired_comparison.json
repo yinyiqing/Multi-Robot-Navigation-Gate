@@ -1,6 +1,6 @@
 {
-  "baseline": "experiments/04_保留专门化/05_论文主线/results/D4_interaction_risk_probe_5d_s20260721/summary.json",
-  "candidate": "experiments/04_保留专门化/05_论文主线/results/D4_interaction_risk_yield_oracle_s20260721/summary.json",
+  "baseline": "experiments/04_保留专门化/05_论文主线/results/04_Gate前置验证/D4_interaction_risk_probe_5d_s20260721/summary.json",
+  "candidate": "experiments/04_保留专门化/05_论文主线/results/04_Gate前置验证/D4_interaction_risk_yield_oracle_s20260721/summary.json",
   "paired": {
     "close": {
       "both_success": 5,
