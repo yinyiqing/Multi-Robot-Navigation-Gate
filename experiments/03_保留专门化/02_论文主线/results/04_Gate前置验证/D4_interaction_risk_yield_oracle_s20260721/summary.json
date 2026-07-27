@@ -1,6 +1,6 @@
 {
   "protocol": {
-    "manifest": "experiments/04_保留专门化/05_论文主线/datasets/fixed_v1/views/interaction_risk_v1/probe.json.gz",
+    "manifest": "experiments/03_保留专门化/02_论文主线/datasets/fixed_v1/views/interaction_risk_v1/probe.json.gz",
     "manifest_sha256": "13d6abc630c8c52565981f79b03926d944a36117a35fcdc9902bcf91e041714f",
     "log": "logs/test_interaction_risk_yield_oracle_v1_s20260721_20260721_154651.log",
     "log_sha256": "3cb8bacbd86c3cb2c07f4e3df14a009bbdacda556f0c2ea1a7cc1f2f9331dd5d",

@@ -1,6 +1,6 @@
 # 保留与专门化
 
-状态：`current research branch`。具体方法、数据和实验顺序只以 [论文主线协议](05_论文主线/README.md) 为准。
+状态：`current research branch`。具体方法、数据和实验顺序只以 [论文主线协议](02_论文主线/README.md) 为准。
 
 ## 为什么进入这条路线
 
@@ -16,15 +16,25 @@
 
 当前结论不再是训练两个完整的 standard/dense 场景专家。正式路线冻结 `generalist-5a` 作为普通导航 Actor，并冻结已经通过匹配重复验证的 `strong-interaction-5a-balanced` 作为条件交互 Actor。下一阶段只训练状态级 Gate；开始前必须先让本机传感器可靠地区分机器人与静态障碍。
 
-## 子目录角色
+## 目录逻辑
 
 | 目录 | 状态 | 内容 |
 | --- | --- | --- |
-| `01_冲突验证/` | historical diagnostic | 5A、5D、PAIR 的能力覆盖证据；结果使用旧口径 |
-| `02_双Actor切换/` | failed diagnostic | 5A + 5D hard switch 和 case oracle 未超过 5D |
-| `03_dense专家训练/` | diagnostic / failed | full fine-tune、head-only、random/fixed dense 和 residual 脚手架 |
-| `04_安全兜底/` | planned | 当前不推进 |
-| `05_论文主线/` | current | dense 定义、数据划分、实验矩阵和决策门 |
+| [`01_历史诊断/`](01_历史诊断/README.md) | historical / failed | 解释为什么旧的覆盖训练和 5A+5D 切换不能作为最终方案 |
+| [`02_论文主线/`](02_论文主线/README.md) | current | fixed-v1、条件交互 Actor、机器人感知和 Gate 的唯一当前协议 |
+| [`90_未启用方案/`](90_未启用方案/README.md) | planned / inactive | 尚未进入实验流程的安全兜底备选 |
+
+原来的五个平级目录实际混合了三种性质，现已归位：
+
+| 原目录 | 现在的位置 | 含义 |
+| --- | --- | --- |
+| `01_冲突验证` | `01_历史诊断/01_冲突验证` | 证明继续训练会覆盖已有能力 |
+| `02_双Actor切换` | `01_历史诊断/02_双Actor切换` | 证明旧 5A+5D 没有足够互补性 |
+| `03_dense专家训练` | `01_历史诊断/03_dense专家训练` | 记录完整 dense expert、head 和 residual 的失败尝试 |
+| `04_安全兜底` | `90_未启用方案/安全兜底` | 从未启用，不属于主线阶段 |
+| `05_论文主线` | `02_论文主线` | 当前正式路线 |
+
+逻辑顺序是：课程学习得到 5A/5D，历史诊断否定覆盖式训练和旧双 Actor 切换，当前主线重新构建互补的条件交互 Actor，再解决可部署 Gate。安全兜底只有在 Gate 仍无法覆盖极端风险时才考虑。
 
 ## 已确认的证据
 

@@ -40,7 +40,7 @@ Actor和Critic不读取 `interaction_band`。该标签只用于构造课程和�
 
 ```bash
 python scripts/build_strong_interaction_curriculum.py \
-  --output experiments/04_保留专门化/05_论文主线/datasets/fixed_v1/views/strong_interaction_curriculum_v1
+  --output experiments/03_保留专门化/02_论文主线/datasets/fixed_v1/views/strong_interaction_curriculum_v1
 ```
 
 SHA-256：

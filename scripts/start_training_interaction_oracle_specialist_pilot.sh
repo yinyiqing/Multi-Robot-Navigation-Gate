@@ -3,7 +3,7 @@ set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TD3_DIR="$PROJECT_ROOT/TD3"
-VIEW_DIR="$PROJECT_ROOT/experiments/04_保留专门化/05_论文主线/datasets/fixed_v1/views/strong_interaction_curriculum_v1"
+VIEW_DIR="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/datasets/fixed_v1/views/strong_interaction_curriculum_v1"
 TRAIN_MANIFEST="${DRL_MULTI_TRAIN_MANIFEST:-$VIEW_DIR/stage2_train.json.gz}"
 EVAL_MANIFEST="${DRL_MULTI_EVAL_MANIFEST:-$VIEW_DIR/validation.json.gz}"
 MANIFEST_SAMPLING="${DRL_MULTI_MANIFEST_SAMPLING:-random}"

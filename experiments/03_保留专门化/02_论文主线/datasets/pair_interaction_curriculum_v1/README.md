@@ -30,8 +30,8 @@ source env.python.sh
 python3 scripts/build_pair_interaction_curriculum.py
 
 python3 scripts/audit_fixed_scenarios.py --num-agents 2 \
-  experiments/04_保留专门化/05_论文主线/datasets/pair_interaction_curriculum_v1/train.json.gz \
-  experiments/04_保留专门化/05_论文主线/datasets/pair_interaction_curriculum_v1/validation.json.gz
+  experiments/03_保留专门化/02_论文主线/datasets/pair_interaction_curriculum_v1/train.json.gz \
+  experiments/03_保留专门化/02_论文主线/datasets/pair_interaction_curriculum_v1/validation.json.gz
 ```
 
 训练入口：

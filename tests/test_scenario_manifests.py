@@ -79,7 +79,7 @@ class ScenarioManifestTests(unittest.TestCase):
     def test_interaction_risk_probe_is_balanced(self):
         view_root = (
             ROOT
-            / "experiments/04_保留专门化/05_论文主线/datasets/fixed_v1/views/interaction_risk_v1"
+            / "experiments/03_保留专门化/02_论文主线/datasets/fixed_v1/views/interaction_risk_v1"
         )
         probe = load_manifest_dataset(view_root / "probe.json.gz")["scenarios"]
         self.assertEqual(len(probe), 60)
@@ -186,7 +186,7 @@ class ScenarioManifestTests(unittest.TestCase):
     def test_edge1_pilot_views_are_balanced_and_disjoint(self):
         view_root = (
             ROOT
-            / "experiments/04_保留专门化/05_论文主线/datasets/fixed_v1/views/edge1_pilot"
+            / "experiments/03_保留专门化/02_论文主线/datasets/fixed_v1/views/edge1_pilot"
         )
         train = load_manifest_dataset(view_root / "train.json.gz")["scenarios"]
         validation = load_manifest_dataset(view_root / "validation.json.gz")["scenarios"]

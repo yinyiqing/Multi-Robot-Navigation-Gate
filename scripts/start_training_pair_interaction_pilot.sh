@@ -3,7 +3,7 @@ set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TD3_DIR="$PROJECT_ROOT/TD3"
-DATASET_DIR="$PROJECT_ROOT/experiments/04_保留专门化/05_论文主线/datasets/pair_interaction_curriculum_v1"
+DATASET_DIR="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/datasets/pair_interaction_curriculum_v1"
 LOG_DIR="$PROJECT_ROOT/logs"
 PID_FILE="$PROJECT_ROOT/.train_pair_interaction_pilot.pid"
 BASE_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_to_5d_geo_critic_from_5a_guarded_best"

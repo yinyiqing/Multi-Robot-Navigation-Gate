@@ -21,7 +21,7 @@
 
 训练日志已归档到：
 
-- `experiments/04_保留专门化/01_冲突验证/logs/train/train_multi_curriculum_stage3_asym_pair_5_detached_20260712_234835.log`
+- `experiments/03_保留专门化/01_历史诊断/01_冲突验证/logs/train/train_multi_curriculum_stage3_asym_pair_5_detached_20260712_234835.log`
 
 正式测试：
 

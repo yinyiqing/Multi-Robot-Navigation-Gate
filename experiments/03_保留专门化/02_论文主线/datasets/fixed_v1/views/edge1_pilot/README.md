@@ -14,7 +14,7 @@
 ```bash
 source env.python.sh
 scripts/build_interaction_views.py \
-  --output experiments/04_保留专门化/05_论文主线/datasets/fixed_v1/views/edge1_pilot
+  --output experiments/03_保留专门化/02_论文主线/datasets/fixed_v1/views/edge1_pilot
 ```
 
 SHA-256：

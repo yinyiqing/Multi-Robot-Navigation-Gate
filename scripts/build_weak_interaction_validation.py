@@ -9,7 +9,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DATASET_ROOT = (
     PROJECT_ROOT
-    / "experiments/04_保留专门化/05_论文主线/datasets/fixed_v1"
+    / "experiments/03_保留专门化/02_论文主线/datasets/fixed_v1"
 )
 DEFAULT_OUTPUT = (
     DEFAULT_DATASET_ROOT / "views/weak_interaction_validation_v1/validation.json.gz"

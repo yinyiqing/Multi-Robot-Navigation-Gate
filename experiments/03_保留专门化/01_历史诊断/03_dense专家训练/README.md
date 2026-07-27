@@ -1,8 +1,8 @@
-# 03 dense 专家训练
+# 旧 dense 专家训练
 
-状态：`diagnostic / failed training archive`。本目录记录 dense 定义诊断、full fine-tune 失败和 residual 代码脚手架；正式训练分布尚未实现，因此当前禁止从本目录启动训练。
+状态：`historical diagnostic / failed`。本目录记录 dense 定义诊断、full fine-tune 失败和 residual 代码脚手架，不能作为当前训练入口。
 
-后续目标是训练 interaction-dense residual specialist。开始条件和评测协议以 `../05_论文主线/README.md` 的 D1-D5 决策门为准。
+旧 residual 目标已经被后续条件交互 Actor 实验替代。当前方法与评测协议只看 [论文主线](../../02_论文主线/README.md)。
 
 ## 历史 fixed moderate 定义
 

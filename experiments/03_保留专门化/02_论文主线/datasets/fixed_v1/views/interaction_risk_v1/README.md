@@ -31,7 +31,7 @@ Pioneer 3DX 上层外形约为 `0.442 x 0.381 m`，外接圆半径约 `0.292 m`�
 ```bash
 source env.python.sh
 scripts/build_interaction_risk_views.py \
-  --output experiments/04_保留专门化/05_论文主线/datasets/fixed_v1/views/interaction_risk_v1 \
+  --output experiments/03_保留专门化/02_论文主线/datasets/fixed_v1/views/interaction_risk_v1 \
   --probe-per-pool 10 \
   --seed 20260721
 ```

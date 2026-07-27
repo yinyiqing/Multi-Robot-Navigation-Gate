@@ -50,7 +50,7 @@ def write(path, payload):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--dataset-root", type=Path, default=ROOT / "experiments/04_保留专门化/05_论文主线/datasets/fixed_v1")
+    ap.add_argument("--dataset-root", type=Path, default=ROOT / "experiments/03_保留专门化/02_论文主线/datasets/fixed_v1")
     ap.add_argument("--output", type=Path, required=True)
     ap.add_argument("--seed", type=int, default=20260726)
     args = ap.parse_args()

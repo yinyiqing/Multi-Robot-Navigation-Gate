@@ -84,5 +84,5 @@ strong/weak 只是同一 fixed-v1 场景池的冲突分层视图，不是第三�
 - 当前数据总入口：[datasets](datasets/README.md)
 - fixed-v1 正式场景与哈希：[fixed_v1](datasets/fixed_v1/README.md)
 - standard 1000-episode 结果：[D3 generalist baseline](results/01_基线评估/D3_generalist_baseline/README.md)
-- random/fixed dense 日志与诊断：[dense definition diagnostics](../03_dense专家训练/logs/test/dense_definition_20260716/README.md)
+- random/fixed dense 日志与诊断：[dense definition diagnostics](../01_历史诊断/03_dense专家训练/logs/test/dense_definition_20260716/README.md)
 - fixed moderate case 坐标：`experiments/02_课程学习/cases/stage4_asym_dense_5_moderate_cases.json`

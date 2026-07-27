@@ -19,7 +19,7 @@
   -> 只训练 Gate，在两个冻结 Actor 之间进行状态级切换
 ```
 
-当前处于 `D5-G0`：Actor 开发暂停，正在解决 Gate 的可观测性前提，即机器人与静态障碍的区分。唯一决策源是 [论文协议](experiments/04_保留专门化/05_论文主线/README.md)。
+当前处于 `D5-G0`：Actor 开发暂停，正在解决 Gate 的可观测性前提，即机器人与静态障碍的区分。唯一决策源是 [论文协议](experiments/03_保留专门化/02_论文主线/README.md)。
 
 ## 当前结论
 
@@ -48,7 +48,7 @@ bash scripts/experiment.sh status
 
 | 位置 | 内容 | 状态 |
 | --- | --- | --- |
-| [论文协议](experiments/04_保留专门化/05_论文主线/README.md) | 研究问题、dense 定义、决策门和实验矩阵 | 唯一当前协议 |
+| [论文协议](experiments/03_保留专门化/02_论文主线/README.md) | 研究问题、dense 定义、决策门和实验矩阵 | 唯一当前协议 |
 | [实验索引](experiments/README.md) | 各阶段作用、状态和阅读顺序 | 当前索引 |
 | [模型注册表](TD3/MODEL_REGISTRY.md) | 短模型 ID、实际文件名和使用限制 | 当前索引 |
 | [脚本索引](scripts/README.md) | 当前入口、历史脚本和命名规范 | 当前索引 |

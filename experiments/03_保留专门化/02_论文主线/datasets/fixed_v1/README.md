@@ -33,5 +33,5 @@ d2a09cf8d51b89a366d3661487471d2383ef6ef4490133ab0efd6c59772f9a23  dense/train.js
 
 ```bash
 python scripts/audit_fixed_scenarios.py \
-  experiments/04_保留专门化/05_论文主线/datasets/fixed_v1/{standard,dense}/{train,validation,test}.json.gz
+  experiments/03_保留专门化/02_论文主线/datasets/fixed_v1/{standard,dense}/{train,validation,test}.json.gz
 ```

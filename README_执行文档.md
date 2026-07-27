@@ -1,6 +1,6 @@
 # 执行手册
 
-本文档只描述当前机器上的稳定运行流程。历史实验命令见 [脚本索引](scripts/README.md)，研究决策见 [论文协议](experiments/04_保留专门化/05_论文主线/README.md)。
+本文档只描述当前机器上的稳定运行流程。历史实验命令见 [脚本索引](scripts/README.md)，研究决策见 [论文协议](experiments/03_保留专门化/02_论文主线/README.md)。
 
 当前阶段：`D0/D1`。只允许场景生成器开发和 generalist baseline 评估；在 D1-D3 完成前不启动 residual 或 gate 训练。
 

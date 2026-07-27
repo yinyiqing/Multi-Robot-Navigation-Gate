@@ -37,4 +37,4 @@ __pycache__/
 .DS_Store
 
 # Regenerable fixed-scenario candidates before Gazebo validity filtering.
-experiments/04_保留专门化/05_论文主线/datasets/candidates_*/
+experiments/03_保留专门化/02_论文主线/datasets/candidates_*/

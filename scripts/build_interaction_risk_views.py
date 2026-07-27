@@ -30,7 +30,7 @@ def parse_args():
         type=Path,
         default=(
             PROJECT_ROOT
-            / "experiments/04_保留专门化/05_论文主线/datasets/fixed_v1"
+            / "experiments/03_保留专门化/02_论文主线/datasets/fixed_v1"
         ),
     )
     parser.add_argument("--output", type=Path, required=True)
