@@ -9,6 +9,8 @@
 | [`pilot/`](pilot/README.md) | pilot | 生成、筛选和 manifest 回放冒烟验证 | 否 |
 | [`pair_interaction_curriculum_v1/`](pair_interaction_curriculum_v1/README.md) | historical diagnostic | 两车 head-on/crossing/lane-swap 诊断 | 否，不再继续双车路线 |
 
+当前机器人感知使用 [`fixed_v1/views/robot_perception_v1/`](fixed_v1/views/robot_perception_v1/README.md)。它只从导航 train 内部重新划分 `7200/900/900` 个感知 train/validation/sealed-test 场景，不读取导航 validation/test。
+
 `fixed_v1` 下的 test 在方法和阈值冻结前不得用于调参。运行时 Gate 不得读取场景池名称、冲突边或其他离线标签。
 
 ## 固定场景内容

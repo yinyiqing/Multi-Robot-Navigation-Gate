@@ -14,6 +14,7 @@ from interaction_oracle import interaction_mask
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
 from oracle_controllers import ConflictPairYieldOracle
 from outcome_utils import resolve_terminal_outcome
+from robot_perception.recorder import PerceptionShardRecorder
 
 
 class TD3(object):
@@ -259,6 +260,20 @@ test_stats_path = os.environ.get(
     default_test_stats_path,
 )
 trajectory_path = os.environ.get("DRL_MULTI_TRAJECTORY_JSONL", "").strip()
+perception_output_dir = os.environ.get(
+    "DRL_MULTI_ROBOT_PERCEPTION_OUTPUT_DIR", ""
+).strip()
+perception_split = os.environ.get(
+    "DRL_MULTI_ROBOT_PERCEPTION_SPLIT", "train"
+).strip()
+perception_frame_stride = env_int("DRL_MULTI_ROBOT_PERCEPTION_FRAME_STRIDE", 2)
+perception_max_background = env_int(
+    "DRL_MULTI_ROBOT_PERCEPTION_MAX_BACKGROUND", 12
+)
+if perception_output_dir:
+    if scenario_mode != "manifest":
+        raise ValueError("robot-perception recording requires scenario_mode=manifest")
+    os.environ["DRL_MULTI_RECORD_RAW_LIDAR"] = "1"
 print_every_episodes = 10
 environment_dim = 20
 robot_dim = 4
@@ -305,6 +320,17 @@ def current_case_name(env):
     if isinstance(case, dict):
         return str(case.get("scenario_id") or case.get("name") or "unnamed_curriculum_case")
     return "standard"
+
+
+def current_case_perception_metadata(env):
+    case = getattr(env, "current_curriculum_case", None)
+    if not isinstance(case, dict):
+        return "standard", "unknown"
+    view = case.get("view", {})
+    return (
+        str(view.get("perception_pool") or case.get("preset") or "unknown"),
+        str(view.get("interaction_band") or "unknown"),
+    )
 
 
 def new_case_record():
@@ -464,6 +490,8 @@ if rule_oracle_mode == "conflict_pair_yield":
     )
 
 test_state = load_test_state() or {}
+if scenario_mode == "manifest":
+    env.restore_manifest_sampling_state(test_state.get("manifest_sampling_state"))
 episode_num = test_state.get("episode_num", 0)
 total_env_steps = test_state.get("total_env_steps", 0)
 total_agent_samples = test_state.get("total_agent_samples", 0)
@@ -483,6 +511,16 @@ recent_full_success = []
 recent_timeout_episodes = []
 log_dir = make_test_run_dir()
 writer = SummaryWriter(log_dir=log_dir)
+perception_recorder = (
+    PerceptionShardRecorder(
+        perception_output_dir,
+        perception_split,
+        frame_stride=perception_frame_stride,
+        max_background_candidates=perception_max_background,
+    )
+    if perception_output_dir
+    else None
+)
 
 print("==============================================")
 print("Test version: multi-agent-eval-v1-headless")
@@ -532,12 +570,20 @@ print("Starting agent samples:", total_agent_samples)
 print("Target test episodes:", target_test_episodes or "unlimited")
 print("Trajectory JSONL:", trajectory_path or "disabled")
 print("Raw lidar recording:", "enabled" if env.record_raw_lidar else "disabled")
+print("Robot-perception shards:", perception_output_dir or "disabled")
+if perception_recorder is not None:
+    print("Robot-perception split:", perception_split)
+    print("Robot-perception frame stride:", perception_frame_stride)
 if scenario_mode in ("curriculum", "manifest"):
     print("Case-level stats enabled")
 print("==============================================")
 
 states = env.reset()
 episode_case_name = current_case_name(env)
+if perception_recorder is not None:
+    perception_recorder.begin_scenario(
+        episode_case_name, *current_case_perception_metadata(env)
+    )
 if dense_policy_controller is not None:
     dense_policy_controller.reset(agent_names)
 if rule_oracle_controller is not None:
@@ -586,9 +632,23 @@ while True:
             name: np.asarray(env.raw_lidar_points[name], dtype=float).round(4).tolist()
             for name in agent_names
         }
-        if env.record_raw_lidar
+        if env.record_raw_lidar and trajectory_path
         else None
     )
+    if perception_recorder is not None:
+        perception_recorder.record_frame(
+            env.raw_lidar_points,
+            {
+                name: [
+                    step_actor_poses[name]["x"],
+                    step_actor_poses[name]["y"],
+                    step_actor_poses[name]["yaw"],
+                ]
+                for name in agent_names
+            },
+            step_active_mask,
+            agent_names,
+        )
 
     for idx, state in enumerate(states):
         if not active_mask[idx]:
@@ -697,6 +757,20 @@ while True:
         continue
 
     episode_num += 1
+    if perception_recorder is not None:
+        perception_result = perception_recorder.finish_scenario()
+        print(
+            "Perception shard | case=%s | written=%s | candidates=%i | "
+            "visible_robots=%i | missed_visible_robots=%i | path=%s"
+            % (
+                episode_case_name,
+                perception_result["written"],
+                perception_result["candidates"],
+                perception_result["visible_robots"],
+                perception_result["missed_visible_robots"],
+                perception_result["path"],
+            )
+        )
     elapsed = time.time() - episode_start_time
     steps_per_sec = episode_agent_samples / elapsed if elapsed > 0 else 0.0
     success_rate = float(np.mean(episode_success_flags))
@@ -851,6 +925,9 @@ while True:
             "success_hist": success_hist,
             "collision_hist": collision_hist,
             "case_stats": case_stats,
+            "manifest_sampling_state": (
+                env.manifest_sampling_state() if scenario_mode == "manifest" else None
+            ),
             "last_episode_mean_reward": mean_reward,
         }
     )
@@ -882,6 +959,10 @@ while True:
 
     states = env.reset()
     episode_case_name = current_case_name(env)
+    if perception_recorder is not None:
+        perception_recorder.begin_scenario(
+            episode_case_name, *current_case_perception_metadata(env)
+        )
     if dense_policy_controller is not None:
         dense_policy_controller.reset(agent_names)
     if rule_oracle_controller is not None:

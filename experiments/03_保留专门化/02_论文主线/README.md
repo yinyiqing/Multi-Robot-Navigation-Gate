@@ -1,6 +1,6 @@
 # ICRA Paper Protocol: Preserve-and-Specialize
 
-状态：`冻结5A普通导航Actor和epoch-16条件交互Actor；进入D5-G0，先解决机器人/静态障碍区分，再训练可部署Gate`。
+状态：`冻结5A普通导航Actor和epoch-16条件交互Actor；D5-G0代码与固定感知清单已完成，下一步采集train/validation并验证机器人/静态障碍区分`。
 
 后续若改变方法主张、交互强度定义、数据划分或主指标，先修改本协议，再改代码和脚本。
 

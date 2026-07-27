@@ -12,19 +12,40 @@ Usage:
   bash scripts/experiment.sh stop <experiment-id>
 
 Supported current experiment IDs:
-  (none; gate-robot-perception is pending its G0 data protocol)
+  gate-robot-perception-train
+  gate-robot-perception-validation
 EOF
 }
 
 script_for() {
-  return 1
+  local command="$1"
+  local experiment_id="$2"
+  case "$command:$experiment_id" in
+    start:gate-robot-perception-train)
+      echo "$PROJECT_ROOT/scripts/start_robot_perception_collection.sh train"
+      ;;
+    stop:gate-robot-perception-train)
+      echo "$PROJECT_ROOT/scripts/stop_robot_perception_collection.sh train"
+      ;;
+    start:gate-robot-perception-validation)
+      echo "$PROJECT_ROOT/scripts/start_robot_perception_collection.sh validation"
+      ;;
+    stop:gate-robot-perception-validation)
+      echo "$PROJECT_ROOT/scripts/stop_robot_perception_collection.sh validation"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
 }
 
 show_status() {
   local found=0
   local pid_file pid
   for pid_file in \
-    "$PROJECT_ROOT/.test_lidar_cluster_sensor_probe_5d.pid"; do
+    "$PROJECT_ROOT/.test_lidar_cluster_sensor_probe_5d.pid" \
+    "$PROJECT_ROOT/.robot_perception_collection_train.pid" \
+    "$PROJECT_ROOT/.robot_perception_collection_validation.pid"; do
     [[ -f "$pid_file" ]] || continue
     pid="$(tr -d '[:space:]' < "$pid_file")"
     if [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null; then
@@ -59,7 +80,8 @@ case "$command" in
       usage >&2
       exit 2
     fi
-    exec "$script"
+    read -r -a script_parts <<< "$script"
+    exec "${script_parts[@]}"
     ;;
   *)
     usage >&2
