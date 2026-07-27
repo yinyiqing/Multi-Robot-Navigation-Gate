@@ -14,6 +14,8 @@ Usage:
 Supported current experiment IDs:
   gate-robot-perception-train
   gate-robot-perception-validation
+  gate-robot-perception-pilot-train
+  gate-robot-perception-pilot-validation
 EOF
 }
 
@@ -33,6 +35,18 @@ script_for() {
     stop:gate-robot-perception-validation)
       echo "$PROJECT_ROOT/scripts/stop_robot_perception_collection.sh validation"
       ;;
+    start:gate-robot-perception-pilot-train)
+      echo "$PROJECT_ROOT/scripts/start_robot_perception_collection.sh pilot-train"
+      ;;
+    stop:gate-robot-perception-pilot-train)
+      echo "$PROJECT_ROOT/scripts/stop_robot_perception_collection.sh pilot-train"
+      ;;
+    start:gate-robot-perception-pilot-validation)
+      echo "$PROJECT_ROOT/scripts/start_robot_perception_collection.sh pilot-validation"
+      ;;
+    stop:gate-robot-perception-pilot-validation)
+      echo "$PROJECT_ROOT/scripts/stop_robot_perception_collection.sh pilot-validation"
+      ;;
     *)
       return 1
       ;;
@@ -45,7 +59,9 @@ show_status() {
   for pid_file in \
     "$PROJECT_ROOT/.test_lidar_cluster_sensor_probe_5d.pid" \
     "$PROJECT_ROOT/.robot_perception_collection_train.pid" \
-    "$PROJECT_ROOT/.robot_perception_collection_validation.pid"; do
+    "$PROJECT_ROOT/.robot_perception_collection_validation.pid" \
+    "$PROJECT_ROOT/.robot_perception_collection_pilot_train.pid" \
+    "$PROJECT_ROOT/.robot_perception_collection_pilot_validation.pid"; do
     [[ -f "$pid_file" ]] || continue
     pid="$(tr -d '[:space:]' < "$pid_file")"
     if [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null; then

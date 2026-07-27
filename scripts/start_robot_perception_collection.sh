@@ -7,28 +7,44 @@ VIEW_DIR="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/datasets/
 EXPERIMENT_DIR="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/results/06_Gate开发/D5_G0_robot_detector_v1"
 LOG_DIR="$PROJECT_ROOT/logs"
 MODEL_NAME="TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best"
-SPLIT="${1:-}"
+PROFILE="${1:-}"
 
-case "$SPLIT" in
+case "$PROFILE" in
   train)
+    SPLIT=train
+    MANIFEST_NAME=train
     ROS_PORT=12803
     GAZEBO_PORT=12903
     ;;
   validation)
+    SPLIT=validation
+    MANIFEST_NAME=validation
+    ROS_PORT=13003
+    GAZEBO_PORT=13103
+    ;;
+  pilot-train)
+    SPLIT=train
+    MANIFEST_NAME=pilot_train
+    ROS_PORT=12803
+    GAZEBO_PORT=12903
+    ;;
+  pilot-validation)
+    SPLIT=validation
+    MANIFEST_NAME=pilot_validation
     ROS_PORT=13003
     GAZEBO_PORT=13103
     ;;
   *)
-    echo "Usage: $0 <train|validation>" >&2
+    echo "Usage: $0 <train|validation|pilot-train|pilot-validation>" >&2
     echo "The sealed test split cannot be collected through this development script." >&2
     exit 2
     ;;
 esac
 
-MANIFEST="$VIEW_DIR/$SPLIT.json.gz"
-OUTPUT_DIR="$EXPERIMENT_DIR/local_data/shards/$SPLIT"
-PID_FILE="$PROJECT_ROOT/.robot_perception_collection_${SPLIT}.pid"
-RUN_ID="robot_perception_v1_${SPLIT}"
+MANIFEST="$VIEW_DIR/$MANIFEST_NAME.json.gz"
+OUTPUT_DIR="$EXPERIMENT_DIR/local_data/shards/${PROFILE//-/_}"
+PID_FILE="$PROJECT_ROOT/.robot_perception_collection_${PROFILE//-/_}.pid"
+RUN_ID="robot_perception_v1_${PROFILE//-/_}"
 STATE_PATH="./checkpoints/${RUN_ID}_state.pt"
 STATS_PATH="./results/${RUN_ID}.npy"
 
@@ -40,7 +56,7 @@ STATS_PATH="./results/${RUN_ID}.npy"
 if [[ -f "$PID_FILE" ]]; then
   old_pid="$(tr -d '[:space:]' < "$PID_FILE")"
   if [[ "$old_pid" =~ ^[0-9]+$ ]] && kill -0 "$old_pid" 2>/dev/null; then
-    echo "Robot-perception $SPLIT collection is already running with PID $old_pid"
+    echo "Robot-perception $PROFILE collection is already running with PID $old_pid"
     exit 1
   fi
   unlink "$PID_FILE"
@@ -91,7 +107,7 @@ setsid bash -lc "
 " >"$log_file" 2>&1 < /dev/null &
 
 echo $! > "$PID_FILE"
-echo "Started robot-perception $SPLIT collection."
+echo "Started robot-perception $PROFILE collection."
 echo "PID: $(cat "$PID_FILE")"
 echo "Scenarios: $target_episodes / $scenario_count"
 echo "Log: $log_file"

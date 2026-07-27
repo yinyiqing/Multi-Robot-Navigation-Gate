@@ -18,6 +18,8 @@
 - `test.json.gz` 只完成封存；模型结构、阈值和训练协议冻结前不得采集或评估它。
 - 场景中的 `navigation_split=train` 记录其来源，`split` 表示新的感知用途。
 
+`pilot_train.json.gz` 和 `pilot_validation.json.gz` 各固定抽取 100 场，四层各 25 场。它们只用于先检查标签、proposal 和分类器可行性，不替代正式数据。
+
 重新生成：
 
 ```bash

@@ -47,6 +47,7 @@ def parse_args():
     )
     parser.add_argument("--train-ratio", type=float, default=0.8)
     parser.add_argument("--validation-ratio", type=float, default=0.1)
+    parser.add_argument("--pilot-per-stratum", type=int, default=25)
     parser.add_argument("--seed", type=int, default=20260727)
     return parser.parse_args()
 
@@ -139,6 +140,8 @@ def build_views(dataset_root, seed=20260727, train_ratio=0.8, validation_ratio=0
 
 def main():
     args = parse_args()
+    if args.pilot_per_stratum < 1:
+        raise ValueError("--pilot-per-stratum must be positive")
     selected, sources, stratum_counts = build_views(
         args.dataset_root,
         seed=args.seed,
@@ -168,6 +171,43 @@ def main():
         }
         write_gzip_json(path, payload)
         output_summary[split] = {"path": str(path), "scenarios": len(selected[split])}
+    for split_index, split in enumerate(("train", "validation")):
+        pilot = []
+        for pool, band in STRATA:
+            matches = [
+                scenario
+                for scenario in selected[split]
+                if scenario["view"]["perception_pool"] == pool
+                and scenario["view"]["interaction_band"] == band
+            ]
+            if len(matches) < args.pilot_per_stratum:
+                raise ValueError(
+                    f"{split} {pool}/{band} has only {len(matches)} scenarios, "
+                    f"need {args.pilot_per_stratum}"
+                )
+            pilot.extend(matches[: args.pilot_per_stratum])
+        random.Random(args.seed + 20000 + split_index).shuffle(pilot)
+        path = args.output / f"pilot_{split}.json.gz"
+        payload = {
+            "dataset_version": 1,
+            "dataset_id": f"robot-perception-v1-pilot-{split}",
+            "split": split,
+            "view_config": {
+                **config,
+                "pilot_per_stratum": args.pilot_per_stratum,
+                "pilot_only": True,
+            },
+            "source_manifests": sources,
+            "stratum_counts": {
+                f"{pool}_{band}": args.pilot_per_stratum for pool, band in STRATA
+            },
+            "scenarios": pilot,
+        }
+        write_gzip_json(path, payload)
+        output_summary[f"pilot_{split}"] = {
+            "path": str(path),
+            "scenarios": len(pilot),
+        }
     print(json.dumps({"outputs": output_summary, "strata": stratum_counts}, indent=2))
 
 

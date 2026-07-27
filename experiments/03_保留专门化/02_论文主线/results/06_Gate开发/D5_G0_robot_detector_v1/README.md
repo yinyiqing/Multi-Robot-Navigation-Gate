@@ -1,6 +1,6 @@
 # D5-G0 Robot Detector V1
 
-状态：`代码、固定清单和单场景运行时冒烟完成；正式train/validation尚未采集，sealed test未读取`。
+状态：`100+100场均衡pilot完成；候选生成通过，单帧CNN未通过硬分类准入线；sealed test未读取`。
 
 ## 要解决的问题
 
@@ -35,7 +35,14 @@ G0 未同时满足三项时，停止 Gate 训练并继续改感知；不能用 t
 
 ## 运行
 
-先采集 train，抽取一定数量后可并行采集 validation：
+先采集四层均衡的 100+100 场 pilot：
+
+```bash
+bash scripts/experiment.sh start gate-robot-perception-pilot-train
+bash scripts/experiment.sh start gate-robot-perception-pilot-validation
+```
+
+pilot 通过后才采集正式 train；正式 validation 可以使用另一组端口并行：
 
 ```bash
 bash scripts/experiment.sh start gate-robot-perception-train
@@ -74,11 +81,10 @@ python scripts/train_robot_detector.py \
 
 这是接口冒烟，不是分类器结果，也不能代替完整 validation 的 proposal recall。
 
-## 下一步判断
+## Pilot 结果与下一步
 
-1. 先用少量 train/validation 检查 proposal recall 和数据标签。
-2. proposal recall 不足时先修候选生成，不能靠 CNN 补救。
-3. proposal 足够但 FPR 高时，再比较局部 CNN 与 PointNet 点簇对照。
-4. 单帧 G0 通过后，才进入 G1 跟踪和 TTC；不先上 GRU。
+完整结果见 [PILOT_REPORT.md](PILOT_REPORT.md)。proposal recall 为 `0.9650`，但单帧 CNN 的最佳 validation 结果只有 precision `0.6626`、recall `0.8920`、FPR `0.1949`。延长训练、移除中心回归和缩窄窗口均未解决。
+
+因此停止扩大单帧 CNN，进入相邻目录 `D5_G1_robot_tracking_v1`。G1 在候选层使用本机位姿补偿、轨迹持续性和相对运动；不回到整帧 GRU，也不修改两个 Actor。
 
 相关工作与选择依据见 [RELATED_WORK.md](RELATED_WORK.md)。

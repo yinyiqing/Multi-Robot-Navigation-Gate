@@ -140,6 +140,28 @@ class ModelAndSplitTest(unittest.TestCase):
         self.assertFalse(split_ids["train"] & split_ids["test"])
         self.assertFalse(split_ids["validation"] & split_ids["test"])
 
+    def test_perception_pilot_views_are_balanced(self):
+        root = (
+            ROOT
+            / "experiments/03_保留专门化/02_论文主线/datasets/fixed_v1/views/robot_perception_v1"
+        )
+        for split in ("train", "validation"):
+            with gzip.open(
+                root / f"pilot_{split}.json.gz", "rt", encoding="utf-8"
+            ) as handle:
+                scenarios = json.load(handle)["scenarios"]
+            self.assertEqual(len(scenarios), 100)
+            for pool in ("standard", "dense"):
+                for band in ("weak", "interaction"):
+                    self.assertEqual(
+                        sum(
+                            scenario["view"]["perception_pool"] == pool
+                            and scenario["view"]["interaction_band"] == band
+                            for scenario in scenarios
+                        ),
+                        25,
+                    )
+
 
 if __name__ == "__main__":
     unittest.main()
