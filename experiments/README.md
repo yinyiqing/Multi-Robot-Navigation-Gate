@@ -45,6 +45,7 @@
 | `diag-5d-random-dense` | `generalist-5d` | `random-dense-5` | `diagnostic` | 仅区分 spatial density 与 interaction density |
 | `eval-5d-canonical-moderate` | `generalist-5d` | 五个 fixed moderate cases | `baseline` | held-out interaction failure baseline |
 | `eval-weak-5a-vs-5d` | frozen 5A / 5D | fixed 0-edge validation | `complete` | full `0.8750/0.8710`，逐场无显著差异，选择5A以匹配交互Actor |
+| `eval-dense-5a-vs-5d-vs-strong` | frozen 5A / 5D / epoch-16 | fixed dense validation | `running` | 5A/5D full `0.3090/0.3140`；epoch-16 独立结果待完成 |
 | `ordinary-navigation-actor` | frozen `generalist-5a` | low-interaction strata | `frozen` | 248场agent/full `0.9726/0.8750` |
 | `train-standard-expert-v1-v3` | 5D 微调 | fixed standard/train | `failed diagnostic` | 混合分布微调未超过 5D，只作为退化证据 |
 | `train-interaction-edge1-residual-pilot` | frozen 5D + bounded residual | balanced edge-1 view | `rejected candidate` | residual 恒定饱和，full success `0.5130 -> 0.4704` |

@@ -34,6 +34,8 @@ Gate 后续读取这些可部署特征，不读取 Gazebo 模型位置。
 
 结果与决策见 [PILOT_REPORT.md](PILOT_REPORT.md)。
 
+原始运行日志已压缩归档在 `logs/`，包含一次单场 smoke、完整 train 和完整 validation 采集。
+
 ## 运行
 
 先各跑一场检查 v2 shard，再扩大场景数：
