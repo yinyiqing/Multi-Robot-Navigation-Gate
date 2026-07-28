@@ -1,6 +1,14 @@
 # D5 Independent Dense Actor from 5A
 
-状态：`prepared`。该实验用于训练一个可以从起点到终点全程独立控制的Dense Actor，不再训练局部条件策略。
+状态：`running`。该实验用于训练一个可以从起点到终点全程独立控制的Dense Actor，不再训练局部条件策略。
+
+启动信息：
+
+- 启动时间：`2026-07-28 22:48:14 Asia/Shanghai`；
+- Git commit：`d7061bb`；
+- PID file：`.train_independent_dense_actor_from_5a_full_v1_s20260728.pid`；
+- 当前PID：`613928`；
+- 日志：`logs/train_independent_dense_actor_from_5a_full_v1_s20260728_20260728_224814.log`。
 
 ## 为什么重训
 
