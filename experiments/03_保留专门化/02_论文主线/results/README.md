@@ -4,12 +4,12 @@
 
 ## 当前应先看什么
 
-冻结 Actor 证据看 [`05_当前冻结方案/`](05_当前冻结方案/README.md)，当前实现看 [`06_Gate开发/`](06_Gate开发/README.md)：
+当前Actor证据和独立Dense Actor重训看 [`05_当前冻结方案/`](05_当前冻结方案/README.md)。Gate开发暂停，历史实现保留在 [`06_Gate开发/`](06_Gate开发/README.md)：
 
 ```text
 generalist-5a（普通导航，冻结）
-  + strong-interaction-5a-balanced epoch 16（条件交互，冻结）
-  -> 下一步只训练机器人感知和 Gate
+  + independent-dense-actor（从5A重训）
+  -> 两者独立能力和互补性成立后再训Gate
 ```
 
 其余目录分别提供基线、失败证据、机制排查和感知前置实验，不能从中重新挑选 Actor 覆盖当前冻结结论。
@@ -22,8 +22,8 @@ generalist-5a（普通导航，冻结）
 | [`02_普通Actor_失败对照/`](02_普通Actor_失败对照/README.md) | failed diagnostic | 直接训练 standard expert 的退化证据 |
 | [`03_强交互Actor_研发记录/`](03_强交互Actor_研发记录/README.md) | historical diagnostic | 强交互 Actor 从失败机制到正式配置的研发过程 |
 | [`04_Gate前置验证/`](04_Gate前置验证/README.md) | diagnostic / prerequisite | 场景可解性、风险信号、机器人感知和时序表示验证 |
-| [`05_当前冻结方案/`](05_当前冻结方案/README.md) | current / frozen | 当前两个 Actor 的正式训练和重复验证证据 |
-| [`06_Gate开发/`](06_Gate开发/README.md) | current / active | 机器人身份检测、相对运动估计和冻结 Actor Gate |
+| [`05_当前冻结方案/`](05_当前冻结方案/README.md) | current / active | 5A普通Actor、条件Actor局限证据和独立Dense Actor重训 |
+| [`06_Gate开发/`](06_Gate开发/README.md) | paused | 历史机器人感知与Gate开发；等待两个独立Actor成立 |
 | [`90_中止与无效运行/`](90_中止与无效运行/README.md) | invalid / aborted | 未形成有效模型比较的运行，仅保留溯源 |
 
 ## 归档规则

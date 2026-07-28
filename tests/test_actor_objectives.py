@@ -58,6 +58,38 @@ class ActorObjectiveTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             conservative_actor_objective(q_values, actions, anchor_weight=-1.0)
 
+    def test_anchor_mask_only_regularizes_selected_actions(self):
+        q_values = torch.tensor([[2.0], [2.0]])
+        actions = torch.tensor([[1.0, 1.0], [3.0, 3.0]])
+        reference = torch.zeros_like(actions)
+
+        loss, anchor, _ = conservative_actor_objective(
+            q_values,
+            actions,
+            reference_actions=reference,
+            anchor_weight=2.0,
+            anchor_mask=torch.tensor([True, False]),
+        )
+
+        self.assertAlmostEqual(anchor.item(), 1.0)
+        self.assertAlmostEqual(loss.item(), 0.0)
+
+    def test_empty_anchor_mask_keeps_q_objective(self):
+        q_values = torch.tensor([[2.0], [4.0]])
+        actions = torch.ones((2, 2))
+        reference = torch.zeros_like(actions)
+
+        loss, anchor, _ = conservative_actor_objective(
+            q_values,
+            actions,
+            reference_actions=reference,
+            anchor_weight=2.0,
+            anchor_mask=torch.tensor([False, False]),
+        )
+
+        self.assertEqual(anchor.item(), 0.0)
+        self.assertAlmostEqual(loss.item(), -3.0)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,53 @@
+{
+  "protocol": {
+    "manifest": "datasets/fixed_v1/dense/validation.json.gz",
+    "scenarios": 1000,
+    "agents_per_scenario": 5,
+    "sealed_test_read": false
+  },
+  "scenario_difficulty": {
+    "mean_conflict_edges": 2.457,
+    "edge_0": 42,
+    "edge_ge_1": 958,
+    "edge_ge_2": 747,
+    "edge_ge_3": 453
+  },
+  "results": {
+    "5a_standalone": {
+      "episodes": 1000,
+      "agent_success_rate": 0.7064,
+      "collision_rate": 0.293,
+      "unresolved_rate": 0.0006,
+      "full_success_rate": 0.309,
+      "timeout_episode_rate": 0.003
+    },
+    "5d_standalone": {
+      "episodes": 1000,
+      "agent_success_rate": 0.7122,
+      "collision_rate": 0.2872,
+      "unresolved_rate": 0.0006,
+      "full_success_rate": 0.314,
+      "timeout_episode_rate": 0.003
+    },
+    "5a_plus_epoch16_oracle": {
+      "episodes": 1000,
+      "agent_success_rate": 0.8476,
+      "collision_rate": 0.1456,
+      "unresolved_rate": 0.0068,
+      "full_success_rate": 0.545,
+      "timeout_episode_rate": 0.018,
+      "mean_episode_steps": 57.84
+    },
+    "epoch16_standalone_partial": {
+      "episodes": 256,
+      "stopped_early": true,
+      "agent_success_rate": 0.707,
+      "collision_rate": 0.1531,
+      "unresolved_rate": 0.1398,
+      "full_success_rate": 0.2305,
+      "timeout_episode_rate": 0.5156,
+      "mean_episode_steps": 189.7
+    }
+  },
+  "decision": "retrain_a_full_episode_independent_dense_actor_from_5a"
+}

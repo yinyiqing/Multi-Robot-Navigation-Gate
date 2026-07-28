@@ -8,6 +8,7 @@ def conservative_actor_objective(
     reference_actions=None,
     q_normalization_alpha=0.0,
     anchor_weight=0.0,
+    anchor_mask=None,
 ):
     """Combine a scale-normalized Q objective with base-policy regularization."""
     if q_normalization_alpha < 0.0:
@@ -24,6 +25,17 @@ def conservative_actor_objective(
 
     anchor_loss = torch.zeros((), dtype=q_values.dtype, device=q_values.device)
     if reference_actions is not None and anchor_weight > 0.0:
-        anchor_loss = F.mse_loss(actor_actions, reference_actions)
+        if anchor_mask is None:
+            anchor_loss = F.mse_loss(actor_actions, reference_actions)
+        else:
+            anchor_mask = torch.as_tensor(
+                anchor_mask, dtype=torch.bool, device=actor_actions.device
+            ).reshape(-1)
+            if anchor_mask.shape[0] != actor_actions.shape[0]:
+                raise ValueError("anchor_mask must have one entry per actor action")
+            if torch.any(anchor_mask):
+                anchor_loss = F.mse_loss(
+                    actor_actions[anchor_mask], reference_actions[anchor_mask]
+                )
 
     return q_loss + float(anchor_weight) * anchor_loss, anchor_loss, q_scale

@@ -553,6 +553,8 @@ class TD3(object):
         actor_safety_distance=1.0,
         actor_safety_min_closing_speed=0.1,
         actor_angular_anchor_weight=0.0,
+        actor_anchor_safe_only=False,
+        actor_anchor_safe_distance=2.0,
     ):
         av_Q = 0
         max_Q = -inf
@@ -560,6 +562,7 @@ class TD3(object):
         av_actor_anchor_loss = 0
         av_actor_q_scale = 0
         av_actor_angular_anchor_loss = 0
+        av_actor_anchor_safe_share = 0
         actor_update_count = 0
         av_critic_safety_ranking_loss = 0
         critic_safety_ranking_samples = 0
@@ -710,12 +713,26 @@ class TD3(object):
                         ):
                             with torch.no_grad():
                                 reference_action = self.actor_reference(actor_state)
+                        anchor_mask = None
+                        if reference_action is not None and actor_anchor_safe_only:
+                            contexts = actor_critic_state[:, self.state_dim :]
+                            slots = contexts.reshape(
+                                len(contexts), -1, oracle_context_feature_dim
+                            )
+                            valid = slots[:, :, oracle_context_feature_dim - 1] > 0.5
+                            distances = slots[:, :, 2]
+                            interaction = torch.any(
+                                valid & (distances <= actor_anchor_safe_distance),
+                                dim=1,
+                            )
+                            anchor_mask = ~interaction
                         actor_loss, anchor_loss, q_scale = conservative_actor_objective(
                             actor_grad,
                             actor_action,
                             reference_action,
                             self.actor_q_normalization_alpha,
                             self.actor_anchor_weight,
+                            anchor_mask,
                         )
                         angular_anchor_loss = torch.zeros((), device=device)
                         if actor_angular_anchor_weight > 0.0:
@@ -732,6 +749,10 @@ class TD3(object):
                         actor_loss.backward()
                         self.actor_optimizer.step()
                         av_actor_anchor_loss += anchor_loss.item()
+                        if anchor_mask is not None:
+                            av_actor_anchor_safe_share += float(
+                                anchor_mask.float().mean().item()
+                            )
                         av_actor_q_scale += q_scale.item()
                         av_actor_angular_anchor_loss += angular_anchor_loss.item()
                         actor_update_count += 1
@@ -768,6 +789,11 @@ class TD3(object):
         )
         self.writer.add_scalar(
             "Actor anchor loss", av_actor_anchor_loss / iterations, self.iter_count
+        )
+        self.writer.add_scalar(
+            "Actor anchor safe-state share",
+            av_actor_anchor_safe_share / max(actor_update_count, 1),
+            self.iter_count,
         )
         self.writer.add_scalar(
             "Actor Q normalization scale",
@@ -1020,6 +1046,10 @@ policy_noise = 0.2
 noise_clip = 0.5
 policy_freq = env_int("DRL_MULTI_POLICY_FREQ", 2)
 actor_anchor_weight = env_float("DRL_MULTI_ACTOR_ANCHOR_WEIGHT", 0.0) or 0.0
+actor_anchor_safe_only = env_flag("DRL_MULTI_ACTOR_ANCHOR_SAFE_ONLY", False)
+actor_anchor_safe_distance = env_float(
+    "DRL_MULTI_ACTOR_ANCHOR_SAFE_DISTANCE", 2.0
+)
 actor_q_normalization_alpha = (
     env_float("DRL_MULTI_ACTOR_Q_NORMALIZATION_ALPHA", 0.0) or 0.0
 )
@@ -1181,6 +1211,15 @@ if actor_safety_min_samples > actor_safety_candidate_batch_size:
     raise ValueError("Actor safety minimum samples cannot exceed candidate batch size")
 if actor_safety_distance <= 0.0:
     raise ValueError("DRL_MULTI_ACTOR_SAFETY_DISTANCE must be positive")
+if actor_anchor_safe_distance <= 0.0:
+    raise ValueError("DRL_MULTI_ACTOR_ANCHOR_SAFE_DISTANCE must be positive")
+if actor_anchor_safe_only and not use_local_critic:
+    raise ValueError("Safe-only Actor anchor requires DRL_MULTI_USE_LOCAL_CRITIC=1")
+if actor_anchor_safe_only and actor_anchor_weight <= 0.0:
+    raise ValueError(
+        "DRL_MULTI_ACTOR_ANCHOR_SAFE_ONLY requires a positive "
+        "DRL_MULTI_ACTOR_ANCHOR_WEIGHT"
+    )
 best_metric = os.environ.get("DRL_MULTI_BEST_METRIC", "success").strip().lower()
 scenario_mode = os.environ.get("DRL_MULTI_SCENARIO", "standard").strip().lower()
 eval_manifest_path = os.environ.get("DRL_MULTI_EVAL_MANIFEST_PATH", "").strip()
@@ -1616,6 +1655,8 @@ print(
 )
 print("Policy freq:", policy_freq)
 print("Actor anchor weight:", actor_anchor_weight)
+print("Actor anchor safe-only:", actor_anchor_safe_only)
+print("Actor anchor safe distance:", actor_anchor_safe_distance)
 print("Actor Q normalization alpha:", actor_q_normalization_alpha)
 print("Exploration noise:", expl_noise)
 print("Critic warmup exploration noise:", critic_warmup_expl_noise)
@@ -1751,6 +1792,8 @@ while timestep < max_timesteps:
                     actor_safety_distance,
                     actor_safety_min_closing_speed,
                     actor_angular_anchor_weight,
+                    actor_anchor_safe_only,
+                    actor_anchor_safe_distance,
                 )
             else:
                 network.train(
