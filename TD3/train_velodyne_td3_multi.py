@@ -2247,12 +2247,17 @@ while timestep < max_timesteps:
 
     raw_actions = []
     env_actions = []
-    oracle_flags = (
+    replay_interaction_flags = (
         interaction_mask(
             neighbor_contexts,
             oracle_interaction_distance,
             local_critic_feature_dim,
         )
+        if use_local_critic
+        else [False] * len(agent_names)
+    )
+    oracle_flags = (
+        replay_interaction_flags
         if use_oracle_interaction_rollout
         else [False] * len(agent_names)
     )
@@ -2359,7 +2364,7 @@ while timestep < max_timesteps:
                 done_bool,
                 next_states[idx],
                 combine_critic_state(next_states[idx], next_neighbor_contexts[idx]),
-                interaction=oracle_flags[idx],
+                interaction=replay_interaction_flags[idx],
             )
         else:
             replay_buffer.add(

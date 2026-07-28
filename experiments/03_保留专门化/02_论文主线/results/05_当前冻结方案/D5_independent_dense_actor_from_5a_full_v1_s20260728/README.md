@@ -4,11 +4,15 @@
 
 启动信息：
 
-- 启动时间：`2026-07-28 22:48:14 Asia/Shanghai`；
-- Git commit：`d7061bb`；
+- 有效启动时间：`2026-07-28 22:51:11 Asia/Shanghai`；
+- 协议起点commit：`d7061bb`；
 - PID file：`.train_independent_dense_actor_from_5a_full_v1_s20260728.pid`；
-- 当前PID：`613928`；
-- 日志：`logs/train_independent_dense_actor_from_5a_full_v1_s20260728_20260728_224814.log`。
+- 当前PID：`624127`；
+- 日志：`logs/train_independent_dense_actor_from_5a_full_v1_s20260728_20260728_225111.log`。
+
+首次启动在约760 agent samples时主动停止，当时Actor尚未解冻。启动审计发现旧代码将Replay的interaction标记错误绑定到oracle rollout开关：关闭oracle后，即使Critic已看到邻车，`interaction_replay`仍恒为0，使`critic_interaction_fraction=0.5`实际失效。修复后，oracle flag只决定Actor切换，Replay interaction flag独立根据邻车context生成。旧Replay和checkpoint已删除，无效启动日志保留为`aborted_startup_interaction_replay_bug.*`。
+
+有效重启第1个episode为`replay=51, interaction_replay=51`，确认修复生效；oracle和interaction-only Actor更新仍均为关闭。
 
 ## 为什么重训
 
