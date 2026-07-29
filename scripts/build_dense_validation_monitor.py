@@ -25,6 +25,7 @@ def parse_args():
     parser.add_argument("--source", type=Path, default=DEFAULT_SOURCE)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--stride", type=int, default=5)
+    parser.add_argument("--dataset-id", default="dense-validation-monitor-v1")
     return parser.parse_args()
 
 
@@ -80,7 +81,7 @@ def main():
 
     payload = {
         "dataset_version": 1,
-        "dataset_id": "dense-validation-monitor-v1",
+        "dataset_id": args.dataset_id,
         "split": "validation",
         "view_config": {
             "view_version": 1,

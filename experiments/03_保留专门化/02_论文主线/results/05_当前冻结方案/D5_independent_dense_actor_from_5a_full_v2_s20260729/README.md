@@ -24,6 +24,15 @@
 - Actor解冻后每个训练episode输出相对5A的线速度/角速度变化。
 - 协议单测固定检查无oracle、无Actor切换、无`interaction-only`和无`safety-focused-only`，防止启动参数退回局部避险模式。
 
+## 短epoch与判断节奏
+
+- 每`20,000 agent samples`为一个短epoch，默认`48`个，总预算仍为`960,000`样本；
+- 每个epoch在固定100场`dense_validation_monitor_fast_v2`上评估并保存checkpoint；
+- 上一轮实测推算每个短epoch约`40-50`分钟；
+- epoch 1保持Actor冻结，用于建立5A基线；`21,000`样本后Actor才具备解冻资格，且仍必须通过危险状态梯度门检查；
+- 不用单个100场epoch的波动下结论：至少看连续3个短epoch的同向趋势；
+- 100场monitor只用于及时发现退化和挑选少量checkpoint，最终结论仍使用完整1000场dense validation。
+
 ## Reward修复
 
 - 邻车距离减小立即处罚，距离增大立即奖励；
@@ -33,7 +42,7 @@
 
 ## 准入条件
 
-1. 200场monitor上的full success稳定高于epoch 1的5A基线；
+1. 100场快速monitor上的full success连续3个短epoch整体高于epoch 1的5A基线；
 2. collision下降不能主要转化为timeout/unresolved；
 3. 候选checkpoint必须在完整1000场dense validation上独立超过5A/5D的`0.3090/0.3140`；
 4. 候选固定前不读取sealed test。

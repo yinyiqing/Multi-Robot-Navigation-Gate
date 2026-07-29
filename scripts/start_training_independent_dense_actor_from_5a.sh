@@ -5,7 +5,7 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TD3_DIR="$PROJECT_ROOT/TD3"
 DATASET_DIR="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/datasets/fixed_v1"
 TRAIN_MANIFEST="$DATASET_DIR/dense/train.json.gz"
-EVAL_MANIFEST="$DATASET_DIR/views/dense_validation_monitor_v1/validation.json.gz"
+EVAL_MANIFEST="$DATASET_DIR/views/dense_validation_monitor_fast_v2/validation.json.gz"
 LOG_DIR="$PROJECT_ROOT/logs"
 BASE_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best"
 MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-independent_dense_actor_from_5a_full_v2_s20260729}"
@@ -15,7 +15,7 @@ LAUNCHFILE="multi_robot_scenario_strong_interaction_pilot_5.launch"
 ROS_PORT="${DRL_MULTI_ROS_PORT:-13801}"
 GAZEBO_PORT="${DRL_MULTI_GAZEBO_PORT:-13901}"
 TRAIN_SEED="${DRL_MULTI_SEED:-20260728}"
-MAX_EPOCHS="${DRL_MULTI_MAX_EPOCHS:-16}"
+MAX_EPOCHS="${DRL_MULTI_MAX_EPOCHS:-48}"
 RESUME_TRAINING="${DRL_MULTI_RESUME_TRAINING:-0}"
 
 for path in "$TRAIN_MANIFEST" "$EVAL_MANIFEST"; do
@@ -98,8 +98,8 @@ setsid bash -lc "
   export DRL_MULTI_LOAD_MODEL_NAME='$BASE_MODEL'
   export DRL_MULTI_RESUME_TRAINING='$RESUME_TRAINING'
   export DRL_MULTI_MAX_EPOCHS='$MAX_EPOCHS'
-  export DRL_MULTI_EVAL_EPISODES=200
-  export DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES=60000
+  export DRL_MULTI_EVAL_EPISODES=100
+  export DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES=20000
   export DRL_MULTI_BEST_METRIC=full_success
   export DRL_MULTI_TRAINING_VERSION='independent-dense-actor-from-5a-full-v2'
 
@@ -152,7 +152,7 @@ setsid bash -lc "
   export DRL_MULTI_EXPL_DECAY_STEPS=900000
   export DRL_MULTI_ACTOR_LR=0.000001
   export DRL_MULTI_CRITIC_LR=0.00008
-  export DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS=65000
+  export DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS=21000
   export DRL_MULTI_POLICY_FREQ=2
   export DRL_MULTI_ACTOR_Q_NORMALIZATION_ALPHA=0.0
   export DRL_MULTI_ACTOR_ANCHOR_WEIGHT=1.0
@@ -173,8 +173,8 @@ echo "Update contract: all Dense states train one Actor; interaction states are 
 echo "Reference contract: 5A is initialization plus a safe-state anchor, never a controller"
 echo "Oracle contract: disabled for rollout, validation, and target-policy construction"
 echo "Train: 6000 fixed dense scenarios, finite cycle"
-echo "Validation monitor: 200 policy-independent dense validation scenarios"
-echo "Epoch 1: frozen 5A baseline; Actor unlocks after 65000 agent samples"
-echo "Budget: $MAX_EPOCHS x 60000 agent samples"
+echo "Validation monitor: 100 fixed policy-independent dense scenarios"
+echo "Epoch 1: frozen 5A baseline; Actor becomes eligible after 21000 agent samples"
+echo "Budget: $MAX_EPOCHS x 20000 agent samples"
 echo "Log: $log_file"
-echo "Expected runtime: approximately 30-45 hours for 16 epochs"
+echo "Expected runtime: approximately 40-50 minutes per epoch"
