@@ -104,7 +104,18 @@ class InteractionReplayTests(unittest.TestCase):
         )[3].ravel()
         interaction_draws = sum(value < 8 for value in rewards)
         self.assertEqual(len(set(rewards)), 8)
-        self.assertGreaterEqual(interaction_draws, 6)
+        self.assertEqual(interaction_draws, 6)
+
+    def test_mixed_sampling_falls_back_when_background_is_unavailable(self):
+        buffer = ReplayBuffer(10, random_seed=1)
+        for value in range(6):
+            self.add(buffer, value, interaction=True)
+
+        rewards = buffer.sample_local_critic_batch(
+            6, interaction_fraction=0.5
+        )[3].ravel()
+
+        self.assertEqual(len(set(rewards)), 6)
 
     def test_mixed_sampling_rejects_invalid_fraction(self):
         buffer = ReplayBuffer(4, random_seed=1)

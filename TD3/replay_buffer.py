@@ -89,15 +89,27 @@ class ReplayBuffer(object):
                 int(round(total_count * interaction_fraction)),
             )
             batch = random.sample(self.interaction_buffer, interaction_count)
-            selected_ids = {id(experience) for experience in batch}
-            background = [
+            non_interaction = [
                 experience
                 for experience in self.buffer
-                if id(experience) not in selected_ids
+                if len(experience) < 8 or not experience[7]
             ]
-            batch.extend(
-                random.sample(background, min(len(background), total_count - len(batch)))
+            non_interaction_count = min(
+                len(non_interaction), total_count - len(batch)
             )
+            batch.extend(
+                random.sample(non_interaction, non_interaction_count)
+            )
+            if len(batch) < total_count:
+                selected_ids = {id(experience) for experience in batch}
+                fallback = [
+                    experience
+                    for experience in self.buffer
+                    if id(experience) not in selected_ids
+                ]
+                batch.extend(
+                    random.sample(fallback, total_count - len(batch))
+                )
             random.shuffle(batch)
 
         s_batch = np.array([_[0] for _ in batch])

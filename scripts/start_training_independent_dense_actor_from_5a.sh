@@ -8,7 +8,7 @@ TRAIN_MANIFEST="$DATASET_DIR/dense/train.json.gz"
 EVAL_MANIFEST="$DATASET_DIR/views/dense_validation_monitor_v1/validation.json.gz"
 LOG_DIR="$PROJECT_ROOT/logs"
 BASE_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best"
-MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-independent_dense_actor_from_5a_focused_v2_s20260728}"
+MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-independent_dense_actor_from_5a_full_v2_s20260729}"
 SAFE_MODEL="${MODEL_NAME//[^A-Za-z0-9_]/_}"
 PID_FILE="${DRL_MULTI_PID_FILE:-$PROJECT_ROOT/.train_${SAFE_MODEL}.pid}"
 LAUNCHFILE="multi_robot_scenario_strong_interaction_pilot_5.launch"
@@ -101,11 +101,11 @@ setsid bash -lc "
   export DRL_MULTI_EVAL_EPISODES=200
   export DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES=60000
   export DRL_MULTI_BEST_METRIC=full_success
-  export DRL_MULTI_TRAINING_VERSION='independent-dense-actor-from-5a-v2'
+  export DRL_MULTI_TRAINING_VERSION='independent-dense-actor-from-5a-full-v2'
 
   export DRL_MULTI_ACTOR_TRAIN_MODE=full
   export DRL_MULTI_USE_ORACLE_INTERACTION_ROLLOUT=0
-  export DRL_MULTI_ACTOR_INTERACTION_ONLY=1
+  export DRL_MULTI_ACTOR_INTERACTION_ONLY=0
   export DRL_MULTI_USE_DYNAMIC_REWARD=1
   export DRL_MULTI_REWARD_MODE=average
   export DRL_MULTI_REWARD_SELF_WEIGHT=0.8
@@ -127,12 +127,12 @@ setsid bash -lc "
   export DRL_MULTI_ACTOR_GRADIENT_SAFETY_DISTANCE=1.2
   export DRL_MULTI_ACTOR_GRADIENT_GATE_BATCH_SIZE=512
   export DRL_MULTI_ACTOR_GRADIENT_GATE_MIN_SAMPLES=32
-  export DRL_MULTI_ACTOR_SAFETY_FOCUSED=1
+  export DRL_MULTI_ACTOR_SAFETY_FOCUSED=0
   export DRL_MULTI_ACTOR_SAFETY_CANDIDATE_BATCH_SIZE=256
   export DRL_MULTI_ACTOR_SAFETY_MIN_SAMPLES=16
   export DRL_MULTI_ACTOR_SAFETY_DISTANCE=1.0
   export DRL_MULTI_ACTOR_SAFETY_MIN_CLOSING_SPEED=0.1
-  export DRL_MULTI_ACTOR_ANGULAR_ANCHOR_WEIGHT=2.0
+  export DRL_MULTI_ACTOR_ANGULAR_ANCHOR_WEIGHT=0.0
 
   export DRL_MULTI_ROBOT_SAFE_DISTANCE=1.2
   export DRL_MULTI_ROBOT_PROXIMITY_PENALTY_WEIGHT=5.0
@@ -169,7 +169,8 @@ echo "PID: $(cat "$PID_FILE")"
 echo "Model: $MODEL_NAME"
 echo "Warm start: 5A Actor only; fresh ego-motion Critic"
 echo "Control contract: the trainable Actor controls every state"
-echo "Update contract: close-approaching samples train avoidance; safe states stay anchored to 5A"
+echo "Update contract: all Dense states train one Actor; interaction states are oversampled"
+echo "Reference contract: 5A is initialization plus a safe-state anchor, never a controller"
 echo "Oracle contract: disabled for rollout, validation, and target-policy construction"
 echo "Train: 6000 fixed dense scenarios, finite cycle"
 echo "Validation monitor: 200 policy-independent dense validation scenarios"

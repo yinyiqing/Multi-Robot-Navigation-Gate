@@ -9,7 +9,7 @@
 | `D4_weak_actor_5a_vs_5d_s20260727` | complete | 0-edge 场景上 5A/5D 等价；选择与交互 Actor 训练分布一致的 5A |
 | `D4_dense_validation_actor_comparison_s20260728` | complete | 条件Actor独立运行超时严重；必须重训独立Dense Actor |
 | `D5_independent_dense_actor_from_5a_full_v1_s20260728` | stopped / rejected | 7轮monitor未超过5A；危险状态动作几乎未改变 |
-| `D5_independent_dense_actor_from_5a_focused_v2_s20260728` | ready / not started | 独立rollout，危险样本定向更新，修复让行reward |
+| `D5_independent_dense_actor_from_5a_full_v2_s20260729` | ready / not started | 完整Dense Replay训练一个独立Actor，交互样本只加权多采样 |
 
 当前目标系统：
 

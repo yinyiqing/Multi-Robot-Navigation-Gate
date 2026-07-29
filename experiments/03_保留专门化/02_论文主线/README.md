@@ -1,6 +1,6 @@
 # ICRA论文主线：两个独立Actor + Gate
 
-状态：`5A作为普通Actor冻结；独立Dense Actor v1已停止；v2修复完成但未启动；Gate继续暂停`。
+状态：`5A作为普通Actor冻结；独立Dense Actor v1已停止；full v2协议已就绪但未启动；Gate继续暂停`。
 
 导师沟通后的当前目标是：
 
@@ -61,7 +61,7 @@ Gate的前提是A和B都能单独从起点完成导航。旧epoch-16策略只能
 
 ## 3. 独立Dense Actor训练
 
-失败对照：[D5 independent Dense Actor v1](results/05_当前冻结方案/D5_independent_dense_actor_from_5a_full_v1_s20260728/README.md)。修复协议：[D5 independent Dense Actor focused v2](results/05_当前冻结方案/D5_independent_dense_actor_from_5a_focused_v2_s20260728/README.md)。v2当前未启动。
+失败对照：[D5 independent Dense Actor v1](results/05_当前冻结方案/D5_independent_dense_actor_from_5a_full_v1_s20260728/README.md)。修复协议：[D5 independent Dense Actor full v2](results/05_当前冻结方案/D5_independent_dense_actor_from_5a_full_v2_s20260729/README.md)。v2当前未启动。
 
 固定规则：
 

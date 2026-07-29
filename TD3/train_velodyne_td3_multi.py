@@ -568,7 +568,7 @@ class TD3(object):
         av_actor_linear_abs_delta = 0
         av_actor_angular_delta = 0
         av_actor_angular_abs_delta = 0
-        actor_focus_sample_count = 0
+        actor_update_sample_count = 0
         actor_diagnostic_count = 0
         actor_update_count = 0
         av_critic_safety_ranking_loss = 0
@@ -735,7 +735,7 @@ class TD3(object):
                                 action_delta[:, 1].abs().mean().item()
                             )
                             actor_diagnostic_count += 1
-                        actor_focus_sample_count += len(actor_state)
+                        actor_update_sample_count += len(actor_state)
                         reference_action = None
                         if (
                             self.actor_reference is not None
@@ -873,8 +873,8 @@ class TD3(object):
             self.iter_count,
         )
         self.writer.add_scalar(
-            "Actor focused samples",
-            actor_focus_sample_count,
+            "Actor update samples",
+            actor_update_sample_count,
             self.iter_count,
         )
         self.writer.add_scalar(
@@ -899,12 +899,12 @@ class TD3(object):
         )
         if actor_update_count and actor_diagnostic_count:
             print(
-                "Actor update audit | updates=%i | focused_samples=%i | "
+                "Actor update audit | updates=%i | samples=%i | "
                 "linear_delta=%.4f | linear_abs_delta=%.4f | "
                 "angular_delta=%.4f | angular_abs_delta=%.4f"
                 % (
                     actor_update_count,
-                    actor_focus_sample_count,
+                    actor_update_sample_count,
                     av_actor_linear_delta / actor_diagnostic_count,
                     av_actor_linear_abs_delta / actor_diagnostic_count,
                     av_actor_angular_delta / actor_diagnostic_count,
