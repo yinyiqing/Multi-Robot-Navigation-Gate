@@ -1115,9 +1115,21 @@ class MultiAgentGazeboEnv:
         return -float(self.interaction_close_penalty) * close_penalty - stagnation_penalty
 
     def _compute_anti_stagnation_penalty(
-        self, target, collision, action, min_laser, progress
+        self,
+        target,
+        collision,
+        action,
+        min_laser,
+        progress,
+        nearest_robot_distance=float("inf"),
     ):
         if not self.anti_stagnation_reward or target or collision:
+            return 0.0
+        if (
+            self.robot_safe_distance > 0.0
+            and np.isfinite(nearest_robot_distance)
+            and nearest_robot_distance < self.robot_safe_distance
+        ):
             return 0.0
         if min_laser is None or min_laser < self.anti_stagnation_min_laser:
             return 0.0
@@ -1210,11 +1222,10 @@ class MultiAgentGazeboEnv:
         self,
         target,
         collision,
-        progress,
         previous_robot_distance,
         nearest_robot_distance,
     ):
-        if target or collision or progress <= 0.0:
+        if target or collision or self.robot_safe_distance <= 0.0:
             return 0.0
         if previous_robot_distance is None:
             return 0.0
@@ -1230,9 +1241,11 @@ class MultiAgentGazeboEnv:
             return 0.0
 
         clearance_gain = nearest_robot_distance - previous_robot_distance
-        if clearance_gain <= 0.0:
-            return 0.0
-        capped_gain = min(clearance_gain, self.robot_clearance_reward_max_gain)
+        capped_gain = np.clip(
+            clearance_gain,
+            -self.robot_clearance_reward_max_gain,
+            self.robot_clearance_reward_max_gain,
+        )
         return self.robot_clearance_reward_weight * capped_gain
 
     def _nearest_robot_distance(self, name):
@@ -1495,9 +1508,29 @@ class MultiAgentGazeboEnv:
                 if self.previous_distances[name] is None
                 else self.previous_distances[name] - distance
             )
-            reward = self.get_reward(target, collision, actions[idx], min_laser, progress)
+            nearest_robot_distance = self._nearest_visible_robot_distance(
+                name, active_names
+            )
+            robot_threat = (
+                self.robot_safe_distance > 0.0
+                and np.isfinite(nearest_robot_distance)
+                and nearest_robot_distance < self.robot_safe_distance
+            )
+            reward = self.get_reward(
+                target,
+                collision,
+                actions[idx],
+                min_laser,
+                progress,
+                suppress_stagnation=robot_threat,
+            )
             anti_stagnation_penalty = self._compute_anti_stagnation_penalty(
-                target, collision, actions[idx], min_laser, progress
+                target,
+                collision,
+                actions[idx],
+                min_laser,
+                progress,
+                nearest_robot_distance,
             )
             reward -= anti_stagnation_penalty
             wall_clearance_penalty = self._compute_wall_clearance_penalty(
@@ -1509,9 +1542,6 @@ class MultiAgentGazeboEnv:
             )
             reward += local_navigation_bonus
             self.previous_distances[name] = distance
-            nearest_robot_distance = self._nearest_visible_robot_distance(
-                name, active_names
-            )
             robot_proximity_penalty = self._compute_robot_proximity_penalty(
                 actions[idx], nearest_robot_distance
             )
@@ -1519,7 +1549,6 @@ class MultiAgentGazeboEnv:
             robot_clearance_reward = self._compute_robot_clearance_reward(
                 target,
                 collision,
-                progress,
                 self.previous_nearest_robot_distances[name],
                 nearest_robot_distance,
             )
@@ -1985,7 +2014,15 @@ class MultiAgentGazeboEnv:
             return True, True, min_laser
         return False, False, min_laser
 
-    def get_reward(self, target, collision, action, min_laser, progress):
+    def get_reward(
+        self,
+        target,
+        collision,
+        action,
+        min_laser,
+        progress,
+        suppress_stagnation=False,
+    ):
         if target:
             return 100.0
         if collision:
@@ -1996,7 +2033,11 @@ class MultiAgentGazeboEnv:
         turn_penalty = 0.2 * abs(action[1])
         stagnation_penalty = (
             self.stagnation_penalty_weight
-            if action[0] < 0.1 and abs(progress) < 0.01
+            if (
+                not suppress_stagnation
+                and action[0] < 0.1
+                and abs(progress) < 0.01
+            )
             else 0.0
         )
         return (

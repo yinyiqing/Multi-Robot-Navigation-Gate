@@ -12,7 +12,7 @@ from numpy import inf
 from torch.utils.tensorboard import SummaryWriter
 
 from actor_models import Actor, ResidualActor, is_residual_actor_state_dict
-from actor_objectives import conservative_actor_objective
+from actor_objectives import conservative_actor_objective, safe_reference_mask
 from critic_models import Critic
 from critic_safety_ranking import approaching_safety_mask, critic_safety_ranking_loss
 from evaluation_protocol import build_eval_protocol_id, reconcile_evaluation_state
@@ -533,6 +533,7 @@ class TD3(object):
         update_actor=True,
         actor_interaction_only=False,
         weak_actor=None,
+        oracle_target_policy=False,
         oracle_interaction_distance=2.0,
         oracle_context_feature_dim=5,
         critic_interaction_fraction=0.0,
@@ -563,6 +564,12 @@ class TD3(object):
         av_actor_q_scale = 0
         av_actor_angular_anchor_loss = 0
         av_actor_anchor_safe_share = 0
+        av_actor_linear_delta = 0
+        av_actor_linear_abs_delta = 0
+        av_actor_angular_delta = 0
+        av_actor_angular_abs_delta = 0
+        actor_focus_sample_count = 0
+        actor_diagnostic_count = 0
         actor_update_count = 0
         av_critic_safety_ranking_loss = 0
         critic_safety_ranking_samples = 0
@@ -615,7 +622,7 @@ class TD3(object):
             noise = torch.Tensor(batch_actions).data.normal_(0, policy_noise).to(device)
             noise = noise.clamp(-noise_clip, noise_clip)
             next_action = (next_action + noise).clamp(-self.max_action, self.max_action)
-            if weak_actor is not None:
+            if weak_actor is not None and oracle_target_policy:
                 next_contexts = batch_next_critic_states[:, self.state_dim :]
                 next_interaction = torch.as_tensor(
                     interaction_mask(
@@ -706,26 +713,46 @@ class TD3(object):
                     if actor_batch_available:
                         actor_action = self.actor(actor_state)
                         actor_grad, _ = self.critic(actor_critic_state, actor_action)
+                        diagnostic_reference_action = None
+                        if self.actor_reference is not None:
+                            with torch.no_grad():
+                                diagnostic_reference_action = self.actor_reference(
+                                    actor_state
+                                )
+                            action_delta = (
+                                actor_action.detach() - diagnostic_reference_action
+                            )
+                            av_actor_linear_delta += float(
+                                action_delta[:, 0].mean().item()
+                            )
+                            av_actor_linear_abs_delta += float(
+                                action_delta[:, 0].abs().mean().item()
+                            )
+                            av_actor_angular_delta += float(
+                                action_delta[:, 1].mean().item()
+                            )
+                            av_actor_angular_abs_delta += float(
+                                action_delta[:, 1].abs().mean().item()
+                            )
+                            actor_diagnostic_count += 1
+                        actor_focus_sample_count += len(actor_state)
                         reference_action = None
                         if (
                             self.actor_reference is not None
                             and self.actor_anchor_weight > 0.0
+                            and not (
+                                actor_anchor_safe_only and actor_interaction_only
+                            )
                         ):
-                            with torch.no_grad():
-                                reference_action = self.actor_reference(actor_state)
+                            reference_action = diagnostic_reference_action
                         anchor_mask = None
                         if reference_action is not None and actor_anchor_safe_only:
-                            contexts = actor_critic_state[:, self.state_dim :]
-                            slots = contexts.reshape(
-                                len(contexts), -1, oracle_context_feature_dim
+                            anchor_mask = safe_reference_mask(
+                                actor_critic_state,
+                                self.state_dim,
+                                oracle_context_feature_dim,
+                                actor_anchor_safe_distance,
                             )
-                            valid = slots[:, :, oracle_context_feature_dim - 1] > 0.5
-                            distances = slots[:, :, 2]
-                            interaction = torch.any(
-                                valid & (distances <= actor_anchor_safe_distance),
-                                dim=1,
-                            )
-                            anchor_mask = ~interaction
                         actor_loss, anchor_loss, q_scale = conservative_actor_objective(
                             actor_grad,
                             actor_action,
@@ -734,6 +761,49 @@ class TD3(object):
                             self.actor_anchor_weight,
                             anchor_mask,
                         )
+                        anchor_safe_share = (
+                            float(anchor_mask.float().mean().item())
+                            if anchor_mask is not None
+                            else 0.0
+                        )
+                        if (
+                            self.actor_reference is not None
+                            and self.actor_anchor_weight > 0.0
+                            and actor_anchor_safe_only
+                            and actor_interaction_only
+                        ):
+                            anchor_batch = replay_buffer.sample_local_critic_batch(
+                                max(batch_size, actor_safety_candidate_batch_size)
+                            )
+                            if anchor_batch is not None:
+                                anchor_states = torch.Tensor(anchor_batch[0]).to(device)
+                                anchor_critic_states = torch.Tensor(anchor_batch[1]).to(
+                                    device
+                                )
+                                separate_anchor_mask = safe_reference_mask(
+                                    anchor_critic_states,
+                                    self.state_dim,
+                                    oracle_context_feature_dim,
+                                    actor_anchor_safe_distance,
+                                )
+                                anchor_safe_share = float(
+                                    separate_anchor_mask.float().mean().item()
+                                )
+                                if torch.any(separate_anchor_mask):
+                                    anchor_actions = self.actor(
+                                        anchor_states[separate_anchor_mask]
+                                    )
+                                    with torch.no_grad():
+                                        anchor_reference_actions = self.actor_reference(
+                                            anchor_states[separate_anchor_mask]
+                                        )
+                                    anchor_loss = F.mse_loss(
+                                        anchor_actions, anchor_reference_actions
+                                    )
+                                    actor_loss = (
+                                        actor_loss
+                                        + self.actor_anchor_weight * anchor_loss
+                                    )
                         angular_anchor_loss = torch.zeros((), device=device)
                         if actor_angular_anchor_weight > 0.0:
                             with torch.no_grad():
@@ -749,10 +819,7 @@ class TD3(object):
                         actor_loss.backward()
                         self.actor_optimizer.step()
                         av_actor_anchor_loss += anchor_loss.item()
-                        if anchor_mask is not None:
-                            av_actor_anchor_safe_share += float(
-                                anchor_mask.float().mean().item()
-                            )
+                        av_actor_anchor_safe_share += anchor_safe_share
                         av_actor_q_scale += q_scale.item()
                         av_actor_angular_anchor_loss += angular_anchor_loss.item()
                         actor_update_count += 1
@@ -805,6 +872,45 @@ class TD3(object):
             av_actor_angular_anchor_loss / max(actor_update_count, 1),
             self.iter_count,
         )
+        self.writer.add_scalar(
+            "Actor focused samples",
+            actor_focus_sample_count,
+            self.iter_count,
+        )
+        self.writer.add_scalar(
+            "Actor linear delta from warm start",
+            av_actor_linear_delta / max(actor_diagnostic_count, 1),
+            self.iter_count,
+        )
+        self.writer.add_scalar(
+            "Actor linear absolute delta from warm start",
+            av_actor_linear_abs_delta / max(actor_diagnostic_count, 1),
+            self.iter_count,
+        )
+        self.writer.add_scalar(
+            "Actor angular delta from warm start",
+            av_actor_angular_delta / max(actor_diagnostic_count, 1),
+            self.iter_count,
+        )
+        self.writer.add_scalar(
+            "Actor angular absolute delta from warm start",
+            av_actor_angular_abs_delta / max(actor_diagnostic_count, 1),
+            self.iter_count,
+        )
+        if actor_update_count and actor_diagnostic_count:
+            print(
+                "Actor update audit | updates=%i | focused_samples=%i | "
+                "linear_delta=%.4f | linear_abs_delta=%.4f | "
+                "angular_delta=%.4f | angular_abs_delta=%.4f"
+                % (
+                    actor_update_count,
+                    actor_focus_sample_count,
+                    av_actor_linear_delta / actor_diagnostic_count,
+                    av_actor_linear_abs_delta / actor_diagnostic_count,
+                    av_actor_angular_delta / actor_diagnostic_count,
+                    av_actor_angular_abs_delta / actor_diagnostic_count,
+                )
+            )
 
     def audit_actor_gradient(
         self,
@@ -1136,11 +1242,6 @@ if (use_oracle_interaction_rollout or actor_interaction_only) and not use_local_
         "Oracle interaction rollout and interaction-only Actor updates require "
         "DRL_MULTI_USE_LOCAL_CRITIC=1"
     )
-if actor_interaction_only and not use_oracle_interaction_rollout:
-    raise ValueError(
-        "DRL_MULTI_ACTOR_INTERACTION_ONLY requires "
-        "DRL_MULTI_USE_ORACLE_INTERACTION_ROLLOUT=1"
-    )
 if use_actor_gradient_gate and not use_local_critic:
     raise ValueError(
         "DRL_MULTI_USE_ACTOR_GRADIENT_GATE requires DRL_MULTI_USE_LOCAL_CRITIC=1"
@@ -1157,10 +1258,6 @@ if actor_safety_focused and not actor_interaction_only:
     raise ValueError(
         "DRL_MULTI_ACTOR_SAFETY_FOCUSED requires "
         "DRL_MULTI_ACTOR_INTERACTION_ONLY=1"
-    )
-if actor_angular_anchor_weight > 0.0 and not use_oracle_interaction_rollout:
-    raise ValueError(
-        "DRL_MULTI_ACTOR_ANGULAR_ANCHOR_WEIGHT requires an oracle weak Actor"
     )
 if not 0.0 <= critic_interaction_fraction <= 1.0:
     raise ValueError("DRL_MULTI_CRITIC_INTERACTION_FRACTION must be in [0, 1]")
@@ -1511,7 +1608,7 @@ elif load_model:
         print("Load error:", exc)
 
 weak_actor = None
-if use_oracle_interaction_rollout:
+if use_oracle_interaction_rollout or actor_angular_anchor_weight > 0.0:
     weak_actor_path = os.path.join(
         "./pytorch_models", f"{oracle_weak_actor_name}_actor.pth"
     )
@@ -1522,7 +1619,7 @@ if use_oracle_interaction_rollout:
     weak_actor.eval()
     for parameter in weak_actor.parameters():
         parameter.requires_grad = False
-    print("Loaded frozen oracle weak Actor from:", weak_actor_path)
+    print("Loaded frozen reference Actor from:", weak_actor_path)
 (
     evaluations,
     best_eval_summary,
@@ -1615,7 +1712,8 @@ print("Max epochs:", max_epochs or "unlimited")
 print("Actor learning rate:", actor_lr)
 print("Actor train mode:", network.actor_train_mode)
 print("Oracle interaction rollout:", use_oracle_interaction_rollout)
-print("Oracle weak Actor:", oracle_weak_actor_name)
+print("Reference Actor:", oracle_weak_actor_name)
+print("Oracle target policy:", use_oracle_interaction_rollout)
 print("Oracle interaction distance:", oracle_interaction_distance)
 print("Actor interaction-only updates:", actor_interaction_only)
 print("Critic interaction fraction:", critic_interaction_fraction)
@@ -1772,6 +1870,7 @@ while timestep < max_timesteps:
                     timestep >= actor_update_delay_steps,
                     actor_interaction_only,
                     weak_actor,
+                    use_oracle_interaction_rollout,
                     oracle_interaction_distance,
                     local_critic_feature_dim,
                     critic_interaction_fraction,
@@ -1916,6 +2015,11 @@ while timestep < max_timesteps:
                 if episode_sample_count > 0
                 else 0.0
             )
+            mean_abs_robot_clearance_reward_step = (
+                episode_abs_robot_clearance_reward_sum / episode_sample_count
+                if episode_sample_count > 0
+                else 0.0
+            )
             mean_abs_local_navigation_reward_step = (
                 episode_abs_local_navigation_reward_sum / episode_sample_count
                 if episode_sample_count > 0
@@ -1954,7 +2058,7 @@ while timestep < max_timesteps:
                 "abs_wall_clear_reward=%.4f | local_nav_reward=%.4f | "
                 "abs_local_nav_reward=%.4f | "
                 "robot_proximity_reward=%.4f | abs_robot_proximity_reward=%.4f | "
-                "robot_clearance_reward=%.4f | "
+                "robot_clearance_reward=%.4f | abs_robot_clearance_reward=%.4f | "
                 "context_neighbors_mean=%.2f | context_neighbors_max=%.0f | "
                 "last_context_neighbors_mean=%.2f | last_context_neighbors_max=%.0f | "
                 "actor_unlocked=%i | "
@@ -1996,6 +2100,7 @@ while timestep < max_timesteps:
                     mean_robot_proximity_reward_step,
                     mean_abs_robot_proximity_reward_step,
                     mean_robot_clearance_reward_step,
+                    mean_abs_robot_clearance_reward_step,
                     mean_context_neighbors,
                     max_context_neighbors,
                     last_context_neighbors_mean,
@@ -2059,7 +2164,7 @@ while timestep < max_timesteps:
                 epoch=epoch,
                 eval_episodes=eval_ep,
                 eval_manifest_path=eval_manifest_path,
-                weak_actor=weak_actor,
+                weak_actor=(weak_actor if use_oracle_interaction_rollout else None),
                 oracle_interaction_distance=oracle_interaction_distance,
                 oracle_context_feature_dim=local_critic_feature_dim,
             )
@@ -2236,6 +2341,7 @@ while timestep < max_timesteps:
         episode_robot_proximity_reward_sum = 0.0
         episode_abs_robot_proximity_reward_sum = 0.0
         episode_robot_clearance_reward_sum = 0.0
+        episode_abs_robot_clearance_reward_sum = 0.0
         episode_num += 1
 
     expl_noise = decay_exploration_noise(
@@ -2332,9 +2438,11 @@ while timestep < max_timesteps:
         )
         episode_robot_proximity_reward_sum += robot_proximity_reward_step
         episode_abs_robot_proximity_reward_sum += abs(robot_proximity_reward_step)
-        episode_robot_clearance_reward_sum += float(
+        robot_clearance_reward_step = float(
             step_agents[name].get("robot_clearance_reward", 0.0)
         )
+        episode_robot_clearance_reward_sum += robot_clearance_reward_step
+        episode_abs_robot_clearance_reward_sum += abs(robot_clearance_reward_step)
 
     truncated = episode_timesteps + 1 == max_ep
     next_active_mask = [
@@ -2417,7 +2525,7 @@ last_eval_summary = evaluate(
     epoch=epoch,
     eval_episodes=eval_ep,
     eval_manifest_path=eval_manifest_path,
-    weak_actor=weak_actor,
+    weak_actor=(weak_actor if use_oracle_interaction_rollout else None),
     oracle_interaction_distance=oracle_interaction_distance,
     oracle_context_feature_dim=local_critic_feature_dim,
 )

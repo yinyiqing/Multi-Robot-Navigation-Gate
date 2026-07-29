@@ -8,7 +8,7 @@ import torch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "TD3"))
 
-from actor_objectives import conservative_actor_objective
+from actor_objectives import conservative_actor_objective, safe_reference_mask
 
 
 class ActorObjectiveTests(unittest.TestCase):
@@ -89,6 +89,25 @@ class ActorObjectiveTests(unittest.TestCase):
 
         self.assertEqual(anchor.item(), 0.0)
         self.assertAlmostEqual(loss.item(), -3.0)
+
+    def test_safe_reference_mask_selects_only_states_without_close_neighbors(self):
+        actor_states = torch.zeros((3, 2))
+        contexts = torch.tensor(
+            [
+                [0.0, 0.0, 1.0, 0.0, 1.0],
+                [0.0, 0.0, 2.5, 0.0, 1.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0],
+            ]
+        )
+        critic_states = torch.cat((actor_states, contexts), dim=1)
+
+        mask = safe_reference_mask(critic_states, 2, 5, 2.0)
+
+        self.assertEqual(mask.tolist(), [False, True, True])
+
+    def test_safe_reference_mask_rejects_malformed_context(self):
+        with self.assertRaises(ValueError):
+            safe_reference_mask(torch.zeros((2, 8)), 2, 5, 2.0)
 
 
 if __name__ == "__main__":

@@ -83,30 +83,85 @@ class MultiAgentRewardTests(unittest.TestCase):
     def test_robot_clearance_rewards_safe_separation_with_goal_progress(self):
         environment = self.clearance_environment()
         reward = environment._compute_robot_clearance_reward(
-            False, False, 0.01, 0.8, 0.86
+            False, False, 0.8, 0.86
         )
         self.assertAlmostEqual(reward, 1.2)
 
-    def test_robot_clearance_does_not_reward_retreat_from_goal(self):
+    def test_robot_clearance_rewards_separation_while_yielding(self):
         environment = self.clearance_environment()
         reward = environment._compute_robot_clearance_reward(
-            False, False, -0.01, 0.8, 0.9
+            False, False, 0.8, 0.9
         )
-        self.assertEqual(reward, 0.0)
+        self.assertAlmostEqual(reward, 2.0)
 
-    def test_robot_clearance_does_not_reward_stopping_or_turning_in_place(self):
+    def test_robot_clearance_penalizes_worsening_separation(self):
         environment = self.clearance_environment()
         reward = environment._compute_robot_clearance_reward(
-            False, False, 0.0, 0.8, 0.9
+            False, False, 0.9, 0.84
+        )
+        self.assertAlmostEqual(reward, -1.2)
+
+    def test_robot_clearance_is_neutral_when_distance_is_unchanged(self):
+        environment = self.clearance_environment()
+        reward = environment._compute_robot_clearance_reward(
+            False, False, 0.8, 0.8
         )
         self.assertEqual(reward, 0.0)
 
     def test_robot_clearance_reward_is_capped_per_step(self):
         environment = self.clearance_environment()
         reward = environment._compute_robot_clearance_reward(
-            False, False, 0.01, 0.7, 1.1
+            False, False, 0.7, 1.1
         )
         self.assertAlmostEqual(reward, 2.0)
+
+    def test_robot_clearance_negative_reward_is_capped_per_step(self):
+        environment = self.clearance_environment()
+        reward = environment._compute_robot_clearance_reward(
+            False, False, 1.1, 0.7
+        )
+        self.assertAlmostEqual(reward, -2.0)
+
+    def test_robot_threat_suppresses_stagnation_penalties(self):
+        environment = self.environment()
+        environment.anti_stagnation_reward = True
+        environment.anti_stagnation_penalty = 0.1
+        environment.anti_stagnation_linear_threshold = 0.05
+        environment.anti_stagnation_progress_threshold = 0.005
+        environment.anti_stagnation_min_laser = 0.35
+        environment.robot_safe_distance = 1.2
+
+        base_reward = environment.get_reward(
+            False,
+            False,
+            [0.0, 0.0],
+            0.8,
+            0.0,
+            suppress_stagnation=True,
+        )
+        extra_penalty = environment._compute_anti_stagnation_penalty(
+            False, False, [0.0, 0.0], 0.8, 0.0, 0.9
+        )
+        self.assertAlmostEqual(base_reward, -0.1)
+        self.assertEqual(extra_penalty, 0.0)
+
+    def test_stagnation_penalties_resume_without_robot_threat(self):
+        environment = self.environment()
+        environment.anti_stagnation_reward = True
+        environment.anti_stagnation_penalty = 0.1
+        environment.anti_stagnation_linear_threshold = 0.05
+        environment.anti_stagnation_progress_threshold = 0.005
+        environment.anti_stagnation_min_laser = 0.35
+        environment.robot_safe_distance = 1.2
+
+        base_reward = environment.get_reward(
+            False, False, [0.0, 0.0], 0.8, 0.0
+        )
+        extra_penalty = environment._compute_anti_stagnation_penalty(
+            False, False, [0.0, 0.0], 0.8, 0.0, 1.3
+        )
+        self.assertAlmostEqual(base_reward, -0.13)
+        self.assertAlmostEqual(extra_penalty, 0.1)
 
     def test_safety_distance_uses_only_critic_visible_active_neighbors(self):
         environment = MultiAgentGazeboEnv.__new__(MultiAgentGazeboEnv)
