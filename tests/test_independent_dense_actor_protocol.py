@@ -10,7 +10,7 @@ LAUNCHER = ROOT / "scripts" / "start_training_independent_dense_actor_from_5a.sh
 FAST_MONITOR = (
     ROOT
     / "experiments/03_保留专门化/02_论文主线/datasets/fixed_v1/views/"
-    "dense_validation_monitor_fast_v2/validation.json.gz"
+    "dense_validation_monitor_ultrafast_v3/validation.json.gz"
 )
 
 
@@ -50,13 +50,13 @@ class IndependentDenseActorProtocolTests(unittest.TestCase):
 
     def test_short_epochs_preserve_the_training_budget(self):
         self.assertEqual(
-            self.export_value("DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES"), "20000"
+            self.export_value("DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES"), "10000"
         )
-        self.assertEqual(self.export_value("DRL_MULTI_EVAL_EPISODES"), "100")
+        self.assertEqual(self.export_value("DRL_MULTI_EVAL_EPISODES"), "50")
         self.assertEqual(
             self.export_value("DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS"), "21000"
         )
-        self.assertIn('MAX_EPOCHS="${DRL_MULTI_MAX_EPOCHS:-48}"', self.script)
+        self.assertIn('MAX_EPOCHS="${DRL_MULTI_MAX_EPOCHS:-96}"', self.script)
 
     def test_fast_monitor_is_fixed_and_representative(self):
         with gzip.open(FAST_MONITOR, "rt", encoding="utf-8") as handle:
@@ -64,11 +64,13 @@ class IndependentDenseActorProtocolTests(unittest.TestCase):
         scenarios = manifest["scenarios"]
         summary = manifest["view_config"]["monitor_summary"]
 
-        self.assertEqual(manifest["dataset_id"], "dense-validation-monitor-fast-v2")
+        self.assertEqual(
+            manifest["dataset_id"], "dense-validation-monitor-ultrafast-v3"
+        )
         self.assertTrue(manifest["view_config"]["policy_independent"])
-        self.assertEqual(len(scenarios), 100)
-        self.assertEqual(len({item["scenario_id"] for item in scenarios}), 100)
-        self.assertAlmostEqual(summary["mean_conflict_edges"], 2.46)
+        self.assertEqual(len(scenarios), 50)
+        self.assertEqual(len({item["scenario_id"] for item in scenarios}), 50)
+        self.assertAlmostEqual(summary["mean_conflict_edges"], 2.48)
 
 
 if __name__ == "__main__":

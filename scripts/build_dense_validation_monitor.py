@@ -25,6 +25,7 @@ def parse_args():
     parser.add_argument("--source", type=Path, default=DEFAULT_SOURCE)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--stride", type=int, default=5)
+    parser.add_argument("--start-index", type=int, default=0)
     parser.add_argument("--dataset-id", default="dense-validation-monitor-v1")
     return parser.parse_args()
 
@@ -68,10 +69,14 @@ def main():
     args = parse_args()
     if args.stride < 1:
         raise ValueError("--stride must be positive")
+    if not 0 <= args.start_index < args.stride:
+        raise ValueError("--start-index must be in [0, stride)")
 
     source = load(args.source)
     scenarios = source["scenarios"]
-    selected = [dict(item) for item in scenarios[:: args.stride]]
+    selected = [
+        dict(item) for item in scenarios[args.start_index :: args.stride]
+    ]
     if not selected:
         raise ValueError("Monitor selection is empty")
 
@@ -89,7 +94,7 @@ def main():
             "selection": {
                 "method": "fixed_stride",
                 "stride": args.stride,
-                "start_index": 0,
+                "start_index": args.start_index,
             },
             "policy_independent": True,
             "source_summary": conflict_summary(scenarios),

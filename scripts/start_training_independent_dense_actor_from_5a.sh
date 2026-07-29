@@ -5,7 +5,7 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TD3_DIR="$PROJECT_ROOT/TD3"
 DATASET_DIR="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/datasets/fixed_v1"
 TRAIN_MANIFEST="$DATASET_DIR/dense/train.json.gz"
-EVAL_MANIFEST="$DATASET_DIR/views/dense_validation_monitor_fast_v2/validation.json.gz"
+EVAL_MANIFEST="$DATASET_DIR/views/dense_validation_monitor_ultrafast_v3/validation.json.gz"
 LOG_DIR="$PROJECT_ROOT/logs"
 BASE_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best"
 MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-independent_dense_actor_from_5a_full_v2_s20260729}"
@@ -15,7 +15,7 @@ LAUNCHFILE="multi_robot_scenario_strong_interaction_pilot_5.launch"
 ROS_PORT="${DRL_MULTI_ROS_PORT:-13801}"
 GAZEBO_PORT="${DRL_MULTI_GAZEBO_PORT:-13901}"
 TRAIN_SEED="${DRL_MULTI_SEED:-20260728}"
-MAX_EPOCHS="${DRL_MULTI_MAX_EPOCHS:-48}"
+MAX_EPOCHS="${DRL_MULTI_MAX_EPOCHS:-96}"
 RESUME_TRAINING="${DRL_MULTI_RESUME_TRAINING:-0}"
 
 for path in "$TRAIN_MANIFEST" "$EVAL_MANIFEST"; do
@@ -98,8 +98,8 @@ setsid bash -lc "
   export DRL_MULTI_LOAD_MODEL_NAME='$BASE_MODEL'
   export DRL_MULTI_RESUME_TRAINING='$RESUME_TRAINING'
   export DRL_MULTI_MAX_EPOCHS='$MAX_EPOCHS'
-  export DRL_MULTI_EVAL_EPISODES=100
-  export DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES=20000
+  export DRL_MULTI_EVAL_EPISODES=50
+  export DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES=10000
   export DRL_MULTI_BEST_METRIC=full_success
   export DRL_MULTI_TRAINING_VERSION='independent-dense-actor-from-5a-full-v2'
 
@@ -173,8 +173,8 @@ echo "Update contract: all Dense states train one Actor; interaction states are 
 echo "Reference contract: 5A is initialization plus a safe-state anchor, never a controller"
 echo "Oracle contract: disabled for rollout, validation, and target-policy construction"
 echo "Train: 6000 fixed dense scenarios, finite cycle"
-echo "Validation monitor: 100 fixed policy-independent dense scenarios"
-echo "Epoch 1: frozen 5A baseline; Actor becomes eligible after 21000 agent samples"
-echo "Budget: $MAX_EPOCHS x 20000 agent samples"
+echo "Validation monitor: 50 fixed policy-independent dense scenarios"
+echo "Epochs 1-2: frozen 5A baseline; Actor becomes eligible after 21000 agent samples"
+echo "Budget: $MAX_EPOCHS x 10000 agent samples"
 echo "Log: $log_file"
-echo "Expected runtime: approximately 40-50 minutes per epoch"
+echo "Expected runtime: approximately 20-25 minutes per epoch"

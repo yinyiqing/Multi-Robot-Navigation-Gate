@@ -57,7 +57,7 @@ Gate的前提是A和B都能单独从起点完成导航。旧epoch-16策略只能
 - sealed test在Actor、Gate和超参冻结前保持未读。
 - 训练期间高频评估使用固定200场dense monitor；它由完整validation每5场取1场产生，平均冲突边`2.415`，不是根据模型表现挑选。
 
-数据详情见 [datasets](datasets/README.md) 和 [dense fast monitor](datasets/fixed_v1/views/dense_validation_monitor_fast_v2/README.md)。
+数据详情见 [datasets](datasets/README.md) 和 [dense ultrafast monitor](datasets/fixed_v1/views/dense_validation_monitor_ultrafast_v3/README.md)。
 
 ## 3. 独立Dense Actor训练
 
