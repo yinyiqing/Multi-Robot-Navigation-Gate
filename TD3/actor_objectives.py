@@ -2,6 +2,36 @@ import torch
 import torch.nn.functional as F
 
 
+def approaching_safety_mask(
+    critic_states,
+    actor_state_dim,
+    context_feature_dim,
+    safety_distance,
+    min_closing_speed,
+):
+    if context_feature_dim < 7:
+        raise ValueError("Approaching-neighbor loss requires ego-motion context")
+    contexts = critic_states[:, actor_state_dim:]
+    if contexts.shape[1] % context_feature_dim != 0:
+        raise ValueError("Critic context does not match context_feature_dim")
+
+    slots = contexts.reshape(len(contexts), -1, context_feature_dim)
+    position = slots[:, :, :2]
+    distance = slots[:, :, 2]
+    relative_velocity = slots[:, :, 4:6]
+    valid = slots[:, :, context_feature_dim - 1] > 0.5
+    radial_velocity = torch.sum(position * relative_velocity, dim=2) / torch.clamp(
+        distance, min=1e-6
+    )
+    closing_speed = -radial_velocity
+    approaching = (
+        valid
+        & (distance <= safety_distance)
+        & (closing_speed >= min_closing_speed)
+    )
+    return torch.any(approaching, dim=1)
+
+
 def safe_reference_mask(
     critic_states,
     actor_state_dim,
@@ -58,3 +88,29 @@ def conservative_actor_objective(
                 )
 
     return q_loss + float(anchor_weight) * anchor_loss, anchor_loss, q_scale
+
+
+def actor_slowdown_safety_loss(
+    actor_actions,
+    critic_states,
+    actor_state_dim,
+    context_feature_dim,
+    safety_distance,
+    min_closing_speed,
+    max_safe_linear_action,
+):
+    """Penalize the current Actor for moving too fast in close approaching states."""
+    safety_mask = approaching_safety_mask(
+        critic_states,
+        actor_state_dim,
+        context_feature_dim,
+        safety_distance,
+        min_closing_speed,
+    )
+    selected_count = int(torch.sum(safety_mask).item())
+    if selected_count == 0:
+        return actor_actions.sum() * 0.0, 0
+
+    linear_action = actor_actions[safety_mask, 0]
+    excess_speed = F.relu(linear_action - float(max_safe_linear_action))
+    return torch.mean(excess_speed * excess_speed), selected_count

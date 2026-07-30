@@ -34,6 +34,10 @@ class IndependentDenseActorProtocolTests(unittest.TestCase):
         )
         self.assertEqual(self.export_value("DRL_MULTI_ACTOR_INTERACTION_ONLY"), "0")
         self.assertEqual(self.export_value("DRL_MULTI_ACTOR_SAFETY_FOCUSED"), "0")
+        self.assertEqual(
+            self.export_value("DRL_MULTI_ACTOR_SLOWDOWN_SAFETY_WEIGHT"), "3.0"
+        )
+        self.assertEqual(self.export_value("DRL_MULTI_USE_YIELD_PRIORITY_REWARD"), "1")
 
     def test_5a_is_only_a_warm_start_and_safe_state_reference(self):
         self.assertEqual(self.export_value("DRL_MULTI_LOAD_ACTOR_ONLY"), "1")
@@ -47,8 +51,16 @@ class IndependentDenseActorProtocolTests(unittest.TestCase):
             self.export_value("DRL_MULTI_CRITIC_INTERACTION_FRACTION"), "0.75"
         )
         self.assertEqual(self.export_value("DRL_MULTI_ACTOR_INTERACTION_ONLY"), "0")
+        self.assertEqual(self.export_value("DRL_MULTI_USE_ACTOR_GRADIENT_GATE"), "0")
+        self.assertEqual(
+            self.export_value("DRL_MULTI_ACTOR_SLOWDOWN_MAX_LINEAR_ACTION"), "-0.4"
+        )
+        self.assertEqual(self.export_value("DRL_MULTI_YIELD_PRIORITY_DISTANCE"), "1.0")
+        self.assertEqual(
+            self.export_value("DRL_MULTI_YIELD_PRIORITY_GOAL_MARGIN"), "0.25"
+        )
 
-    def test_short_epochs_preserve_the_training_budget(self):
+    def test_short_epochs_preserve_the_monitoring_cadence(self):
         self.assertEqual(
             self.export_value("DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES"), "10000"
         )
@@ -56,7 +68,7 @@ class IndependentDenseActorProtocolTests(unittest.TestCase):
         self.assertEqual(
             self.export_value("DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS"), "21000"
         )
-        self.assertIn('MAX_EPOCHS="${DRL_MULTI_MAX_EPOCHS:-96}"', self.script)
+        self.assertIn('MAX_EPOCHS="${DRL_MULTI_MAX_EPOCHS:-10}"', self.script)
 
     def test_fast_monitor_is_fixed_and_representative(self):
         with gzip.open(FAST_MONITOR, "rt", encoding="utf-8") as handle:

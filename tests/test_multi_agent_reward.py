@@ -163,6 +163,38 @@ class MultiAgentRewardTests(unittest.TestCase):
         self.assertAlmostEqual(base_reward, -0.13)
         self.assertAlmostEqual(extra_penalty, 0.1)
 
+    @staticmethod
+    def recovery_environment():
+        environment = MultiAgentGazeboEnv.__new__(MultiAgentGazeboEnv)
+        environment.safe_recovery_reward = True
+        environment.safe_recovery_penalty = 0.2
+        environment.safe_recovery_linear_threshold = 0.25
+        environment.safe_recovery_progress_threshold = 0.003
+        environment.safe_recovery_min_laser = 0.6
+        environment.safe_recovery_robot_distance = 1.2
+        return environment
+
+    def test_safe_recovery_penalizes_low_motion_when_clear(self):
+        environment = self.recovery_environment()
+        penalty = environment._compute_safe_recovery_penalty(
+            False, False, [0.1, 0.0], 0.8, 0.001, 1.5
+        )
+        self.assertAlmostEqual(penalty, 0.2)
+
+    def test_safe_recovery_does_not_penalize_robot_threat_waiting(self):
+        environment = self.recovery_environment()
+        penalty = environment._compute_safe_recovery_penalty(
+            False, False, [0.1, 0.0], 0.8, 0.001, 0.9
+        )
+        self.assertEqual(penalty, 0.0)
+
+    def test_safe_recovery_does_not_penalize_forward_progress(self):
+        environment = self.recovery_environment()
+        penalty = environment._compute_safe_recovery_penalty(
+            False, False, [0.4, 0.0], 0.8, 0.001, 1.5
+        )
+        self.assertEqual(penalty, 0.0)
+
     def test_safety_distance_uses_only_critic_visible_active_neighbors(self):
         environment = MultiAgentGazeboEnv.__new__(MultiAgentGazeboEnv)
         environment.robot_positions = {
@@ -181,6 +213,99 @@ class MultiAgentRewardTests(unittest.TestCase):
             environment._nearest_visible_robot_distance("r1", {"r1"}),
             float("inf"),
         )
+
+    @staticmethod
+    def yield_environment():
+        environment = MultiAgentGazeboEnv.__new__(MultiAgentGazeboEnv)
+        environment.agent_names = ["r1", "r2"]
+        environment.robot_positions = {
+            "r1": np.array([0.0, 0.0]),
+            "r2": np.array([0.8, 0.0]),
+        }
+        environment.goal_positions = {
+            "r1": np.array([3.0, 0.0]),
+            "r2": np.array([1.0, 0.0]),
+        }
+        environment.reward_neighbor_radius = 10.0
+        environment.reward_neighbor_fov = np.pi
+        environment._get_robot_yaw = lambda name: 0.0
+        environment.robot_safe_distance = 1.2
+        environment.yield_priority_reward = True
+        environment.yield_priority_distance = 1.0
+        environment.yield_priority_goal_margin = 0.25
+        environment.yield_priority_stop_linear = 0.25
+        environment.yield_priority_penalty_weight = 4.0
+        environment.yield_priority_bonus_weight = 1.0
+        environment.yield_priority_clearance_bonus_weight = 2.0
+        environment.yield_priority_restart_bonus_weight = 1.5
+        environment.yield_priority_stale_wait_penalty_weight = 0.5
+        environment.yield_priority_max_wait_steps = 8
+        environment.emergency_stop_distance = 0.0
+        environment.emergency_stop_penalty_weight = 8.0
+        environment.emergency_stop_bonus_weight = 1.0
+        environment.robot_clearance_reward_max_gain = 0.1
+        environment.yield_wait_steps = {"r1": 0, "r2": 0}
+        environment.yield_nearest_distances = {"r1": None, "r2": None}
+        return environment
+
+    def test_yield_priority_penalizes_farther_robot_for_pushing_forward(self):
+        environment = self.yield_environment()
+        reward = environment._compute_yield_priority_reward(
+            "r1", [1.0, 0.0], 3.0, {"r1", "r2"}
+        )
+        self.assertAlmostEqual(reward, -0.8)
+
+    def test_yield_priority_rewards_farther_robot_for_waiting(self):
+        environment = self.yield_environment()
+        reward = environment._compute_yield_priority_reward(
+            "r1", [0.0, 0.0], 3.0, {"r1", "r2"}
+        )
+        self.assertAlmostEqual(reward, 0.2)
+
+    def test_yield_priority_does_not_penalize_nearer_robot(self):
+        environment = self.yield_environment()
+        reward = environment._compute_yield_priority_reward(
+            "r2", [1.0, 0.0], 0.2, {"r1", "r2"}
+        )
+        self.assertEqual(reward, 0.0)
+
+    def test_emergency_stop_penalizes_all_fast_close_robots(self):
+        environment = self.yield_environment()
+        environment.emergency_stop_distance = 0.9
+        reward = environment._compute_yield_priority_reward(
+            "r2", [1.0, 0.0], 0.2, {"r1", "r2"}
+        )
+        self.assertAlmostEqual(reward, -8.0 / 9.0)
+
+    def test_yield_priority_rewards_waiting_that_increases_clearance(self):
+        environment = self.yield_environment()
+        environment.yield_nearest_distances["r1"] = 0.7
+        reward = environment._compute_yield_priority_reward(
+            "r1", [0.0, 0.0], 3.0, {"r1", "r2"}
+        )
+        # Base waiting reward is 0.2; extra clearance gain is capped at 0.1
+        # and weighted by 2.0.
+        self.assertAlmostEqual(reward, 0.4)
+
+    def test_yield_priority_rewards_restart_after_safe_wait(self):
+        environment = self.yield_environment()
+        environment.robot_positions["r2"] = np.array([1.4, 0.0])
+        environment.yield_wait_steps["r1"] = 4
+        reward = environment._compute_yield_priority_reward(
+            "r1", [0.25, 0.0], 3.0, {"r1", "r2"}
+        )
+        self.assertAlmostEqual(reward, 0.75)
+        self.assertEqual(environment.yield_wait_steps["r1"], 0)
+
+    def test_yield_priority_penalizes_stale_waiting_when_safe(self):
+        environment = self.yield_environment()
+        environment.robot_positions["r2"] = np.array([1.4, 0.0])
+        environment.yield_wait_steps["r1"] = 4
+        reward = environment._compute_yield_priority_reward(
+            "r1", [0.0, 0.0], 3.0, {"r1", "r2"}
+        )
+        self.assertAlmostEqual(reward, -0.5)
+        self.assertEqual(environment.yield_wait_steps["r1"], 0)
 
 
 if __name__ == "__main__":

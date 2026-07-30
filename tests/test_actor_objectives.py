@@ -8,7 +8,11 @@ import torch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "TD3"))
 
-from actor_objectives import conservative_actor_objective, safe_reference_mask
+from actor_objectives import (
+    actor_slowdown_safety_loss,
+    conservative_actor_objective,
+    safe_reference_mask,
+)
 
 
 class ActorObjectiveTests(unittest.TestCase):
@@ -108,6 +112,50 @@ class ActorObjectiveTests(unittest.TestCase):
     def test_safe_reference_mask_rejects_malformed_context(self):
         with self.assertRaises(ValueError):
             safe_reference_mask(torch.zeros((2, 8)), 2, 5, 2.0)
+
+    def test_slowdown_safety_loss_penalizes_fast_close_approach(self):
+        actor_states = torch.zeros((3, 24))
+        contexts = torch.tensor(
+            [
+                [0.8, 0.0, 0.8, 0.0, -0.4, 0.0, 1.0],
+                [0.8, 0.0, 0.8, 0.0, 0.4, 0.0, 1.0],
+                [1.4, 0.0, 1.4, 0.0, -0.4, 0.0, 1.0],
+            ]
+        )
+        critic_states = torch.cat((actor_states, contexts), dim=1)
+        actions = torch.tensor([[0.6, 0.0], [0.6, 0.0], [0.6, 0.0]])
+
+        loss, samples = actor_slowdown_safety_loss(
+            actions,
+            critic_states,
+            actor_state_dim=24,
+            context_feature_dim=7,
+            safety_distance=1.0,
+            min_closing_speed=0.1,
+            max_safe_linear_action=-0.4,
+        )
+
+        self.assertEqual(samples, 1)
+        self.assertAlmostEqual(loss.item(), 1.0)
+
+    def test_slowdown_safety_loss_is_zero_when_already_slow(self):
+        actor_states = torch.zeros((1, 24))
+        contexts = torch.tensor([[0.8, 0.0, 0.8, 0.0, -0.4, 0.0, 1.0]])
+        critic_states = torch.cat((actor_states, contexts), dim=1)
+        actions = torch.tensor([[-0.6, 0.0]])
+
+        loss, samples = actor_slowdown_safety_loss(
+            actions,
+            critic_states,
+            actor_state_dim=24,
+            context_feature_dim=7,
+            safety_distance=1.0,
+            min_closing_speed=0.1,
+            max_safe_linear_action=-0.4,
+        )
+
+        self.assertEqual(samples, 1)
+        self.assertEqual(loss.item(), 0.0)
 
 
 if __name__ == "__main__":

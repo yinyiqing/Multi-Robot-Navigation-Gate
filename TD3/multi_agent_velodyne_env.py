@@ -105,6 +105,12 @@ class MultiAgentGazeboEnv:
         anti_stagnation_linear_threshold=0.05,
         anti_stagnation_progress_threshold=0.005,
         anti_stagnation_min_laser=0.35,
+        safe_recovery_reward=False,
+        safe_recovery_penalty=0.2,
+        safe_recovery_linear_threshold=0.25,
+        safe_recovery_progress_threshold=0.003,
+        safe_recovery_min_laser=0.6,
+        safe_recovery_robot_distance=1.2,
         wall_clearance_reward=False,
         wall_clearance_safe_distance=0.75,
         wall_clearance_penalty=1.5,
@@ -123,6 +129,19 @@ class MultiAgentGazeboEnv:
         robot_proximity_speed_penalty_weight=0.0,
         robot_clearance_reward_weight=0.0,
         robot_clearance_reward_max_gain=0.1,
+        yield_priority_reward=False,
+        yield_priority_distance=1.0,
+        yield_priority_goal_margin=0.25,
+        yield_priority_stop_linear=0.25,
+        yield_priority_penalty_weight=4.0,
+        yield_priority_bonus_weight=1.0,
+        yield_priority_clearance_bonus_weight=2.0,
+        yield_priority_restart_bonus_weight=1.5,
+        yield_priority_stale_wait_penalty_weight=0.5,
+        yield_priority_max_wait_steps=8,
+        emergency_stop_distance=0.6,
+        emergency_stop_penalty_weight=8.0,
+        emergency_stop_bonus_weight=1.0,
         forward_reward_weight=0.5,
         stagnation_penalty_weight=0.03,
         weak_coupling_layout=False,
@@ -156,6 +175,12 @@ class MultiAgentGazeboEnv:
         self.anti_stagnation_linear_threshold = anti_stagnation_linear_threshold
         self.anti_stagnation_progress_threshold = anti_stagnation_progress_threshold
         self.anti_stagnation_min_laser = anti_stagnation_min_laser
+        self.safe_recovery_reward = bool(safe_recovery_reward)
+        self.safe_recovery_penalty = float(safe_recovery_penalty)
+        self.safe_recovery_linear_threshold = float(safe_recovery_linear_threshold)
+        self.safe_recovery_progress_threshold = float(safe_recovery_progress_threshold)
+        self.safe_recovery_min_laser = float(safe_recovery_min_laser)
+        self.safe_recovery_robot_distance = float(safe_recovery_robot_distance)
         self.wall_clearance_reward = wall_clearance_reward
         self.wall_clearance_safe_distance = wall_clearance_safe_distance
         self.wall_clearance_penalty = wall_clearance_penalty
@@ -180,12 +205,43 @@ class MultiAgentGazeboEnv:
         self.robot_clearance_reward_max_gain = float(
             robot_clearance_reward_max_gain
         )
+        self.yield_priority_reward = bool(yield_priority_reward)
+        self.yield_priority_distance = float(yield_priority_distance)
+        self.yield_priority_goal_margin = float(yield_priority_goal_margin)
+        self.yield_priority_stop_linear = float(yield_priority_stop_linear)
+        self.yield_priority_penalty_weight = float(yield_priority_penalty_weight)
+        self.yield_priority_bonus_weight = float(yield_priority_bonus_weight)
+        self.yield_priority_clearance_bonus_weight = float(
+            yield_priority_clearance_bonus_weight
+        )
+        self.yield_priority_restart_bonus_weight = float(
+            yield_priority_restart_bonus_weight
+        )
+        self.yield_priority_stale_wait_penalty_weight = float(
+            yield_priority_stale_wait_penalty_weight
+        )
+        self.yield_priority_max_wait_steps = int(yield_priority_max_wait_steps)
+        self.emergency_stop_distance = float(emergency_stop_distance)
+        self.emergency_stop_penalty_weight = float(emergency_stop_penalty_weight)
+        self.emergency_stop_bonus_weight = float(emergency_stop_bonus_weight)
         self.forward_reward_weight = float(forward_reward_weight)
         self.stagnation_penalty_weight = float(stagnation_penalty_weight)
         if self.forward_reward_weight < 0.0:
             raise ValueError("forward_reward_weight must be non-negative")
         if self.stagnation_penalty_weight < 0.0:
             raise ValueError("stagnation_penalty_weight must be non-negative")
+        for name, value in (
+            ("safe_recovery_penalty", self.safe_recovery_penalty),
+            ("safe_recovery_linear_threshold", self.safe_recovery_linear_threshold),
+            (
+                "safe_recovery_progress_threshold",
+                self.safe_recovery_progress_threshold,
+            ),
+            ("safe_recovery_min_laser", self.safe_recovery_min_laser),
+            ("safe_recovery_robot_distance", self.safe_recovery_robot_distance),
+        ):
+            if value < 0.0:
+                raise ValueError(f"{name} must be non-negative")
         if self.robot_safe_distance < 0.0:
             raise ValueError("robot_safe_distance must be non-negative")
         if self.robot_proximity_penalty_weight < 0.0:
@@ -198,6 +254,36 @@ class MultiAgentGazeboEnv:
             raise ValueError("robot_clearance_reward_weight must be non-negative")
         if self.robot_clearance_reward_max_gain <= 0.0:
             raise ValueError("robot_clearance_reward_max_gain must be positive")
+        if self.yield_priority_distance <= 0.0:
+            raise ValueError("yield_priority_distance must be positive")
+        if self.yield_priority_goal_margin < 0.0:
+            raise ValueError("yield_priority_goal_margin must be non-negative")
+        if not 0.0 <= self.yield_priority_stop_linear <= 1.0:
+            raise ValueError("yield_priority_stop_linear must be in [0, 1]")
+        for name, value in (
+            ("yield_priority_penalty_weight", self.yield_priority_penalty_weight),
+            ("yield_priority_bonus_weight", self.yield_priority_bonus_weight),
+            (
+                "yield_priority_clearance_bonus_weight",
+                self.yield_priority_clearance_bonus_weight,
+            ),
+            (
+                "yield_priority_restart_bonus_weight",
+                self.yield_priority_restart_bonus_weight,
+            ),
+            (
+                "yield_priority_stale_wait_penalty_weight",
+                self.yield_priority_stale_wait_penalty_weight,
+            ),
+            ("emergency_stop_penalty_weight", self.emergency_stop_penalty_weight),
+            ("emergency_stop_bonus_weight", self.emergency_stop_bonus_weight),
+        ):
+            if value < 0.0:
+                raise ValueError(f"{name} must be non-negative")
+        if self.yield_priority_max_wait_steps < 0:
+            raise ValueError("yield_priority_max_wait_steps must be non-negative")
+        if self.emergency_stop_distance < 0.0:
+            raise ValueError("emergency_stop_distance must be non-negative")
         self.weak_coupling_layout = weak_coupling_layout
         self.active_neighbors_only = active_neighbors_only
         self.neighbor_context_mode = normalize_context_mode(neighbor_context_mode)
@@ -309,6 +395,8 @@ class MultiAgentGazeboEnv:
         self.previous_nearest_robot_distances = {
             name: None for name in self.agent_names
         }
+        self.yield_wait_steps = {name: 0 for name in self.agent_names}
+        self.yield_nearest_distances = {name: None for name in self.agent_names}
         self.goal_positions = {name: np.array([1.0, 0.0]) for name in self.agent_names}
         self.robot_positions = {name: np.array([0.0, 0.0]) for name in self.agent_names}
         self.set_self_states = {name: self._create_model_state(name) for name in self.agent_names}
@@ -777,6 +865,7 @@ class MultiAgentGazeboEnv:
                     "local_navigation_reward": 0.0,
                     "robot_proximity_reward": 0.0,
                     "robot_clearance_reward": 0.0,
+                    "yield_priority_reward": 0.0,
                     "reward_neighbors": [],
                     "active_visible_neighbor_count": 0,
                     "nearest_active_visible_neighbor_distance": None,
@@ -791,6 +880,7 @@ class MultiAgentGazeboEnv:
             "max_active_visible_neighbors": 0,
             "mean_interaction_reward": 0.0,
             "mean_anti_stagnation_reward": 0.0,
+            "mean_yield_priority_reward": 0.0,
         }
 
     def set_cooperative_reward(self, enabled):
@@ -1140,6 +1230,32 @@ class MultiAgentGazeboEnv:
             return float(self.anti_stagnation_penalty)
         return 0.0
 
+    def _compute_safe_recovery_penalty(
+        self,
+        target,
+        collision,
+        action,
+        min_laser,
+        progress,
+        nearest_robot_distance=float("inf"),
+    ):
+        if not self.safe_recovery_reward or target or collision:
+            return 0.0
+        if min_laser is None or min_laser < self.safe_recovery_min_laser:
+            return 0.0
+        if (
+            self.safe_recovery_robot_distance > 0.0
+            and np.isfinite(nearest_robot_distance)
+            and nearest_robot_distance < self.safe_recovery_robot_distance
+        ):
+            return 0.0
+        if (
+            max(float(action[0]), 0.0) < self.safe_recovery_linear_threshold
+            and progress < self.safe_recovery_progress_threshold
+        ):
+            return float(self.safe_recovery_penalty)
+        return 0.0
+
     def _compute_wall_clearance_penalty(self, target, collision, action, min_laser):
         if not self.wall_clearance_reward or target or collision:
             return 0.0
@@ -1247,6 +1363,133 @@ class MultiAgentGazeboEnv:
             self.robot_clearance_reward_max_gain,
         )
         return self.robot_clearance_reward_weight * capped_gain
+
+    def _compute_yield_priority_reward(
+        self,
+        name,
+        action,
+        distance_to_goal,
+        active_names,
+        target=False,
+        collision=False,
+    ):
+        if not self.yield_priority_reward or target or collision:
+            return 0.0
+        if self.robot_safe_distance <= 0.0:
+            return 0.0
+
+        linear = max(float(action[0]), 0.0)
+        stop_gate = max(0.0, 1.0 - linear / max(self.yield_priority_stop_linear, 1e-6))
+        yield_reward = 0.0
+        origin = self.robot_positions[name]
+        visible_neighbors = self._compute_visible_neighbors(
+            name, active_names=active_names
+        )
+        nearest_conflict_distance = float("inf")
+        should_yield = False
+
+        for other_name in visible_neighbors:
+            offset = self.robot_positions[other_name] - origin
+            robot_distance = float(np.linalg.norm(offset))
+            if robot_distance <= 0.0:
+                continue
+            nearest_conflict_distance = min(nearest_conflict_distance, robot_distance)
+
+            if (
+                self.emergency_stop_distance > 0.0
+                and robot_distance < self.emergency_stop_distance
+            ):
+                pressure = (
+                    self.emergency_stop_distance - robot_distance
+                ) / self.emergency_stop_distance
+                yield_reward -= self.emergency_stop_penalty_weight * pressure * linear
+                yield_reward += self.emergency_stop_bonus_weight * pressure * stop_gate
+
+            if robot_distance >= self.yield_priority_distance:
+                continue
+
+            other_goal_distance = float(
+                np.linalg.norm(
+                    self.robot_positions[other_name]
+                    - self.goal_positions[other_name]
+                )
+            )
+            goal_delta = float(distance_to_goal - other_goal_distance)
+            if goal_delta <= self.yield_priority_goal_margin:
+                continue
+
+            should_yield = True
+            pressure = (
+                self.yield_priority_distance - robot_distance
+            ) / self.yield_priority_distance
+            priority = min(
+                goal_delta / max(self.yield_priority_distance, 1e-6),
+                1.0,
+            )
+            yield_reward -= (
+                self.yield_priority_penalty_weight * pressure * priority * linear
+            )
+            yield_reward += (
+                self.yield_priority_bonus_weight * pressure * priority * stop_gate
+            )
+
+        wait_steps = getattr(self, "yield_wait_steps", {}).get(name, 0)
+        previous_conflict_distance = getattr(
+            self, "yield_nearest_distances", {}
+        ).get(name)
+
+        if should_yield:
+            wait_steps += 1 if linear <= self.yield_priority_stop_linear else 0
+            if (
+                linear <= self.yield_priority_stop_linear
+                and previous_conflict_distance is not None
+                and np.isfinite(previous_conflict_distance)
+                and np.isfinite(nearest_conflict_distance)
+            ):
+                clearance_gain = nearest_conflict_distance - previous_conflict_distance
+                if clearance_gain > 0.0:
+                    capped_gain = min(clearance_gain, self.robot_clearance_reward_max_gain)
+                    yield_reward += (
+                        self.yield_priority_clearance_bonus_weight * capped_gain
+                    )
+            if (
+                self.yield_priority_max_wait_steps > 0
+                and wait_steps > self.yield_priority_max_wait_steps
+                and linear <= self.yield_priority_stop_linear
+            ):
+                stale = wait_steps - self.yield_priority_max_wait_steps
+                yield_reward -= (
+                    self.yield_priority_stale_wait_penalty_weight
+                    * min(float(stale), 5.0)
+                    * stop_gate
+                )
+        else:
+            if wait_steps > 0:
+                restart_gate = min(
+                    linear / max(self.yield_priority_stop_linear, 1e-6), 1.0
+                )
+                yield_reward += (
+                    self.yield_priority_restart_bonus_weight
+                    * restart_gate
+                    * min(wait_steps / max(self.yield_priority_max_wait_steps, 1), 1.0)
+                )
+            if (
+                visible_neighbors
+                and linear <= self.yield_priority_stop_linear
+                and nearest_conflict_distance >= self.yield_priority_distance
+            ):
+                yield_reward -= self.yield_priority_stale_wait_penalty_weight * stop_gate
+            wait_steps = 0
+
+        if hasattr(self, "yield_wait_steps"):
+            self.yield_wait_steps[name] = wait_steps
+        if hasattr(self, "yield_nearest_distances"):
+            self.yield_nearest_distances[name] = (
+                nearest_conflict_distance
+                if np.isfinite(nearest_conflict_distance)
+                else None
+            )
+        return float(yield_reward)
 
     def _nearest_robot_distance(self, name):
         origin = self.robot_positions[name]
@@ -1532,7 +1775,15 @@ class MultiAgentGazeboEnv:
                 progress,
                 nearest_robot_distance,
             )
-            reward -= anti_stagnation_penalty
+            safe_recovery_penalty = self._compute_safe_recovery_penalty(
+                target,
+                collision,
+                actions[idx],
+                min_laser,
+                progress,
+                nearest_robot_distance,
+            )
+            reward -= anti_stagnation_penalty + safe_recovery_penalty
             wall_clearance_penalty = self._compute_wall_clearance_penalty(
                 target, collision, actions[idx], min_laser
             )
@@ -1553,6 +1804,15 @@ class MultiAgentGazeboEnv:
                 nearest_robot_distance,
             )
             reward += robot_clearance_reward
+            yield_priority_reward = self._compute_yield_priority_reward(
+                name,
+                actions[idx],
+                distance,
+                active_names,
+                target=target,
+                collision=collision,
+            )
+            reward += yield_priority_reward
 
             if not active_mask[idx]:
                 reward = 0.0
@@ -1561,10 +1821,12 @@ class MultiAgentGazeboEnv:
                 target = False
                 progress = 0.0
                 anti_stagnation_penalty = 0.0
+                safe_recovery_penalty = 0.0
                 wall_clearance_penalty = 0.0
                 local_navigation_bonus = 0.0
                 robot_proximity_penalty = 0.0
                 robot_clearance_reward = 0.0
+                yield_priority_reward = 0.0
                 nearest_robot_distance = None
             else:
                 self.previous_nearest_robot_distances[name] = nearest_robot_distance
@@ -1584,11 +1846,14 @@ class MultiAgentGazeboEnv:
                 "reward": reward,
                 "raw_reward": reward,
                 "interaction_reward": 0.0,
-                "anti_stagnation_reward": -anti_stagnation_penalty,
+                "anti_stagnation_reward": -(
+                    anti_stagnation_penalty + safe_recovery_penalty
+                ),
                 "wall_clearance_reward": -wall_clearance_penalty,
                 "local_navigation_reward": local_navigation_bonus,
                 "robot_proximity_reward": -robot_proximity_penalty,
                 "robot_clearance_reward": robot_clearance_reward,
+                "yield_priority_reward": yield_priority_reward,
                 "reward_neighbors": [],
                 "active_visible_neighbor_count": 0,
                 "nearest_active_visible_neighbor_distance": None,
@@ -1658,6 +1923,11 @@ class MultiAgentGazeboEnv:
             for idx, name in enumerate(self.agent_names)
             if idx < len(active_mask) and active_mask[idx]
         ]
+        yield_priority_rewards = [
+            step_agents_info[name]["yield_priority_reward"]
+            for idx, name in enumerate(self.agent_names)
+            if idx < len(active_mask) and active_mask[idx]
+        ]
         self.last_step_info = {
             "agents": step_agents_info,
             "mean_reward": float(np.mean(rewards)) if rewards else 0.0,
@@ -1700,6 +1970,11 @@ class MultiAgentGazeboEnv:
                 if robot_clearance_rewards
                 else 0.0
             ),
+            "mean_yield_priority_reward": (
+                float(np.mean(yield_priority_rewards))
+                if yield_priority_rewards
+                else 0.0
+            ),
         }
 
         return next_states, rewards, dones, targets, collisions
@@ -1729,6 +2004,8 @@ class MultiAgentGazeboEnv:
         self.previous_nearest_robot_distances = {
             name: None for name in self.agent_names
         }
+        self.yield_wait_steps = {name: 0 for name in self.agent_names}
+        self.yield_nearest_distances = {name: None for name in self.agent_names}
         self.last_step_info = self._empty_last_step_info()
 
         last_error = None

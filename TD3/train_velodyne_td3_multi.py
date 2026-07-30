@@ -12,7 +12,11 @@ from numpy import inf
 from torch.utils.tensorboard import SummaryWriter
 
 from actor_models import Actor, ResidualActor, is_residual_actor_state_dict
-from actor_objectives import conservative_actor_objective, safe_reference_mask
+from actor_objectives import (
+    actor_slowdown_safety_loss,
+    conservative_actor_objective,
+    safe_reference_mask,
+)
 from critic_models import Critic
 from critic_safety_ranking import approaching_safety_mask, critic_safety_ranking_loss
 from evaluation_protocol import build_eval_protocol_id, reconcile_evaluation_state
@@ -553,6 +557,8 @@ class TD3(object):
         actor_safety_min_samples=16,
         actor_safety_distance=1.0,
         actor_safety_min_closing_speed=0.1,
+        actor_slowdown_safety_weight=0.0,
+        actor_slowdown_max_linear_action=-0.4,
         actor_angular_anchor_weight=0.0,
         actor_anchor_safe_only=False,
         actor_anchor_safe_distance=2.0,
@@ -568,6 +574,8 @@ class TD3(object):
         av_actor_linear_abs_delta = 0
         av_actor_angular_delta = 0
         av_actor_angular_abs_delta = 0
+        av_actor_slowdown_safety_loss = 0
+        actor_slowdown_safety_samples = 0
         actor_update_sample_count = 0
         actor_diagnostic_count = 0
         actor_update_count = 0
@@ -804,6 +812,41 @@ class TD3(object):
                                         actor_loss
                                         + self.actor_anchor_weight * anchor_loss
                                     )
+                        slowdown_safety_loss = torch.zeros((), device=device)
+                        if actor_slowdown_safety_weight > 0.0:
+                            safety_batch = replay_buffer.sample_local_critic_batch(
+                                actor_safety_candidate_batch_size,
+                                interaction_only=True,
+                            )
+                            if safety_batch is not None:
+                                safety_states = torch.Tensor(safety_batch[0]).to(
+                                    device
+                                )
+                                safety_critic_states = torch.Tensor(
+                                    safety_batch[1]
+                                ).to(device)
+                                safety_actions = self.actor(safety_states)
+                                (
+                                    slowdown_safety_loss,
+                                    slowdown_safety_samples,
+                                ) = actor_slowdown_safety_loss(
+                                    safety_actions,
+                                    safety_critic_states,
+                                    self.state_dim,
+                                    oracle_context_feature_dim,
+                                    actor_safety_distance,
+                                    actor_safety_min_closing_speed,
+                                    actor_slowdown_max_linear_action,
+                                )
+                                if slowdown_safety_samples >= actor_safety_min_samples:
+                                    actor_loss = (
+                                        actor_loss
+                                        + actor_slowdown_safety_weight
+                                        * slowdown_safety_loss
+                                    )
+                                    actor_slowdown_safety_samples += (
+                                        slowdown_safety_samples
+                                    )
                         angular_anchor_loss = torch.zeros((), device=device)
                         if actor_angular_anchor_weight > 0.0:
                             with torch.no_grad():
@@ -822,6 +865,9 @@ class TD3(object):
                         av_actor_anchor_safe_share += anchor_safe_share
                         av_actor_q_scale += q_scale.item()
                         av_actor_angular_anchor_loss += angular_anchor_loss.item()
+                        av_actor_slowdown_safety_loss += (
+                            slowdown_safety_loss.item()
+                        )
                         actor_update_count += 1
 
                         for param, target_param in zip(
@@ -870,6 +916,16 @@ class TD3(object):
         self.writer.add_scalar(
             "Actor angular anchor loss",
             av_actor_angular_anchor_loss / max(actor_update_count, 1),
+            self.iter_count,
+        )
+        self.writer.add_scalar(
+            "Actor slowdown safety loss",
+            av_actor_slowdown_safety_loss / max(actor_update_count, 1),
+            self.iter_count,
+        )
+        self.writer.add_scalar(
+            "Actor slowdown safety samples",
+            actor_slowdown_safety_samples,
             self.iter_count,
         )
         self.writer.add_scalar(
@@ -1225,6 +1281,12 @@ actor_safety_distance = env_float("DRL_MULTI_ACTOR_SAFETY_DISTANCE", 1.0)
 actor_safety_min_closing_speed = env_float(
     "DRL_MULTI_ACTOR_SAFETY_MIN_CLOSING_SPEED", 0.1
 )
+actor_slowdown_safety_weight = env_float(
+    "DRL_MULTI_ACTOR_SLOWDOWN_SAFETY_WEIGHT", 0.0
+)
+actor_slowdown_max_linear_action = env_float(
+    "DRL_MULTI_ACTOR_SLOWDOWN_MAX_LINEAR_ACTION", -0.4
+)
 actor_angular_anchor_weight = env_float(
     "DRL_MULTI_ACTOR_ANGULAR_ANCHOR_WEIGHT", 0.0
 )
@@ -1259,6 +1321,8 @@ if actor_safety_focused and not actor_interaction_only:
         "DRL_MULTI_ACTOR_SAFETY_FOCUSED requires "
         "DRL_MULTI_ACTOR_INTERACTION_ONLY=1"
     )
+if actor_slowdown_safety_weight > 0.0 and local_critic_context_mode != "ego_motion":
+    raise ValueError("Actor slowdown safety loss requires ego-motion local-Critic context")
 if not 0.0 <= critic_interaction_fraction <= 1.0:
     raise ValueError("DRL_MULTI_CRITIC_INTERACTION_FRACTION must be in [0, 1]")
 if critic_warmup_expl_noise < 0.0:
@@ -1294,6 +1358,7 @@ for name, value in (
         "DRL_MULTI_ACTOR_SAFETY_MIN_CLOSING_SPEED",
         actor_safety_min_closing_speed,
     ),
+    ("DRL_MULTI_ACTOR_SLOWDOWN_SAFETY_WEIGHT", actor_slowdown_safety_weight),
     ("DRL_MULTI_ACTOR_ANGULAR_ANCHOR_WEIGHT", actor_angular_anchor_weight),
 ):
     if value < 0.0:
@@ -1308,6 +1373,8 @@ if actor_safety_min_samples > actor_safety_candidate_batch_size:
     raise ValueError("Actor safety minimum samples cannot exceed candidate batch size")
 if actor_safety_distance <= 0.0:
     raise ValueError("DRL_MULTI_ACTOR_SAFETY_DISTANCE must be positive")
+if not -1.0 <= actor_slowdown_max_linear_action <= 1.0:
+    raise ValueError("DRL_MULTI_ACTOR_SLOWDOWN_MAX_LINEAR_ACTION must be in [-1, 1]")
 if actor_anchor_safe_distance <= 0.0:
     raise ValueError("DRL_MULTI_ACTOR_ANCHOR_SAFE_DISTANCE must be positive")
 if actor_anchor_safe_only and not use_local_critic:
@@ -1354,6 +1421,18 @@ anti_stagnation_progress_threshold = env_float(
     "DRL_MULTI_ANTI_STAGNATION_PROGRESS_THRESHOLD", 0.005
 )
 anti_stagnation_min_laser = env_float("DRL_MULTI_ANTI_STAGNATION_MIN_LASER", 0.35)
+safe_recovery_reward = env_flag("DRL_MULTI_USE_SAFE_RECOVERY_REWARD", False)
+safe_recovery_penalty = env_float("DRL_MULTI_SAFE_RECOVERY_PENALTY", 0.2)
+safe_recovery_linear_threshold = env_float(
+    "DRL_MULTI_SAFE_RECOVERY_LINEAR_THRESHOLD", 0.25
+)
+safe_recovery_progress_threshold = env_float(
+    "DRL_MULTI_SAFE_RECOVERY_PROGRESS_THRESHOLD", 0.003
+)
+safe_recovery_min_laser = env_float("DRL_MULTI_SAFE_RECOVERY_MIN_LASER", 0.6)
+safe_recovery_robot_distance = env_float(
+    "DRL_MULTI_SAFE_RECOVERY_ROBOT_DISTANCE", 1.2
+)
 forward_reward_weight = env_float("DRL_MULTI_FORWARD_REWARD_WEIGHT", 0.5)
 stagnation_penalty_weight = env_float("DRL_MULTI_STAGNATION_PENALTY_WEIGHT", 0.03)
 wall_clearance_reward = env_flag("DRL_MULTI_USE_WALL_CLEARANCE_REWARD", False)
@@ -1374,6 +1453,35 @@ robot_clearance_reward_weight = env_float(
 robot_clearance_reward_max_gain = env_float(
     "DRL_MULTI_ROBOT_CLEARANCE_REWARD_MAX_GAIN", 0.1
 )
+yield_priority_reward = env_flag("DRL_MULTI_USE_YIELD_PRIORITY_REWARD", False)
+yield_priority_distance = env_float("DRL_MULTI_YIELD_PRIORITY_DISTANCE", 1.0)
+yield_priority_goal_margin = env_float("DRL_MULTI_YIELD_PRIORITY_GOAL_MARGIN", 0.25)
+yield_priority_stop_linear = env_float("DRL_MULTI_YIELD_PRIORITY_STOP_LINEAR", 0.25)
+yield_priority_penalty_weight = env_float(
+    "DRL_MULTI_YIELD_PRIORITY_PENALTY_WEIGHT", 4.0
+)
+yield_priority_bonus_weight = env_float(
+    "DRL_MULTI_YIELD_PRIORITY_BONUS_WEIGHT", 1.0
+)
+yield_priority_clearance_bonus_weight = env_float(
+    "DRL_MULTI_YIELD_PRIORITY_CLEARANCE_BONUS_WEIGHT", 2.0
+)
+yield_priority_restart_bonus_weight = env_float(
+    "DRL_MULTI_YIELD_PRIORITY_RESTART_BONUS_WEIGHT", 1.5
+)
+yield_priority_stale_wait_penalty_weight = env_float(
+    "DRL_MULTI_YIELD_PRIORITY_STALE_WAIT_PENALTY_WEIGHT", 0.5
+)
+yield_priority_max_wait_steps = env_int(
+    "DRL_MULTI_YIELD_PRIORITY_MAX_WAIT_STEPS", 8
+)
+emergency_stop_distance = env_float("DRL_MULTI_EMERGENCY_STOP_DISTANCE", 0.6)
+emergency_stop_penalty_weight = env_float(
+    "DRL_MULTI_EMERGENCY_STOP_PENALTY_WEIGHT", 8.0
+)
+emergency_stop_bonus_weight = env_float(
+    "DRL_MULTI_EMERGENCY_STOP_BONUS_WEIGHT", 1.0
+)
 for name, value in (
     ("DRL_MULTI_ROBOT_SAFE_DISTANCE", robot_safe_distance),
     ("DRL_MULTI_ROBOT_PROXIMITY_PENALTY_WEIGHT", robot_proximity_penalty_weight),
@@ -1382,11 +1490,46 @@ for name, value in (
         robot_proximity_speed_penalty_weight,
     ),
     ("DRL_MULTI_ROBOT_CLEARANCE_REWARD_WEIGHT", robot_clearance_reward_weight),
+    ("DRL_MULTI_SAFE_RECOVERY_PENALTY", safe_recovery_penalty),
+    (
+        "DRL_MULTI_SAFE_RECOVERY_LINEAR_THRESHOLD",
+        safe_recovery_linear_threshold,
+    ),
+    (
+        "DRL_MULTI_SAFE_RECOVERY_PROGRESS_THRESHOLD",
+        safe_recovery_progress_threshold,
+    ),
+    ("DRL_MULTI_SAFE_RECOVERY_MIN_LASER", safe_recovery_min_laser),
+    ("DRL_MULTI_SAFE_RECOVERY_ROBOT_DISTANCE", safe_recovery_robot_distance),
+    ("DRL_MULTI_YIELD_PRIORITY_GOAL_MARGIN", yield_priority_goal_margin),
+    ("DRL_MULTI_YIELD_PRIORITY_PENALTY_WEIGHT", yield_priority_penalty_weight),
+    ("DRL_MULTI_YIELD_PRIORITY_BONUS_WEIGHT", yield_priority_bonus_weight),
+    (
+        "DRL_MULTI_YIELD_PRIORITY_CLEARANCE_BONUS_WEIGHT",
+        yield_priority_clearance_bonus_weight,
+    ),
+    (
+        "DRL_MULTI_YIELD_PRIORITY_RESTART_BONUS_WEIGHT",
+        yield_priority_restart_bonus_weight,
+    ),
+    (
+        "DRL_MULTI_YIELD_PRIORITY_STALE_WAIT_PENALTY_WEIGHT",
+        yield_priority_stale_wait_penalty_weight,
+    ),
+    ("DRL_MULTI_EMERGENCY_STOP_DISTANCE", emergency_stop_distance),
+    ("DRL_MULTI_EMERGENCY_STOP_PENALTY_WEIGHT", emergency_stop_penalty_weight),
+    ("DRL_MULTI_EMERGENCY_STOP_BONUS_WEIGHT", emergency_stop_bonus_weight),
 ):
     if value < 0.0:
         raise ValueError(f"{name} must be non-negative")
 if robot_clearance_reward_max_gain <= 0.0:
     raise ValueError("DRL_MULTI_ROBOT_CLEARANCE_REWARD_MAX_GAIN must be positive")
+if yield_priority_distance <= 0.0:
+    raise ValueError("DRL_MULTI_YIELD_PRIORITY_DISTANCE must be positive")
+if not 0.0 <= yield_priority_stop_linear <= 1.0:
+    raise ValueError("DRL_MULTI_YIELD_PRIORITY_STOP_LINEAR must be in [0, 1]")
+if yield_priority_max_wait_steps < 0:
+    raise ValueError("DRL_MULTI_YIELD_PRIORITY_MAX_WAIT_STEPS must be non-negative")
 local_navigation_reward = env_flag("DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD", False)
 local_navigation_heading_weight = env_float(
     "DRL_MULTI_LOCAL_NAV_HEADING_WEIGHT", 0.4
@@ -1515,6 +1658,12 @@ env = MultiAgentGazeboEnv(
     anti_stagnation_linear_threshold=anti_stagnation_linear_threshold,
     anti_stagnation_progress_threshold=anti_stagnation_progress_threshold,
     anti_stagnation_min_laser=anti_stagnation_min_laser,
+    safe_recovery_reward=safe_recovery_reward,
+    safe_recovery_penalty=safe_recovery_penalty,
+    safe_recovery_linear_threshold=safe_recovery_linear_threshold,
+    safe_recovery_progress_threshold=safe_recovery_progress_threshold,
+    safe_recovery_min_laser=safe_recovery_min_laser,
+    safe_recovery_robot_distance=safe_recovery_robot_distance,
     wall_clearance_reward=wall_clearance_reward,
     wall_clearance_safe_distance=wall_clearance_safe_distance,
     wall_clearance_penalty=wall_clearance_penalty,
@@ -1531,6 +1680,19 @@ env = MultiAgentGazeboEnv(
     robot_proximity_speed_penalty_weight=robot_proximity_speed_penalty_weight,
     robot_clearance_reward_weight=robot_clearance_reward_weight,
     robot_clearance_reward_max_gain=robot_clearance_reward_max_gain,
+    yield_priority_reward=yield_priority_reward,
+    yield_priority_distance=yield_priority_distance,
+    yield_priority_goal_margin=yield_priority_goal_margin,
+    yield_priority_stop_linear=yield_priority_stop_linear,
+    yield_priority_penalty_weight=yield_priority_penalty_weight,
+    yield_priority_bonus_weight=yield_priority_bonus_weight,
+    yield_priority_clearance_bonus_weight=yield_priority_clearance_bonus_weight,
+    yield_priority_restart_bonus_weight=yield_priority_restart_bonus_weight,
+    yield_priority_stale_wait_penalty_weight=yield_priority_stale_wait_penalty_weight,
+    yield_priority_max_wait_steps=yield_priority_max_wait_steps,
+    emergency_stop_distance=emergency_stop_distance,
+    emergency_stop_penalty_weight=emergency_stop_penalty_weight,
+    emergency_stop_bonus_weight=emergency_stop_bonus_weight,
     forward_reward_weight=forward_reward_weight,
     stagnation_penalty_weight=stagnation_penalty_weight,
     weak_coupling_layout=True,
@@ -1668,6 +1830,12 @@ print("Anti-stagnation penalty:", anti_stagnation_penalty)
 print("Anti-stagnation linear threshold:", anti_stagnation_linear_threshold)
 print("Anti-stagnation progress threshold:", anti_stagnation_progress_threshold)
 print("Anti-stagnation min laser:", anti_stagnation_min_laser)
+print("Safe-recovery reward:", safe_recovery_reward)
+print("Safe-recovery penalty:", safe_recovery_penalty)
+print("Safe-recovery linear threshold:", safe_recovery_linear_threshold)
+print("Safe-recovery progress threshold:", safe_recovery_progress_threshold)
+print("Safe-recovery min laser:", safe_recovery_min_laser)
+print("Safe-recovery robot distance:", safe_recovery_robot_distance)
 print("Forward reward weight:", forward_reward_weight)
 print("Base stagnation penalty weight:", stagnation_penalty_weight)
 print("Wall-clearance reward:", wall_clearance_reward)
@@ -1683,6 +1851,22 @@ print(
 )
 print("Robot clearance reward weight:", robot_clearance_reward_weight)
 print("Robot clearance reward max gain:", robot_clearance_reward_max_gain)
+print("Yield-priority reward:", yield_priority_reward)
+print("Yield-priority distance:", yield_priority_distance)
+print("Yield-priority goal margin:", yield_priority_goal_margin)
+print("Yield-priority stop linear:", yield_priority_stop_linear)
+print("Yield-priority penalty weight:", yield_priority_penalty_weight)
+print("Yield-priority bonus weight:", yield_priority_bonus_weight)
+print("Yield-priority clearance bonus weight:", yield_priority_clearance_bonus_weight)
+print("Yield-priority restart bonus weight:", yield_priority_restart_bonus_weight)
+print(
+    "Yield-priority stale-wait penalty weight:",
+    yield_priority_stale_wait_penalty_weight,
+)
+print("Yield-priority max wait steps:", yield_priority_max_wait_steps)
+print("Emergency-stop distance:", emergency_stop_distance)
+print("Emergency-stop penalty weight:", emergency_stop_penalty_weight)
+print("Emergency-stop bonus weight:", emergency_stop_bonus_weight)
 print("Local-navigation reward:", local_navigation_reward)
 print("Local-navigation heading weight:", local_navigation_heading_weight)
 print("Local-navigation wrong-way penalty:", local_navigation_wrong_way_penalty)
@@ -1734,6 +1918,8 @@ print("Actor safety candidate batch size:", actor_safety_candidate_batch_size)
 print("Actor safety min samples:", actor_safety_min_samples)
 print("Actor safety distance:", actor_safety_distance)
 print("Actor safety min closing speed:", actor_safety_min_closing_speed)
+print("Actor slowdown safety weight:", actor_slowdown_safety_weight)
+print("Actor slowdown max linear action:", actor_slowdown_max_linear_action)
 print("Actor angular anchor weight:", actor_angular_anchor_weight)
 if network.actor_train_mode == "residual":
     print("Residual hidden dim:", network.residual_hidden_dim)
@@ -1890,6 +2076,8 @@ while timestep < max_timesteps:
                     actor_safety_min_samples,
                     actor_safety_distance,
                     actor_safety_min_closing_speed,
+                    actor_slowdown_safety_weight,
+                    actor_slowdown_max_linear_action,
                     actor_angular_anchor_weight,
                     actor_anchor_safe_only,
                     actor_anchor_safe_distance,
@@ -2020,6 +2208,16 @@ while timestep < max_timesteps:
                 if episode_sample_count > 0
                 else 0.0
             )
+            mean_yield_priority_reward_step = (
+                episode_yield_priority_reward_sum / episode_sample_count
+                if episode_sample_count > 0
+                else 0.0
+            )
+            mean_abs_yield_priority_reward_step = (
+                episode_abs_yield_priority_reward_sum / episode_sample_count
+                if episode_sample_count > 0
+                else 0.0
+            )
             mean_abs_local_navigation_reward_step = (
                 episode_abs_local_navigation_reward_sum / episode_sample_count
                 if episode_sample_count > 0
@@ -2059,6 +2257,7 @@ while timestep < max_timesteps:
                 "abs_local_nav_reward=%.4f | "
                 "robot_proximity_reward=%.4f | abs_robot_proximity_reward=%.4f | "
                 "robot_clearance_reward=%.4f | abs_robot_clearance_reward=%.4f | "
+                "yield_priority_reward=%.4f | abs_yield_priority_reward=%.4f | "
                 "context_neighbors_mean=%.2f | context_neighbors_max=%.0f | "
                 "last_context_neighbors_mean=%.2f | last_context_neighbors_max=%.0f | "
                 "actor_unlocked=%i | "
@@ -2101,6 +2300,8 @@ while timestep < max_timesteps:
                     mean_abs_robot_proximity_reward_step,
                     mean_robot_clearance_reward_step,
                     mean_abs_robot_clearance_reward_step,
+                    mean_yield_priority_reward_step,
+                    mean_abs_yield_priority_reward_step,
                     mean_context_neighbors,
                     max_context_neighbors,
                     last_context_neighbors_mean,
@@ -2342,6 +2543,8 @@ while timestep < max_timesteps:
         episode_abs_robot_proximity_reward_sum = 0.0
         episode_robot_clearance_reward_sum = 0.0
         episode_abs_robot_clearance_reward_sum = 0.0
+        episode_yield_priority_reward_sum = 0.0
+        episode_abs_yield_priority_reward_sum = 0.0
         episode_num += 1
 
     expl_noise = decay_exploration_noise(
@@ -2443,6 +2646,11 @@ while timestep < max_timesteps:
         )
         episode_robot_clearance_reward_sum += robot_clearance_reward_step
         episode_abs_robot_clearance_reward_sum += abs(robot_clearance_reward_step)
+        yield_priority_reward_step = float(
+            step_agents[name].get("yield_priority_reward", 0.0)
+        )
+        episode_yield_priority_reward_sum += yield_priority_reward_step
+        episode_abs_yield_priority_reward_sum += abs(yield_priority_reward_step)
 
     truncated = episode_timesteps + 1 == max_ep
     next_active_mask = [
