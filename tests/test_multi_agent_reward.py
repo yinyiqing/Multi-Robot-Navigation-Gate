@@ -33,6 +33,18 @@ class MultiAgentRewardTests(unittest.TestCase):
         self.assertAlmostEqual(moving, 0.0)
         self.assertAlmostEqual(stopped, 0.0)
 
+    def test_robot_threat_suppresses_forward_bonus_but_keeps_progress(self):
+        environment = self.environment(forward_weight=0.5, stagnation_weight=0.0)
+        reward = environment.get_reward(
+            False,
+            False,
+            [0.8, 0.0],
+            2.0,
+            0.02,
+            suppress_forward_reward=True,
+        )
+        self.assertAlmostEqual(reward, 0.4)
+
     def test_terminal_rewards_do_not_depend_on_shaping(self):
         environment = self.environment(forward_weight=0.0, stagnation_weight=0.0)
         self.assertEqual(

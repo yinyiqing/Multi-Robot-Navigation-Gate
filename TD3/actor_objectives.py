@@ -114,3 +114,37 @@ def actor_slowdown_safety_loss(
     linear_action = actor_actions[safety_mask, 0]
     excess_speed = F.relu(linear_action - float(max_safe_linear_action))
     return torch.mean(excess_speed * excess_speed), selected_count
+
+
+def reference_acceleration_cap_loss(
+    actor_actions,
+    reference_actions,
+    critic_states,
+    actor_state_dim,
+    context_feature_dim,
+    safety_distance,
+    min_closing_speed,
+    max_linear_delta=0.0,
+):
+    """Block extra acceleration over a reference only during close approaches."""
+    if max_linear_delta < 0.0:
+        raise ValueError("max_linear_delta must be non-negative")
+    if actor_actions.shape != reference_actions.shape:
+        raise ValueError("actor_actions and reference_actions must have equal shapes")
+
+    safety_mask = approaching_safety_mask(
+        critic_states,
+        actor_state_dim,
+        context_feature_dim,
+        safety_distance,
+        min_closing_speed,
+    )
+    selected_count = int(torch.sum(safety_mask).item())
+    if selected_count == 0:
+        return actor_actions.sum() * 0.0, 0
+
+    linear_delta = (
+        actor_actions[safety_mask, 0] - reference_actions[safety_mask, 0]
+    )
+    excess_acceleration = F.relu(linear_delta - float(max_linear_delta))
+    return torch.mean(excess_acceleration * excess_acceleration), selected_count

@@ -1812,6 +1812,7 @@ class MultiAgentGazeboEnv:
                 min_laser,
                 progress,
                 suppress_stagnation=robot_threat,
+                suppress_forward_reward=robot_threat,
             )
             anti_stagnation_penalty = self._compute_anti_stagnation_penalty(
                 target,
@@ -2346,6 +2347,7 @@ class MultiAgentGazeboEnv:
         min_laser,
         progress,
         suppress_stagnation=False,
+        suppress_forward_reward=False,
     ):
         if target:
             return 100.0
@@ -2353,7 +2355,11 @@ class MultiAgentGazeboEnv:
             return -100.0
         obstacle_penalty = 1 - min_laser if min_laser < 1 else 0.0
         progress_reward = 20.0 * progress
-        forward_reward = self.forward_reward_weight * action[0]
+        forward_reward = (
+            0.0
+            if suppress_forward_reward
+            else self.forward_reward_weight * action[0]
+        )
         turn_penalty = 0.2 * abs(action[1])
         stagnation_penalty = (
             self.stagnation_penalty_weight

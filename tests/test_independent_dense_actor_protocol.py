@@ -38,12 +38,13 @@ class IndependentDenseActorProtocolTests(unittest.TestCase):
             self.export_value("DRL_MULTI_ACTOR_SLOWDOWN_SAFETY_WEIGHT"), "0.0"
         )
 
-    def test_5a_is_only_a_warm_start_and_safe_state_reference(self):
+    def test_5a_is_only_a_warm_start_and_mild_reference(self):
         self.assertEqual(self.export_value("DRL_MULTI_LOAD_ACTOR_ONLY"), "1")
         self.assertEqual(
             self.export_value("DRL_MULTI_ACTOR_ANGULAR_ANCHOR_WEIGHT"), "0.0"
         )
-        self.assertEqual(self.export_value("DRL_MULTI_ACTOR_ANCHOR_SAFE_ONLY"), "1")
+        self.assertEqual(self.export_value("DRL_MULTI_ACTOR_ANCHOR_SAFE_ONLY"), "0")
+        self.assertEqual(self.export_value("DRL_MULTI_ACTOR_ANCHOR_WEIGHT"), "0.05")
 
     def test_interactions_are_oversampled_but_not_exclusive(self):
         self.assertEqual(
@@ -60,7 +61,17 @@ class IndependentDenseActorProtocolTests(unittest.TestCase):
         self.assertEqual(
             self.export_value("DRL_MULTI_ACTOR_SLOWDOWN_SAFETY_WEIGHT"), "0.0"
         )
-        self.assertEqual(self.export_value("DRL_MULTI_ACTOR_Q_NORMALIZATION_ALPHA"), "0.0")
+        self.assertEqual(
+            self.export_value("DRL_MULTI_ACTOR_Q_NORMALIZATION_ALPHA"), "1.0"
+        )
+        self.assertEqual(
+            self.export_value("DRL_MULTI_ACTOR_REFERENCE_ACCELERATION_CAP_WEIGHT"),
+            "5.0",
+        )
+        self.assertEqual(
+            self.export_value("DRL_MULTI_ACTOR_REFERENCE_ACCELERATION_CAP_MARGIN"),
+            "0.0",
+        )
 
     def test_short_epochs_preserve_the_monitoring_cadence(self):
         self.assertEqual(

@@ -15,6 +15,7 @@ from actor_models import Actor, ResidualActor, is_residual_actor_state_dict
 from actor_objectives import (
     actor_slowdown_safety_loss,
     conservative_actor_objective,
+    reference_acceleration_cap_loss,
     safe_reference_mask,
 )
 from critic_models import Critic
@@ -562,6 +563,8 @@ class TD3(object):
         actor_angular_anchor_weight=0.0,
         actor_anchor_safe_only=False,
         actor_anchor_safe_distance=2.0,
+        actor_reference_acceleration_cap_weight=0.0,
+        actor_reference_acceleration_cap_margin=0.0,
     ):
         av_Q = 0
         max_Q = -inf
@@ -576,12 +579,19 @@ class TD3(object):
         av_actor_angular_abs_delta = 0
         av_actor_slowdown_safety_loss = 0
         actor_slowdown_safety_samples = 0
+        av_actor_reference_acceleration_cap_loss = 0
+        actor_reference_acceleration_cap_samples = 0
         actor_update_sample_count = 0
         actor_diagnostic_count = 0
         actor_update_count = 0
         av_critic_safety_ranking_loss = 0
         critic_safety_ranking_samples = 0
         actor_update_enabled = bool(update_actor)
+        if (
+            actor_reference_acceleration_cap_weight > 0.0
+            and self.actor_reference is None
+        ):
+            raise ValueError("Reference acceleration cap requires a reference Actor")
         self.last_actor_gradient_gate = None
         if actor_update_enabled and actor_gradient_gate:
             self.last_actor_gradient_gate = self.audit_actor_gradient(
@@ -847,6 +857,44 @@ class TD3(object):
                                     actor_slowdown_safety_samples += (
                                         slowdown_safety_samples
                                     )
+                        reference_acceleration_cap = torch.zeros((), device=device)
+                        if actor_reference_acceleration_cap_weight > 0.0:
+                            safety_batch = replay_buffer.sample_local_critic_batch(
+                                actor_safety_candidate_batch_size,
+                                interaction_only=True,
+                            )
+                            if safety_batch is not None:
+                                safety_states = torch.Tensor(safety_batch[0]).to(device)
+                                safety_critic_states = torch.Tensor(
+                                    safety_batch[1]
+                                ).to(device)
+                                safety_actions = self.actor(safety_states)
+                                with torch.no_grad():
+                                    safety_reference_actions = self.actor_reference(
+                                        safety_states
+                                    )
+                                (
+                                    reference_acceleration_cap,
+                                    acceleration_cap_samples,
+                                ) = reference_acceleration_cap_loss(
+                                    safety_actions,
+                                    safety_reference_actions,
+                                    safety_critic_states,
+                                    self.state_dim,
+                                    oracle_context_feature_dim,
+                                    actor_safety_distance,
+                                    actor_safety_min_closing_speed,
+                                    actor_reference_acceleration_cap_margin,
+                                )
+                                if acceleration_cap_samples > 0:
+                                    actor_loss = (
+                                        actor_loss
+                                        + actor_reference_acceleration_cap_weight
+                                        * reference_acceleration_cap
+                                    )
+                                    actor_reference_acceleration_cap_samples += (
+                                        acceleration_cap_samples
+                                    )
                         angular_anchor_loss = torch.zeros((), device=device)
                         if actor_angular_anchor_weight > 0.0:
                             with torch.no_grad():
@@ -867,6 +915,9 @@ class TD3(object):
                         av_actor_angular_anchor_loss += angular_anchor_loss.item()
                         av_actor_slowdown_safety_loss += (
                             slowdown_safety_loss.item()
+                        )
+                        av_actor_reference_acceleration_cap_loss += (
+                            reference_acceleration_cap.item()
                         )
                         actor_update_count += 1
 
@@ -926,6 +977,16 @@ class TD3(object):
         self.writer.add_scalar(
             "Actor slowdown safety samples",
             actor_slowdown_safety_samples,
+            self.iter_count,
+        )
+        self.writer.add_scalar(
+            "Actor reference acceleration cap loss",
+            av_actor_reference_acceleration_cap_loss / max(actor_update_count, 1),
+            self.iter_count,
+        )
+        self.writer.add_scalar(
+            "Actor reference acceleration cap samples",
+            actor_reference_acceleration_cap_samples,
             self.iter_count,
         )
         self.writer.add_scalar(
@@ -1290,6 +1351,12 @@ actor_slowdown_max_linear_action = env_float(
 actor_angular_anchor_weight = env_float(
     "DRL_MULTI_ACTOR_ANGULAR_ANCHOR_WEIGHT", 0.0
 )
+actor_reference_acceleration_cap_weight = env_float(
+    "DRL_MULTI_ACTOR_REFERENCE_ACCELERATION_CAP_WEIGHT", 0.0
+)
+actor_reference_acceleration_cap_margin = env_float(
+    "DRL_MULTI_ACTOR_REFERENCE_ACCELERATION_CAP_MARGIN", 0.0
+)
 active_neighbors_only = env_flag("DRL_MULTI_ACTIVE_NEIGHBORS_ONLY", False)
 local_critic_max_agents = env_int("DRL_MULTI_LOCAL_CRITIC_MAX_AGENTS", 10)
 local_critic_max_neighbors = max(local_critic_max_agents - 1, 1)
@@ -1360,6 +1427,14 @@ for name, value in (
     ),
     ("DRL_MULTI_ACTOR_SLOWDOWN_SAFETY_WEIGHT", actor_slowdown_safety_weight),
     ("DRL_MULTI_ACTOR_ANGULAR_ANCHOR_WEIGHT", actor_angular_anchor_weight),
+    (
+        "DRL_MULTI_ACTOR_REFERENCE_ACCELERATION_CAP_WEIGHT",
+        actor_reference_acceleration_cap_weight,
+    ),
+    (
+        "DRL_MULTI_ACTOR_REFERENCE_ACCELERATION_CAP_MARGIN",
+        actor_reference_acceleration_cap_margin,
+    ),
 ):
     if value < 0.0:
         raise ValueError(f"{name} must be non-negative")
@@ -1384,6 +1459,15 @@ if actor_anchor_safe_only and actor_anchor_weight <= 0.0:
         "DRL_MULTI_ACTOR_ANCHOR_SAFE_ONLY requires a positive "
         "DRL_MULTI_ACTOR_ANCHOR_WEIGHT"
     )
+if actor_reference_acceleration_cap_weight > 0.0 and not use_local_critic:
+    raise ValueError("Reference acceleration cap requires DRL_MULTI_USE_LOCAL_CRITIC=1")
+if (
+    actor_reference_acceleration_cap_weight > 0.0
+    and local_critic_context_mode != "ego_motion"
+):
+    raise ValueError("Reference acceleration cap requires ego-motion context")
+if actor_reference_acceleration_cap_weight > 0.0 and actor_anchor_weight <= 0.0:
+    raise ValueError("Reference acceleration cap requires a reference Actor")
 best_metric = os.environ.get("DRL_MULTI_BEST_METRIC", "success").strip().lower()
 early_stop_patience = env_int("DRL_MULTI_EARLY_STOP_PATIENCE", 0)
 early_stop_min_epochs = env_int("DRL_MULTI_EARLY_STOP_MIN_EPOCHS", 0)
@@ -1961,6 +2045,14 @@ print("Actor safety min closing speed:", actor_safety_min_closing_speed)
 print("Actor slowdown safety weight:", actor_slowdown_safety_weight)
 print("Actor slowdown max linear action:", actor_slowdown_max_linear_action)
 print("Actor angular anchor weight:", actor_angular_anchor_weight)
+print(
+    "Actor reference acceleration cap weight:",
+    actor_reference_acceleration_cap_weight,
+)
+print(
+    "Actor reference acceleration cap margin:",
+    actor_reference_acceleration_cap_margin,
+)
 if network.actor_train_mode == "residual":
     print("Residual hidden dim:", network.residual_hidden_dim)
     print("Residual scale:", network.residual_scale)
@@ -2160,6 +2252,8 @@ while timestep < max_timesteps:
                     actor_angular_anchor_weight,
                     actor_anchor_safe_only,
                     actor_anchor_safe_distance,
+                    actor_reference_acceleration_cap_weight,
+                    actor_reference_acceleration_cap_margin,
                 )
             else:
                 network.train(

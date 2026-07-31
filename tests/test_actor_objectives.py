@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "TD3"))
 from actor_objectives import (
     actor_slowdown_safety_loss,
     conservative_actor_objective,
+    reference_acceleration_cap_loss,
     safe_reference_mask,
 )
 
@@ -152,6 +153,50 @@ class ActorObjectiveTests(unittest.TestCase):
             safety_distance=1.0,
             min_closing_speed=0.1,
             max_safe_linear_action=-0.4,
+        )
+
+        self.assertEqual(samples, 1)
+        self.assertEqual(loss.item(), 0.0)
+
+    def test_reference_cap_penalizes_only_extra_acceleration_during_approach(self):
+        actor_states = torch.zeros((3, 24))
+        contexts = torch.tensor(
+            [
+                [0.8, 0.0, 0.8, 0.0, -0.4, 0.0, 1.0],
+                [0.8, 0.0, 0.8, 0.0, 0.4, 0.0, 1.0],
+                [1.4, 0.0, 1.4, 0.0, -0.4, 0.0, 1.0],
+            ]
+        )
+        critic_states = torch.cat((actor_states, contexts), dim=1)
+        actor_actions = torch.tensor([[0.6, 0.0], [0.6, 0.0], [0.6, 0.0]])
+        reference_actions = torch.tensor([[0.4, 0.0], [0.4, 0.0], [0.4, 0.0]])
+
+        loss, samples = reference_acceleration_cap_loss(
+            actor_actions,
+            reference_actions,
+            critic_states,
+            actor_state_dim=24,
+            context_feature_dim=7,
+            safety_distance=1.0,
+            min_closing_speed=0.1,
+        )
+
+        self.assertEqual(samples, 1)
+        self.assertAlmostEqual(loss.item(), 0.04)
+
+    def test_reference_cap_allows_deceleration_and_steering_changes(self):
+        actor_states = torch.zeros((1, 24))
+        contexts = torch.tensor([[0.8, 0.0, 0.8, 0.0, -0.4, 0.0, 1.0]])
+        critic_states = torch.cat((actor_states, contexts), dim=1)
+
+        loss, samples = reference_acceleration_cap_loss(
+            torch.tensor([[0.2, 0.9]]),
+            torch.tensor([[0.4, -0.9]]),
+            critic_states,
+            actor_state_dim=24,
+            context_feature_dim=7,
+            safety_distance=1.0,
+            min_closing_speed=0.1,
         )
 
         self.assertEqual(samples, 1)

@@ -1,6 +1,6 @@
 # ICRA论文主线：两个独立Actor + Gate
 
-状态：`5A作为普通Actor冻结；v6 epoch-11的200场复核确认真实收益但timeout不可接受；v8受控协议已就绪但未启动；Gate继续暂停`。
+状态：`5A作为普通Actor冻结；v8确认Critic危险加速偏差；v9修正协议已就绪但未启动；Gate继续暂停`。
 
 导师沟通后的当前目标是：
 
@@ -61,7 +61,7 @@ Gate的前提是A和B都能单独从起点完成导航。旧epoch-16策略只能
 
 ## 3. 独立Dense Actor训练
 
-失败对照：[D5 independent Dense Actor v1](results/05_当前冻结方案/D5_independent_dense_actor_from_5a_full_v1_s20260728/README.md)。v2-v7的后续修复与失败记录见[强交互Actor研发记录](results/03_强交互Actor_研发记录/README.md)。当前启动脚本已切换到v8，但尚未启动。
+失败对照：[D5 independent Dense Actor v1](results/05_当前冻结方案/D5_independent_dense_actor_from_5a_full_v1_s20260728/README.md)。v2-v8的后续修复与失败记录见[强交互Actor研发记录](results/03_强交互Actor_研发记录/README.md)。当前启动脚本已切换到v9，但尚未启动。
 
 固定规则：
 
@@ -69,7 +69,7 @@ Gate的前提是A和B都能单独从起点完成导航。旧epoch-16策略只能
 2. 新Actor在每个episode中全程控制，禁止`2.0 m` oracle或另一Actor接管。
 3. 保持TD3、原24维Actor输入和`0.8自身 + 0.2邻车`加权reward。
 4. Critic使用训练期邻车相对位置/速度；Actor部署输入不变。
-5. 无近距离邻车的低风险样本用5A动作anchor保留普通导航；邻车进入`2.0 m`后解除anchor。
+5. 全状态使用轻量5A动作anchor限制策略漂移；危险接近时额外禁止新Actor比5A加速，但允许减速和改变转向。
 6. 使用`dense/train`的6000场无放回循环，不再用只有单冲突边的140场子集代替完整Dense训练。
 7. 同时检查full success、collision、unresolved、timeout和平均步数；不接受“碰撞下降但全部变成超时”。
 
@@ -84,12 +84,14 @@ v3-v7共享同一个全局减速机制：`1.0 m`内正在接近的状态同时�
 
 固定200场配对复核表明，v6 epoch-11相对5A的full success从`0.335`提高到`0.445`，McNemar exact `p=0.00535`；该中期收益真实。但v6同时产生`0.120` timeout，平均步数从`26.96`增至`69.77`，因此仍不符合独立Dense Actor要求。完整结果见 [v6 epoch-11固定200场复核](results/03_强交互Actor_研发记录/20260731_v6_epoch11_固定200场配对复核/README.md)。
 
-v8只修正这些已确认问题：关闭隐藏目标优先级、统一减速loss和Critic减速排序，取消Actor Q归一化，恢复TD3 Q目标；保留5A warm-start、安全状态anchor、完整Dense独立rollout和`0.8/0.2`合作reward。
+v8关闭统一减速后，epoch-5的success由冻结基线`0.768`降至`0.680`，full success由`0.380`降至`0.180`。replay审计显示Actor在危险状态相对5A平均加速约`0.116`，Critic仍偏好这些动作；同时未归一化Q持续膨胀，safe-only anchor只覆盖约25%样本。因此v8也已否定，详见[v8归档](results/03_强交互Actor_研发记录/20260731_v8_Critic危险加速退化_独立DenseActor/README.md)。
+
+v9只针对上述已确认机制修正：恢复Q尺度归一化；全状态使用轻量5A anchor；危险接近时采用相对5A的单边加速上限，不设置固定低速目标；机器人进入安全距离时取消基础速度奖励，但保留目标进展奖励。
 
 ## 4. 后续顺序
 
 1. 固定200场复核已完成：v6有真实收益，但因`0.120` timeout和`2.59`倍平均步数未通过验收，不再运行其完整1000场validation。
-2. 使用已锁定的v8协议重新训练独立Dense Actor，在monitor上只判断趋势。
+2. 使用已锁定的v9协议重新训练独立Dense Actor，在monitor上先判断是否同时消除危险加速和等待退化。
 3. 在完整1000场dense validation上确认候选独立超过5A/5D，并且没有系统性超时。
 4. 补测新Actor的0-edge/standard validation能力，确认它与5A是否真的互补；如果新Actor全面优于5A，则不强行训练无意义的Gate。
 5. 只有两个独立Actor存在稳定互补性时，才冻结它们并训练Gate。

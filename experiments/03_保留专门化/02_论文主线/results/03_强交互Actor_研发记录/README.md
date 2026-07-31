@@ -24,5 +24,6 @@
 | `20260731_v6_long_高点后等待退化_独立DenseActor` | rejected | epoch-11有真实Dense收益，但后期再次退化到timeout=0.680 |
 | `20260731_v6_epoch11_固定200场配对复核` | rejected candidate | full提高`0.110`，但timeout达到`0.120`且平均步数为5A的`2.59`倍 |
 | `20260731_v7_前进奖励无净提升_独立DenseActor` | rejected | epoch-8与冻结5A的full success相同，目标冲突未解除 |
+| `20260731_v8_Critic危险加速退化_独立DenseActor` | rejected | 移除统一减速后复现危险加速，确认未归一化Q与safe-only anchor无法限制Critic动作外推 |
 
-v6 epoch-11的200场复核已完成：收益真实，但没有通过独立Dense Actor的timeout和效率验收。下一步只能使用主线README中锁定的v8受控协议。
+v6 epoch-11的200场复核已完成：收益真实，但没有通过独立Dense Actor的timeout和效率验收。v8进一步确认不能直接放开Critic；后续采用相对5A的单边危险加速上限，而不是恢复统一减速。
