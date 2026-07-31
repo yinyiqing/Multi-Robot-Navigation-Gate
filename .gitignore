@@ -47,3 +47,4 @@ experiments/03_保留专门化/02_论文主线/results/06_Gate开发/D5_G2_inter
 
 # Local-only experiment checkpoints; GitHub rejects large .pt artifacts.
 experiments/03_保留专门化/02_论文主线/results/**/checkpoints/
+experiments/03_保留专门化/02_论文主线/results/**/pytorch_models/

@@ -1385,6 +1385,20 @@ if actor_anchor_safe_only and actor_anchor_weight <= 0.0:
         "DRL_MULTI_ACTOR_ANCHOR_WEIGHT"
     )
 best_metric = os.environ.get("DRL_MULTI_BEST_METRIC", "success").strip().lower()
+early_stop_patience = env_int("DRL_MULTI_EARLY_STOP_PATIENCE", 0)
+early_stop_min_epochs = env_int("DRL_MULTI_EARLY_STOP_MIN_EPOCHS", 0)
+early_stop_full_success_drop = (
+    env_float("DRL_MULTI_EARLY_STOP_FULL_SUCCESS_DROP", 0.0) or 0.0
+)
+early_stop_success_drop = (
+    env_float("DRL_MULTI_EARLY_STOP_SUCCESS_DROP", 0.0) or 0.0
+)
+early_stop_timeout_increase = (
+    env_float("DRL_MULTI_EARLY_STOP_TIMEOUT_INCREASE", 1.0) or 1.0
+)
+early_stop_timeout_absolute = env_float(
+    "DRL_MULTI_EARLY_STOP_TIMEOUT_ABSOLUTE", None
+)
 scenario_mode = os.environ.get("DRL_MULTI_SCENARIO", "standard").strip().lower()
 eval_manifest_path = os.environ.get("DRL_MULTI_EVAL_MANIFEST_PATH", "").strip()
 if scenario_mode == "manifest" and not eval_manifest_path:
@@ -1601,6 +1615,7 @@ def save_training_checkpoint(
     best_eval_summary=None,
     best_epoch=None,
     path=checkpoint_path,
+    bad_eval_count=0,
 ):
     torch.save(
         {
@@ -1615,6 +1630,7 @@ def save_training_checkpoint(
             "expl_noise": expl_noise_value,
             "best_eval_summary": best_eval_summary,
             "best_epoch": best_epoch,
+            "bad_eval_count": bad_eval_count,
             "eval_protocol_id": eval_protocol_id,
             "evaluation_history": evaluation_history,
             "manifest_sampling_state": env.manifest_sampling_state(),
@@ -1882,6 +1898,12 @@ print("Critic state dim:", critic_state_dim)
 print("Local critic max neighbors:", local_critic_max_neighbors)
 print("Local critic context dim:", critic_context_dim)
 print("Best metric:", best_metric)
+print("Early stop patience:", early_stop_patience)
+print("Early stop min epochs:", early_stop_min_epochs)
+print("Early stop full-success drop:", early_stop_full_success_drop)
+print("Early stop success drop:", early_stop_success_drop)
+print("Early stop timeout increase:", early_stop_timeout_increase)
+print("Early stop timeout absolute:", early_stop_timeout_absolute)
 print("Eval episodes:", eval_ep)
 print("Eval frequency agent samples:", eval_freq)
 print("Eval protocol ID:", eval_protocol_id)
@@ -1959,6 +1981,7 @@ print("Starting epoch:", epoch)
 print("==============================================")
 
 last_eval_summary = None
+bad_eval_count = int(checkpoint.get("bad_eval_count", 0) if checkpoint else 0)
 train_seen_scenario_ids = set(
     checkpoint.get("train_seen_scenario_ids", ()) if checkpoint else ()
 )
@@ -2037,6 +2060,44 @@ def is_better_eval(candidate, current_best):
         )
     return candidate_key > best_key
 
+
+def is_degraded_eval(candidate, current_best):
+    if current_best is None:
+        return False, []
+    reasons = []
+    best_full = current_best.get("full_success_rate", 0.0)
+    best_success = current_best.get("success_rate", 0.0)
+    best_timeout = current_best.get("timeout_episode_rate", 0.0)
+    full_drop = best_full - candidate.get("full_success_rate", 0.0)
+    success_drop = best_success - candidate.get("success_rate", 0.0)
+    timeout_increase = candidate.get("timeout_episode_rate", 0.0) - best_timeout
+    if full_drop >= early_stop_full_success_drop > 0.0:
+        reasons.append(
+            "full_success_drop=%.3f>=%.3f"
+            % (full_drop, early_stop_full_success_drop)
+        )
+    if success_drop >= early_stop_success_drop > 0.0:
+        reasons.append(
+            "success_drop=%.3f>=%.3f" % (success_drop, early_stop_success_drop)
+        )
+    if timeout_increase >= early_stop_timeout_increase > 0.0:
+        reasons.append(
+            "timeout_increase=%.3f>=%.3f"
+            % (timeout_increase, early_stop_timeout_increase)
+        )
+    if (
+        early_stop_timeout_absolute is not None
+        and candidate.get("timeout_episode_rate", 0.0)
+        >= early_stop_timeout_absolute
+    ):
+        reasons.append(
+            "timeout=%.3f>=%.3f"
+            % (candidate.get("timeout_episode_rate", 0.0), early_stop_timeout_absolute)
+        )
+    return bool(reasons), reasons
+
+
+stop_training = False
 while timestep < max_timesteps:
     if episode_done:
         if timestep != 0 and not skip_episode_summary_once:
@@ -2350,6 +2411,7 @@ while timestep < max_timesteps:
                     expl_noise,
                     best_eval_summary,
                     best_epoch,
+                    bad_eval_count=bad_eval_count,
                 )
                 print("Checkpoint saved:", checkpoint_path)
 
@@ -2416,6 +2478,32 @@ while timestep < max_timesteps:
             network.save(epoch_model_name, directory="./pytorch_models")
             print("Epoch model snapshot saved:", epoch_model_name)
             np.save("./results/%s" % file_name, evaluations)
+            eval_improved = is_better_eval(last_eval_summary, best_eval_summary)
+            eval_degraded, degradation_reasons = is_degraded_eval(
+                last_eval_summary,
+                best_eval_summary,
+            )
+            if eval_improved:
+                bad_eval_count = 0
+            elif (
+                early_stop_patience > 0
+                and epoch >= early_stop_min_epochs
+                and eval_degraded
+            ):
+                bad_eval_count += 1
+                print(
+                    "Early-stop degradation observed | epoch=%i | bad_count=%i/%i | "
+                    "best_epoch=%s | reasons=%s"
+                    % (
+                        epoch,
+                        bad_eval_count,
+                        early_stop_patience,
+                        str(best_epoch),
+                        ",".join(degradation_reasons),
+                    )
+                )
+            else:
+                bad_eval_count = 0
             save_training_checkpoint(
                 network,
                 replay_buffer,
@@ -2428,9 +2516,10 @@ while timestep < max_timesteps:
                 expl_noise,
                 best_eval_summary,
                 best_epoch,
+                bad_eval_count=bad_eval_count,
             )
             print("Checkpoint saved:", checkpoint_path)
-            if is_better_eval(last_eval_summary, best_eval_summary):
+            if eval_improved:
                 best_eval_summary = dict(last_eval_summary)
                 best_epoch = epoch
                 network.save(f"{file_name}_best", directory="./pytorch_models")
@@ -2447,6 +2536,7 @@ while timestep < max_timesteps:
                     best_eval_summary,
                     best_epoch,
                     best_checkpoint_path,
+                    bad_eval_count=bad_eval_count,
                 )
                 save_training_checkpoint(
                     network,
@@ -2460,6 +2550,7 @@ while timestep < max_timesteps:
                     expl_noise,
                     best_eval_summary,
                     best_epoch,
+                    bad_eval_count=bad_eval_count,
                 )
                 print(
                     "Best checkpoint updated | epoch=%i | success_rate=%.3f | "
@@ -2476,6 +2567,25 @@ while timestep < max_timesteps:
                         best_checkpoint_path,
                     )
                 )
+            if early_stop_patience > 0 and bad_eval_count >= early_stop_patience:
+                print(
+                    "Early stopping triggered | epoch=%i | best_epoch=%s | "
+                    "bad_count=%i/%i | latest_full_success=%.3f | "
+                    "best_full_success=%.3f | latest_timeout=%.3f | "
+                    "best_timeout=%.3f"
+                    % (
+                        epoch,
+                        str(best_epoch),
+                        bad_eval_count,
+                        early_stop_patience,
+                        last_eval_summary["full_success_rate"],
+                        (best_eval_summary or {}).get("full_success_rate", 0.0),
+                        last_eval_summary["timeout_episode_rate"],
+                        (best_eval_summary or {}).get("timeout_episode_rate", 0.0),
+                    )
+                )
+                stop_training = True
+                break
             epoch += 1
             print(
                 "Next epoch will start from %i. Resume keeps this counter in %s"
@@ -2727,6 +2837,10 @@ if max_epochs and epoch > max_epochs:
     print("Training stopped after reaching configured max epochs.")
     sys.exit(0)
 
+if stop_training:
+    print("Training stopped by early-stop degradation guard.")
+    sys.exit(0)
+
 last_eval_summary = evaluate(
     network=network,
     env=env,
@@ -2789,8 +2903,10 @@ save_training_checkpoint(
     expl_noise,
     best_eval_summary,
     best_epoch,
+    bad_eval_count=bad_eval_count,
 )
 if is_better_eval(last_eval_summary, best_eval_summary):
+    bad_eval_count = 0
     best_eval_summary = dict(last_eval_summary)
     best_epoch = epoch
     network.save(f"{file_name}_best", directory="./pytorch_models")
@@ -2807,6 +2923,7 @@ if is_better_eval(last_eval_summary, best_eval_summary):
         best_eval_summary,
         best_epoch,
         best_checkpoint_path,
+        bad_eval_count=bad_eval_count,
     )
     save_training_checkpoint(
         network,
@@ -2820,4 +2937,5 @@ if is_better_eval(last_eval_summary, best_eval_summary):
         expl_noise,
         best_eval_summary,
         best_epoch,
+        bad_eval_count=bad_eval_count,
     )

@@ -101,6 +101,12 @@ setsid bash -lc "
   export DRL_MULTI_EVAL_EPISODES=50
   export DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES=10000
   export DRL_MULTI_BEST_METRIC=full_success
+  export DRL_MULTI_EARLY_STOP_PATIENCE=\${DRL_MULTI_EARLY_STOP_PATIENCE:-2}
+  export DRL_MULTI_EARLY_STOP_MIN_EPOCHS=\${DRL_MULTI_EARLY_STOP_MIN_EPOCHS:-6}
+  export DRL_MULTI_EARLY_STOP_FULL_SUCCESS_DROP=\${DRL_MULTI_EARLY_STOP_FULL_SUCCESS_DROP:-0.20}
+  export DRL_MULTI_EARLY_STOP_SUCCESS_DROP=\${DRL_MULTI_EARLY_STOP_SUCCESS_DROP:-0.12}
+  export DRL_MULTI_EARLY_STOP_TIMEOUT_INCREASE=\${DRL_MULTI_EARLY_STOP_TIMEOUT_INCREASE:-0.30}
+  export DRL_MULTI_EARLY_STOP_TIMEOUT_ABSOLUTE=\${DRL_MULTI_EARLY_STOP_TIMEOUT_ABSOLUTE:-0.45}
   export DRL_MULTI_TRAINING_VERSION='independent-dense-actor-from-5a-recovery-v6'
 
   export DRL_MULTI_ACTOR_TRAIN_MODE=full
@@ -197,5 +203,6 @@ echo "Train: 6000 fixed dense scenarios, finite cycle"
 echo "Validation monitor: 50 fixed policy-independent dense scenarios"
 echo "Epochs 1-2: frozen 5A baseline; Actor becomes eligible after 21000 agent samples"
 echo "Budget: $MAX_EPOCHS x 10000 agent samples"
+echo "Early stop: patience=2 after epoch 6; stop on clear full-success drop or timeout growth"
 echo "Log: $log_file"
 echo "Expected runtime: approximately 20-25 minutes per epoch"
