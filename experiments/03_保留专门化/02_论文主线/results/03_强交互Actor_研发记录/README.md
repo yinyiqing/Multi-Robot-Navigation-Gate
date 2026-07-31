@@ -21,7 +21,8 @@
 | `20260729_v3_减速约束_独立DenseActor` | rejected | 统一减速抑制危险加速，但full success没有提升 |
 | `20260729_v4_让行停车_独立DenseActor` | rejected | 单轮峰值略升，未解决多车通行顺序 |
 | `20260730_v5_协调重启_独立DenseActor` | rejected | 碰撞下降后转化为等待，最终timeout达到0.680 |
-| `20260731_v6_long_高点后等待退化_独立DenseActor` | rejected | epoch-11为未复核峰值，后期再次退化到timeout=0.680 |
+| `20260731_v6_long_高点后等待退化_独立DenseActor` | rejected | epoch-11有真实Dense收益，但后期再次退化到timeout=0.680 |
+| `20260731_v6_epoch11_固定200场配对复核` | rejected candidate | full提高`0.110`，但timeout达到`0.120`且平均步数为5A的`2.59`倍 |
 | `20260731_v7_前进奖励无净提升_独立DenseActor` | rejected | epoch-8与冻结5A的full success相同，目标冲突未解除 |
 
-下一步先复核v6 epoch-11是否存在真实增益；新训练只能使用主线README中锁定的v8受控协议。
+v6 epoch-11的200场复核已完成：收益真实，但没有通过独立Dense Actor的timeout和效率验收。下一步只能使用主线README中锁定的v8受控协议。

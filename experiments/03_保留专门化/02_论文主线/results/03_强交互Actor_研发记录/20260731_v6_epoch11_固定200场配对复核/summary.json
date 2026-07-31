@@ -1,0 +1,178 @@
+{
+  "result_version": 1,
+  "status": "complete",
+  "protocol": {
+    "episodes": 200,
+    "baseline": "5a",
+    "candidate": "v6_epoch11",
+    "paired_scenario_order": true,
+    "baseline_stats": "experiments/03_保留专门化/02_论文主线/results/03_强交互Actor_研发记录/20260731_v6_epoch11_固定200场配对复核/stats/5a.npy",
+    "candidate_stats": "experiments/03_保留专门化/02_论文主线/results/03_强交互Actor_研发记录/20260731_v6_epoch11_固定200场配对复核/stats/v6_epoch11.npy",
+    "manifest": "experiments/03_保留专门化/02_论文主线/datasets/fixed_v1/views/dense_validation_monitor_v1/validation.json.gz"
+  },
+  "5a": {
+    "episodes": 200,
+    "agent_success": 0.719,
+    "collision": 0.281,
+    "unresolved": 0.0,
+    "full_success_count": 67,
+    "full_success": 0.335,
+    "timeout_count": 0,
+    "timeout": 0.0,
+    "mean_env_steps": 26.96,
+    "mean_env_steps_non_timeout": 26.96
+  },
+  "v6_epoch11": {
+    "episodes": 200,
+    "agent_success": 0.786,
+    "collision": 0.189,
+    "unresolved": 0.025,
+    "full_success_count": 89,
+    "full_success": 0.445,
+    "timeout_count": 24,
+    "timeout": 0.12,
+    "mean_env_steps": 69.765,
+    "mean_env_steps_non_timeout": 38.36931818181818
+  },
+  "delta_candidate_minus_baseline": {
+    "agent_success": 0.06700000000000006,
+    "collision": -0.09200000000000003,
+    "unresolved": 0.025,
+    "full_success": 0.10999999999999999,
+    "timeout": 0.12,
+    "mean_env_steps": 42.805,
+    "mean_env_steps_non_timeout": 11.409318181818179
+  },
+  "paired_full_success": {
+    "both": 49,
+    "baseline_only": 18,
+    "candidate_only": 40,
+    "neither": 93,
+    "oracle_union_count": 107,
+    "oracle_union": 0.535,
+    "mcnemar_exact_p": 0.005354859650800292
+  },
+  "paired_agent_success_count": {
+    "candidate_better_cases": 73,
+    "equal_cases": 92,
+    "candidate_worse_cases": 35,
+    "net_additional_agent_successes": 67
+  },
+  "paired_timeout": {
+    "both": 0,
+    "baseline_only": 0,
+    "candidate_only": 24,
+    "neither": 176,
+    "candidate_timeout_baseline_full": 8
+  },
+  "by_conflict_edges": {
+    "0": {
+      "scenarios": 7,
+      "5a": {
+        "episodes": 7,
+        "agent_success": 1.0,
+        "collision": 0.0,
+        "unresolved": 0.0,
+        "full_success_count": 7,
+        "full_success": 1.0,
+        "timeout_count": 0,
+        "timeout": 0.0,
+        "mean_env_steps": 19.428571428571427,
+        "mean_env_steps_non_timeout": 19.428571428571427
+      },
+      "v6_epoch11": {
+        "episodes": 7,
+        "agent_success": 0.9428571428571428,
+        "collision": 0.05714285714285714,
+        "unresolved": 0.0,
+        "full_success_count": 6,
+        "full_success": 0.8571428571428571,
+        "timeout_count": 0,
+        "timeout": 0.0,
+        "mean_env_steps": 43.142857142857146,
+        "mean_env_steps_non_timeout": 43.142857142857146
+      }
+    },
+    "1": {
+      "scenarios": 45,
+      "5a": {
+        "episodes": 45,
+        "agent_success": 0.8222222222222222,
+        "collision": 0.17777777777777778,
+        "unresolved": 0.0,
+        "full_success_count": 20,
+        "full_success": 0.4444444444444444,
+        "timeout_count": 0,
+        "timeout": 0.0,
+        "mean_env_steps": 25.755555555555556,
+        "mean_env_steps_non_timeout": 25.755555555555556
+      },
+      "v6_epoch11": {
+        "episodes": 45,
+        "agent_success": 0.9022222222222223,
+        "collision": 0.07111111111111111,
+        "unresolved": 0.02666666666666667,
+        "full_success_count": 30,
+        "full_success": 0.6666666666666666,
+        "timeout_count": 6,
+        "timeout": 0.13333333333333333,
+        "mean_env_steps": 70.31111111111112,
+        "mean_env_steps_non_timeout": 34.97435897435897
+      }
+    },
+    "2": {
+      "scenarios": 61,
+      "5a": {
+        "episodes": 61,
+        "agent_success": 0.7868852459016393,
+        "collision": 0.21311475409836064,
+        "unresolved": 0.0,
+        "full_success_count": 24,
+        "full_success": 0.39344262295081966,
+        "timeout_count": 0,
+        "timeout": 0.0,
+        "mean_env_steps": 29.639344262295083,
+        "mean_env_steps_non_timeout": 29.639344262295083
+      },
+      "v6_epoch11": {
+        "episodes": 61,
+        "agent_success": 0.8459016393442623,
+        "collision": 0.12786885245901639,
+        "unresolved": 0.02622950819672131,
+        "full_success_count": 31,
+        "full_success": 0.5081967213114754,
+        "timeout_count": 7,
+        "timeout": 0.11475409836065574,
+        "mean_env_steps": 69.50819672131148,
+        "mean_env_steps_non_timeout": 39.629629629629626
+      }
+    },
+    "3+": {
+      "scenarios": 87,
+      "5a": {
+        "episodes": 87,
+        "agent_success": 0.5954022988505747,
+        "collision": 0.4045977011494253,
+        "unresolved": 0.0,
+        "full_success_count": 16,
+        "full_success": 0.1839080459770115,
+        "timeout_count": 0,
+        "timeout": 0.0,
+        "mean_env_steps": 26.310344827586206,
+        "mean_env_steps_non_timeout": 26.310344827586206
+      },
+      "v6_epoch11": {
+        "episodes": 87,
+        "agent_success": 0.671264367816092,
+        "collision": 0.30344827586206896,
+        "unresolved": 0.02528735632183908,
+        "full_success_count": 22,
+        "full_success": 0.25287356321839083,
+        "timeout_count": 11,
+        "timeout": 0.12643678160919541,
+        "mean_env_steps": 71.80459770114942,
+        "mean_env_steps_non_timeout": 38.776315789473685
+      }
+    }
+  }
+}

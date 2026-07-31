@@ -1,6 +1,6 @@
 # ICRA论文主线：两个独立Actor + Gate
 
-状态：`5A作为普通Actor冻结；独立Dense Actor v3-v7减速路线已停止；v8受控协议已就绪但未启动；Gate继续暂停`。
+状态：`5A作为普通Actor冻结；v6 epoch-11的200场复核确认真实收益但timeout不可接受；v8受控协议已就绪但未启动；Gate继续暂停`。
 
 导师沟通后的当前目标是：
 
@@ -82,12 +82,14 @@ v3-v7共享同一个全局减速机制：`1.0 m`内正在接近的状态同时�
 - 基于“双方剩余目标距离”的让行优先级对24维Actor不可见，ego-motion Critic也没有对方目标距离；
 - 让高优先级车前进的reward与“所有近距离接近车辆都减速”的辅助loss直接冲突。
 
-v8只修正这些已确认问题：关闭隐藏目标优先级、统一减速loss和Critic减速排序，取消Actor Q归一化，恢复TD3 Q目标；保留5A warm-start、安全状态anchor、完整Dense独立rollout和`0.8/0.2`合作reward。v8启动前先在固定200场上复核5A与v6 epoch-11，避免把50场monitor的单轮峰值当成真实进步。
+固定200场配对复核表明，v6 epoch-11相对5A的full success从`0.335`提高到`0.445`，McNemar exact `p=0.00535`；该中期收益真实。但v6同时产生`0.120` timeout，平均步数从`26.96`增至`69.77`，因此仍不符合独立Dense Actor要求。完整结果见 [v6 epoch-11固定200场复核](results/03_强交互Actor_研发记录/20260731_v6_epoch11_固定200场配对复核/README.md)。
+
+v8只修正这些已确认问题：关闭隐藏目标优先级、统一减速loss和Critic减速排序，取消Actor Q归一化，恢复TD3 Q目标；保留5A warm-start、安全状态anchor、完整Dense独立rollout和`0.8/0.2`合作reward。
 
 ## 4. 后续顺序
 
-1. 在固定200场上配对复核5A与v6 epoch-11；只有v6稳定获胜才进入完整1000场validation。
-2. 若v6不能稳定获胜，使用已锁定的v8协议重新训练独立Dense Actor，在monitor上只判断趋势。
+1. 固定200场复核已完成：v6有真实收益，但因`0.120` timeout和`2.59`倍平均步数未通过验收，不再运行其完整1000场validation。
+2. 使用已锁定的v8协议重新训练独立Dense Actor，在monitor上只判断趋势。
 3. 在完整1000场dense validation上确认候选独立超过5A/5D，并且没有系统性超时。
 4. 补测新Actor的0-edge/standard validation能力，确认它与5A是否真的互补；如果新Actor全面优于5A，则不强行训练无意义的Gate。
 5. 只有两个独立Actor存在稳定互补性时，才冻结它们并训练Gate。
