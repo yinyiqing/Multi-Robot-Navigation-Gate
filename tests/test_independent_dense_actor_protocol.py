@@ -39,12 +39,14 @@ class IndependentDenseActorProtocolTests(unittest.TestCase):
         )
 
     def test_5a_is_only_a_warm_start_and_mild_reference(self):
+        self.assertEqual(self.export_value("DRL_MULTI_LOAD_MODEL"), "1")
         self.assertEqual(self.export_value("DRL_MULTI_LOAD_ACTOR_ONLY"), "1")
+        self.assertEqual(self.export_value("DRL_MULTI_REQUIRE_MODEL_LOAD"), "1")
         self.assertEqual(
             self.export_value("DRL_MULTI_ACTOR_ANGULAR_ANCHOR_WEIGHT"), "0.0"
         )
         self.assertEqual(self.export_value("DRL_MULTI_ACTOR_ANCHOR_SAFE_ONLY"), "0")
-        self.assertEqual(self.export_value("DRL_MULTI_ACTOR_ANCHOR_WEIGHT"), "0.05")
+        self.assertEqual(self.export_value("DRL_MULTI_ACTOR_ANCHOR_WEIGHT"), "0.5")
 
     def test_interactions_are_oversampled_but_not_exclusive(self):
         self.assertEqual(

@@ -1664,6 +1664,7 @@ file_name = os.environ.get(
 save_model = True
 load_model = env_flag("DRL_MULTI_LOAD_MODEL", False)
 load_actor_only = env_flag("DRL_MULTI_LOAD_ACTOR_ONLY", False)
+require_model_load = env_flag("DRL_MULTI_REQUIRE_MODEL_LOAD", False)
 load_model_name = os.environ.get("DRL_MULTI_LOAD_MODEL_NAME", file_name)
 oracle_weak_actor_name = os.environ.get(
     "DRL_MULTI_ORACLE_WEAK_ACTOR_NAME", load_model_name
@@ -1882,6 +1883,10 @@ elif load_model:
                 actor_anchor_weight,
             )
     except Exception as exc:
+        if require_model_load:
+            raise RuntimeError(
+                "Required warm-start model could not be loaded: %s" % load_model_name
+            ) from exc
         print("Could not load the stored model parameters, initializing randomly")
         print("Load error:", exc)
 
@@ -2085,6 +2090,7 @@ print("Best checkpoint path:", best_checkpoint_path)
 print("Model prefix:", file_name)
 print("Checkpoint interval episodes:", checkpoint_interval_episodes)
 print("Resume mode:", resume_training)
+print("Require model load:", require_model_load)
 print("Starting agent samples:", timestep)
 print("Starting env steps:", env_step_count)
 print("Starting epoch:", epoch)

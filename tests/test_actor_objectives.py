@@ -39,6 +39,29 @@ class ActorObjectiveTests(unittest.TestCase):
         )
         self.assertAlmostEqual(first.item(), second.item())
 
+    def test_normalized_q_action_gradient_is_invariant_to_q_scale(self):
+        first_actions = torch.tensor([[0.5, 0.0]], requires_grad=True)
+        first_q = 2.0 * first_actions[:, :1]
+        first, _, _ = conservative_actor_objective(
+            first_q,
+            first_actions,
+            q_normalization_alpha=1.0,
+        )
+        first.backward()
+
+        second_actions = torch.tensor([[0.5, 0.0]], requires_grad=True)
+        second_q = 20.0 * second_actions[:, :1]
+        second, _, _ = conservative_actor_objective(
+            second_q,
+            second_actions,
+            q_normalization_alpha=1.0,
+        )
+        second.backward()
+
+        self.assertAlmostEqual(
+            first_actions.grad[0, 0].item(), second_actions.grad[0, 0].item()
+        )
+
     def test_anchor_penalizes_departure_from_reference(self):
         q_values = torch.tensor([[1.0]])
         actions = torch.tensor([[0.2, -0.2]])
