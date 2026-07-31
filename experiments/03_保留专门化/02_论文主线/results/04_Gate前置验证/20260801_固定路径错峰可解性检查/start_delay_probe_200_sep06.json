@@ -1,0 +1,2817 @@
+{
+  "manifest": "experiments/03_\u4fdd\u7559\u4e13\u95e8\u5316/02_\u8bba\u6587\u4e3b\u7ebf/datasets/fixed_v1/views/dense_validation_monitor_v1/validation.json.gz",
+  "scenario_count": 200,
+  "solved_count": 161,
+  "solved_rate": 0.805,
+  "parameters": {
+    "speed_mps": 0.5,
+    "separation_m": 0.6,
+    "delay_step_s": 0.5,
+    "max_delay_s": 8.0,
+    "sample_dt_s": 0.1,
+    "planner_clearance_m": 0.24
+  },
+  "solved_by_conflict_edges": {
+    "0": {
+      "total": 7,
+      "solved": 7
+    },
+    "1": {
+      "total": 45,
+      "solved": 43
+    },
+    "2": {
+      "total": 61,
+      "solved": 52
+    },
+    "3": {
+      "total": 54,
+      "solved": 38
+    },
+    "4": {
+      "total": 18,
+      "solved": 12
+    },
+    "5": {
+      "total": 11,
+      "solved": 6
+    },
+    "6": {
+      "total": 1,
+      "solved": 1
+    },
+    "7": {
+      "total": 3,
+      "solved": 2
+    }
+  },
+  "mean_required_max_delay_s": 1.2577639751552796,
+  "results": [
+    {
+      "scenario_id": "dense-20260718008223-bf7baa05b14b",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 1.0,
+        "r4": 0.0,
+        "r5": 0.5
+      },
+      "max_delay_s": 1.0,
+      "explored_nodes": 24,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008229-7780e9f37e4b",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008234-fdcf8ca8fc7b",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 1.5,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.5,
+      "explored_nodes": 39,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008240-760861f672ed",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008245-dc2273cd390b",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 1.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.0,
+      "explored_nodes": 24,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008251-06e83b72d538",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 3.5,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 3.5,
+      "explored_nodes": 132,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008256-6126b9447919",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 1.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.0,
+      "explored_nodes": 24,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008262-81fbeb4acaaa",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 1.5,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.5,
+      "explored_nodes": 39,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008269-a9e0091618d0",
+      "conflict_edge_count": 0,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008276-816ddee80d56",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008281-b4270a2cf8aa",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.5,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.5,
+      "explored_nodes": 13,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008288-b7a756dcdf71",
+      "conflict_edge_count": 5,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 4297,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008293-59d674f84724",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 3.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 3.0,
+      "explored_nodes": 104,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008298-126df098534c",
+      "conflict_edge_count": 2,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 544,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008303-8dc4b10f5951",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 2.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 2.0,
+      "explored_nodes": 56,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008311-dc76097fb05b",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.5,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.5,
+      "explored_nodes": 13,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008316-7f519fbfb519",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008321-d1e8571167b4",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008327-531570925f79",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 3.5,
+        "r5": 0.0
+      },
+      "max_delay_s": 3.5,
+      "explored_nodes": 131,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008332-cf5944da9234",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.5,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.5,
+      "explored_nodes": 13,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008338-34b42c0a0411",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008343-88b2f04e4a52",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008348-ba913109944d",
+      "conflict_edge_count": 1,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 544,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008353-7f6a6e1d1aef",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 1.5,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.5,
+      "explored_nodes": 41,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008358-8c438e1df94f",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.5
+      },
+      "max_delay_s": 0.5,
+      "explored_nodes": 13,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008363-262177492109",
+      "conflict_edge_count": 4,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 10490,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008368-13746f030a18",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008373-f0de0a37adec",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008378-e591de71ff1f",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008384-cf459bf87036",
+      "conflict_edge_count": 4,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 457,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008392-aa630698c151",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 1.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.0,
+      "explored_nodes": 24,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008397-e6e29d6913bb",
+      "conflict_edge_count": 2,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 12072,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008402-591868b51f87",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 3.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 3.0,
+      "explored_nodes": 99,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008407-b29264fa5a20",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008413-37d4145c44e2",
+      "conflict_edge_count": 2,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 544,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008418-b434cd8f0b7b",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008423-c80e60aff127",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 3.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 3.0,
+      "explored_nodes": 104,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008428-c56e93f5430f",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008435-e3afbd232a85",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008443-ce26ce40c43c",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 3.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 3.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 3.0,
+      "explored_nodes": 78,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008449-3270e0fd1571",
+      "conflict_edge_count": 4,
+      "solved": true,
+      "delays_s": {
+        "r1": 3.5,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 3.5,
+      "explored_nodes": 132,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008456-8f8117f71520",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.5,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.5,
+      "explored_nodes": 14,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008462-c38fbc2895dc",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 1.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.0,
+      "explored_nodes": 24,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008468-5d678285dd71",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 2.5,
+        "r2": 0.0,
+        "r3": 1.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 2.5,
+      "explored_nodes": 268,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008473-2059d449440c",
+      "conflict_edge_count": 3,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 6517,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008479-a3f45b4dd5c5",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008486-7c2960791b72",
+      "conflict_edge_count": 4,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 2.0,
+        "r4": 0.0,
+        "r5": 0.5
+      },
+      "max_delay_s": 2.0,
+      "explored_nodes": 91,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008491-8178ed8ad052",
+      "conflict_edge_count": 5,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.5,
+        "r2": 2.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 2.5
+      },
+      "max_delay_s": 2.5,
+      "explored_nodes": 82,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008498-e56e3b687c7e",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.5
+      },
+      "max_delay_s": 0.5,
+      "explored_nodes": 13,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008503-d78fdc9693b7",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 1.5,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.5,
+      "explored_nodes": 42,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008510-fc0a2cb5c166",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008515-141e50aa271a",
+      "conflict_edge_count": 3,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 544,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008520-c02550e21da9",
+      "conflict_edge_count": 0,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008527-820543c82630",
+      "conflict_edge_count": 3,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 544,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008532-033f37393ebd",
+      "conflict_edge_count": 3,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 2482,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008537-2910d1b04845",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 2.5,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 2.5,
+      "explored_nodes": 80,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008542-72b4b29033d9",
+      "conflict_edge_count": 2,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 544,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008548-cba421ef1d16",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 1.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.0,
+      "explored_nodes": 24,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008556-9bf29ff47f82",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.5
+      },
+      "max_delay_s": 0.5,
+      "explored_nodes": 13,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008561-2537c9e08d56",
+      "conflict_edge_count": 4,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 1.0
+      },
+      "max_delay_s": 1.0,
+      "explored_nodes": 24,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008567-3d62c804f5a0",
+      "conflict_edge_count": 7,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 1887,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008572-41b1e276e11a",
+      "conflict_edge_count": 3,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 391,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008577-eba1a4f0ff51",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.5,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.5,
+      "explored_nodes": 14,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008583-c71667f8b5be",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008588-25cd7a8c955a",
+      "conflict_edge_count": 3,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 391,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008595-ea665e35dd38",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008600-036d0856d0ef",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 2.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 2.0,
+      "explored_nodes": 55,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008606-f2bbd6f68f69",
+      "conflict_edge_count": 3,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 544,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008612-a4eac37fdf31",
+      "conflict_edge_count": 1,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 544,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008617-083d974883d0",
+      "conflict_edge_count": 3,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 1288,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008622-7e5a8b830b76",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 1.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.0,
+      "explored_nodes": 27,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008628-6f510cf9de34",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 3.5,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 3.5,
+      "explored_nodes": 132,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008634-581096e8bf6e",
+      "conflict_edge_count": 4,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 3.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 3.0,
+      "explored_nodes": 98,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008639-efcf7b4d2161",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008644-4473aa9ff115",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 1.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.0,
+      "explored_nodes": 27,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008649-474ae282f473",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008654-b4b06bb924ad",
+      "conflict_edge_count": 5,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 1871,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008659-6b6f8adeebc9",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 2.5,
+        "r2": 1.5,
+        "r3": 1.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 2.5,
+      "explored_nodes": 443,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008664-56f3cdda6b9c",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 3.5,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 3.5,
+      "explored_nodes": 131,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008669-7b3f3cbb7a06",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 4.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 4.0,
+      "explored_nodes": 154,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008677-b52ec6c0c283",
+      "conflict_edge_count": 0,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008683-be0000960a0a",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 1.5,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.5,
+      "explored_nodes": 42,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008689-3d5321bbd34a",
+      "conflict_edge_count": 0,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008695-079fa0458c98",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 1.0,
+        "r2": 1.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.0,
+      "explored_nodes": 28,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008700-992884d059cd",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 3.0,
+        "r2": 2.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 2.0
+      },
+      "max_delay_s": 3.0,
+      "explored_nodes": 103,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008705-222a322ea73f",
+      "conflict_edge_count": 0,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008710-2df9b3e077e1",
+      "conflict_edge_count": 4,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 1.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 3.5
+      },
+      "max_delay_s": 3.5,
+      "explored_nodes": 183,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008715-b5d80faceee8",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008722-cbc3b3e78719",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 1.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.0,
+      "explored_nodes": 27,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008728-d835ca577545",
+      "conflict_edge_count": 3,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 391,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008734-5d74b1835039",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008739-5047437bec91",
+      "conflict_edge_count": 6,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 6.0,
+        "r3": 0.0,
+        "r4": 3.5,
+        "r5": 0.0
+      },
+      "max_delay_s": 6.0,
+      "explored_nodes": 560,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008744-9371c92b839f",
+      "conflict_edge_count": 7,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 2.0,
+        "r4": 0.5,
+        "r5": 1.0
+      },
+      "max_delay_s": 2.0,
+      "explored_nodes": 45,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008749-191875e98acb",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008754-3a8914f4883d",
+      "conflict_edge_count": 5,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 238,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008760-31b07b10cd3e",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008765-e3f813626f38",
+      "conflict_edge_count": 4,
+      "solved": true,
+      "delays_s": {
+        "r1": 1.5,
+        "r2": 0.5,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.5
+      },
+      "max_delay_s": 1.5,
+      "explored_nodes": 46,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008770-bb411710815f",
+      "conflict_edge_count": 3,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 544,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008776-adbe08f7a8c0",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 2.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 2.0,
+      "explored_nodes": 60,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008782-9ab6f7819093",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 3.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 3.0,
+      "explored_nodes": 98,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008789-e512aafd793d",
+      "conflict_edge_count": 4,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 2482,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008795-2e680ff01f87",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008802-012ff10a952f",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008808-8e90f4569304",
+      "conflict_edge_count": 7,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.5,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 3.0
+      },
+      "max_delay_s": 3.0,
+      "explored_nodes": 254,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008813-674e2ca5c26c",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.5,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.5,
+      "explored_nodes": 15,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008819-535d5c78d705",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 3.5
+      },
+      "max_delay_s": 3.5,
+      "explored_nodes": 124,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008825-271a6cf36173",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008831-3ba82c2d08c3",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.5,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.5,
+      "explored_nodes": 13,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008837-5e6019d4a416",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008842-6e8467253b18",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008847-6c1f682fe9ed",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 3.5,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 3.5,
+      "explored_nodes": 131,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008852-5dd28600e488",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 1.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.0,
+      "explored_nodes": 26,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008857-77b01bdf7aa2",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.5,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.5,
+      "explored_nodes": 14,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008863-03a14e5e8228",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 3.5,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 3.5,
+      "explored_nodes": 131,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008868-38cc56b980f8",
+      "conflict_edge_count": 4,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 1.5,
+        "r4": 0.0,
+        "r5": 1.5
+      },
+      "max_delay_s": 1.5,
+      "explored_nodes": 32,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008874-37bf89646521",
+      "conflict_edge_count": 4,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.5,
+        "r2": 0.5,
+        "r3": 1.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.0,
+      "explored_nodes": 65,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008880-06f66b3145d0",
+      "conflict_edge_count": 4,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 1.0,
+        "r3": 0.0,
+        "r4": 2.5,
+        "r5": 0.0
+      },
+      "max_delay_s": 2.5,
+      "explored_nodes": 193,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008885-a411355739fe",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 2.0,
+        "r4": 0.0,
+        "r5": 2.5
+      },
+      "max_delay_s": 2.5,
+      "explored_nodes": 160,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008890-e61466c6a30e",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008896-e836240725fd",
+      "conflict_edge_count": 5,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 3.0,
+        "r4": 2.5,
+        "r5": 0.0
+      },
+      "max_delay_s": 3.0,
+      "explored_nodes": 131,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008901-317cee5249a1",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.5,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.5,
+      "explored_nodes": 15,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008906-ac87358bb121",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 2.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 2.0,
+      "explored_nodes": 59,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008911-8ed6a10bdb31",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008916-fca67c6f4525",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008921-e12ca1bc2176",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008926-bcced3dfe913",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 3.5,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 3.5,
+      "explored_nodes": 132,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008932-37721dba11c0",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 2.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 2.0,
+      "explored_nodes": 55,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008937-bd9658caaca9",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008943-8b0c553cd8a2",
+      "conflict_edge_count": 0,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008952-fd09464d7363",
+      "conflict_edge_count": 4,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 3307,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008959-11d829f6998c",
+      "conflict_edge_count": 5,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 3.5,
+        "r5": 0.0
+      },
+      "max_delay_s": 3.5,
+      "explored_nodes": 163,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008966-8da130c2baa6",
+      "conflict_edge_count": 3,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 1392,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008972-52f60b915db4",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 2.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 2.0,
+      "explored_nodes": 60,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008977-afe988bc6158",
+      "conflict_edge_count": 2,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 544,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008984-e33ef682611a",
+      "conflict_edge_count": 5,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 2482,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718008990-394ac45c449e",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 1.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.0,
+      "explored_nodes": 24,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718008998-b90de9a3628b",
+      "conflict_edge_count": 2,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 544,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718009003-9f9125f8e37f",
+      "conflict_edge_count": 5,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 1.0,
+        "r4": 4.5,
+        "r5": 0.5
+      },
+      "max_delay_s": 4.5,
+      "explored_nodes": 252,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009008-b79859363c8d",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 1.5,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.5,
+      "explored_nodes": 41,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009014-926a0351ddcd",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 1.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.0,
+      "explored_nodes": 27,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009019-25f62c639935",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009025-8c59cfaca31c",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 2.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 2.0,
+      "explored_nodes": 59,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009030-628da92d1633",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.5,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.5,
+      "explored_nodes": 15,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009036-0cccfb3b16be",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.5,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.5,
+      "explored_nodes": 14,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009042-5e9450d118f6",
+      "conflict_edge_count": 5,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 4.5,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 2.0
+      },
+      "max_delay_s": 4.5,
+      "explored_nodes": 259,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009047-e5b9256c093f",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009053-7b14eb8daa21",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 4.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 4.0,
+      "explored_nodes": 154,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009058-1a630d080d71",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009064-49c63c18be66",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 1.5,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.5,
+      "explored_nodes": 42,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009071-64360120ddeb",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 2.0
+      },
+      "max_delay_s": 2.0,
+      "explored_nodes": 55,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009076-06f017e1a703",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 2.5,
+        "r4": 0.5,
+        "r5": 0.0
+      },
+      "max_delay_s": 2.5,
+      "explored_nodes": 76,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009081-4dadf6228a50",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 1.5,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.5,
+      "explored_nodes": 41,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009087-588ffebeeed2",
+      "conflict_edge_count": 3,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 12177,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718009093-1fd5fb8b5181",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009098-ff90d083af22",
+      "conflict_edge_count": 2,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 544,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718009105-510db86b4541",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.5,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.5,
+      "explored_nodes": 15,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009111-eebbc3113fe1",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009116-11ea51e963a0",
+      "conflict_edge_count": 2,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 544,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718009121-d2dfa3618b9b",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009126-8f0f0502a13d",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009132-fa45be84ccf8",
+      "conflict_edge_count": 4,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 3.0,
+        "r4": 3.5,
+        "r5": 1.5
+      },
+      "max_delay_s": 3.5,
+      "explored_nodes": 231,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009138-38a5a2eb225b",
+      "conflict_edge_count": 0,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009144-9110807c1a87",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 1.0,
+        "r4": 0.0,
+        "r5": 0.5
+      },
+      "max_delay_s": 1.0,
+      "explored_nodes": 26,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009149-779b4acf72aa",
+      "conflict_edge_count": 3,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 13822,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718009154-10495be1cfde",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009159-82c693204c0b",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 1.5,
+        "r4": 0.5,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.5,
+      "explored_nodes": 58,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009164-87f3533c94a4",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 1.5
+      },
+      "max_delay_s": 1.5,
+      "explored_nodes": 38,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009170-be68d134b157",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009177-458551d4ac14",
+      "conflict_edge_count": 3,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 391,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718009183-47e5083ca13b",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.5,
+        "r4": 1.5,
+        "r5": 2.5
+      },
+      "max_delay_s": 2.5,
+      "explored_nodes": 187,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009190-95b0be1c5552",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009195-0fe728db2b70",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 3.5,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 3.5,
+      "explored_nodes": 132,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009201-6c06954748ba",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009206-9a9eb046f625",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009213-57c720ca886d",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 1.5,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.5,
+      "explored_nodes": 39,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009218-a72ece5556dd",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 1.5,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.5,
+      "explored_nodes": 39,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009223-5984880dab3d",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 1.5,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.5,
+      "explored_nodes": 41,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009228-ca61d5ba34aa",
+      "conflict_edge_count": 4,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 1.5
+      },
+      "max_delay_s": 1.5,
+      "explored_nodes": 38,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009233-016841ecde67",
+      "conflict_edge_count": 3,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 1029,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718009238-8cb297c47f5c",
+      "conflict_edge_count": 3,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 8042,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718009244-2606bd195a8e",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 2.5
+      },
+      "max_delay_s": 2.5,
+      "explored_nodes": 75,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009250-fd1f670a4fbd",
+      "conflict_edge_count": 1,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009256-dc57b423e7ae",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009261-493fcb1f9ac8",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 1.5
+      },
+      "max_delay_s": 1.5,
+      "explored_nodes": 38,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009267-665568a357a8",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009273-64db8029a9a1",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 2.5,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 2.5,
+      "explored_nodes": 81,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009279-5153a7c8a6af",
+      "conflict_edge_count": 4,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 2434,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718009285-dd19ef844304",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 2.5,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 2.5,
+      "explored_nodes": 80,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009290-fdb2ef1b163b",
+      "conflict_edge_count": 5,
+      "solved": true,
+      "delays_s": {
+        "r1": 1.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 2.0
+      },
+      "max_delay_s": 2.0,
+      "explored_nodes": 59,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009295-a323f1987165",
+      "conflict_edge_count": 4,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 391,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718009300-5c441b053400",
+      "conflict_edge_count": 4,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.5,
+        "r2": 0.0,
+        "r3": 2.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 2.0,
+      "explored_nodes": 60,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009307-7ad7bdea1f07",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 3.0
+      },
+      "max_delay_s": 3.0,
+      "explored_nodes": 98,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009312-a3cff23c380b",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.5,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.5,
+      "explored_nodes": 14,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009318-b62864ad2559",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009323-ad0524ab29e2",
+      "conflict_edge_count": 3,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 2.0,
+        "r3": 2.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 2.0,
+      "explored_nodes": 59,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009329-dc9b3bb90706",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009335-2a780ffbc436",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 0.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 0.0,
+      "explored_nodes": 5,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009342-e413bb6628e2",
+      "conflict_edge_count": 5,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 1470,
+      "reason": "no_delay_schedule"
+    },
+    {
+      "scenario_id": "dense-20260718009347-d7dd0322f518",
+      "conflict_edge_count": 2,
+      "solved": true,
+      "delays_s": {
+        "r1": 0.0,
+        "r2": 0.0,
+        "r3": 0.0,
+        "r4": 1.0,
+        "r5": 0.0
+      },
+      "max_delay_s": 1.0,
+      "explored_nodes": 24,
+      "reason": "scheduled"
+    },
+    {
+      "scenario_id": "dense-20260718009352-409a41d45093",
+      "conflict_edge_count": 2,
+      "solved": false,
+      "delays_s": null,
+      "max_delay_s": null,
+      "explored_nodes": 453,
+      "reason": "no_delay_schedule"
+    }
+  ]
+}

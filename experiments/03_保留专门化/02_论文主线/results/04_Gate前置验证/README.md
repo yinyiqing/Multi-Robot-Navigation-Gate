@@ -13,5 +13,6 @@
 | `D4_temporal_risk_encoder_20bin_s20260724` | rejected representation | 20-bin 时序输入丢失身份和局部结构 |
 | `D4_highres_temporal_risk_encoder_s20260724` | rejected pilot | 180-bin + GRU 有改善，但小样本 holdout 仍不可部署 |
 | `20260731_统一靠右诊断_无净收益` | rejected heuristic | 10对固定case总体与5A持平；实际触发case净少完成1台车 |
+| `20260801_固定路径错峰可解性检查` | complete diagnostic | 0.6 m中心间距下161/200场只靠起步错峰可解；主要缺口是Actor未学会通行顺序 |
 
-当前结论：Gate继续暂停。先得到能独立完成完整dense episode且稳定超过5A/5D的Dense Actor，再讨论两个Actor是否互补以及是否值得训练Gate。
+当前结论：Gate继续暂停。先确认Actor观测能表达运动方向和闭合趋势，再在错峰可解子集学习通行顺序，最后扩展到需要途中换路的场景。Dense Actor能独立完成完整episode且稳定超过5A/5D后，再讨论两个Actor是否互补以及是否值得训练Gate。
