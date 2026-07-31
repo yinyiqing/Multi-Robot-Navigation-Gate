@@ -13,6 +13,13 @@ def episode_train_iterations(agent_samples, num_agents):
     return max(int(math.ceil(float(agent_samples) / num_agents)), 1)
 
 
+def replay_ready_for_updates(replay_size, minimum_size):
+    """Delay all network updates until replay contains enough transitions."""
+    if minimum_size < 0:
+        raise ValueError("minimum replay size must be non-negative")
+    return replay_size > 0 and replay_size >= minimum_size
+
+
 def decay_exploration_noise(current, initial, minimum, decay_steps):
     """Linearly decay from the configured initial value to the minimum."""
     if decay_steps < 1:

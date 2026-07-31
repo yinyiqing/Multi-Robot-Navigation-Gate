@@ -9,6 +9,7 @@ sys.path.insert(0, str(ROOT / "TD3"))
 from training_utils import (
     decay_exploration_noise,
     episode_train_iterations,
+    replay_ready_for_updates,
     replay_done,
 )
 
@@ -27,6 +28,15 @@ class TrainingUtilsTests(unittest.TestCase):
     def test_update_scaling_rejects_invalid_agent_count(self):
         with self.assertRaises(ValueError):
             episode_train_iterations(10, 0)
+
+    def test_replay_warmup_delays_all_updates(self):
+        self.assertFalse(replay_ready_for_updates(0, 0))
+        self.assertFalse(replay_ready_for_updates(4999, 5000))
+        self.assertTrue(replay_ready_for_updates(5000, 5000))
+
+    def test_replay_warmup_rejects_negative_minimum(self):
+        with self.assertRaises(ValueError):
+            replay_ready_for_updates(10, -1)
 
     def test_exploration_decay_uses_configured_initial_value(self):
         value = 0.05

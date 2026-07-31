@@ -145,7 +145,10 @@ class MultiAgentGazeboEnv:
         emergency_stop_distance=0.6,
         emergency_stop_penalty_weight=8.0,
         emergency_stop_bonus_weight=1.0,
+        progress_reward_weight=20.0,
         forward_reward_weight=0.5,
+        turn_penalty_weight=0.2,
+        obstacle_penalty_weight=0.5,
         stagnation_penalty_weight=0.03,
         weak_coupling_layout=False,
         scenario_mode="standard",
@@ -233,12 +236,20 @@ class MultiAgentGazeboEnv:
         self.emergency_stop_distance = float(emergency_stop_distance)
         self.emergency_stop_penalty_weight = float(emergency_stop_penalty_weight)
         self.emergency_stop_bonus_weight = float(emergency_stop_bonus_weight)
+        self.progress_reward_weight = float(progress_reward_weight)
         self.forward_reward_weight = float(forward_reward_weight)
+        self.turn_penalty_weight = float(turn_penalty_weight)
+        self.obstacle_penalty_weight = float(obstacle_penalty_weight)
         self.stagnation_penalty_weight = float(stagnation_penalty_weight)
-        if self.forward_reward_weight < 0.0:
-            raise ValueError("forward_reward_weight must be non-negative")
-        if self.stagnation_penalty_weight < 0.0:
-            raise ValueError("stagnation_penalty_weight must be non-negative")
+        for name, value in (
+            ("progress_reward_weight", self.progress_reward_weight),
+            ("forward_reward_weight", self.forward_reward_weight),
+            ("turn_penalty_weight", self.turn_penalty_weight),
+            ("obstacle_penalty_weight", self.obstacle_penalty_weight),
+            ("stagnation_penalty_weight", self.stagnation_penalty_weight),
+        ):
+            if value < 0.0:
+                raise ValueError(f"{name} must be non-negative")
         for name, value in (
             ("safe_recovery_penalty", self.safe_recovery_penalty),
             ("safe_recovery_linear_threshold", self.safe_recovery_linear_threshold),
@@ -2573,13 +2584,13 @@ class MultiAgentGazeboEnv:
         if collision:
             return -100.0
         obstacle_penalty = 1 - min_laser if min_laser < 1 else 0.0
-        progress_reward = 20.0 * progress
+        progress_reward = self.progress_reward_weight * progress
         forward_reward = (
             0.0
             if suppress_forward_reward
             else self.forward_reward_weight * action[0]
         )
-        turn_penalty = 0.2 * abs(action[1])
+        turn_penalty = self.turn_penalty_weight * abs(action[1])
         stagnation_penalty = (
             self.stagnation_penalty_weight
             if (
@@ -2593,6 +2604,6 @@ class MultiAgentGazeboEnv:
             progress_reward
             + forward_reward
             - turn_penalty
-            - 0.5 * obstacle_penalty
+            - self.obstacle_penalty_weight * obstacle_penalty
             - stagnation_penalty
         )

@@ -30,6 +30,7 @@ from actor_gradient_guard import actor_gradient_gate_decision
 from training_utils import (
     decay_exploration_noise,
     episode_train_iterations,
+    replay_ready_for_updates,
     replay_done,
 )
 
@@ -1263,11 +1264,12 @@ actor_update_delay_steps = env_int(
     env_int("DRL_MULTI_LOCAL_CRITIC_ACTOR_UPDATE_DELAY_STEPS", 0),
 )
 fixed_physics_step_size = env_float("DRL_MULTI_FIXED_PHYSICS_STEP_SIZE", None)
-batch_size = 40
-discount = 0.99999
-tau = 0.005
-policy_noise = 0.2
-noise_clip = 0.5
+batch_size = env_int("DRL_MULTI_BATCH_SIZE", 40)
+minimum_replay_size = env_int("DRL_MULTI_MIN_REPLAY_SIZE", 0)
+discount = env_float("DRL_MULTI_DISCOUNT", 0.99999)
+tau = env_float("DRL_MULTI_TAU", 0.005)
+policy_noise = env_float("DRL_MULTI_POLICY_NOISE", 0.2)
+noise_clip = env_float("DRL_MULTI_NOISE_CLIP", 0.5)
 policy_freq = env_int("DRL_MULTI_POLICY_FREQ", 2)
 actor_anchor_weight = env_float("DRL_MULTI_ACTOR_ANCHOR_WEIGHT", 0.0) or 0.0
 actor_anchor_safe_only = env_flag("DRL_MULTI_ACTOR_ANCHOR_SAFE_ONLY", False)
@@ -1289,7 +1291,7 @@ oracle_interaction_distance = env_float(
 )
 residual_hidden_dim = env_int("DRL_MULTI_RESIDUAL_HIDDEN_DIM", 128)
 residual_scale = env_float("DRL_MULTI_RESIDUAL_SCALE", 0.15)
-buffer_size = 1e6
+buffer_size = env_int("DRL_MULTI_BUFFER_SIZE", 1_000_000)
 agent_names = make_agent_names()
 use_dynamic_reward = env_flag("DRL_MULTI_USE_DYNAMIC_REWARD", False)
 cooperative_reward_self_weight = env_float("DRL_MULTI_REWARD_SELF_WEIGHT", None)
@@ -1539,6 +1541,9 @@ safe_recovery_idle_penalty_weight = env_float(
     "DRL_MULTI_SAFE_RECOVERY_IDLE_PENALTY_WEIGHT", 0.0
 )
 forward_reward_weight = env_float("DRL_MULTI_FORWARD_REWARD_WEIGHT", 0.5)
+progress_reward_weight = env_float("DRL_MULTI_PROGRESS_REWARD_WEIGHT", 20.0)
+turn_penalty_weight = env_float("DRL_MULTI_TURN_PENALTY_WEIGHT", 0.2)
+obstacle_penalty_weight = env_float("DRL_MULTI_OBSTACLE_PENALTY_WEIGHT", 0.5)
 stagnation_penalty_weight = env_float("DRL_MULTI_STAGNATION_PENALTY_WEIGHT", 0.03)
 wall_clearance_reward = env_flag("DRL_MULTI_USE_WALL_CLEARANCE_REWARD", False)
 wall_clearance_safe_distance = env_float("DRL_MULTI_WALL_CLEARANCE_SAFE_DISTANCE", 0.75)
@@ -1635,6 +1640,20 @@ for name, value in (
 ):
     if value < 0.0:
         raise ValueError(f"{name} must be non-negative")
+if batch_size < 1:
+    raise ValueError("DRL_MULTI_BATCH_SIZE must be positive")
+if minimum_replay_size < 0:
+    raise ValueError("DRL_MULTI_MIN_REPLAY_SIZE must be non-negative")
+if buffer_size < max(batch_size, minimum_replay_size):
+    raise ValueError("DRL_MULTI_BUFFER_SIZE must cover batch and replay warmup sizes")
+if not 0.0 < discount <= 1.0:
+    raise ValueError("DRL_MULTI_DISCOUNT must be in (0, 1]")
+if not 0.0 < tau <= 1.0:
+    raise ValueError("DRL_MULTI_TAU must be in (0, 1]")
+if policy_noise < 0.0 or noise_clip < 0.0:
+    raise ValueError("TD3 target policy noise values must be non-negative")
+if policy_freq < 1:
+    raise ValueError("DRL_MULTI_POLICY_FREQ must be positive")
 if robot_clearance_reward_max_gain <= 0.0:
     raise ValueError("DRL_MULTI_ROBOT_CLEARANCE_REWARD_MAX_GAIN must be positive")
 if yield_priority_distance <= 0.0:
@@ -1811,7 +1830,10 @@ env = MultiAgentGazeboEnv(
     emergency_stop_distance=emergency_stop_distance,
     emergency_stop_penalty_weight=emergency_stop_penalty_weight,
     emergency_stop_bonus_weight=emergency_stop_bonus_weight,
+    progress_reward_weight=progress_reward_weight,
     forward_reward_weight=forward_reward_weight,
+    turn_penalty_weight=turn_penalty_weight,
+    obstacle_penalty_weight=obstacle_penalty_weight,
     stagnation_penalty_weight=stagnation_penalty_weight,
     weak_coupling_layout=True,
     scenario_mode=scenario_mode,
@@ -1961,7 +1983,10 @@ print("Safe-recovery min laser:", safe_recovery_min_laser)
 print("Safe-recovery robot distance:", safe_recovery_robot_distance)
 print("Safe-recovery progress bonus weight:", safe_recovery_progress_bonus_weight)
 print("Safe-recovery idle penalty weight:", safe_recovery_idle_penalty_weight)
+print("Progress reward weight:", progress_reward_weight)
 print("Forward reward weight:", forward_reward_weight)
+print("Turn penalty weight:", turn_penalty_weight)
+print("Obstacle penalty weight:", obstacle_penalty_weight)
 print("Base stagnation penalty weight:", stagnation_penalty_weight)
 print("Wall-clearance reward:", wall_clearance_reward)
 print("Wall-clearance safe distance:", wall_clearance_safe_distance)
@@ -2073,6 +2098,12 @@ print(
     ),
 )
 print("Critic learning rate:", critic_lr)
+print("Batch size:", batch_size)
+print("Minimum replay size:", minimum_replay_size)
+print("Discount:", discount)
+print("Target update tau:", tau)
+print("Target policy noise:", policy_noise)
+print("Target noise clip:", noise_clip)
 print(
     "Actor update delay steps:",
     actor_update_delay_steps,
@@ -2220,62 +2251,65 @@ stop_training = False
 while timestep < max_timesteps:
     if episode_done:
         if timestep != 0 and not skip_episode_summary_once:
-            train_iterations = episode_train_iterations(
-                episode_sample_count, len(agent_names)
-            )
-            if use_local_critic:
-                network.train_local_critic(
-                    replay_buffer,
-                    train_iterations,
-                    batch_size,
-                    discount,
-                    tau,
-                    policy_noise,
-                    noise_clip,
-                    policy_freq,
-                    timestep >= actor_update_delay_steps,
-                    actor_interaction_only,
-                    weak_actor,
-                    use_oracle_interaction_rollout,
-                    oracle_interaction_distance,
-                    local_critic_feature_dim,
-                    critic_interaction_fraction,
-                    use_actor_gradient_gate,
-                    actor_gradient_safety_distance,
-                    actor_gradient_gate_batch_size,
-                    actor_gradient_gate_min_samples,
-                    actor_gradient_max_linear_positive_share,
-                    actor_gradient_max_angular_one_sided_share,
-                    critic_safety_ranking_weight,
-                    critic_safety_ranking_distance,
-                    critic_safety_ranking_min_closing_speed,
-                    critic_safety_ranking_linear_delta,
-                    critic_safety_ranking_margin,
-                    actor_safety_focused,
-                    actor_safety_candidate_batch_size,
-                    actor_safety_min_samples,
-                    actor_safety_distance,
-                    actor_safety_min_closing_speed,
-                    actor_slowdown_safety_weight,
-                    actor_slowdown_max_linear_action,
-                    actor_angular_anchor_weight,
-                    actor_anchor_safe_only,
-                    actor_anchor_safe_distance,
-                    actor_reference_acceleration_cap_weight,
-                    actor_reference_acceleration_cap_margin,
+            if replay_ready_for_updates(replay_buffer.size(), minimum_replay_size):
+                train_iterations = episode_train_iterations(
+                    episode_sample_count, len(agent_names)
                 )
+                if use_local_critic:
+                    network.train_local_critic(
+                        replay_buffer,
+                        train_iterations,
+                        batch_size,
+                        discount,
+                        tau,
+                        policy_noise,
+                        noise_clip,
+                        policy_freq,
+                        timestep >= actor_update_delay_steps,
+                        actor_interaction_only,
+                        weak_actor,
+                        use_oracle_interaction_rollout,
+                        oracle_interaction_distance,
+                        local_critic_feature_dim,
+                        critic_interaction_fraction,
+                        use_actor_gradient_gate,
+                        actor_gradient_safety_distance,
+                        actor_gradient_gate_batch_size,
+                        actor_gradient_gate_min_samples,
+                        actor_gradient_max_linear_positive_share,
+                        actor_gradient_max_angular_one_sided_share,
+                        critic_safety_ranking_weight,
+                        critic_safety_ranking_distance,
+                        critic_safety_ranking_min_closing_speed,
+                        critic_safety_ranking_linear_delta,
+                        critic_safety_ranking_margin,
+                        actor_safety_focused,
+                        actor_safety_candidate_batch_size,
+                        actor_safety_min_samples,
+                        actor_safety_distance,
+                        actor_safety_min_closing_speed,
+                        actor_slowdown_safety_weight,
+                        actor_slowdown_max_linear_action,
+                        actor_angular_anchor_weight,
+                        actor_anchor_safe_only,
+                        actor_anchor_safe_distance,
+                        actor_reference_acceleration_cap_weight,
+                        actor_reference_acceleration_cap_margin,
+                    )
+                else:
+                    network.train(
+                        replay_buffer,
+                        train_iterations,
+                        batch_size,
+                        discount,
+                        tau,
+                        policy_noise,
+                        noise_clip,
+                        policy_freq,
+                        timestep >= actor_update_delay_steps,
+                    )
             else:
-                network.train(
-                    replay_buffer,
-                    train_iterations,
-                    batch_size,
-                    discount,
-                    tau,
-                    policy_noise,
-                    noise_clip,
-                    policy_freq,
-                    timestep >= actor_update_delay_steps,
-                )
+                network.last_actor_update_enabled = False
             elapsed = time.time() - train_start_time
             steps_per_sec = timestep / elapsed if elapsed > 0 else 0.0
             step_agents = env.last_step_info["agents"]

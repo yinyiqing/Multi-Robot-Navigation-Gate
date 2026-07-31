@@ -16,7 +16,10 @@ class MultiAgentRewardTests(unittest.TestCase):
     @staticmethod
     def environment(forward_weight=0.5, stagnation_weight=0.03):
         environment = MultiAgentGazeboEnv.__new__(MultiAgentGazeboEnv)
+        environment.progress_reward_weight = 20.0
         environment.forward_reward_weight = forward_weight
+        environment.turn_penalty_weight = 0.2
+        environment.obstacle_penalty_weight = 0.5
         environment.stagnation_penalty_weight = stagnation_weight
         return environment
 
@@ -54,6 +57,14 @@ class MultiAgentRewardTests(unittest.TestCase):
         self.assertEqual(
             environment.get_reward(False, True, [0.0, 0.0], 0.1, 0.0), -100.0
         )
+
+    def test_base_reward_coefficients_are_configurable(self):
+        environment = self.environment(forward_weight=0.0, stagnation_weight=0.0)
+        environment.progress_reward_weight = 10.0
+        environment.turn_penalty_weight = 0.1
+        environment.obstacle_penalty_weight = 1.0
+        reward = environment.get_reward(False, False, [0.0, 0.5], 0.4, 0.02)
+        self.assertAlmostEqual(reward, 0.2 - 0.05 - 0.6)
 
     def test_robot_proximity_penalty_is_zero_outside_safe_distance(self):
         environment = self.environment()
