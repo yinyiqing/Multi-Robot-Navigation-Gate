@@ -1,9 +1,11 @@
 <launch>
   <arg name="gui" default="false"/>
   <arg name="enable_rviz" default="false"/>
+  <arg name="paused" default="false"/>
 
   <include file="$(find multi_robot_scenario)/launch/empty_world.launch">
     <arg name="gui" value="false"/>
+    <arg name="paused" value="$(arg paused)"/>
   </include>
 
   <param name="robot_description_r1"

@@ -1,6 +1,7 @@
 import sys
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import numpy as np
 
@@ -328,6 +329,45 @@ class MultiAgentRewardTests(unittest.TestCase):
         self.assertAlmostEqual(reward, -0.5)
         self.assertEqual(environment.yield_wait_steps["r1"], 0)
 
+
+class ManifestPairedCycleTests(unittest.TestCase):
+    @staticmethod
+    def environment():
+        environment = MultiAgentGazeboEnv.__new__(MultiAgentGazeboEnv)
+        environment.scenario_mode = "manifest"
+        environment.curriculum_cases = [
+            {"scenario_id": "A"},
+            {"scenario_id": "B"},
+            {"scenario_id": "C"},
+        ]
+        environment.curriculum_case_index = 0
+        environment.manifest_band_cases = {}
+        environment.manifest_band_indices = {}
+        environment.manifest_band_schedule_index = 0
+        return environment
+
+    @mock.patch.dict("os.environ", {"DRL_MULTI_MANIFEST_SAMPLING": "paired_cycle"})
+    def test_each_manifest_case_is_selected_twice_in_order(self):
+        environment = self.environment()
+        selected = [
+            environment._select_curriculum_case()["scenario_id"]
+            for _ in range(6)
+        ]
+        self.assertEqual(selected, ["A", "A", "B", "B", "C", "C"])
+
+    @mock.patch.dict("os.environ", {"DRL_MULTI_MANIFEST_SAMPLING": "paired_cycle"})
+    def test_sampling_state_restores_the_second_half_of_a_pair(self):
+        environment = self.environment()
+        for _ in range(3):
+            environment._select_curriculum_case()
+        state = environment.manifest_sampling_state()
+
+        restored = self.environment()
+        restored.restore_manifest_sampling_state(state)
+        self.assertEqual(
+            restored._select_curriculum_case()["scenario_id"],
+            "B",
+        )
 
 if __name__ == "__main__":
     unittest.main()

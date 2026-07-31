@@ -12,7 +12,7 @@ from torch.utils.tensorboard import SummaryWriter
 from actor_models import Actor, ResidualActor, is_residual_actor_state_dict
 from interaction_oracle import interaction_mask
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
-from oracle_controllers import ConflictPairYieldOracle
+from oracle_controllers import ConflictPairYieldOracle, RightHandPassOracle
 from outcome_utils import resolve_terminal_outcome
 from robot_perception.recorder import PerceptionShardRecorder
 
@@ -230,13 +230,43 @@ if interaction_oracle_distance <= 0.0:
     raise ValueError("DRL_MULTI_ORACLE_INTERACTION_DISTANCE must be positive")
 case_oracle_map_path = env_json_path("DRL_MULTI_CASE_ORACLE_MAP")
 rule_oracle_mode = os.environ.get("DRL_MULTI_RULE_ORACLE_MODE", "").strip().lower()
-if rule_oracle_mode not in ("", "conflict_pair_yield"):
+if rule_oracle_mode not in ("", "conflict_pair_yield", "right_hand_pass"):
     raise ValueError(
-        "DRL_MULTI_RULE_ORACLE_MODE must be empty or 'conflict_pair_yield'"
+        "DRL_MULTI_RULE_ORACLE_MODE must be empty, 'conflict_pair_yield', "
+        "or 'right_hand_pass'"
+    )
+rule_oracle_schedule = os.environ.get(
+    "DRL_MULTI_RULE_ORACLE_SCHEDULE", "all"
+).strip().lower()
+if rule_oracle_schedule not in ("all", "paired_alternating"):
+    raise ValueError(
+        "DRL_MULTI_RULE_ORACLE_SCHEDULE must be 'all' or 'paired_alternating'"
     )
 rule_oracle_stop_distance = env_float("DRL_MULTI_RULE_ORACLE_STOP_DISTANCE", 1.2)
 rule_oracle_release_distance = env_float("DRL_MULTI_RULE_ORACLE_RELEASE_DISTANCE", 1.4)
 rule_oracle_max_yield_steps = env_int("DRL_MULTI_RULE_ORACLE_MAX_YIELD_STEPS", 20)
+right_hand_activation_distance = env_float(
+    "DRL_MULTI_RIGHT_HAND_ACTIVATION_DISTANCE", 1.5
+)
+right_hand_release_distance = env_float(
+    "DRL_MULTI_RIGHT_HAND_RELEASE_DISTANCE", 1.8
+)
+right_hand_frontal_angle = env_float("DRL_MULTI_RIGHT_HAND_FRONTAL_ANGLE_DEG", 35.0)
+right_hand_opposing_angle = env_float(
+    "DRL_MULTI_RIGHT_HAND_OPPOSING_ANGLE_DEG", 150.0
+)
+right_hand_min_closing_speed = env_float(
+    "DRL_MULTI_RIGHT_HAND_MIN_CLOSING_SPEED", 0.2
+)
+right_hand_max_ttc = env_float("DRL_MULTI_RIGHT_HAND_MAX_TTC", 3.0)
+right_hand_turn_action = env_float("DRL_MULTI_RIGHT_HAND_TURN_ACTION", -0.6)
+right_hand_linear_speed_cap = env_float(
+    "DRL_MULTI_RIGHT_HAND_LINEAR_SPEED_CAP", 0.45
+)
+right_hand_max_override_steps = env_int(
+    "DRL_MULTI_RIGHT_HAND_MAX_OVERRIDE_STEPS", 20
+)
+fixed_physics_step_size = env_float("DRL_MULTI_FIXED_PHYSICS_STEP_SIZE", None)
 launchfile = os.environ.get(
     "DRL_MULTI_TEST_LAUNCHFILE", "multi_robot_scenario_multi_2.launch"
 )
@@ -428,6 +458,7 @@ env = MultiAgentGazeboEnv(
     weak_coupling_layout=True,
     scenario_mode=scenario_mode,
     active_neighbors_only=actor_selection_mode == "interaction_oracle",
+    fixed_physics_step_size=fixed_physics_step_size,
 )
 time.sleep(5)
 random.seed(seed)
@@ -487,6 +518,21 @@ if rule_oracle_mode == "conflict_pair_yield":
         stop_distance=rule_oracle_stop_distance,
         release_distance=rule_oracle_release_distance,
         max_yield_steps=rule_oracle_max_yield_steps,
+    )
+elif rule_oracle_mode == "right_hand_pass":
+    if actor_selection_mode != "single":
+        raise ValueError("Right-hand pass oracle only supports single actor mode")
+    rule_oracle_controller = RightHandPassOracle(
+        base_policy=network,
+        activation_distance=right_hand_activation_distance,
+        release_distance=right_hand_release_distance,
+        frontal_angle_degrees=right_hand_frontal_angle,
+        opposing_angle_degrees=right_hand_opposing_angle,
+        min_closing_speed=right_hand_min_closing_speed,
+        max_ttc=right_hand_max_ttc,
+        turn_action=right_hand_turn_action,
+        linear_speed_cap=right_hand_linear_speed_cap,
+        max_override_steps=right_hand_max_override_steps,
     )
 
 test_state = load_test_state() or {}
@@ -551,9 +597,22 @@ else:
     print("Dual actor mode: disabled")
 print("Rule oracle mode:", rule_oracle_mode or "disabled")
 if rule_oracle_controller is not None:
-    print("Rule oracle stop distance:", rule_oracle_stop_distance)
-    print("Rule oracle release distance:", rule_oracle_release_distance)
-    print("Rule oracle max yield steps:", rule_oracle_max_yield_steps)
+    if rule_oracle_mode == "conflict_pair_yield":
+        print("Rule oracle stop distance:", rule_oracle_stop_distance)
+        print("Rule oracle release distance:", rule_oracle_release_distance)
+        print("Rule oracle max yield steps:", rule_oracle_max_yield_steps)
+    else:
+        print("Right-hand activation distance:", right_hand_activation_distance)
+        print("Right-hand release distance:", right_hand_release_distance)
+        print("Right-hand frontal angle:", right_hand_frontal_angle)
+        print("Right-hand opposing angle:", right_hand_opposing_angle)
+        print("Right-hand minimum closing speed:", right_hand_min_closing_speed)
+        print("Right-hand maximum TTC:", right_hand_max_ttc)
+        print("Right-hand turn action:", right_hand_turn_action)
+        print("Right-hand linear speed cap:", right_hand_linear_speed_cap)
+        print("Right-hand max override steps:", right_hand_max_override_steps)
+    print("Rule oracle schedule:", rule_oracle_schedule)
+print("Fixed physics step size:", fixed_physics_step_size or "disabled")
 print("Scenario mode:", scenario_mode)
 if scenario_mode == "manifest":
     print("Manifest path:", os.environ.get("DRL_MULTI_MANIFEST_PATH", ""))
@@ -580,8 +639,19 @@ if scenario_mode in ("curriculum", "manifest"):
     print("Case-level stats enabled")
 print("==============================================")
 
+
+def rule_enabled_for_episode(completed_episodes):
+    if rule_oracle_controller is None:
+        return False
+    if rule_oracle_schedule == "all":
+        return True
+    pair_index, position = divmod(int(completed_episodes), 2)
+    rule_position = 1 if pair_index % 2 == 0 else 0
+    return position == rule_position
+
 states = env.reset()
 episode_case_name = current_case_name(env)
+episode_rule_enabled = rule_enabled_for_episode(episode_num)
 if perception_recorder is not None:
     perception_recorder.begin_scenario(
         episode_case_name, *current_case_perception_metadata(env)
@@ -601,7 +671,7 @@ episode_final_distances = {name: None for name in agent_names}
 episode_start_time = time.time()
 episode_dense_action_steps = np.zeros(len(agent_names), dtype=np.int32)
 episode_standard_action_steps = np.zeros(len(agent_names), dtype=np.int32)
-episode_rule_yield_steps = np.zeros(len(agent_names), dtype=np.int32)
+episode_rule_action_steps = np.zeros(len(agent_names), dtype=np.int32)
 
 while True:
     env_actions = []
@@ -664,7 +734,7 @@ while True:
             env_actions.append([0.0, 0.0])
             continue
 
-        if rule_oracle_controller is not None:
+        if rule_oracle_controller is not None and episode_rule_enabled:
             active_names = {
                 agent_names[index]
                 for index, is_active in enumerate(active_mask)
@@ -675,7 +745,7 @@ while True:
             )
             episode_standard_action_steps[idx] += 1
             if is_yielding:
-                episode_rule_yield_steps[idx] += 1
+                episode_rule_action_steps[idx] += 1
         elif actor_selection_mode == "interaction_oracle":
             use_dense_actor = bool(oracle_flags[idx])
             policy = dense_network if use_dense_actor else network
@@ -843,7 +913,8 @@ while True:
         "Episode %i complete | case=%s | env_steps=%i | agent_samples=%i | episode_env_steps=%i | "
         "episode_agent_samples=%i | mean_reward=%.3f | success=%i/%i | collision=%i/%i | "
         "unresolved=%i/%i | full_success=%i | timeout=%i | "
-        "mean_final_distance=%.3f | dense_action_share=%.3f | rule_yield_share=%.3f | "
+        "mean_final_distance=%.3f | dense_action_share=%.3f | rule_enabled=%i | "
+        "rule_action_share=%.3f | "
         "samples/sec=%.3f"
         % (
             episode_num,
@@ -869,8 +940,9 @@ while True:
                     1.0,
                 )
             ),
+            int(episode_rule_enabled),
             (
-                float(np.sum(episode_rule_yield_steps))
+                float(np.sum(episode_rule_action_steps))
                 / max(float(episode_agent_samples), 1.0)
             ),
             steps_per_sec,
@@ -955,6 +1027,7 @@ while True:
             episode_unresolved_count,
             timeout_episode,
             episode_case_name,
+            int(episode_rule_enabled),
         ]
     )
 
@@ -968,6 +1041,7 @@ while True:
 
     states = env.reset()
     episode_case_name = current_case_name(env)
+    episode_rule_enabled = rule_enabled_for_episode(episode_num)
     if perception_recorder is not None:
         perception_recorder.begin_scenario(
             episode_case_name, *current_case_perception_metadata(env)
@@ -987,4 +1061,4 @@ while True:
     episode_start_time = time.time()
     episode_dense_action_steps = np.zeros(len(agent_names), dtype=np.int32)
     episode_standard_action_steps = np.zeros(len(agent_names), dtype=np.int32)
-    episode_rule_yield_steps = np.zeros(len(agent_names), dtype=np.int32)
+    episode_rule_action_steps = np.zeros(len(agent_names), dtype=np.int32)

@@ -1262,6 +1262,7 @@ actor_update_delay_steps = env_int(
     "DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS",
     env_int("DRL_MULTI_LOCAL_CRITIC_ACTOR_UPDATE_DELAY_STEPS", 0),
 )
+fixed_physics_step_size = env_float("DRL_MULTI_FIXED_PHYSICS_STEP_SIZE", None)
 batch_size = 40
 discount = 0.99999
 tau = 0.005
@@ -1816,6 +1817,7 @@ env = MultiAgentGazeboEnv(
     scenario_mode=scenario_mode,
     active_neighbors_only=active_neighbors_only,
     neighbor_context_mode=local_critic_context_mode,
+    fixed_physics_step_size=fixed_physics_step_size,
 )
 time.sleep(5)
 random.seed(seed)
@@ -1999,6 +2001,7 @@ print("Local-navigation heading error:", local_navigation_heading_error)
 print("Local critic enabled:", use_local_critic)
 print("Local critic geometry only:", local_critic_geometry_only)
 print("Local critic context mode:", local_critic_context_mode)
+print("Fixed physics step size:", fixed_physics_step_size or "disabled")
 print("Active neighbors only:", active_neighbors_only)
 print("Actor state dim:", state_dim)
 print("Critic state dim:", critic_state_dim)

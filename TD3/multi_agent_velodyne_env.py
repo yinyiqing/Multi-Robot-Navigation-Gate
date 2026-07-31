@@ -11,9 +11,10 @@ import numpy as np
 import rospy
 import sensor_msgs.point_cloud2 as pc2
 from gazebo_msgs.msg import ModelState
-from gazebo_msgs.srv import SetModelState
+from gazebo_msgs.srv import GetPhysicsProperties, GetWorldProperties, SetModelState
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
+from rosgraph_msgs.msg import Clock
 from sensor_msgs.msg import PointCloud2
 from squaternion import Quaternion
 from std_srvs.srv import Empty
@@ -403,6 +404,13 @@ class MultiAgentGazeboEnv:
         }
         self.velodyne_update_counts = {name: 0 for name in self.agent_names}
         self.odom_update_counts = {name: 0 for name in self.agent_names}
+        self.velodyne_timestamps = {
+            name: float("-inf") for name in self.agent_names
+        }
+        self.odom_timestamps = {name: float("-inf") for name in self.agent_names}
+        self.sim_clock_time = float("-inf")
+        self.sim_clock_update_count = 0
+        self.fixed_agent_interfaces_ready = False
         self.last_odom = {name: None for name in self.agent_names}
         self.previous_distances = {name: None for name in self.agent_names}
         self.previous_nearest_robot_distances = {
@@ -456,7 +464,10 @@ class MultiAgentGazeboEnv:
         if not path.exists(fullpath):
             raise IOError("File " + fullpath + " does not exist")
 
-        self.roslaunch_process = subprocess.Popen(["roslaunch", "-p", port, fullpath])
+        roslaunch_command = ["roslaunch", "-p", port, fullpath]
+        if self.fixed_physics_step_size is not None:
+            roslaunch_command.append("paused:=true")
+        self.roslaunch_process = subprocess.Popen(roslaunch_command)
         print("Gazebo launched!")
 
         self.vel_pubs = {
@@ -467,6 +478,12 @@ class MultiAgentGazeboEnv:
         self.set_model_state_service = rospy.ServiceProxy(
             "/gazebo/set_model_state", SetModelState
         )
+        self.get_world_properties_service = rospy.ServiceProxy(
+            "/gazebo/get_world_properties", GetWorldProperties
+        )
+        self.get_physics_properties_service = rospy.ServiceProxy(
+            "/gazebo/get_physics_properties", GetPhysicsProperties
+        )
         self.unpause = rospy.ServiceProxy("/gazebo/unpause_physics", Empty)
         self.pause = rospy.ServiceProxy("/gazebo/pause_physics", Empty)
         self.reset_proxy = rospy.ServiceProxy("/gazebo/reset_world", Empty)
@@ -474,6 +491,9 @@ class MultiAgentGazeboEnv:
             "/gazebo/reset_simulation", Empty
         )
         self.goal_publisher = rospy.Publisher("goal_points", MarkerArray, queue_size=10)
+        self.clock_subscriber = rospy.Subscriber(
+            "/clock", Clock, self._clock_callback, queue_size=1
+        )
 
         self.velodyne_subscribers = []
         self.odom_subscribers = []
@@ -701,9 +721,14 @@ class MultiAgentGazeboEnv:
                 return cases[index]
             self._reset_manifest_band_sampling()
             return self._select_curriculum_case()
-        if mode != "cycle":
-            raise ValueError(f"{variable} must be cycle, random, or balanced_cycle")
-        case = self.curriculum_cases[self.curriculum_case_index % len(self.curriculum_cases)]
+        if mode not in ("cycle", "paired_cycle"):
+            raise ValueError(
+                f"{variable} must be cycle, paired_cycle, random, or balanced_cycle"
+            )
+        case_index = self.curriculum_case_index
+        if mode == "paired_cycle":
+            case_index //= 2
+        case = self.curriculum_cases[case_index % len(self.curriculum_cases)]
         self.curriculum_case_index += 1
         return case
 
@@ -849,6 +874,7 @@ class MultiAgentGazeboEnv:
                     self.raw_lidar_points[name] = points[np.sort(indices)]
                 else:
                     self.raw_lidar_points[name] = np.empty((0, 3), dtype=np.float32)
+            self.velodyne_timestamps[name] = float(msg.header.stamp.to_sec())
             self.velodyne_update_counts[name] += 1
 
         return callback
@@ -856,9 +882,14 @@ class MultiAgentGazeboEnv:
     def _make_odom_callback(self, name):
         def callback(msg):
             self.last_odom[name] = msg
+            self.odom_timestamps[name] = float(msg.header.stamp.to_sec())
             self.odom_update_counts[name] += 1
 
         return callback
+
+    def _clock_callback(self, msg):
+        self.sim_clock_time = float(msg.clock.to_sec())
+        self.sim_clock_update_count += 1
 
     def _empty_last_step_info(self):
         return {
@@ -1665,12 +1696,22 @@ class MultiAgentGazeboEnv:
     def _advance_fixed_physics(self, duration):
         if self.fixed_physics_step_size is None:
             raise RuntimeError("fixed physics stepping is not enabled")
+        self._pause_fixed_physics()
         iterations = max(1, int(round(duration / self.fixed_physics_step_size)))
-        start_time = rospy.Time.now().to_sec()
+        start_time = self._wait_for_stable_sim_time()
+        self.sim_clock_time = start_time
         target_time = start_time + iterations * self.fixed_physics_step_size
+        overshoot_tolerance = max(0.01, 2.0 * self.fixed_physics_step_size)
         errors = []
         for _ in range(3):
-            current_time = rospy.Time.now().to_sec()
+            current_time = self._get_gazebo_sim_time()
+            if current_time > target_time + overshoot_tolerance:
+                raise RuntimeError(
+                    "Gazebo fixed step overshot before retry: target=%.6f actual=%.6f"
+                    % (target_time, current_time)
+                )
+            if current_time + self.fixed_physics_step_size >= target_time:
+                return current_time
             remaining = max(
                 1,
                 int(
@@ -1690,26 +1731,164 @@ class MultiAgentGazeboEnv:
             )
             if result.returncode != 0:
                 errors.append(result.stderr.strip())
-            deadline = time.monotonic() + 3.0
-            while (
-                rospy.Time.now().to_sec() + self.fixed_physics_step_size
-                < target_time
-                and time.monotonic() < deadline
-            ):
-                time.sleep(0.001)
-            if rospy.Time.now().to_sec() + self.fixed_physics_step_size >= target_time:
-                return
+            try:
+                self._wait_for_sim_time_at_least(
+                    target_time - self.fixed_physics_step_size
+                )
+            except TimeoutError as exc:
+                errors.append(str(exc))
+                continue
+            self._pause_fixed_physics()
+            current_time = self._wait_for_stable_sim_time()
+            self.sim_clock_time = current_time
+            if current_time > target_time + overshoot_tolerance:
+                raise RuntimeError(
+                    "Gazebo fixed step overshot target: target=%.6f actual=%.6f"
+                    % (target_time, current_time)
+                )
+            if current_time + self.fixed_physics_step_size >= target_time:
+                return current_time
         raise TimeoutError(
-            "Gazebo did not complete %d fixed physics steps: %s"
-            % (iterations, " | ".join(error for error in errors if error))
+            "Gazebo did not complete %d fixed physics steps: "
+            "current=%.6f target=%.6f errors=%s"
+            % (
+                iterations,
+                self._get_gazebo_sim_time(),
+                target_time,
+                " | ".join(error for error in errors if error),
+            )
         )
+
+    def _wait_for_sim_time_at_least(self, minimum_time, timeout=5.0):
+        deadline = time.monotonic() + timeout
+        current_time = self._get_gazebo_sim_time()
+        while current_time < minimum_time and time.monotonic() < deadline:
+            time.sleep(0.001)
+            current_time = self._get_gazebo_sim_time()
+        if current_time < minimum_time:
+            raise TimeoutError(
+                "Gazebo simulation time did not reach %.6f; actual=%.6f"
+                % (minimum_time, current_time)
+            )
+        return current_time
+
+    def _get_gazebo_sim_time(self):
+        rospy.wait_for_service("/gazebo/get_world_properties")
+        try:
+            world_properties = self.get_world_properties_service()
+        except rospy.ServiceException as exc:
+            raise RuntimeError("Could not read Gazebo simulation time") from exc
+        if not world_properties.success:
+            raise RuntimeError(
+                "Could not read Gazebo simulation time: %s"
+                % world_properties.status_message
+            )
+        return float(world_properties.sim_time)
+
+    def _wait_for_stable_sim_time(self, stable_duration=0.02, timeout=5.0):
+        deadline = time.monotonic() + timeout
+        current_time = self._get_gazebo_sim_time()
+        stable_since = time.monotonic()
+        while time.monotonic() < deadline:
+            time.sleep(0.005)
+            next_time = self._get_gazebo_sim_time()
+            if abs(next_time - current_time) > 0.5 * self.fixed_physics_step_size:
+                current_time = next_time
+                stable_since = time.monotonic()
+                continue
+            if time.monotonic() - stable_since >= stable_duration:
+                return next_time
+        raise TimeoutError("Gazebo simulation time did not become stable")
+
+    def _reset_fixed_physics(self):
+        self._pause_fixed_physics()
+        rospy.wait_for_service("/gazebo/reset_world")
+        try:
+            self.reset_proxy()
+        except rospy.ServiceException as exc:
+            raise RuntimeError("Could not reset fixed-step Gazebo world") from exc
+        self._pause_fixed_physics()
+        self.sim_clock_time = self._wait_for_stable_sim_time()
+
+    def _pause_fixed_physics(self):
+        rospy.wait_for_service("/gazebo/pause_physics")
+        rospy.wait_for_service("/gazebo/get_physics_properties")
+        for _ in range(3):
+            try:
+                self.pause()
+                physics = self.get_physics_properties_service()
+            except rospy.ServiceException as exc:
+                raise RuntimeError("Could not pause Gazebo for fixed stepping") from exc
+            if physics.success and physics.pause:
+                return
+            time.sleep(0.01)
+        raise RuntimeError("Gazebo did not enter the paused state")
+
+    def _wait_for_fixed_agent_interfaces(self, timeout=30.0):
+        if self.fixed_agent_interfaces_ready:
+            return
+        # Gazebo inserts spawned models on world updates. A server launched
+        # paused can otherwise consume the first measured multi-step request
+        # while robot plugins are still loading.
+        rospy.wait_for_service("/gazebo/unpause_physics")
+        try:
+            self.unpause()
+        except rospy.ServiceException as exc:
+            raise RuntimeError("Could not warm up fixed-step Gazebo") from exc
+        deadline = time.monotonic() + timeout
+        while True:
+            world_properties = self.get_world_properties_service()
+            missing_models = [
+                name
+                for name in self.agent_names
+                if name not in world_properties.model_names
+            ]
+            missing_interfaces = [
+                name
+                for name in self.agent_names
+                if self.vel_pubs[name].get_num_connections() < 1
+                or self.velodyne_subscribers[self.agent_names.index(name)].get_num_connections()
+                < 1
+                or self.odom_subscribers[self.agent_names.index(name)].get_num_connections()
+                < 1
+            ]
+            if not missing_models and not missing_interfaces:
+                time.sleep(0.5)
+                self._pause_fixed_physics()
+                self._wait_for_stable_sim_time()
+                try:
+                    self.reset_simulation_proxy()
+                except rospy.ServiceException as exc:
+                    raise RuntimeError(
+                        "Could not align fixed-step Gazebo simulation time"
+                    ) from exc
+                time.sleep(0.05)
+                self._pause_fixed_physics()
+                self._wait_for_stable_sim_time()
+                self.fixed_agent_interfaces_ready = True
+                return
+            if time.monotonic() >= deadline:
+                raise TimeoutError(
+                    "Timed out waiting for fixed-step agent interfaces: "
+                    "models=%s interfaces=%s"
+                    % (", ".join(missing_models), ", ".join(missing_interfaces))
+                )
+            time.sleep(0.05)
 
     def _wait_for_fixed_sensor_updates(
         self,
         previous_velodyne_counts,
         previous_odom_counts,
+        target_time,
         timeout=5.0,
     ):
+        # Velodyne publishes at 10 Hz, so the newest scan may precede the
+        # requested 0.2 s boundary by almost 0.1 s. Reject older queued data,
+        # especially messages left over across a simulation-time reset.
+        oldest_allowed = float(target_time) - 0.11
+        newest_allowed = float(target_time) + max(
+            self.fixed_physics_step_size, 0.01
+        )
         deadline = time.monotonic() + timeout
         while True:
             missing = [
@@ -1718,15 +1897,50 @@ class MultiAgentGazeboEnv:
                 if self.velodyne_update_counts[name]
                 <= previous_velodyne_counts[name]
                 or self.odom_update_counts[name] <= previous_odom_counts[name]
+                or not oldest_allowed
+                <= self.velodyne_timestamps[name]
+                <= newest_allowed
+                or not oldest_allowed <= self.odom_timestamps[name] <= newest_allowed
             ]
             if not missing:
                 return
             if time.monotonic() >= deadline:
+                now = self.sim_clock_time
+                sensor_details = []
+                for name in self.agent_names:
+                    sensor_details.append(
+                        "%s[vel_count=%d->%d vel_stamp=%.6f; "
+                        "odom_count=%d->%d odom_stamp=%.6f]"
+                        % (
+                            name,
+                            previous_velodyne_counts[name],
+                            self.velodyne_update_counts[name],
+                            self.velodyne_timestamps[name],
+                            previous_odom_counts[name],
+                            self.odom_update_counts[name],
+                            self.odom_timestamps[name],
+                        )
+                    )
                 raise TimeoutError(
-                    "Timed out waiting for fresh fixed-step sensors: %s"
-                    % ", ".join(missing)
+                    "Timed out waiting for fresh fixed-step sensors: %s | "
+                    "target=%.6f now=%.6f allowed=[%.6f, %.6f] | %s"
+                    % (
+                        ", ".join(missing),
+                        target_time,
+                        now,
+                        oldest_allowed,
+                        newest_allowed,
+                        " ".join(sensor_details),
+                    )
                 )
             time.sleep(0.001)
+
+    def _publish_zero_commands(self, repeats=3):
+        command = Twist()
+        for _ in range(max(int(repeats), 1)):
+            for publisher in self.vel_pubs.values():
+                publisher.publish(command)
+            time.sleep(0.02)
 
     def step(self, actions, active_mask=None):
         if active_mask is None:
@@ -1749,10 +1963,11 @@ class MultiAgentGazeboEnv:
                     self.vel_pubs[name].publish(command)
             previous_velodyne_counts = dict(self.velodyne_update_counts)
             previous_odom_counts = dict(self.odom_update_counts)
-            self._advance_fixed_physics(max(TIME_DELTA, 0.2))
+            target_time = self._advance_fixed_physics(max(TIME_DELTA, 0.2))
             self._wait_for_fixed_sensor_updates(
                 previous_velodyne_counts,
                 previous_odom_counts,
+                target_time,
             )
             self.wait_for_all_odom()
         else:
@@ -2028,19 +2243,17 @@ class MultiAgentGazeboEnv:
         return next_states, rewards, dones, targets, collisions
 
     def reset(self):
-        reset_service = (
-            "/gazebo/reset_simulation"
-            if self.fixed_physics_step_size is not None
-            else "/gazebo/reset_world"
-        )
-        rospy.wait_for_service(reset_service)
-        try:
-            if self.fixed_physics_step_size is not None:
-                self.reset_simulation_proxy()
-            else:
+        if self.fixed_physics_step_size is not None:
+            self._wait_for_fixed_agent_interfaces()
+            self._reset_fixed_physics()
+        self._publish_zero_commands()
+        if self.fixed_physics_step_size is None:
+            reset_service = "/gazebo/reset_world"
+            rospy.wait_for_service(reset_service)
+            try:
                 self.reset_proxy()
-        except rospy.ServiceException:
-            print("%s service call failed" % reset_service)
+            except rospy.ServiceException:
+                print("%s service call failed" % reset_service)
 
         if self.upper < 10:
             self.upper += 0.004
@@ -2048,6 +2261,10 @@ class MultiAgentGazeboEnv:
             self.lower -= 0.004
 
         self.last_odom = {name: None for name in self.agent_names}
+        self.velodyne_timestamps = {
+            name: float("-inf") for name in self.agent_names
+        }
+        self.odom_timestamps = {name: float("-inf") for name in self.agent_names}
         self.previous_distances = {name: None for name in self.agent_names}
         self.previous_nearest_robot_distances = {
             name: None for name in self.agent_names
@@ -2096,13 +2313,15 @@ class MultiAgentGazeboEnv:
             self.random_box()
         self.publish_goal_markers()
         if self.fixed_physics_step_size is not None:
+            self._publish_zero_commands()
             time.sleep(0.05)
             previous_velodyne_counts = dict(self.velodyne_update_counts)
             previous_odom_counts = dict(self.odom_update_counts)
-            self._advance_fixed_physics(TIME_DELTA)
+            target_time = self._advance_fixed_physics(max(TIME_DELTA, 0.2))
             self._wait_for_fixed_sensor_updates(
                 previous_velodyne_counts,
                 previous_odom_counts,
+                target_time,
             )
         else:
             rospy.wait_for_service("/gazebo/unpause_physics")

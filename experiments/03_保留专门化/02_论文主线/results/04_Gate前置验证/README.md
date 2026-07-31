@@ -12,5 +12,6 @@
 | `D4_lidar_cluster_shape_probe_s20260724` | rejected representation | 手工三维形状特征仍有大量静态误报 |
 | `D4_temporal_risk_encoder_20bin_s20260724` | rejected representation | 20-bin 时序输入丢失身份和局部结构 |
 | `D4_highres_temporal_risk_encoder_s20260724` | rejected pilot | 180-bin + GRU 有改善，但小样本 holdout 仍不可部署 |
+| `20260731_统一靠右诊断_无净收益` | rejected heuristic | 10对固定case总体与5A持平；实际触发case净少完成1台车 |
 
-当前下一步：重新冻结 scenario-disjoint 感知数据，先完成机器人/静态障碍分类，再估计相对运动和 TTC。
+当前结论：Gate继续暂停。先得到能独立完成完整dense episode且稳定超过5A/5D的Dense Actor，再讨论两个Actor是否互补以及是否值得训练Gate。

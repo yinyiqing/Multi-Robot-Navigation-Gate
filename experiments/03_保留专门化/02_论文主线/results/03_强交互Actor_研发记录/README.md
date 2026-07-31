@@ -25,5 +25,6 @@
 | `20260731_v6_epoch11_固定200场配对复核` | rejected candidate | full提高`0.110`，但timeout达到`0.120`且平均步数为5A的`2.59`倍 |
 | `20260731_v7_前进奖励无净提升_独立DenseActor` | rejected | epoch-8与冻结5A的full success相同，目标冲突未解除 |
 | `20260731_v8_Critic危险加速退化_独立DenseActor` | rejected | 移除统一减速后复现危险加速，确认未归一化Q与safe-only anchor无法限制Critic动作外推 |
+| `20260731_v9_约束稳定但无学习增益_独立DenseActor` | rejected | 抑制危险加速和等待退化，但Actor基本停留在5A，未产生学习增益 |
 
-v6 epoch-11的200场复核已完成：收益真实，但没有通过独立Dense Actor的timeout和效率验收。v8进一步确认不能直接放开Critic；后续采用相对5A的单边危险加速上限，而不是恢复统一减速。
+v6 epoch-11的200场复核已完成：收益真实，但没有通过独立Dense Actor的timeout和效率验收。v8确认不能直接放开Critic；v9的单边危险加速上限虽然阻止两类退化，却没有产生学习增益。固定场景评测已加入固定物理步进；统一靠右诊断也已否定，不能据此生成示范或继续训练。
