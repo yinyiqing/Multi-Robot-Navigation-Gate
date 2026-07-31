@@ -8,7 +8,7 @@ TRAIN_MANIFEST="$DATASET_DIR/dense/train.json.gz"
 EVAL_MANIFEST="$DATASET_DIR/views/dense_validation_monitor_ultrafast_v3/validation.json.gz"
 LOG_DIR="$PROJECT_ROOT/logs"
 BASE_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best"
-MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-independent_dense_actor_from_5a_recovery_v6_s20260730}"
+MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-independent_dense_actor_from_5a_td3_consistent_v8_s20260731}"
 SAFE_MODEL="${MODEL_NAME//[^A-Za-z0-9_]/_}"
 PID_FILE="${DRL_MULTI_PID_FILE:-$PROJECT_ROOT/.train_${SAFE_MODEL}.pid}"
 LAUNCHFILE="multi_robot_scenario_strong_interaction_pilot_5.launch"
@@ -107,7 +107,7 @@ setsid bash -lc "
   export DRL_MULTI_EARLY_STOP_SUCCESS_DROP=\${DRL_MULTI_EARLY_STOP_SUCCESS_DROP:-0.12}
   export DRL_MULTI_EARLY_STOP_TIMEOUT_INCREASE=\${DRL_MULTI_EARLY_STOP_TIMEOUT_INCREASE:-0.30}
   export DRL_MULTI_EARLY_STOP_TIMEOUT_ABSOLUTE=\${DRL_MULTI_EARLY_STOP_TIMEOUT_ABSOLUTE:-0.45}
-  export DRL_MULTI_TRAINING_VERSION='independent-dense-actor-from-5a-recovery-v6'
+  export DRL_MULTI_TRAINING_VERSION='independent-dense-actor-from-5a-td3-consistent-v8'
 
   export DRL_MULTI_ACTOR_TRAIN_MODE=full
   export DRL_MULTI_USE_ORACLE_INTERACTION_ROLLOUT=0
@@ -124,7 +124,7 @@ setsid bash -lc "
   export DRL_MULTI_LOCAL_CRITIC_MAX_AGENTS=10
   export DRL_MULTI_ACTIVE_NEIGHBORS_ONLY=1
   export DRL_MULTI_CRITIC_INTERACTION_FRACTION=0.75
-  export DRL_MULTI_CRITIC_SAFETY_RANKING_WEIGHT=2.0
+  export DRL_MULTI_CRITIC_SAFETY_RANKING_WEIGHT=0.0
   export DRL_MULTI_CRITIC_SAFETY_RANKING_DISTANCE=1.0
   export DRL_MULTI_CRITIC_SAFETY_RANKING_MIN_CLOSING_SPEED=0.1
   export DRL_MULTI_CRITIC_SAFETY_RANKING_LINEAR_DELTA=0.4
@@ -138,7 +138,7 @@ setsid bash -lc "
   export DRL_MULTI_ACTOR_SAFETY_MIN_SAMPLES=16
   export DRL_MULTI_ACTOR_SAFETY_DISTANCE=1.0
   export DRL_MULTI_ACTOR_SAFETY_MIN_CLOSING_SPEED=0.1
-  export DRL_MULTI_ACTOR_SLOWDOWN_SAFETY_WEIGHT=3.0
+  export DRL_MULTI_ACTOR_SLOWDOWN_SAFETY_WEIGHT=0.0
   export DRL_MULTI_ACTOR_SLOWDOWN_MAX_LINEAR_ACTION=-0.4
   export DRL_MULTI_ACTOR_ANGULAR_ANCHOR_WEIGHT=0.0
 
@@ -147,7 +147,7 @@ setsid bash -lc "
   export DRL_MULTI_ROBOT_PROXIMITY_SPEED_PENALTY_WEIGHT=5.0
   export DRL_MULTI_ROBOT_CLEARANCE_REWARD_WEIGHT=10.0
   export DRL_MULTI_ROBOT_CLEARANCE_REWARD_MAX_GAIN=0.1
-  export DRL_MULTI_USE_YIELD_PRIORITY_REWARD=1
+  export DRL_MULTI_USE_YIELD_PRIORITY_REWARD=0
   export DRL_MULTI_YIELD_PRIORITY_DISTANCE=1.0
   export DRL_MULTI_YIELD_PRIORITY_GOAL_MARGIN=0.25
   export DRL_MULTI_YIELD_PRIORITY_STOP_LINEAR=0.25
@@ -170,6 +170,8 @@ setsid bash -lc "
   export DRL_MULTI_SAFE_RECOVERY_PROGRESS_THRESHOLD=0.003
   export DRL_MULTI_SAFE_RECOVERY_MIN_LASER=0.6
   export DRL_MULTI_SAFE_RECOVERY_ROBOT_DISTANCE=1.2
+  export DRL_MULTI_SAFE_RECOVERY_PROGRESS_BONUS_WEIGHT=\${DRL_MULTI_SAFE_RECOVERY_PROGRESS_BONUS_WEIGHT:-0.8}
+  export DRL_MULTI_SAFE_RECOVERY_IDLE_PENALTY_WEIGHT=\${DRL_MULTI_SAFE_RECOVERY_IDLE_PENALTY_WEIGHT:-1.0}
   export DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD=0
   export DRL_MULTI_USE_WALL_CLEARANCE_REWARD=0
 
@@ -181,7 +183,7 @@ setsid bash -lc "
   export DRL_MULTI_CRITIC_LR=0.00008
   export DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS=21000
   export DRL_MULTI_POLICY_FREQ=2
-  export DRL_MULTI_ACTOR_Q_NORMALIZATION_ALPHA=0.25
+  export DRL_MULTI_ACTOR_Q_NORMALIZATION_ALPHA=0.0
   export DRL_MULTI_ACTOR_ANCHOR_WEIGHT=1.0
   export DRL_MULTI_ACTOR_ANCHOR_SAFE_ONLY=1
   export DRL_MULTI_ACTOR_ANCHOR_SAFE_DISTANCE=2.0
@@ -199,6 +201,7 @@ echo "Control contract: the trainable Actor controls every state"
 echo "Update contract: all Dense states train one Actor; interaction states are oversampled"
 echo "Reference contract: 5A is initialization plus a safe-state anchor, never a controller"
 echo "Oracle contract: disabled for rollout, validation, and target-policy construction"
+echo "Objective contract: TD3 Q objective; no universal slowdown or hidden goal-priority reward"
 echo "Train: 6000 fixed dense scenarios, finite cycle"
 echo "Validation monitor: 50 fixed policy-independent dense scenarios"
 echo "Epochs 1-2: frozen 5A baseline; Actor becomes eligible after 21000 agent samples"

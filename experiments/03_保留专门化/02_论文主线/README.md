@@ -1,6 +1,6 @@
 # ICRA论文主线：两个独立Actor + Gate
 
-状态：`5A作为普通Actor冻结；独立Dense Actor v1已停止；full v2协议已就绪但未启动；Gate继续暂停`。
+状态：`5A作为普通Actor冻结；独立Dense Actor v3-v7减速路线已停止；v8受控协议已就绪但未启动；Gate继续暂停`。
 
 导师沟通后的当前目标是：
 
@@ -55,32 +55,44 @@ Gate的前提是A和B都能单独从起点完成导航。旧epoch-16策略只能
 - 场景只按初始碰撞、传感器失效、无静态路径等策略无关规则过滤。
 - 禁止依据5A、5D、新Actor或Gate的成绩删除场景。
 - sealed test在Actor、Gate和超参冻结前保持未读。
-- 训练期间高频评估使用固定200场dense monitor；它由完整validation每5场取1场产生，平均冲突边`2.415`，不是根据模型表现挑选。
+- 训练期间高频趋势评估使用固定50场ultrafast monitor；候选复核使用固定200场dense monitor。两者都在新Actor运行前按冲突分布固定，不根据模型表现挑选。
 
 数据详情见 [datasets](datasets/README.md) 和 [dense ultrafast monitor](datasets/fixed_v1/views/dense_validation_monitor_ultrafast_v3/README.md)。
 
 ## 3. 独立Dense Actor训练
 
-失败对照：[D5 independent Dense Actor v1](results/05_当前冻结方案/D5_independent_dense_actor_from_5a_full_v1_s20260728/README.md)。修复协议：[D5 independent Dense Actor full v2](results/05_当前冻结方案/D5_independent_dense_actor_from_5a_full_v2_s20260729/README.md)。v2当前未启动。
+失败对照：[D5 independent Dense Actor v1](results/05_当前冻结方案/D5_independent_dense_actor_from_5a_full_v1_s20260728/README.md)。v2-v7的后续修复与失败记录见[强交互Actor研发记录](results/03_强交互Actor_研发记录/README.md)。当前启动脚本已切换到v8，但尚未启动。
 
 固定规则：
 
 1. 从5A Actor warm-start，不从epoch-16或5D开始。
 2. 新Actor在每个episode中全程控制，禁止`2.0 m` oracle或另一Actor接管。
 3. 保持TD3、原24维Actor输入和`0.8自身 + 0.2邻车`加权reward。
-4. Critic使用训练期邻车相对位置/速度，并保留危险动作排序和短暂预热；Actor部署输入不变。
+4. Critic使用训练期邻车相对位置/速度；Actor部署输入不变。
 5. 无近距离邻车的低风险样本用5A动作anchor保留普通导航；邻车进入`2.0 m`后解除anchor。
 6. 使用`dense/train`的6000场无放回循环，不再用只有单冲突边的140场子集代替完整Dense训练。
 7. 同时检查full success、collision、unresolved、timeout和平均步数；不接受“碰撞下降但全部变成超时”。
 
+### v3-v7 复盘
+
+v3-v7共享同一个全局减速机制：`1.0 m`内正在接近的状态同时受到Critic减速排序和Actor减速辅助loss。随着Actor相对5A的线速度持续下降，碰撞先减少，随后大量转化为timeout。v5与v6都从中期高点退化到`full_success=0.200`、`timeout=0.680`；v7第8轮`full_success=0.440`，与冻结5A基线相同，因此停止。
+
+这条路线还有两个协议问题：
+
+- 基于“双方剩余目标距离”的让行优先级对24维Actor不可见，ego-motion Critic也没有对方目标距离；
+- 让高优先级车前进的reward与“所有近距离接近车辆都减速”的辅助loss直接冲突。
+
+v8只修正这些已确认问题：关闭隐藏目标优先级、统一减速loss和Critic减速排序，取消Actor Q归一化，恢复TD3 Q目标；保留5A warm-start、安全状态anchor、完整Dense独立rollout和`0.8/0.2`合作reward。v8启动前先在固定200场上复核5A与v6 epoch-11，避免把50场monitor的单轮峰值当成真实进步。
+
 ## 4. 后续顺序
 
-1. 完成独立Dense Actor训练，在200场monitor上选出少量checkpoint。
-2. 在完整1000场dense validation上确认它独立超过5A/5D，并且没有系统性超时。
-3. 补测新Actor圠-edge/standard validation的能力，确认它与5A是否真的互补；如果新Actor全面优于5A，则不强行训练无意义的Gate。
-4. 只有两个独立Actor存在稳定互补性时，才冻结它们并训练Gate。
-5. Gate使用可部署的本机感知做状态选择，不读取场景名、dense标签或其他机器人真值。
-6. Actor、Gate和所有阈值冻结后，最后一次运行sealed test。
+1. 在固定200场上配对复核5A与v6 epoch-11；只有v6稳定获胜才进入完整1000场validation。
+2. 若v6不能稳定获胜，使用已锁定的v8协议重新训练独立Dense Actor，在monitor上只判断趋势。
+3. 在完整1000场dense validation上确认候选独立超过5A/5D，并且没有系统性超时。
+4. 补测新Actor的0-edge/standard validation能力，确认它与5A是否真的互补；如果新Actor全面优于5A，则不强行训练无意义的Gate。
+5. 只有两个独立Actor存在稳定互补性时，才冻结它们并训练Gate。
+6. Gate使用可部署的本机感知做状态选择，不读取场景名、dense标签或其他机器人真值。
+7. Actor、Gate和所有阈值冻结后，最后一次运行sealed test。
 
 ## 5. 论文主张边界
 

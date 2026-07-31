@@ -1447,6 +1447,12 @@ safe_recovery_min_laser = env_float("DRL_MULTI_SAFE_RECOVERY_MIN_LASER", 0.6)
 safe_recovery_robot_distance = env_float(
     "DRL_MULTI_SAFE_RECOVERY_ROBOT_DISTANCE", 1.2
 )
+safe_recovery_progress_bonus_weight = env_float(
+    "DRL_MULTI_SAFE_RECOVERY_PROGRESS_BONUS_WEIGHT", 0.0
+)
+safe_recovery_idle_penalty_weight = env_float(
+    "DRL_MULTI_SAFE_RECOVERY_IDLE_PENALTY_WEIGHT", 0.0
+)
 forward_reward_weight = env_float("DRL_MULTI_FORWARD_REWARD_WEIGHT", 0.5)
 stagnation_penalty_weight = env_float("DRL_MULTI_STAGNATION_PENALTY_WEIGHT", 0.03)
 wall_clearance_reward = env_flag("DRL_MULTI_USE_WALL_CLEARANCE_REWARD", False)
@@ -1515,6 +1521,14 @@ for name, value in (
     ),
     ("DRL_MULTI_SAFE_RECOVERY_MIN_LASER", safe_recovery_min_laser),
     ("DRL_MULTI_SAFE_RECOVERY_ROBOT_DISTANCE", safe_recovery_robot_distance),
+    (
+        "DRL_MULTI_SAFE_RECOVERY_PROGRESS_BONUS_WEIGHT",
+        safe_recovery_progress_bonus_weight,
+    ),
+    (
+        "DRL_MULTI_SAFE_RECOVERY_IDLE_PENALTY_WEIGHT",
+        safe_recovery_idle_penalty_weight,
+    ),
     ("DRL_MULTI_YIELD_PRIORITY_GOAL_MARGIN", yield_priority_goal_margin),
     ("DRL_MULTI_YIELD_PRIORITY_PENALTY_WEIGHT", yield_priority_penalty_weight),
     ("DRL_MULTI_YIELD_PRIORITY_BONUS_WEIGHT", yield_priority_bonus_weight),
@@ -1680,6 +1694,8 @@ env = MultiAgentGazeboEnv(
     safe_recovery_progress_threshold=safe_recovery_progress_threshold,
     safe_recovery_min_laser=safe_recovery_min_laser,
     safe_recovery_robot_distance=safe_recovery_robot_distance,
+    safe_recovery_progress_bonus_weight=safe_recovery_progress_bonus_weight,
+    safe_recovery_idle_penalty_weight=safe_recovery_idle_penalty_weight,
     wall_clearance_reward=wall_clearance_reward,
     wall_clearance_safe_distance=wall_clearance_safe_distance,
     wall_clearance_penalty=wall_clearance_penalty,
@@ -1852,6 +1868,8 @@ print("Safe-recovery linear threshold:", safe_recovery_linear_threshold)
 print("Safe-recovery progress threshold:", safe_recovery_progress_threshold)
 print("Safe-recovery min laser:", safe_recovery_min_laser)
 print("Safe-recovery robot distance:", safe_recovery_robot_distance)
+print("Safe-recovery progress bonus weight:", safe_recovery_progress_bonus_weight)
+print("Safe-recovery idle penalty weight:", safe_recovery_idle_penalty_weight)
 print("Forward reward weight:", forward_reward_weight)
 print("Base stagnation penalty weight:", stagnation_penalty_weight)
 print("Wall-clearance reward:", wall_clearance_reward)

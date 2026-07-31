@@ -1,6 +1,6 @@
 # 强交互 Actor 研发记录
 
-这里保存正式强交互 Actor 形成前的机制排查和受控试验。它们解释最终配置为什么采用 5A warm-start、新 Critic、安全聚焦更新、训练期 oracle 分工和均衡全池采样。
+这里保存独立强交互Actor形成前的机制排查和受控试验。当前只保留5A warm-start、新ego-motion Critic、完整Dense独立rollout和固定数据协议；安全聚焦更新与训练期oracle分工属于已否定的条件Actor历史，不再用于独立Actor。
 
 | 实验 | 状态 | 关键结论 |
 | --- | --- | --- |
@@ -18,5 +18,10 @@
 | `D4_interaction_focused_actor_from_5d_s20260725` | rejected comparison | 5D 全套配置的收益明显弱于 5A |
 | `D4_interaction_focused_actor_5a_init_5d_weak_s20260726` | rejected | 更换外围弱 Actor 改变轨迹分布后退化 |
 | `D4_interaction_full_random_sampling_pilot_s20260726` | rejected protocol | 随机有放回采样无法保证分层覆盖，改用 `balanced_cycle` |
+| `20260729_v3_减速约束_独立DenseActor` | rejected | 统一减速抑制危险加速，但full success没有提升 |
+| `20260729_v4_让行停车_独立DenseActor` | rejected | 单轮峰值略升，未解决多车通行顺序 |
+| `20260730_v5_协调重启_独立DenseActor` | rejected | 碰撞下降后转化为等待，最终timeout达到0.680 |
+| `20260731_v6_long_高点后等待退化_独立DenseActor` | rejected | epoch-11为未复核峰值，后期再次退化到timeout=0.680 |
+| `20260731_v7_前进奖励无净提升_独立DenseActor` | rejected | epoch-8与冻结5A的full success相同，目标冲突未解除 |
 
-正式训练产物不在本组，见 [`../05_当前冻结方案/`](../05_当前冻结方案/README.md)。
+下一步先复核v6 epoch-11是否存在真实增益；新训练只能使用主线README中锁定的v8受控协议。

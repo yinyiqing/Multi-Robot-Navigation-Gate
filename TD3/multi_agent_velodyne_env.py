@@ -111,6 +111,8 @@ class MultiAgentGazeboEnv:
         safe_recovery_progress_threshold=0.003,
         safe_recovery_min_laser=0.6,
         safe_recovery_robot_distance=1.2,
+        safe_recovery_progress_bonus_weight=0.0,
+        safe_recovery_idle_penalty_weight=0.0,
         wall_clearance_reward=False,
         wall_clearance_safe_distance=0.75,
         wall_clearance_penalty=1.5,
@@ -181,6 +183,12 @@ class MultiAgentGazeboEnv:
         self.safe_recovery_progress_threshold = float(safe_recovery_progress_threshold)
         self.safe_recovery_min_laser = float(safe_recovery_min_laser)
         self.safe_recovery_robot_distance = float(safe_recovery_robot_distance)
+        self.safe_recovery_progress_bonus_weight = float(
+            safe_recovery_progress_bonus_weight
+        )
+        self.safe_recovery_idle_penalty_weight = float(
+            safe_recovery_idle_penalty_weight
+        )
         self.wall_clearance_reward = wall_clearance_reward
         self.wall_clearance_safe_distance = wall_clearance_safe_distance
         self.wall_clearance_penalty = wall_clearance_penalty
@@ -239,6 +247,11 @@ class MultiAgentGazeboEnv:
             ),
             ("safe_recovery_min_laser", self.safe_recovery_min_laser),
             ("safe_recovery_robot_distance", self.safe_recovery_robot_distance),
+            (
+                "safe_recovery_progress_bonus_weight",
+                self.safe_recovery_progress_bonus_weight,
+            ),
+            ("safe_recovery_idle_penalty_weight", self.safe_recovery_idle_penalty_weight),
         ):
             if value < 0.0:
                 raise ValueError(f"{name} must be non-negative")
@@ -1230,7 +1243,7 @@ class MultiAgentGazeboEnv:
             return float(self.anti_stagnation_penalty)
         return 0.0
 
-    def _compute_safe_recovery_penalty(
+    def _compute_safe_recovery_reward(
         self,
         target,
         collision,
@@ -1249,12 +1262,45 @@ class MultiAgentGazeboEnv:
             and nearest_robot_distance < self.safe_recovery_robot_distance
         ):
             return 0.0
+        linear = max(float(action[0]), 0.0)
+        reward = 0.0
         if (
-            max(float(action[0]), 0.0) < self.safe_recovery_linear_threshold
+            linear < self.safe_recovery_linear_threshold
             and progress < self.safe_recovery_progress_threshold
         ):
-            return float(self.safe_recovery_penalty)
-        return 0.0
+            reward -= float(self.safe_recovery_penalty)
+            reward -= (
+                self.safe_recovery_idle_penalty_weight
+                * max(self.safe_recovery_linear_threshold - linear, 0.0)
+            )
+        elif progress > self.safe_recovery_progress_threshold:
+            reward += (
+                self.safe_recovery_progress_bonus_weight
+                * min(progress / max(self.safe_recovery_progress_threshold, 1e-6), 3.0)
+                / 3.0
+            )
+        return float(reward)
+
+    def _compute_safe_recovery_penalty(
+        self,
+        target,
+        collision,
+        action,
+        min_laser,
+        progress,
+        nearest_robot_distance=float("inf"),
+    ):
+        return max(
+            -self._compute_safe_recovery_reward(
+                target,
+                collision,
+                action,
+                min_laser,
+                progress,
+                nearest_robot_distance,
+            ),
+            0.0,
+        )
 
     def _compute_wall_clearance_penalty(self, target, collision, action, min_laser):
         if not self.wall_clearance_reward or target or collision:
@@ -1775,7 +1821,7 @@ class MultiAgentGazeboEnv:
                 progress,
                 nearest_robot_distance,
             )
-            safe_recovery_penalty = self._compute_safe_recovery_penalty(
+            safe_recovery_reward = self._compute_safe_recovery_reward(
                 target,
                 collision,
                 actions[idx],
@@ -1783,7 +1829,7 @@ class MultiAgentGazeboEnv:
                 progress,
                 nearest_robot_distance,
             )
-            reward -= anti_stagnation_penalty + safe_recovery_penalty
+            reward += safe_recovery_reward - anti_stagnation_penalty
             wall_clearance_penalty = self._compute_wall_clearance_penalty(
                 target, collision, actions[idx], min_laser
             )
@@ -1821,7 +1867,7 @@ class MultiAgentGazeboEnv:
                 target = False
                 progress = 0.0
                 anti_stagnation_penalty = 0.0
-                safe_recovery_penalty = 0.0
+                safe_recovery_reward = 0.0
                 wall_clearance_penalty = 0.0
                 local_navigation_bonus = 0.0
                 robot_proximity_penalty = 0.0
@@ -1847,8 +1893,9 @@ class MultiAgentGazeboEnv:
                 "raw_reward": reward,
                 "interaction_reward": 0.0,
                 "anti_stagnation_reward": -(
-                    anti_stagnation_penalty + safe_recovery_penalty
-                ),
+                    anti_stagnation_penalty
+                )
+                + safe_recovery_reward,
                 "wall_clearance_reward": -wall_clearance_penalty,
                 "local_navigation_reward": local_navigation_bonus,
                 "robot_proximity_reward": -robot_proximity_penalty,

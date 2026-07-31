@@ -172,6 +172,8 @@ class MultiAgentRewardTests(unittest.TestCase):
         environment.safe_recovery_progress_threshold = 0.003
         environment.safe_recovery_min_laser = 0.6
         environment.safe_recovery_robot_distance = 1.2
+        environment.safe_recovery_progress_bonus_weight = 0.8
+        environment.safe_recovery_idle_penalty_weight = 1.0
         return environment
 
     def test_safe_recovery_penalizes_low_motion_when_clear(self):
@@ -179,7 +181,7 @@ class MultiAgentRewardTests(unittest.TestCase):
         penalty = environment._compute_safe_recovery_penalty(
             False, False, [0.1, 0.0], 0.8, 0.001, 1.5
         )
-        self.assertAlmostEqual(penalty, 0.2)
+        self.assertAlmostEqual(penalty, 0.35)
 
     def test_safe_recovery_does_not_penalize_robot_threat_waiting(self):
         environment = self.recovery_environment()
@@ -194,6 +196,13 @@ class MultiAgentRewardTests(unittest.TestCase):
             False, False, [0.4, 0.0], 0.8, 0.001, 1.5
         )
         self.assertEqual(penalty, 0.0)
+
+    def test_safe_recovery_rewards_clear_forward_progress(self):
+        environment = self.recovery_environment()
+        reward = environment._compute_safe_recovery_reward(
+            False, False, [0.4, 0.0], 0.8, 0.009, 1.5
+        )
+        self.assertAlmostEqual(reward, 0.8)
 
     def test_safety_distance_uses_only_critic_visible_active_neighbors(self):
         environment = MultiAgentGazeboEnv.__new__(MultiAgentGazeboEnv)
