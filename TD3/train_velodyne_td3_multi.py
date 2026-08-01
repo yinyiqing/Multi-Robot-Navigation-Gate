@@ -441,9 +441,11 @@ class TD3(object):
         av_Q = 0
         max_Q = -inf
         av_loss = 0
+        av_actor_loss = 0
         av_actor_anchor_loss = 0
         av_actor_q_scale = 0
         actor_update_count = 0
+        self.last_actor_update_enabled = bool(update_actor)
         for it in range(iterations):
             (
                 batch_states,
@@ -494,6 +496,7 @@ class TD3(object):
                     self.actor_optimizer.zero_grad()
                     actor_loss.backward()
                     self.actor_optimizer.step()
+                    av_actor_loss += actor_loss.item()
                     av_actor_anchor_loss += anchor_loss.item()
                     av_actor_q_scale += q_scale.item()
                     actor_update_count += 1
@@ -518,6 +521,9 @@ class TD3(object):
         self.writer.add_scalar("loss", av_loss / iterations, self.iter_count)
         self.writer.add_scalar("Av. Q", av_Q / iterations, self.iter_count)
         self.writer.add_scalar("Max. Q", max_Q, self.iter_count)
+        self.writer.add_scalar(
+            "Actor loss", av_actor_loss / max(actor_update_count, 1), self.iter_count
+        )
         self.writer.add_scalar(
             "Actor anchor loss", av_actor_anchor_loss / iterations, self.iter_count
         )

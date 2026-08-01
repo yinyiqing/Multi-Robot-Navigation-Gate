@@ -44,6 +44,14 @@
 
 第一段4轮只训练和检查Critic，Actor保持5A不变。解冻前必须确认危险状态的Q值不再单调偏好全速；若仍偏好危险加速，不恢复Actor训练。
 
+第一段结束后的审计命令：
+
+```bash
+source env.python.sh
+python3 scripts/audit_simple_td3_critic.py \
+  --checkpoint TD3/checkpoints/independent_dense_actor_simple_td3_hparam_b_s20260801_latest.pt
+```
+
 审计通过后从同一checkpoint恢复，设置`DRL_MULTI_RESUME_TRAINING=1 DRL_MULTI_MAX_EPOCHS=8`，不重新收集前20000条replay。
 
 Actor解冻后只接受同时满足以下条件的趋势：full success上升、collision不升、timeout不持续增加。任一已知退化重现时停止，不依赖继续增加epoch碰运气。
