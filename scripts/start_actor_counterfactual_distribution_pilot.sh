@@ -22,14 +22,8 @@ case "$PROFILE" in
     GAZEBO_PORT=14733
     ;;
   pilot)
-    EPISODES=9
-    HORIZON=8
-    MAX_ANCHORS=2
-    ROLLOUTS=5
-    BATCHES=2
-    BOOTSTRAP_RESAMPLES=5000
-    ROS_PORT=14833
-    GAZEBO_PORT=14933
+    echo "G4 smoke failed anchor repeatability; the formal pilot is disabled." >&2
+    exit 2
     ;;
   *)
     echo "Usage: $0 <smoke|pilot>" >&2

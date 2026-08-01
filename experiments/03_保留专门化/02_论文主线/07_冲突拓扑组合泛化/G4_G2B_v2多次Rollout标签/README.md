@@ -1,6 +1,6 @@
 # G4 G2-B v2多次Rollout标签
 
-状态：`协议与代码已冻结；等待1场smoke，通过后才运行9场标签稳定性pilot`。
+状态：`smoke未通过锚点恢复；正式9场pilot已封禁；停止G2-B v2`。
 
 ## 目的
 
@@ -70,7 +70,26 @@ bootstrap置信区间：
 任一条件失败即停止G2-B v2，不训练收益Gate。通过只表示“标签可采集”，不表示
 G2-C一定改善导航；下一阶段仍需独立train/validation。
 
-## 入口
+## Smoke结果与停止决策
+
+format-v3数据链、每Actor多次rollout、双batch标签、bootstrap诊断、原子shard写入
+和独立进程清理均正常，但同一锚点无法可靠恢复：
+
+| reset方式 | 最大位置误差 | 最大朝向误差 | active mask |
+| --- | ---: | ---: | --- |
+| 当前`reset_world`重放 | `0.139 m` | `0.370 rad` | 不一致 |
+| 仅分支前`reset_simulation` | `0.323 m` | `0.680 rad` | 不一致 |
+| 参考轨迹和分支均hard reset | `0.331 m` | `0.814 rad` | 不一致 |
+
+后两种诊断还产生Gazebo joint update time回跳。原因是碰撞分支后的DiffDrive内部
+状态和仿真时间不能在同一Gazebo进程内稳定恢复；放宽物理误差阈值会把不同状态
+误当作反事实，不能接受。
+
+按冻结准入线，锚点恢复率必须`>=90%`，smoke为`0/1`，因此不运行9场正式pilot，
+不训练G2-C。下一种技术方案需要每个rollout启动全新Gazebo，但那会成为新的昂贵
+基础设施工程，投稿前两周停止投入。
+
+## 复现入口
 
 1场smoke缩短为2步、每Actor每batch 2次、1个锚点，只检查完整数据链和格式，
 不用于准入：
@@ -80,10 +99,10 @@ bash scripts/experiment.sh start g4-counterfactual-smoke
 bash scripts/experiment.sh status
 ```
 
-smoke通过后，正式9场参数不可修改：
+正式入口已硬封禁：
 
 ```bash
-bash scripts/experiment.sh start g4-counterfactual-pilot
+bash scripts/experiment.sh start g4-counterfactual-pilot  # exits with status 2
 ```
 
 停止命令只管理对应独立端口下的进程组：
@@ -93,5 +112,5 @@ bash scripts/experiment.sh stop g4-counterfactual-smoke
 bash scripts/experiment.sh stop g4-counterfactual-pilot
 ```
 
-结果使用[`analyze_pilot.py`](analyze_pilot.py)汇总。smoke只能检查format-v3数组
-维度、batch诊断、锚点误差和进程清理，不得据此修改正式参数。
+结果使用[`analyze_pilot.py`](analyze_pilot.py)汇总。smoke只检查format-v3数组
+维度、batch诊断、锚点误差和进程清理，不得据此修改正式参数或物理误差阈值。

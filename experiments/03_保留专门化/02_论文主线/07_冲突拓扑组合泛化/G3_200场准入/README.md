@@ -124,3 +124,8 @@ sealed test。
 
 具体统计由[`analyze.py`](analyze.py)从逐episode结果生成，原始结构化结果和断点位于
 本路线的`local_data/G3_learned_gate_validation/`。
+
+后续状态：G4 format-v3数据链已完成，但锚点恢复smoke为`0/1`，未达到`>=90%`
+门槛，正式pilot已封禁。详见
+[`G4_G2B_v2多次Rollout标签`](../G4_G2B_v2多次Rollout标签/README.md)。因此上述
+G4升级路线已停止，不训练G2-C。
