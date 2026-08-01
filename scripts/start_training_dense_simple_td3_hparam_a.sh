@@ -17,6 +17,7 @@ ROS_PORT="${DRL_MULTI_ROS_PORT:-13801}"
 GAZEBO_PORT="${DRL_MULTI_GAZEBO_PORT:-13901}"
 SEED="${DRL_MULTI_SEED:-20260801}"
 MAX_EPOCHS="${DRL_MULTI_MAX_EPOCHS:-3}"
+RESUME_TRAINING="${DRL_MULTI_RESUME_TRAINING:-0}"
 
 for path in "$TRAIN_MANIFEST" "$EVAL_MANIFEST"; do
   [[ -f "$path" ]] || { echo "Required manifest is missing: $path"; exit 1; }
@@ -31,6 +32,10 @@ done
   echo "DRL_MULTI_MAX_EPOCHS must be positive"
   exit 2
 }
+[[ "$RESUME_TRAINING" == 0 || "$RESUME_TRAINING" == 1 ]] || {
+  echo "DRL_MULTI_RESUME_TRAINING must be 0 or 1"
+  exit 2
+}
 
 if [[ -f "$PID_FILE" ]]; then
   old_pid="$(tr -d '[:space:]' < "$PID_FILE")"
@@ -40,8 +45,12 @@ if [[ -f "$PID_FILE" ]]; then
   fi
   unlink "$PID_FILE"
 fi
-if [[ -e "$TD3_DIR/checkpoints/${MODEL_NAME}_latest.pt" ]]; then
+if [[ "$RESUME_TRAINING" == 0 && -e "$TD3_DIR/checkpoints/${MODEL_NAME}_latest.pt" ]]; then
   echo "Fresh-run checkpoint already exists: $TD3_DIR/checkpoints/${MODEL_NAME}_latest.pt"
+  exit 1
+fi
+if [[ "$RESUME_TRAINING" == 1 && ! -e "$TD3_DIR/checkpoints/${MODEL_NAME}_latest.pt" ]]; then
+  echo "Resume checkpoint is missing: $TD3_DIR/checkpoints/${MODEL_NAME}_latest.pt"
   exit 1
 fi
 if pgrep -af '^python3(\.8)? -u (train|test)_velodyne_td3_multi.py($| )' >/dev/null; then
@@ -91,7 +100,7 @@ setsid bash -lc "
   export DRL_MULTI_MANIFEST_PATH='$TRAIN_MANIFEST'
   export DRL_MULTI_EVAL_MANIFEST_PATH='$EVAL_MANIFEST'
   export DRL_MULTI_MANIFEST_SAMPLING=cycle
-  export DRL_MULTI_FIXED_PHYSICS_STEP_SIZE=0.001
+  unset DRL_MULTI_FIXED_PHYSICS_STEP_SIZE
 
   export DRL_MULTI_TRAIN_FILE_NAME='$MODEL_NAME'
   export DRL_MULTI_TRAINING_VERSION='dense-simple-td3-hparam-a-v1'
@@ -99,7 +108,7 @@ setsid bash -lc "
   export DRL_MULTI_LOAD_ACTOR_ONLY=1
   export DRL_MULTI_REQUIRE_MODEL_LOAD=1
   export DRL_MULTI_LOAD_MODEL_NAME='$BASE_MODEL'
-  export DRL_MULTI_RESUME_TRAINING=0
+  export DRL_MULTI_RESUME_TRAINING='$RESUME_TRAINING'
   export DRL_MULTI_MAX_EPOCHS='$MAX_EPOCHS'
   export DRL_MULTI_EVAL_EPISODES=50
   export DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES=5000
@@ -162,6 +171,7 @@ echo $! > "$PID_FILE"
 echo "Started Dense simple TD3 experiment A."
 echo "PID: $(cat "$PID_FILE")"
 echo "Model: $MODEL_NAME"
+echo "Resume: $RESUME_TRAINING"
 echo "Warm start: 5A Actor; fresh original 24-dimensional Critic"
 echo "Updates: Actor and Critic both start after 6000 replay transitions"
 echo "Reward: original base terms with 0.8 self + 0.2 neighbors; no add-on rewards"
