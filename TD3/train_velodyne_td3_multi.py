@@ -2534,7 +2534,11 @@ while timestep < max_timesteps:
                     last_context_neighbors_mean,
                     last_context_neighbors_max,
                     int(network.last_actor_update_enabled),
-                    expl_noise,
+                    (
+                        critic_warmup_expl_noise
+                        if timestep < actor_update_delay_steps
+                        else expl_noise
+                    ),
                     replay_buffer.size(),
                     replay_buffer.interaction_size(),
                     steps_per_sec,

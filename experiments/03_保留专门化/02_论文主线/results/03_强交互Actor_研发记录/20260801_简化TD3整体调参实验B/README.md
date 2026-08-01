@@ -60,3 +60,7 @@ Actor解冻后只接受同时满足以下条件的趋势：full success上升、
 
 - 启动：`scripts/start_training_dense_simple_td3_hparam_b.sh`
 - 停止：`scripts/stop_training_dense_simple_td3_hparam_b.sh`
+
+## 启动检查
+
+首次启动采集250条transition后发现公共启动脚本未显式启用`active_neighbors_only`，会让已终止车辆继续参与邻车reward。该运行在Critic开始更新前停止，没有产生checkpoint；修正为只使用仍活跃邻车后从零重启。
