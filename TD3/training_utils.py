@@ -6,6 +6,19 @@ def replay_done(truncated, terminated):
     return int(bool(truncated or terminated))
 
 
+def apply_timeout_reward(rewards, terminated, truncated, timeout_reward):
+    """Assign an explicit terminal reward to agents still active at truncation."""
+    adjusted = list(rewards)
+    if not truncated or timeout_reward is None:
+        return adjusted
+    if len(adjusted) != len(terminated):
+        raise ValueError("rewards and terminated must have the same length")
+    for idx, is_terminated in enumerate(terminated):
+        if not is_terminated:
+            adjusted[idx] = float(timeout_reward)
+    return adjusted
+
+
 def episode_train_iterations(agent_samples, num_agents):
     """Keep updates proportional to collective environment steps, not inactive agents."""
     if num_agents < 1:

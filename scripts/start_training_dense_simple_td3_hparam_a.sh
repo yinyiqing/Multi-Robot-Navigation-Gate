@@ -8,6 +8,8 @@ TRAIN_MANIFEST="$DATASET_DIR/dense/train.json.gz"
 EVAL_MANIFEST="$DATASET_DIR/views/dense_validation_monitor_ultrafast_v3/validation.json.gz"
 BASE_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best"
 MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-independent_dense_actor_simple_td3_hparam_a_s20260801}"
+EXPERIMENT_LABEL="${DRL_MULTI_EXPERIMENT_LABEL:-A}"
+TRAINING_VERSION="${DRL_MULTI_TRAINING_VERSION:-dense-simple-td3-hparam-a-v1}"
 SAFE_MODEL="${MODEL_NAME//[^A-Za-z0-9_]/_}"
 PID_FILE="${DRL_MULTI_PID_FILE:-$PROJECT_ROOT/.train_${SAFE_MODEL}.pid}"
 LOG_DIR="$PROJECT_ROOT/logs"
@@ -18,6 +20,22 @@ GAZEBO_PORT="${DRL_MULTI_GAZEBO_PORT:-13901}"
 SEED="${DRL_MULTI_SEED:-20260801}"
 MAX_EPOCHS="${DRL_MULTI_MAX_EPOCHS:-3}"
 RESUME_TRAINING="${DRL_MULTI_RESUME_TRAINING:-0}"
+PROGRESS_WEIGHT="${DRL_MULTI_PROGRESS_REWARD_WEIGHT:-20.0}"
+FORWARD_WEIGHT="${DRL_MULTI_FORWARD_REWARD_WEIGHT:-0.5}"
+TURN_WEIGHT="${DRL_MULTI_TURN_PENALTY_WEIGHT:-0.2}"
+OBSTACLE_WEIGHT="${DRL_MULTI_OBSTACLE_PENALTY_WEIGHT:-0.5}"
+STAGNATION_WEIGHT="${DRL_MULTI_STAGNATION_PENALTY_WEIGHT:-0}"
+TIMEOUT_REWARD="${DRL_MULTI_TIMEOUT_REWARD:-}"
+BATCH_SIZE="${DRL_MULTI_BATCH_SIZE:-256}"
+MIN_REPLAY_SIZE="${DRL_MULTI_MIN_REPLAY_SIZE:-6000}"
+DISCOUNT="${DRL_MULTI_DISCOUNT:-0.995}"
+ACTOR_LR="${DRL_MULTI_ACTOR_LR:-0.00001}"
+CRITIC_LR="${DRL_MULTI_CRITIC_LR:-0.0001}"
+ACTOR_UPDATE_DELAY="${DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS:-0}"
+EXPL_NOISE="${DRL_MULTI_EXPL_NOISE:-0.10}"
+WARMUP_EXPL_NOISE="${DRL_MULTI_CRITIC_WARMUP_EXPL_NOISE:-0.10}"
+EXPL_MIN="${DRL_MULTI_EXPL_MIN:-0.03}"
+EXPL_DECAY_STEPS="${DRL_MULTI_EXPL_DECAY_STEPS:-100000}"
 
 for path in "$TRAIN_MANIFEST" "$EVAL_MANIFEST"; do
   [[ -f "$path" ]] || { echo "Required manifest is missing: $path"; exit 1; }
@@ -40,7 +58,7 @@ done
 if [[ -f "$PID_FILE" ]]; then
   old_pid="$(tr -d '[:space:]' < "$PID_FILE")"
   if [[ "$old_pid" =~ ^[0-9]+$ ]] && kill -0 "$old_pid" 2>/dev/null; then
-    echo "Simple TD3 experiment A is already running with PID $old_pid"
+    echo "Simple TD3 experiment $EXPERIMENT_LABEL is already running with PID $old_pid"
     exit 1
   fi
   unlink "$PID_FILE"
@@ -103,7 +121,7 @@ setsid bash -lc "
   unset DRL_MULTI_FIXED_PHYSICS_STEP_SIZE
 
   export DRL_MULTI_TRAIN_FILE_NAME='$MODEL_NAME'
-  export DRL_MULTI_TRAINING_VERSION='dense-simple-td3-hparam-a-v1'
+  export DRL_MULTI_TRAINING_VERSION='$TRAINING_VERSION'
   export DRL_MULTI_LOAD_MODEL=1
   export DRL_MULTI_LOAD_ACTOR_ONLY=1
   export DRL_MULTI_REQUIRE_MODEL_LOAD=1
@@ -133,11 +151,16 @@ setsid bash -lc "
   export DRL_MULTI_REWARD_SELF_WEIGHT=0.8
   export DRL_MULTI_USE_DISTANCE_WEIGHTED_REWARD=1
   export DRL_MULTI_REWARD_SIGMA=2.0
-  export DRL_MULTI_PROGRESS_REWARD_WEIGHT=20.0
-  export DRL_MULTI_FORWARD_REWARD_WEIGHT=0.5
-  export DRL_MULTI_TURN_PENALTY_WEIGHT=0.2
-  export DRL_MULTI_OBSTACLE_PENALTY_WEIGHT=0.5
-  export DRL_MULTI_STAGNATION_PENALTY_WEIGHT=0
+  export DRL_MULTI_PROGRESS_REWARD_WEIGHT='$PROGRESS_WEIGHT'
+  export DRL_MULTI_FORWARD_REWARD_WEIGHT='$FORWARD_WEIGHT'
+  export DRL_MULTI_TURN_PENALTY_WEIGHT='$TURN_WEIGHT'
+  export DRL_MULTI_OBSTACLE_PENALTY_WEIGHT='$OBSTACLE_WEIGHT'
+  export DRL_MULTI_STAGNATION_PENALTY_WEIGHT='$STAGNATION_WEIGHT'
+  if [[ -n '$TIMEOUT_REWARD' ]]; then
+    export DRL_MULTI_TIMEOUT_REWARD='$TIMEOUT_REWARD'
+  else
+    unset DRL_MULTI_TIMEOUT_REWARD
+  fi
   export DRL_MULTI_ROBOT_SAFE_DISTANCE=0
   export DRL_MULTI_ROBOT_PROXIMITY_PENALTY_WEIGHT=0
   export DRL_MULTI_ROBOT_PROXIMITY_SPEED_PENALTY_WEIGHT=0
@@ -148,33 +171,35 @@ setsid bash -lc "
   export DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD=0
   export DRL_MULTI_USE_WALL_CLEARANCE_REWARD=0
 
-  export DRL_MULTI_BATCH_SIZE=256
-  export DRL_MULTI_MIN_REPLAY_SIZE=6000
-  export DRL_MULTI_DISCOUNT=0.995
+  export DRL_MULTI_BATCH_SIZE='$BATCH_SIZE'
+  export DRL_MULTI_MIN_REPLAY_SIZE='$MIN_REPLAY_SIZE'
+  export DRL_MULTI_DISCOUNT='$DISCOUNT'
   export DRL_MULTI_TAU=0.005
   export DRL_MULTI_POLICY_NOISE=0.2
   export DRL_MULTI_NOISE_CLIP=0.5
   export DRL_MULTI_POLICY_FREQ=2
-  export DRL_MULTI_ACTOR_LR=0.00001
-  export DRL_MULTI_CRITIC_LR=0.0001
-  export DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS=0
-  export DRL_MULTI_EXPL_NOISE=0.10
-  export DRL_MULTI_CRITIC_WARMUP_EXPL_NOISE=0.10
-  export DRL_MULTI_EXPL_MIN=0.03
-  export DRL_MULTI_EXPL_DECAY_STEPS=100000
+  export DRL_MULTI_ACTOR_LR='$ACTOR_LR'
+  export DRL_MULTI_CRITIC_LR='$CRITIC_LR'
+  export DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS='$ACTOR_UPDATE_DELAY'
+  export DRL_MULTI_EXPL_NOISE='$EXPL_NOISE'
+  export DRL_MULTI_CRITIC_WARMUP_EXPL_NOISE='$WARMUP_EXPL_NOISE'
+  export DRL_MULTI_EXPL_MIN='$EXPL_MIN'
+  export DRL_MULTI_EXPL_DECAY_STEPS='$EXPL_DECAY_STEPS'
 
   cd '$TD3_DIR'
   python3 -u train_velodyne_td3_multi.py >>'$log_file' 2>&1
 " >>"$runner_log" 2>&1 < /dev/null &
 
 echo $! > "$PID_FILE"
-echo "Started Dense simple TD3 experiment A."
+echo "Started Dense simple TD3 experiment $EXPERIMENT_LABEL."
 echo "PID: $(cat "$PID_FILE")"
 echo "Model: $MODEL_NAME"
 echo "Resume: $RESUME_TRAINING"
 echo "Warm start: 5A Actor; fresh original 24-dimensional Critic"
-echo "Updates: Actor and Critic both start after 6000 replay transitions"
-echo "Reward: original base terms with 0.8 self + 0.2 neighbors; no add-on rewards"
+echo "Updates: Critic starts at replay $MIN_REPLAY_SIZE; Actor starts at agent sample $ACTOR_UPDATE_DELAY"
+echo "Reward: progress=$PROGRESS_WEIGHT forward=$FORWARD_WEIGHT turn=$TURN_WEIGHT obstacle=$OBSTACLE_WEIGHT timeout=${TIMEOUT_REWARD:-disabled}"
+echo "Optimizer: actor_lr=$ACTOR_LR critic_lr=$CRITIC_LR batch=$BATCH_SIZE gamma=$DISCOUNT"
+echo "Exploration: warmup=$WARMUP_EXPL_NOISE train=$EXPL_NOISE min=$EXPL_MIN"
 echo "Budget: $MAX_EPOCHS x 5000 agent samples"
 echo "Log: $log_file"
 echo "Runner log: $runner_log"

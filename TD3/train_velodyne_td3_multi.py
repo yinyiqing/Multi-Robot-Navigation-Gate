@@ -28,6 +28,7 @@ from outcome_utils import resolve_terminal_outcome
 from replay_buffer import ReplayBuffer
 from actor_gradient_guard import actor_gradient_gate_decision
 from training_utils import (
+    apply_timeout_reward,
     decay_exploration_noise,
     episode_train_iterations,
     replay_ready_for_updates,
@@ -1248,6 +1249,7 @@ if eval_freq < 1:
     raise ValueError("DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES must be positive")
 max_ep = 300
 eval_ep = int(os.environ.get("DRL_MULTI_EVAL_EPISODES", "10"))
+timeout_reward = env_float("DRL_MULTI_TIMEOUT_REWARD", None)
 max_epochs = env_int("DRL_MULTI_MAX_EPOCHS", 0)
 max_timesteps = 5e6
 expl_noise = env_float("DRL_MULTI_EXPL_NOISE", 1.0)
@@ -1654,6 +1656,8 @@ if policy_noise < 0.0 or noise_clip < 0.0:
     raise ValueError("TD3 target policy noise values must be non-negative")
 if policy_freq < 1:
     raise ValueError("DRL_MULTI_POLICY_FREQ must be positive")
+if timeout_reward is not None and timeout_reward > 0.0:
+    raise ValueError("DRL_MULTI_TIMEOUT_REWARD must be non-positive")
 if robot_clearance_reward_max_gain <= 0.0:
     raise ValueError("DRL_MULTI_ROBOT_CLEARANCE_REWARD_MAX_GAIN must be positive")
 if yield_priority_distance <= 0.0:
@@ -2040,6 +2044,7 @@ print("Early stop success drop:", early_stop_success_drop)
 print("Early stop timeout increase:", early_stop_timeout_increase)
 print("Early stop timeout absolute:", early_stop_timeout_absolute)
 print("Eval episodes:", eval_ep)
+print("Timeout terminal reward:", timeout_reward)
 print("Eval frequency agent samples:", eval_freq)
 print("Eval protocol ID:", eval_protocol_id)
 if eval_protocol_reset:
@@ -2918,6 +2923,11 @@ while timestep < max_timesteps:
         episode_abs_yield_priority_reward_sum += abs(yield_priority_reward_step)
 
     truncated = episode_timesteps + 1 == max_ep
+    rewards = apply_timeout_reward(rewards, dones, truncated, timeout_reward)
+    if truncated and timeout_reward is not None:
+        for idx, name in enumerate(agent_names):
+            if active_mask[idx] and not dones[idx]:
+                step_agents[name]["reward"] = rewards[idx]
     next_active_mask = [
         active_mask[idx] and not (dones[idx] or truncated)
         for idx in range(len(agent_names))

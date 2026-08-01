@@ -7,6 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "TD3"))
 
 from training_utils import (
+    apply_timeout_reward,
     decay_exploration_noise,
     episode_train_iterations,
     replay_ready_for_updates,
@@ -15,6 +16,24 @@ from training_utils import (
 
 
 class TrainingUtilsTests(unittest.TestCase):
+    def test_timeout_reward_only_replaces_unresolved_agents(self):
+        rewards = apply_timeout_reward(
+            [100.0, -100.0, 1.5], [True, True, False], True, -150.0
+        )
+        self.assertEqual(rewards, [100.0, -100.0, -150.0])
+
+    def test_timeout_reward_preserves_non_truncated_step(self):
+        rewards = apply_timeout_reward([1.0, 2.0], [False, False], False, -150.0)
+        self.assertEqual(rewards, [1.0, 2.0])
+
+    def test_timeout_reward_can_be_disabled(self):
+        rewards = apply_timeout_reward([1.0], [False], True, None)
+        self.assertEqual(rewards, [1.0])
+
+    def test_timeout_reward_rejects_mismatched_inputs(self):
+        with self.assertRaises(ValueError):
+            apply_timeout_reward([1.0], [False, False], True, -150.0)
+
     def test_timeout_is_terminal_for_replay(self):
         self.assertEqual(replay_done(True, False), 1)
         self.assertEqual(replay_done(False, True), 1)
