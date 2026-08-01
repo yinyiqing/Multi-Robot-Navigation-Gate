@@ -1,0 +1,112 @@
+{
+  "selection_version": 1,
+  "seed": 20260802,
+  "cases_per_category": 3,
+  "candidate_counts": {
+    "gate_improved": 40,
+    "gate_regressed": 17,
+    "oracle_rescue_gap": 34
+  },
+  "selected": [
+    {
+      "category": "gate_improved",
+      "scenario_id": "dense-20260718008548-cba421ef1d16",
+      "conflict_edge_count": 1,
+      "max_conflict_degree": 1,
+      "simultaneous_conflict_count": 1,
+      "edge_band": "1",
+      "baseline_full_success": 0,
+      "gate_full_success": 1,
+      "oracle_full_success": 1
+    },
+    {
+      "category": "gate_improved",
+      "scenario_id": "dense-20260718008847-6c1f682fe9ed",
+      "conflict_edge_count": 2,
+      "max_conflict_degree": 1,
+      "simultaneous_conflict_count": 1,
+      "edge_band": "2",
+      "baseline_full_success": 0,
+      "gate_full_success": 1,
+      "oracle_full_success": 1
+    },
+    {
+      "category": "gate_improved",
+      "scenario_id": "dense-20260718008890-e61466c6a30e",
+      "conflict_edge_count": 3,
+      "max_conflict_degree": 2,
+      "simultaneous_conflict_count": 2,
+      "edge_band": "3+",
+      "baseline_full_success": 0,
+      "gate_full_success": 1,
+      "oracle_full_success": 1
+    },
+    {
+      "category": "gate_regressed",
+      "scenario_id": "dense-20260718009111-eebbc3113fe1",
+      "conflict_edge_count": 1,
+      "max_conflict_degree": 1,
+      "simultaneous_conflict_count": 1,
+      "edge_band": "1",
+      "baseline_full_success": 1,
+      "gate_full_success": 0,
+      "oracle_full_success": 0
+    },
+    {
+      "category": "gate_regressed",
+      "scenario_id": "dense-20260718008600-036d0856d0ef",
+      "conflict_edge_count": 2,
+      "max_conflict_degree": 2,
+      "simultaneous_conflict_count": 1,
+      "edge_band": "2",
+      "baseline_full_success": 1,
+      "gate_full_success": 0,
+      "oracle_full_success": 0
+    },
+    {
+      "category": "gate_regressed",
+      "scenario_id": "dense-20260718008837-5e6019d4a416",
+      "conflict_edge_count": 3,
+      "max_conflict_degree": 2,
+      "simultaneous_conflict_count": 2,
+      "edge_band": "3+",
+      "baseline_full_success": 1,
+      "gate_full_success": 0,
+      "oracle_full_success": 1
+    },
+    {
+      "category": "oracle_rescue_gap",
+      "scenario_id": "dense-20260718008863-03a14e5e8228",
+      "conflict_edge_count": 1,
+      "max_conflict_degree": 1,
+      "simultaneous_conflict_count": 1,
+      "edge_band": "1",
+      "baseline_full_success": 0,
+      "gate_full_success": 0,
+      "oracle_full_success": 1
+    },
+    {
+      "category": "oracle_rescue_gap",
+      "scenario_id": "dense-20260718009116-11ea51e963a0",
+      "conflict_edge_count": 2,
+      "max_conflict_degree": 1,
+      "simultaneous_conflict_count": 1,
+      "edge_band": "2",
+      "baseline_full_success": 0,
+      "gate_full_success": 0,
+      "oracle_full_success": 1
+    },
+    {
+      "category": "oracle_rescue_gap",
+      "scenario_id": "dense-20260718008728-d835ca577545",
+      "conflict_edge_count": 3,
+      "max_conflict_degree": 2,
+      "simultaneous_conflict_count": 1,
+      "edge_band": "3+",
+      "baseline_full_success": 0,
+      "gate_full_success": 0,
+      "oracle_full_success": 1
+    }
+  ],
+  "usage_restriction": "Diagnostic label-stability pilot only. Do not train and evaluate a Gate on these same admission scenarios."
+}

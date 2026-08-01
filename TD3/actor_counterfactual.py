@@ -116,3 +116,145 @@ def counterfactual_repeatability(
         "clearance_delta": clearance_delta,
         "progress_delta": progress_delta,
     }
+
+
+def _outcome_values(outcomes, key):
+    if len(outcomes) < 2:
+        raise ValueError("distribution labels require at least two rollouts per actor")
+    for outcome in outcomes:
+        _validate_outcome(outcome)
+    return [float(outcome[key]) for outcome in outcomes]
+
+
+def bootstrap_mean_difference_interval(
+    generalist_values,
+    strong_values,
+    confidence=0.95,
+    resamples=5000,
+    seed=0,
+):
+    """Estimate a strong-minus-generalist mean difference interval."""
+    import numpy as np
+
+    generalist = np.asarray(generalist_values, dtype=np.float64)
+    strong = np.asarray(strong_values, dtype=np.float64)
+    if generalist.ndim != 1 or strong.ndim != 1:
+        raise ValueError("bootstrap values must be one-dimensional")
+    if min(len(generalist), len(strong)) < 2:
+        raise ValueError("bootstrap intervals require at least two values per actor")
+    if not 0.0 < confidence < 1.0:
+        raise ValueError("confidence must be between zero and one")
+    if resamples < 1:
+        raise ValueError("resamples must be positive")
+    if not np.all(np.isfinite(generalist)) or not np.all(np.isfinite(strong)):
+        raise ValueError("bootstrap values must be finite")
+    rng = np.random.default_rng(seed)
+    generalist_indices = rng.integers(
+        0, len(generalist), size=(resamples, len(generalist))
+    )
+    strong_indices = rng.integers(0, len(strong), size=(resamples, len(strong)))
+    differences = (
+        strong[strong_indices].mean(axis=1)
+        - generalist[generalist_indices].mean(axis=1)
+    )
+    tail = (1.0 - confidence) / 2.0
+    low, high = np.quantile(differences, [tail, 1.0 - tail])
+    return {
+        "generalist_mean": float(generalist.mean()),
+        "strong_mean": float(strong.mean()),
+        "mean_difference": float(strong.mean() - generalist.mean()),
+        "interval": [float(low), float(high)],
+        "confidence": float(confidence),
+        "resamples": int(resamples),
+    }
+
+
+def choose_actor_distribution_label(
+    generalist_outcomes,
+    strong_outcomes,
+    clearance_margin=0.10,
+    progress_margin=0.05,
+    maximum_progress_regression=0.05,
+    confidence=0.95,
+    resamples=5000,
+    seed=0,
+):
+    """Choose an actor only when rollout distributions separate confidently."""
+    if clearance_margin <= 0.0 or progress_margin <= 0.0:
+        raise ValueError("counterfactual margins must be positive")
+    if maximum_progress_regression < 0.0:
+        raise ValueError("maximum_progress_regression must be non-negative")
+    metric_keys = (
+        "ego_collision",
+        "collision_count",
+        "ego_target",
+        "minimum_ego_clearance",
+        "ego_progress",
+    )
+    diagnostics = {}
+    for index, key in enumerate(metric_keys):
+        diagnostics[key] = bootstrap_mean_difference_interval(
+            _outcome_values(generalist_outcomes, key),
+            _outcome_values(strong_outcomes, key),
+            confidence=confidence,
+            resamples=resamples,
+            seed=seed + index,
+        )
+
+    collision_interval = diagnostics["ego_collision"]["interval"]
+    if collision_interval[1] < 0.0:
+        return LABEL_STRONG, "ego_collision_rate", diagnostics
+    if collision_interval[0] > 0.0:
+        return LABEL_GENERALIST, "ego_collision_rate", diagnostics
+
+    count_interval = diagnostics["collision_count"]["interval"]
+    if count_interval[1] < 0.0:
+        return LABEL_STRONG, "mean_collision_count", diagnostics
+    if count_interval[0] > 0.0:
+        return LABEL_GENERALIST, "mean_collision_count", diagnostics
+
+    target_interval = diagnostics["ego_target"]["interval"]
+    if target_interval[0] > 0.0:
+        return LABEL_STRONG, "ego_target_rate", diagnostics
+    if target_interval[1] < 0.0:
+        return LABEL_GENERALIST, "ego_target_rate", diagnostics
+
+    clearance_interval = diagnostics["minimum_ego_clearance"]["interval"]
+    progress_interval = diagnostics["ego_progress"]["interval"]
+    if (
+        clearance_interval[0] >= clearance_margin
+        and progress_interval[0] >= -maximum_progress_regression
+    ):
+        return LABEL_STRONG, "mean_clearance", diagnostics
+    if (
+        clearance_interval[1] <= -clearance_margin
+        and progress_interval[1] <= maximum_progress_regression
+    ):
+        return LABEL_GENERALIST, "mean_clearance", diagnostics
+    if (
+        progress_interval[0] >= progress_margin
+        and clearance_interval[0] >= -clearance_margin
+    ):
+        return LABEL_STRONG, "mean_progress", diagnostics
+    if (
+        progress_interval[1] <= -progress_margin
+        and clearance_interval[1] <= clearance_margin
+    ):
+        return LABEL_GENERALIST, "mean_progress", diagnostics
+    return LABEL_AMBIGUOUS, "ambiguous_distribution", diagnostics
+
+
+def distribution_label_repeatability(labels):
+    """Require independent rollout batches to agree on a non-ambiguous label."""
+    labels = [int(label) for label in labels]
+    stable = len(labels) >= 2 and labels[0] != LABEL_AMBIGUOUS
+    repeated_label = (
+        labels[0]
+        if stable and all(label == labels[0] for label in labels)
+        else LABEL_AMBIGUOUS
+    )
+    return {
+        "repeatable": repeated_label != LABEL_AMBIGUOUS,
+        "label": repeated_label,
+        "batch_labels": labels,
+    }

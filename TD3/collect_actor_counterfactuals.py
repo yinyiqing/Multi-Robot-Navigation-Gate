@@ -13,8 +13,10 @@ import torch
 
 from actor_counterfactual import (
     LABEL_AMBIGUOUS,
+    choose_actor_distribution_label,
     choose_actor_label,
     counterfactual_repeatability,
+    distribution_label_repeatability,
 )
 from actor_models import Actor
 from geometry_msgs.msg import Twist
@@ -51,6 +53,7 @@ def parse_args():
     parser.add_argument("--launchfile", default="multi_robot_scenario_strong_interaction_pilot_5.launch")
     parser.add_argument("--episodes", type=int, default=1)
     parser.add_argument("--horizon", type=int, default=8)
+    parser.add_argument("--anchor-start-step", type=int, default=0)
     parser.add_argument("--anchor-stride", type=int, default=4)
     parser.add_argument("--max-anchors-per-episode", type=int, default=4)
     parser.add_argument("--agents-per-anchor", type=int, default=2)
@@ -58,6 +61,9 @@ def parse_args():
     parser.add_argument("--max-tracks", type=int, default=4)
     parser.add_argument("--max-candidates", type=int, default=12)
     parser.add_argument("--repeat-baseline", action="store_true")
+    parser.add_argument("--rollouts-per-actor", type=int, default=1)
+    parser.add_argument("--label-batches", type=int, default=1)
+    parser.add_argument("--bootstrap-resamples", type=int, default=5000)
     parser.add_argument("--seed", type=int, default=20260727)
     parser.add_argument("--split", choices=("train", "validation"), required=True)
     parser.add_argument(
@@ -383,6 +389,43 @@ def replay_alignment(
     }
 
 
+def collect_branch_rollout(
+    env,
+    case_index,
+    action_prefix,
+    anchor_snapshot,
+    anchor_active_mask,
+    anchor_states,
+    ego_index,
+    generalist,
+    strong,
+    horizon,
+    use_strong,
+):
+    branch_states, branch_active_mask = replay_to_anchor(
+        env, case_index, action_prefix
+    )
+    alignment = replay_alignment(
+        env,
+        anchor_snapshot,
+        anchor_active_mask,
+        branch_states,
+        branch_active_mask,
+    )
+    outcome, action = run_branch(
+        env,
+        branch_states,
+        branch_active_mask,
+        ego_index,
+        generalist,
+        strong,
+        horizon,
+        use_strong=use_strong,
+        initial_actor_states=anchor_states,
+    )
+    return outcome, action, alignment
+
+
 def scenario_metadata(env):
     case = env.current_curriculum_case or {}
     view = case.get("view", {})
@@ -411,9 +454,21 @@ def main():
         args.agents_per_anchor,
         args.max_tracks,
         args.max_candidates,
+        args.rollouts_per_actor,
+        args.label_batches,
+        args.bootstrap_resamples,
     )
     if min(integer_values) < 1:
         raise ValueError("counterfactual collection dimensions must be positive")
+    if args.anchor_start_step < 0:
+        raise ValueError("anchor-start-step must be non-negative")
+    distribution_mode = args.rollouts_per_actor > 1 or args.label_batches > 1
+    if distribution_mode and min(args.rollouts_per_actor, args.label_batches) < 2:
+        raise ValueError(
+            "distribution mode requires at least two rollouts and two label batches"
+        )
+    if distribution_mode and args.repeat_baseline:
+        raise ValueError("repeat-baseline belongs to the single-rollout v1 audit")
     random.seed(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
@@ -466,7 +521,11 @@ def main():
                     args,
                     logical_time=step * 0.2,
                 )
-                if step % args.anchor_stride == 0 and anchor_count < args.max_anchors_per_episode:
+                anchor_due = bool(
+                    step >= args.anchor_start_step
+                    and (step - args.anchor_start_step) % args.anchor_stride == 0
+                )
+                if anchor_due and anchor_count < args.max_anchors_per_episode:
                     egos = select_anchor_agents(
                         env, active_mask, args.agents_per_anchor, anchor_count
                     )
@@ -483,85 +542,199 @@ def main():
                             for ego_index in egos
                         }
                         for ego_index in egos:
-                            branch_states, branch_active_mask = replay_to_anchor(
-                                env, case_index, action_prefix
-                            )
-                            alignments = [
-                                replay_alignment(
+                            alignments = []
+                            distribution_record = None
+                            if distribution_mode:
+                                generalist_batches = []
+                                strong_batches = []
+                                batch_labels = []
+                                batch_reasons = []
+                                batch_diagnostics = []
+                                generalist_action = None
+                                strong_action = None
+                                for batch_index in range(args.label_batches):
+                                    generalist_outcomes = []
+                                    strong_outcomes = []
+                                    for _ in range(args.rollouts_per_actor):
+                                        outcome, action, alignment = collect_branch_rollout(
+                                            env,
+                                            case_index,
+                                            action_prefix,
+                                            anchor_snapshot,
+                                            anchor_active_mask,
+                                            anchor_states,
+                                            ego_index,
+                                            generalist,
+                                            strong,
+                                            args.horizon,
+                                            use_strong=False,
+                                        )
+                                        generalist_outcomes.append(outcome)
+                                        alignments.append(alignment)
+                                        if generalist_action is None:
+                                            generalist_action = action
+                                    for _ in range(args.rollouts_per_actor):
+                                        outcome, action, alignment = collect_branch_rollout(
+                                            env,
+                                            case_index,
+                                            action_prefix,
+                                            anchor_snapshot,
+                                            anchor_active_mask,
+                                            anchor_states,
+                                            ego_index,
+                                            generalist,
+                                            strong,
+                                            args.horizon,
+                                            use_strong=True,
+                                        )
+                                        strong_outcomes.append(outcome)
+                                        alignments.append(alignment)
+                                        if strong_action is None:
+                                            strong_action = action
+                                    batch_seed = (
+                                        args.seed
+                                        + episode * 100000
+                                        + anchor_count * 1000
+                                        + ego_index * 100
+                                        + batch_index
+                                    )
+                                    batch_label, batch_reason, diagnostics = (
+                                        choose_actor_distribution_label(
+                                            generalist_outcomes,
+                                            strong_outcomes,
+                                            resamples=args.bootstrap_resamples,
+                                            seed=batch_seed,
+                                        )
+                                    )
+                                    generalist_batches.append(generalist_outcomes)
+                                    strong_batches.append(strong_outcomes)
+                                    batch_labels.append(batch_label)
+                                    batch_reasons.append(batch_reason)
+                                    batch_diagnostics.append(diagnostics)
+                                label_stability = distribution_label_repeatability(
+                                    batch_labels
+                                )
+                                flattened_generalist = [
+                                    outcome
+                                    for batch in generalist_batches
+                                    for outcome in batch
+                                ]
+                                flattened_strong = [
+                                    outcome
+                                    for batch in strong_batches
+                                    for outcome in batch
+                                ]
+                                generalist_outcome = {
+                                    key: float(
+                                        np.mean(
+                                            [outcome[key] for outcome in flattened_generalist]
+                                        )
+                                    )
+                                    for key in OUTCOME_KEYS
+                                }
+                                strong_outcome = {
+                                    key: float(
+                                        np.mean(
+                                            [outcome[key] for outcome in flattened_strong]
+                                        )
+                                    )
+                                    for key in OUTCOME_KEYS
+                                }
+                                repeatability = {
+                                    "repeatable": label_stability["repeatable"],
+                                    "discrete_match": len(set(batch_labels)) == 1,
+                                    "clearance_delta": 0.0,
+                                    "progress_delta": 0.0,
+                                }
+                                distribution_record = {
+                                    "generalist_outcomes": np.asarray(
+                                        [
+                                            [outcome_vector(outcome) for outcome in batch]
+                                            for batch in generalist_batches
+                                        ],
+                                        dtype=np.float32,
+                                    ),
+                                    "strong_outcomes": np.asarray(
+                                        [
+                                            [outcome_vector(outcome) for outcome in batch]
+                                            for batch in strong_batches
+                                        ],
+                                        dtype=np.float32,
+                                    ),
+                                    "batch_labels": np.asarray(
+                                        batch_labels, dtype=np.int8
+                                    ),
+                                    "batch_reasons": np.asarray(batch_reasons),
+                                    "batch_diagnostics": np.asarray(
+                                        [
+                                            json.dumps(item, sort_keys=True)
+                                            for item in batch_diagnostics
+                                        ]
+                                    ),
+                                }
+                            else:
+                                (
+                                    generalist_outcome,
+                                    generalist_action,
+                                    alignment,
+                                ) = collect_branch_rollout(
                                     env,
+                                    case_index,
+                                    action_prefix,
                                     anchor_snapshot,
                                     anchor_active_mask,
-                                    branch_states,
-                                    branch_active_mask,
-                                )
-                            ]
-                            generalist_outcome, generalist_action = run_branch(
-                                env,
-                                branch_states,
-                                branch_active_mask,
-                                ego_index,
-                                generalist,
-                                strong,
-                                args.horizon,
-                                use_strong=False,
-                                initial_actor_states=anchor_states,
-                            )
-                            repeatability = {
-                                "repeatable": True,
-                                "discrete_match": True,
-                                "clearance_delta": 0.0,
-                                "progress_delta": 0.0,
-                            }
-                            if args.repeat_baseline:
-                                branch_states, branch_active_mask = replay_to_anchor(
-                                    env, case_index, action_prefix
-                                )
-                                alignments.append(
-                                    replay_alignment(
-                                        env,
-                                        anchor_snapshot,
-                                        anchor_active_mask,
-                                        branch_states,
-                                        branch_active_mask,
-                                    )
-                                )
-                                repeated_outcome, _ = run_branch(
-                                    env,
-                                    branch_states,
-                                    branch_active_mask,
+                                    anchor_states,
                                     ego_index,
                                     generalist,
                                     strong,
                                     args.horizon,
                                     use_strong=False,
-                                    initial_actor_states=anchor_states,
                                 )
-                                repeatability = counterfactual_repeatability(
-                                    generalist_outcome, repeated_outcome
+                                alignments.append(alignment)
+                                repeatability = {
+                                    "repeatable": True,
+                                    "discrete_match": True,
+                                    "clearance_delta": 0.0,
+                                    "progress_delta": 0.0,
+                                }
+                                if args.repeat_baseline:
+                                    (
+                                        repeated_outcome,
+                                        _,
+                                        alignment,
+                                    ) = collect_branch_rollout(
+                                        env,
+                                        case_index,
+                                        action_prefix,
+                                        anchor_snapshot,
+                                        anchor_active_mask,
+                                        anchor_states,
+                                        ego_index,
+                                        generalist,
+                                        strong,
+                                        args.horizon,
+                                        use_strong=False,
+                                    )
+                                    alignments.append(alignment)
+                                    repeatability = counterfactual_repeatability(
+                                        generalist_outcome, repeated_outcome
+                                    )
+                                strong_outcome, strong_action, alignment = (
+                                    collect_branch_rollout(
+                                        env,
+                                        case_index,
+                                        action_prefix,
+                                        anchor_snapshot,
+                                        anchor_active_mask,
+                                        anchor_states,
+                                        ego_index,
+                                        generalist,
+                                        strong,
+                                        args.horizon,
+                                        use_strong=True,
+                                    )
                                 )
-                            branch_states, branch_active_mask = replay_to_anchor(
-                                env, case_index, action_prefix
-                            )
-                            alignments.append(
-                                replay_alignment(
-                                    env,
-                                    anchor_snapshot,
-                                    anchor_active_mask,
-                                    branch_states,
-                                    branch_active_mask,
-                                )
-                            )
-                            strong_outcome, strong_action = run_branch(
-                                env,
-                                branch_states,
-                                branch_active_mask,
-                                ego_index,
-                                generalist,
-                                strong,
-                                args.horizon,
-                                use_strong=True,
-                                initial_actor_states=anchor_states,
-                            )
+                                alignments.append(alignment)
                             maximum_position_error = max(
                                 item["position_error"] for item in alignments
                             )
@@ -591,7 +764,23 @@ def main():
                                 repeatability["repeatable"]
                                 and anchor_is_repeatable
                             )
-                            if repeatability["repeatable"]:
+                            if not anchor_is_repeatable:
+                                label, reason = LABEL_AMBIGUOUS, "nonrepeatable_anchor"
+                            elif distribution_mode and repeatability["repeatable"]:
+                                label = label_stability["label"]
+                                reason = (
+                                    batch_reasons[0]
+                                    if len(set(batch_reasons)) == 1
+                                    else "stable_distribution"
+                                )
+                            elif distribution_mode:
+                                label = LABEL_AMBIGUOUS
+                                reason = (
+                                    "ambiguous_distribution"
+                                    if set(batch_labels) == {LABEL_AMBIGUOUS}
+                                    else "unstable_distribution"
+                                )
+                            elif repeatability["repeatable"]:
                                 label, reason = choose_actor_label(
                                     generalist_outcome, strong_outcome
                                 )
@@ -614,6 +803,7 @@ def main():
                                     "strong_outcome": outcome_vector(strong_outcome),
                                     "generalist_action": generalist_action,
                                     "strong_action": strong_action,
+                                    "distribution": distribution_record,
                                     "repeatability": np.asarray(
                                         [
                                             float(repeatability["repeatable"]),
@@ -652,7 +842,9 @@ def main():
 
             if records:
                 payload = {
-                    "format_version": np.asarray(2, dtype=np.int32),
+                    "format_version": np.asarray(
+                        3 if distribution_mode else 2, dtype=np.int32
+                    ),
                     "scenario_id": np.asarray(scenario_id),
                     "scenario_pool": np.asarray(scenario_pool),
                     "interaction_band": np.asarray(interaction_band),
@@ -713,6 +905,50 @@ def main():
                     "horizon": np.asarray(args.horizon, dtype=np.int32),
                     "seed": np.asarray(args.seed, dtype=np.int64),
                 }
+                if distribution_mode:
+                    payload.update(
+                        {
+                            "distribution_generalist_outcomes": np.stack(
+                                [
+                                    item["distribution"]["generalist_outcomes"]
+                                    for item in records
+                                ]
+                            ),
+                            "distribution_strong_outcomes": np.stack(
+                                [
+                                    item["distribution"]["strong_outcomes"]
+                                    for item in records
+                                ]
+                            ),
+                            "distribution_batch_labels": np.stack(
+                                [
+                                    item["distribution"]["batch_labels"]
+                                    for item in records
+                                ]
+                            ),
+                            "distribution_batch_reasons": np.stack(
+                                [
+                                    item["distribution"]["batch_reasons"]
+                                    for item in records
+                                ]
+                            ),
+                            "distribution_batch_diagnostics": np.stack(
+                                [
+                                    item["distribution"]["batch_diagnostics"]
+                                    for item in records
+                                ]
+                            ),
+                            "rollouts_per_actor": np.asarray(
+                                args.rollouts_per_actor, dtype=np.int32
+                            ),
+                            "label_batches": np.asarray(
+                                args.label_batches, dtype=np.int32
+                            ),
+                            "bootstrap_resamples": np.asarray(
+                                args.bootstrap_resamples, dtype=np.int32
+                            ),
+                        }
+                    )
                 write_shard(output_path, payload)
             print(
                 "episode=%d scenario=%s anchors=%d samples=%d labels=%s"

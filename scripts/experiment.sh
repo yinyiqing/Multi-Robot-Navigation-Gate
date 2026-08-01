@@ -23,6 +23,8 @@ Supported current experiment IDs:
   gate-counterfactual-pilot-train
   gate-counterfactual-pilot-validation
   learned-gate-validation
+  g4-counterfactual-smoke
+  g4-counterfactual-pilot
 EOF
 }
 
@@ -96,6 +98,18 @@ script_for() {
     stop:learned-gate-validation)
       echo "$PROJECT_ROOT/scripts/stop_validation_learned_gate.sh"
       ;;
+    start:g4-counterfactual-smoke)
+      echo "$PROJECT_ROOT/scripts/start_actor_counterfactual_distribution_pilot.sh smoke"
+      ;;
+    stop:g4-counterfactual-smoke)
+      echo "$PROJECT_ROOT/scripts/stop_actor_counterfactual_distribution_pilot.sh smoke"
+      ;;
+    start:g4-counterfactual-pilot)
+      echo "$PROJECT_ROOT/scripts/start_actor_counterfactual_distribution_pilot.sh pilot"
+      ;;
+    stop:g4-counterfactual-pilot)
+      echo "$PROJECT_ROOT/scripts/stop_actor_counterfactual_distribution_pilot.sh pilot"
+      ;;
     *)
       return 1
       ;;
@@ -117,7 +131,9 @@ show_status() {
     "$PROJECT_ROOT/.robot_perception_collection_gate_pilot_validation.pid" \
     "$PROJECT_ROOT/.actor_counterfactual_pilot_train.pid" \
     "$PROJECT_ROOT/.actor_counterfactual_pilot_validation.pid" \
-    "$PROJECT_ROOT/.validation_learned_gate.pid"; do
+    "$PROJECT_ROOT/.validation_learned_gate.pid" \
+    "$PROJECT_ROOT/.g4_counterfactual_distribution_smoke.pid" \
+    "$PROJECT_ROOT/.g4_counterfactual_distribution_pilot.pid"; do
     [[ -f "$pid_file" ]] || continue
     pid="$(tr -d '[:space:]' < "$pid_file")"
     if [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null; then
