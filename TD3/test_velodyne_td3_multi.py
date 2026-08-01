@@ -11,6 +11,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from actor_models import Actor, ResidualActor, is_residual_actor_state_dict
 from interaction_oracle import interaction_mask
+from learned_gate_controller import LearnedInteractionGateController
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
 from oracle_controllers import ConflictPairYieldOracle, RightHandPassOracle
 from outcome_utils import resolve_terminal_outcome
@@ -211,10 +212,11 @@ if actor_selection_mode not in (
     "hard_switch",
     "case_oracle",
     "interaction_oracle",
+    "learned_gate",
 ):
     raise ValueError(
         "DRL_MULTI_ACTOR_SELECTION_MODE must be one of: single, hard_switch, "
-        "case_oracle, interaction_oracle"
+        "case_oracle, interaction_oracle, learned_gate"
     )
 if actor_selection_mode != "single" and not dual_actor_enabled:
     raise ValueError(
@@ -223,6 +225,27 @@ if actor_selection_mode != "single" and not dual_actor_enabled:
 switch_on_distance = env_float("DRL_MULTI_SWITCH_ON_DISTANCE", 1.6)
 switch_off_distance = env_float("DRL_MULTI_SWITCH_OFF_DISTANCE", 2.0)
 switch_on_visible_neighbors = env_int("DRL_MULTI_SWITCH_ON_VISIBLE_NEIGHBORS", 1)
+gate_checkpoint_path = env_json_path("DRL_MULTI_GATE_CHECKPOINT")
+gate_detector_checkpoint_path = env_json_path(
+    "DRL_MULTI_GATE_DETECTOR_CHECKPOINT"
+)
+gate_switch_on_threshold = os.environ.get("DRL_MULTI_GATE_SWITCH_ON_THRESHOLD")
+gate_switch_off_threshold = os.environ.get("DRL_MULTI_GATE_SWITCH_OFF_THRESHOLD")
+gate_switch_on_threshold = (
+    float(gate_switch_on_threshold) if gate_switch_on_threshold else None
+)
+gate_switch_off_threshold = (
+    float(gate_switch_off_threshold) if gate_switch_off_threshold else None
+)
+gate_minimum_hold_steps = env_int("DRL_MULTI_GATE_MINIMUM_HOLD_STEPS", 3)
+gate_max_candidates = env_int("DRL_MULTI_GATE_MAX_CANDIDATES", 12)
+if actor_selection_mode == "learned_gate":
+    if not gate_checkpoint_path or not gate_detector_checkpoint_path:
+        raise ValueError(
+            "learned_gate mode requires DRL_MULTI_GATE_CHECKPOINT and "
+            "DRL_MULTI_GATE_DETECTOR_CHECKPOINT"
+        )
+    os.environ["DRL_MULTI_RECORD_RAW_LIDAR"] = "1"
 interaction_oracle_distance = env_float(
     "DRL_MULTI_ORACLE_INTERACTION_DISTANCE", 2.0
 )
@@ -510,6 +533,18 @@ if dual_actor_enabled:
             dense_policy=dense_network,
             case_actor_map=case_oracle_map,
         )
+    elif actor_selection_mode == "learned_gate":
+        dense_policy_controller = LearnedInteractionGateController(
+            standard_policy=network,
+            dense_policy=dense_network,
+            detector_checkpoint=gate_detector_checkpoint_path,
+            gate_checkpoint=gate_checkpoint_path,
+            device=device,
+            switch_on_threshold=gate_switch_on_threshold,
+            switch_off_threshold=gate_switch_off_threshold,
+            minimum_hold_steps=gate_minimum_hold_steps,
+            max_candidates=gate_max_candidates,
+        )
 if rule_oracle_mode == "conflict_pair_yield":
     if actor_selection_mode != "single":
         raise ValueError("Conflict-pair yield oracle only supports single actor mode")
@@ -593,6 +628,13 @@ if dual_actor_enabled:
         print("Case oracle map:", case_oracle_map_path)
     elif actor_selection_mode == "interaction_oracle":
         print("Oracle interaction distance:", interaction_oracle_distance)
+    elif actor_selection_mode == "learned_gate":
+        print("Gate checkpoint:", gate_checkpoint_path)
+        print("Gate detector checkpoint:", gate_detector_checkpoint_path)
+        print("Gate switch-on threshold:", dense_policy_controller.switch_on_threshold)
+        print("Gate switch-off threshold:", dense_policy_controller.switch_off_threshold)
+        print("Gate minimum hold steps:", gate_minimum_hold_steps)
+        print("Gate maximum candidates:", gate_max_candidates)
 else:
     print("Dual actor mode: disabled")
 print("Rule oracle mode:", rule_oracle_mode or "disabled")
@@ -707,6 +749,8 @@ while True:
         if env.record_raw_lidar and trajectory_path
         else None
     )
+    step_actor_modes = {}
+    step_gate_probabilities = {}
     if perception_recorder is not None:
         perception_recorder.record_frame(
             env.raw_lidar_points,
@@ -755,9 +799,21 @@ while True:
             else:
                 episode_standard_action_steps[idx] += 1
         elif dense_policy_controller is not None:
-            action, mode, _, _ = dense_policy_controller.choose_action(
-                env, agent_names[idx], state
-            )
+            if actor_selection_mode == "learned_gate":
+                action, mode, gate_probability, _ = (
+                    dense_policy_controller.choose_action(
+                        env,
+                        agent_names[idx],
+                        state,
+                        logical_time=(episode_env_steps + 1) * 0.2,
+                    )
+                )
+                step_gate_probabilities[agent_names[idx]] = gate_probability
+            else:
+                action, mode, _, _ = dense_policy_controller.choose_action(
+                    env, agent_names[idx], state
+                )
+            step_actor_modes[agent_names[idx]] = mode
             if mode == "dense":
                 episode_dense_action_steps[idx] += 1
             else:
@@ -788,6 +844,8 @@ while True:
             ),
             "raw_lidar_points": step_raw_lidar,
             "actions": [[float(value) for value in action] for action in env_actions],
+            "actor_modes": step_actor_modes or None,
+            "gate_probabilities": step_gate_probabilities or None,
             "positions": {
                 name: [float(value) for value in env.robot_positions[name]]
                 for name in agent_names
@@ -872,6 +930,15 @@ while True:
             ]
         )
     )
+    gate_stats = (
+        dense_policy_controller.episode_stats()
+        if actor_selection_mode == "learned_gate"
+        else {"switches": 0, "mean_probability": 0.0}
+    )
+    dense_action_share = float(np.sum(episode_dense_action_steps)) / max(
+        float(np.sum(episode_dense_action_steps + episode_standard_action_steps)),
+        1.0,
+    )
     update_case_stats(
         case_stats,
         episode_case_name,
@@ -913,7 +980,8 @@ while True:
         "Episode %i complete | case=%s | env_steps=%i | agent_samples=%i | episode_env_steps=%i | "
         "episode_agent_samples=%i | mean_reward=%.3f | success=%i/%i | collision=%i/%i | "
         "unresolved=%i/%i | full_success=%i | timeout=%i | "
-        "mean_final_distance=%.3f | dense_action_share=%.3f | rule_enabled=%i | "
+        "mean_final_distance=%.3f | dense_action_share=%.3f | gate_switches=%i | "
+        "gate_mean_probability=%.3f | rule_enabled=%i | "
         "rule_action_share=%.3f | "
         "samples/sec=%.3f"
         % (
@@ -933,13 +1001,9 @@ while True:
             full_success,
             timeout_episode,
             mean_final_distance,
-            (
-                float(np.sum(episode_dense_action_steps))
-                / max(
-                    float(np.sum(episode_dense_action_steps + episode_standard_action_steps)),
-                    1.0,
-                )
-            ),
+            dense_action_share,
+            gate_stats["switches"],
+            gate_stats["mean_probability"],
             int(episode_rule_enabled),
             (
                 float(np.sum(episode_rule_action_steps))
@@ -1028,6 +1092,9 @@ while True:
             timeout_episode,
             episode_case_name,
             int(episode_rule_enabled),
+            dense_action_share,
+            gate_stats["switches"],
+            gate_stats["mean_probability"],
         ]
     )
 

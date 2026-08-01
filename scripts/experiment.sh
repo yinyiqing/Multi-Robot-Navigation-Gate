@@ -22,6 +22,7 @@ Supported current experiment IDs:
   gate-interaction-pilot-validation
   gate-counterfactual-pilot-train
   gate-counterfactual-pilot-validation
+  learned-gate-validation
 EOF
 }
 
@@ -89,6 +90,12 @@ script_for() {
     stop:gate-counterfactual-pilot-validation)
       echo "$PROJECT_ROOT/scripts/stop_actor_counterfactual_collection.sh pilot-validation"
       ;;
+    start:learned-gate-validation)
+      echo "$PROJECT_ROOT/scripts/start_validation_learned_gate.sh"
+      ;;
+    stop:learned-gate-validation)
+      echo "$PROJECT_ROOT/scripts/stop_validation_learned_gate.sh"
+      ;;
     *)
       return 1
       ;;
@@ -109,7 +116,8 @@ show_status() {
     "$PROJECT_ROOT/.robot_perception_collection_gate_pilot_train.pid" \
     "$PROJECT_ROOT/.robot_perception_collection_gate_pilot_validation.pid" \
     "$PROJECT_ROOT/.actor_counterfactual_pilot_train.pid" \
-    "$PROJECT_ROOT/.actor_counterfactual_pilot_validation.pid"; do
+    "$PROJECT_ROOT/.actor_counterfactual_pilot_validation.pid" \
+    "$PROJECT_ROOT/.validation_learned_gate.pid"; do
     [[ -f "$pid_file" ]] || continue
     pid="$(tr -d '[:space:]' < "$pid_file")"
     if [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null; then

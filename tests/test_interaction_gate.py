@@ -12,6 +12,7 @@ sys.path.insert(0, str(ROOT / "TD3"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from interaction_gate import InteractionGate
+from learned_gate_controller import GateHysteresis
 from robot_perception.gate_features import build_gate_feature, gate_feature_dim
 from train_interaction_gate import binary_metrics, gate_metrics, select_threshold
 
@@ -56,6 +57,25 @@ class GateMetricTest(unittest.TestCase):
         self.assertEqual(metrics["recall"], 1.0)
         self.assertEqual(metrics["standard_weak_fpr"], 0.5)
         self.assertFalse(metrics["meets_entry_criteria"])
+
+
+class GateHysteresisTest(unittest.TestCase):
+    def test_hysteresis_holds_dense_mode_before_switching_off(self):
+        gate = GateHysteresis(0.6, 0.4, minimum_hold_steps=2)
+        self.assertEqual(gate.update(0.7), "dense")
+        self.assertEqual(gate.update(0.2), "dense")
+        self.assertEqual(gate.update(0.2), "standard")
+        self.assertEqual(gate.switches, 2)
+
+    def test_probability_between_thresholds_keeps_current_mode(self):
+        gate = GateHysteresis(0.6, 0.4, minimum_hold_steps=0)
+        self.assertEqual(gate.update(0.5), "standard")
+        self.assertEqual(gate.update(0.7), "dense")
+        self.assertEqual(gate.update(0.5), "dense")
+
+    def test_invalid_threshold_order_is_rejected(self):
+        with self.assertRaises(ValueError):
+            GateHysteresis(0.4, 0.6, minimum_hold_steps=1)
 
 
 if __name__ == "__main__":
