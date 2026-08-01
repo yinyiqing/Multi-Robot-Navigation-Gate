@@ -85,6 +85,14 @@ def load_rows(path, minimum_columns):
     return rows
 
 
+def repository_path(path, repository_root):
+    resolved = path.resolve()
+    try:
+        return str(resolved.relative_to(repository_root))
+    except ValueError:
+        return str(resolved)
+
+
 def select_by_id(rows, scenario_ids, label):
     row_by_id = {str(row[COLUMNS["scenario_id"]]): row for row in rows}
     missing = [scenario_id for scenario_id in scenario_ids if scenario_id not in row_by_id]
@@ -255,6 +263,7 @@ def severe_cases(gate, baseline, oracle, topology):
 
 def main():
     args = parse_args()
+    repository_root = Path(__file__).resolve().parents[5]
     gate = load_rows(args.gate, 17)
     if len(gate) != args.expected_episodes:
         raise ValueError(
@@ -322,10 +331,12 @@ def main():
             "switch_on_threshold": 0.44,
             "switch_off_threshold": 0.34,
             "minimum_hold_steps": 3,
-            "gate_stats": str(args.gate),
-            "historical_baseline_stats": str(args.baseline),
-            "historical_oracle_stats": str(args.oracle),
-            "manifest": str(args.manifest),
+            "gate_stats": repository_path(args.gate, repository_root),
+            "historical_baseline_stats": repository_path(
+                args.baseline, repository_root
+            ),
+            "historical_oracle_stats": repository_path(args.oracle, repository_root),
+            "manifest": repository_path(args.manifest, repository_root),
             "historical_comparison_limitation": (
                 "Baseline and Oracle are same-ID development references from an older "
                 "20260728 run, not final same-process paper statistics."
