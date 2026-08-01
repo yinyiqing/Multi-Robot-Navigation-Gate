@@ -22,6 +22,7 @@ GAZEBO_PORT="${DRL_LEARNED_GATE_GAZEBO_PORT:-14121}"
 SWITCH_ON="${DRL_LEARNED_GATE_SWITCH_ON:-0.44}"
 SWITCH_OFF="${DRL_LEARNED_GATE_SWITCH_OFF:-0.34}"
 MINIMUM_HOLD_STEPS="${DRL_LEARNED_GATE_MINIMUM_HOLD_STEPS:-3}"
+RESUME_RUN_NAME="${DRL_LEARNED_GATE_RUN_NAME:-}"
 PID_FILE="$PROJECT_ROOT/.validation_learned_gate.pid"
 
 [[ "$TARGET_EPISODES" =~ ^[1-9][0-9]*$ ]] || { echo "Target episodes must be positive"; exit 2; }
@@ -56,11 +57,20 @@ done
 
 mkdir -p "$OUTPUT_DIR/logs" "$OUTPUT_DIR/results" "$OUTPUT_DIR/checkpoints"
 timestamp="$(date +%Y%m%d_%H%M%S)"
-run_name="g3_learned_gate_n${TARGET_EPISODES}_r${REPEAT}_s${SEED}_${timestamp}"
-log_file="$OUTPUT_DIR/logs/${run_name}.log"
-runner_log="$OUTPUT_DIR/logs/${run_name}_runner.log"
+run_name="${RESUME_RUN_NAME:-g3_learned_gate_n${TARGET_EPISODES}_r${REPEAT}_s${SEED}_${timestamp}}"
+log_suffix=""
+if [[ -n "$RESUME_RUN_NAME" ]]; then
+  log_suffix="_resume_${timestamp}"
+fi
+log_file="$OUTPUT_DIR/logs/${run_name}${log_suffix}.log"
+runner_log="$OUTPUT_DIR/logs/${run_name}${log_suffix}_runner.log"
 state_path="$OUTPUT_DIR/checkpoints/${run_name}_state.pt"
 stats_path="$OUTPUT_DIR/results/${run_name}.npy"
+
+if [[ -n "$RESUME_RUN_NAME" ]]; then
+  [[ -f "$state_path" ]] || { echo "Resume state is missing: $state_path"; exit 1; }
+  [[ -f "$stats_path" ]] || { echo "Resume results are missing: $stats_path"; exit 1; }
+fi
 
 setsid bash -lc "
   set -eo pipefail
@@ -111,6 +121,7 @@ echo $! > "$PID_FILE"
 echo "Started learned-Gate validation."
 echo "PID: $(cat "$PID_FILE")"
 echo "Scenarios: $TARGET_EPISODES / 200"
+echo "Resume run: ${RESUME_RUN_NAME:-disabled}"
 echo "Gate thresholds: on=$SWITCH_ON off=$SWITCH_OFF hold=$MINIMUM_HOLD_STEPS"
 echo "Log: $log_file"
 echo "Stats: $stats_path"
