@@ -77,3 +77,18 @@ def single_ego_exploration_index(active_mask, environment_step):
     if not active_indices:
         return None
     return active_indices[environment_step % len(active_indices)]
+
+
+def replay_transition_selected(
+    agent_index, controlled_exploration_index, controlled_ego_only=False
+):
+    """Select only the randomized ego transition for controlled replay."""
+    if agent_index < 0:
+        raise ValueError("agent index must be non-negative")
+    if not controlled_ego_only:
+        return True
+    if controlled_exploration_index is None:
+        return False
+    if controlled_exploration_index < 0:
+        raise ValueError("controlled exploration index must be non-negative")
+    return agent_index == controlled_exploration_index

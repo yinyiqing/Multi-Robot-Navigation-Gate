@@ -40,3 +40,15 @@ validation成功率不会变化，因为Actor被冻结；旧的`min_laser <= 0.5
 - 启动：`scripts/start_training_dense_simple_td3_hparam_d2.sh`
 - 停止：`scripts/stop_training_dense_simple_td3_hparam_d2.sh`
 - 校准：`TD3/calibrate_simple_td3_critic.py`
+
+## 结果
+
+D2于`2026-08-01`完成：`20097` Replay样本、`9141` 联合环境步、`6610` 次Critic更新，Actor更新为`0`。冻结5A在50个validation场景上的agent success为`0.760`，full success为`0.380`。该validation波动不用于判断Critic，因为Actor始终未变。
+
+同状态Gazebo标定共得到`80`条分支，其中`37`条通过重放一致性检查，形成`8`个可比较状态组和`67`个动作对。Qmin对N-step target的排序准确率为`0.552`，对不含bootstrap的实际折扣reward仅为`0.537`。Qmin在`8/8`个状态组内都随线速度严格单调上升，并且`20`个碰撞分支的Qmin仍全部为正（范围`7.92`至`21.21`）。
+
+## 结论
+
+D2 Critic不通过Actor解冻准入。排序结果接近随机，且主要表现为全局的高速度偏好，而不是对危险状态的条件化减速判断。D2 Replay中每步只有一台车的动作受控随机，但所有活跃车的transition都被存入，使非选中ego样本包含Critic不可见的邻车当前随机动作。
+
+下一步只做一次D2b修正：Replay只保留当步被随机化的ego transition，其余模型、reward和优化器保持不变。D2b仍不通过同状态标定时，不解冻Actor，转而重新审查Critic target和动作覆盖。

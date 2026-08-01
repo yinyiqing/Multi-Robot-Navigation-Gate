@@ -8,6 +8,7 @@ START_B = ROOT / "scripts" / "start_training_dense_simple_td3_hparam_b.sh"
 START_C = ROOT / "scripts" / "start_training_dense_simple_td3_hparam_c.sh"
 START_D = ROOT / "scripts" / "start_training_dense_simple_td3_hparam_d.sh"
 START_D2 = ROOT / "scripts" / "start_training_dense_simple_td3_hparam_d2.sh"
+START_D2B = ROOT / "scripts" / "start_training_dense_simple_td3_hparam_d2b.sh"
 
 
 class SimpleTd3ActionCoverageProtocolTests(unittest.TestCase):
@@ -18,6 +19,7 @@ class SimpleTd3ActionCoverageProtocolTests(unittest.TestCase):
         cls.start_c = START_C.read_text(encoding="utf-8")
         cls.start_d = START_D.read_text(encoding="utf-8")
         cls.start_d2 = START_D2.read_text(encoding="utf-8")
+        cls.start_d2b = START_D2B.read_text(encoding="utf-8")
 
     def test_random_linear_exploration_defaults_off(self):
         self.assertIn(
@@ -53,6 +55,20 @@ class SimpleTd3ActionCoverageProtocolTests(unittest.TestCase):
         self.assertIn("DRL_MULTI_LOCAL_CRITIC_CONTEXT_MODE=ego_motion", self.start_d2)
         self.assertIn("DRL_MULTI_CRITIC_INTERACTION_FRACTION=0.0", self.start_d2)
         self.assertIn("start_training_dense_simple_td3_hparam_b.sh", self.start_d2)
+
+    def test_experiment_d2b_stores_only_controlled_ego_transitions(self):
+        self.assertIn("DRL_MULTI_CONTROLLED_EGO_REPLAY_ONLY=1", self.start_d2b)
+        self.assertIn("DRL_MULTI_RANDOM_LINEAR_EXPLORATION_SCOPE=single_ego", self.start_d2b)
+        self.assertIn("DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS=1000000000", self.start_d2b)
+
+    def test_experiment_d2b_changes_only_replay_protocol_and_budget(self):
+        self.assertIn("DRL_MULTI_MIN_REPLAY_SIZE", self.start_d2b)
+        self.assertIn("3000", self.start_d2b)
+        self.assertIn("DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES", self.start_d2b)
+        self.assertIn("12000", self.start_d2b)
+        self.assertIn("DRL_MULTI_CRITIC_LR", self.start_d2b)
+        self.assertIn("0.00002", self.start_d2b)
+        self.assertIn("start_training_dense_simple_td3_hparam_b.sh", self.start_d2b)
 
 
 if __name__ == "__main__":

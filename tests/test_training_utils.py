@@ -15,6 +15,7 @@ from training_utils import (
     exploratory_action,
     replay_ready_for_updates,
     replay_done,
+    replay_transition_selected,
     single_ego_exploration_index,
 )
 
@@ -115,6 +116,20 @@ class TrainingUtilsTests(unittest.TestCase):
     def test_single_ego_exploration_rejects_negative_step(self):
         with self.assertRaises(ValueError):
             single_ego_exploration_index([True], -1)
+
+    def test_standard_replay_keeps_all_active_transitions(self):
+        self.assertTrue(replay_transition_selected(3, 1, False))
+
+    def test_controlled_replay_keeps_only_selected_ego(self):
+        self.assertTrue(replay_transition_selected(1, 1, True))
+        self.assertFalse(replay_transition_selected(3, 1, True))
+        self.assertFalse(replay_transition_selected(1, None, True))
+
+    def test_controlled_replay_rejects_negative_indices(self):
+        with self.assertRaises(ValueError):
+            replay_transition_selected(-1, 0, True)
+        with self.assertRaises(ValueError):
+            replay_transition_selected(0, -1, True)
 
 
 if __name__ == "__main__":

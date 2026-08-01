@@ -34,6 +34,7 @@ from training_utils import (
     exploratory_action,
     replay_ready_for_updates,
     replay_done,
+    replay_transition_selected,
     single_ego_exploration_index,
 )
 
@@ -1271,6 +1272,9 @@ random_linear_exploration_steps = env_int(
 random_linear_exploration_scope = os.environ.get(
     "DRL_MULTI_RANDOM_LINEAR_EXPLORATION_SCOPE", "all"
 ).strip().lower()
+controlled_ego_replay_only = env_flag(
+    "DRL_MULTI_CONTROLLED_EGO_REPLAY_ONLY", False
+)
 expl_decay_steps = env_int("DRL_MULTI_EXPL_DECAY_STEPS", 500000)
 expl_min = env_float("DRL_MULTI_EXPL_MIN", 0.1)
 actor_lr = env_float("DRL_MULTI_ACTOR_LR", 1e-3)
@@ -1420,6 +1424,16 @@ if random_linear_exploration_steps < 0:
 if random_linear_exploration_scope not in ("all", "single_ego"):
     raise ValueError(
         "DRL_MULTI_RANDOM_LINEAR_EXPLORATION_SCOPE must be all or single_ego"
+    )
+if controlled_ego_replay_only and random_linear_exploration_scope != "single_ego":
+    raise ValueError(
+        "DRL_MULTI_CONTROLLED_EGO_REPLAY_ONLY requires "
+        "DRL_MULTI_RANDOM_LINEAR_EXPLORATION_SCOPE=single_ego"
+    )
+if controlled_ego_replay_only and actor_update_delay_steps < max_timesteps:
+    raise ValueError(
+        "Controlled-ego-only replay is a Critic pretraining protocol and requires "
+        "the Actor to remain frozen"
     )
 if actor_gradient_safety_distance <= 0.0:
     raise ValueError("DRL_MULTI_ACTOR_GRADIENT_SAFETY_DISTANCE must be positive")
@@ -2144,6 +2158,7 @@ print("Exploration noise:", expl_noise)
 print("Critic warmup exploration noise:", critic_warmup_expl_noise)
 print("Random linear exploration steps:", random_linear_exploration_steps)
 print("Random linear exploration scope:", random_linear_exploration_scope)
+print("Controlled ego replay only:", controlled_ego_replay_only)
 print("Exploration min:", expl_min)
 print("Exploration decay steps:", expl_decay_steps)
 print("Exploration decay unit: environment steps")
@@ -2879,7 +2894,10 @@ while timestep < max_timesteps:
     )
     controlled_exploration_active = (
         random_linear_exploration_scope == "single_ego"
-        and timestep < random_linear_exploration_steps
+        and (
+            controlled_ego_replay_only
+            or timestep < random_linear_exploration_steps
+        )
     )
     controlled_exploration_index = (
         single_ego_exploration_index(active_mask, env_step_count)
@@ -2934,6 +2952,10 @@ while timestep < max_timesteps:
     step_agents = env.last_step_info["agents"]
     for idx, name in enumerate(agent_names):
         if not active_mask[idx]:
+            continue
+        if not replay_transition_selected(
+            idx, controlled_exploration_index, controlled_ego_replay_only
+        ):
             continue
         if use_local_critic:
             context_neighbor_count = context_count(neighbor_contexts[idx])
@@ -3007,23 +3029,33 @@ while timestep < max_timesteps:
         if not active_mask[idx]:
             continue
         done_bool = replay_done(truncated, dones[idx])
-        if use_local_critic:
-            replay_buffer.add_local_critic(
-                states[idx],
-                combine_critic_state(states[idx], neighbor_contexts[idx]),
-                raw_actions[idx],
-                rewards[idx],
-                done_bool,
-                next_states[idx],
-                combine_critic_state(next_states[idx], next_neighbor_contexts[idx]),
-                interaction=replay_interaction_flags[idx],
-            )
-        else:
-            replay_buffer.add(
-                states[idx], raw_actions[idx], rewards[idx], done_bool, next_states[idx]
-            )
+        store_transition = replay_transition_selected(
+            idx, controlled_exploration_index, controlled_ego_replay_only
+        )
+        if store_transition:
+            if use_local_critic:
+                replay_buffer.add_local_critic(
+                    states[idx],
+                    combine_critic_state(states[idx], neighbor_contexts[idx]),
+                    raw_actions[idx],
+                    rewards[idx],
+                    done_bool,
+                    next_states[idx],
+                    combine_critic_state(next_states[idx], next_neighbor_contexts[idx]),
+                    interaction=replay_interaction_flags[idx],
+                )
+            else:
+                replay_buffer.add(
+                    states[idx],
+                    raw_actions[idx],
+                    rewards[idx],
+                    done_bool,
+                    next_states[idx],
+                )
+            episode_sample_count += 1
+            timestep += 1
+            timesteps_since_eval += 1
         episode_rewards[idx] += rewards[idx]
-        episode_sample_count += 1
         success, collision = resolve_terminal_outcome(
             episode_success_flags[idx],
             episode_collision_flags[idx],
@@ -3044,9 +3076,6 @@ while timestep < max_timesteps:
                 episode_min_lasers[agent_names[idx]] = min(
                     previous_min_laser, min_laser_value
                 )
-        timestep += 1
-        timesteps_since_eval += 1
-
         if dones[idx] or truncated:
             active_mask[idx] = False
 
