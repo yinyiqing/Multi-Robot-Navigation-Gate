@@ -25,6 +25,8 @@ Supported current experiment IDs:
   learned-gate-validation
   g4-counterfactual-smoke
   g4-counterfactual-pilot
+  edge2-confirmation-5a
+  edge2-confirmation-learned-gate
 EOF
 }
 
@@ -110,6 +112,18 @@ script_for() {
     stop:g4-counterfactual-pilot)
       echo "$PROJECT_ROOT/scripts/stop_actor_counterfactual_distribution_pilot.sh pilot"
       ;;
+    start:edge2-confirmation-5a)
+      echo "$PROJECT_ROOT/scripts/start_exact_edge2_confirmation.sh 5a"
+      ;;
+    stop:edge2-confirmation-5a)
+      echo "$PROJECT_ROOT/scripts/stop_exact_edge2_confirmation.sh 5a"
+      ;;
+    start:edge2-confirmation-learned-gate)
+      echo "$PROJECT_ROOT/scripts/start_exact_edge2_confirmation.sh learned-gate"
+      ;;
+    stop:edge2-confirmation-learned-gate)
+      echo "$PROJECT_ROOT/scripts/stop_exact_edge2_confirmation.sh learned-gate"
+      ;;
     *)
       return 1
       ;;
@@ -133,7 +147,9 @@ show_status() {
     "$PROJECT_ROOT/.actor_counterfactual_pilot_validation.pid" \
     "$PROJECT_ROOT/.validation_learned_gate.pid" \
     "$PROJECT_ROOT/.g4_counterfactual_distribution_smoke.pid" \
-    "$PROJECT_ROOT/.g4_counterfactual_distribution_pilot.pid"; do
+    "$PROJECT_ROOT/.g4_counterfactual_distribution_pilot.pid" \
+    "$PROJECT_ROOT/.edge2_confirmation_5a.pid" \
+    "$PROJECT_ROOT/.edge2_confirmation_learned_gate.pid"; do
     [[ -f "$pid_file" ]] || continue
     pid="$(tr -d '[:space:]' < "$pid_file")"
     if [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null; then
