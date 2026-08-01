@@ -49,7 +49,7 @@
 ```bash
 source env.python.sh
 python3 scripts/audit_simple_td3_critic.py \
-  --checkpoint TD3/checkpoints/independent_dense_actor_simple_td3_hparam_b_s20260801_latest.pt
+  --checkpoint experiments/03_保留专门化/02_论文主线/results/03_强交互Actor_研发记录/20260801_简化TD3整体调参实验B/checkpoints/independent_dense_actor_simple_td3_hparam_b_s20260801_latest.pt
 ```
 
 审计通过后从同一checkpoint恢复，设置`DRL_MULTI_RESUME_TRAINING=1 DRL_MULTI_MAX_EPOCHS=8`，不重新收集前20000条replay。
@@ -64,3 +64,22 @@ Actor解冻后只接受同时满足以下条件的趋势：full success上升、
 ## 启动检查
 
 首次启动采集250条transition后发现公共启动脚本未显式启用`active_neighbors_only`，会让已终止车辆继续参与邻车reward。该运行在Critic开始更新前停止，没有产生checkpoint；修正为只使用仍活跃邻车后从零重启。
+
+## 正式结果
+
+| epoch | success rate | full success rate |
+|---:|---:|---:|
+| 1 | 0.760 | 0.440 |
+| 2 | 0.760 | 0.440 |
+| 3 | 0.756 | 0.400 |
+| 4 | 0.756 | 0.380 |
+
+- 共采集`20000`条transition，Critic更新`2892`次，Actor更新`0`次；
+- Actor参数与5A完全相同；
+- 危险状态（最小激光距离不超过`0.5m`）中，`Q(full)-Q(stop)`从epoch 1的`+0.118`持续增至epoch 4的`+6.609`；
+- 最新Critic在上述危险状态的`100%`样本中错误偏好全速；
+- 实际即时reward中，危险状态全速已经比停车差，因此失败不是reward符号错误，而是行为数据缺少危险状态下的中低速反事实覆盖。
+
+结论：实验B不允许解冻Actor。下一步实验C保持本实验所有奖励和TD3超参数不变，只修正Critic warmup的线速度动作覆盖。
+
+正式日志位于`logs/formal/`，完整审计位于`audits/critic_audit_latest.json`。checkpoint、模型和TensorBoard文件保留在本地归档中，不提交GitHub。

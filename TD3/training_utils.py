@@ -1,5 +1,7 @@
 import math
 
+import numpy as np
+
 
 def replay_done(truncated, terminated):
     """End the transition on either an environment terminal or a reset timeout."""
@@ -41,3 +43,27 @@ def decay_exploration_noise(current, initial, minimum, decay_steps):
         raise ValueError("initial exploration noise must be >= minimum")
     decrement = (float(initial) - float(minimum)) / float(decay_steps)
     return max(float(minimum), float(current) - decrement)
+
+
+def exploratory_action(
+    policy_action,
+    noise_scale,
+    max_action,
+    randomize_linear=False,
+    rng=None,
+):
+    """Apply TD3 exploration while optionally covering the raw linear action."""
+    if noise_scale < 0.0:
+        raise ValueError("noise_scale must be non-negative")
+    if max_action <= 0.0:
+        raise ValueError("max_action must be positive")
+    action = np.asarray(policy_action, dtype=np.float32).copy()
+    if action.ndim != 1 or action.size < 2:
+        raise ValueError("policy_action must contain linear and angular actions")
+    random_source = np.random if rng is None else rng
+    if randomize_linear:
+        action[0] = random_source.uniform(-max_action, max_action)
+        action[1:] += random_source.normal(0.0, noise_scale, size=action.size - 1)
+    else:
+        action += random_source.normal(0.0, noise_scale, size=action.size)
+    return np.clip(action, -max_action, max_action)

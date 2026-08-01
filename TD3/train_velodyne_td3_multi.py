@@ -31,6 +31,7 @@ from training_utils import (
     apply_timeout_reward,
     decay_exploration_noise,
     episode_train_iterations,
+    exploratory_action,
     replay_ready_for_updates,
     replay_done,
 )
@@ -1263,6 +1264,9 @@ initial_expl_noise = expl_noise
 critic_warmup_expl_noise = env_float(
     "DRL_MULTI_CRITIC_WARMUP_EXPL_NOISE", expl_noise
 )
+random_linear_exploration_steps = env_int(
+    "DRL_MULTI_RANDOM_LINEAR_EXPLORATION_STEPS", 0
+)
 expl_decay_steps = env_int("DRL_MULTI_EXPL_DECAY_STEPS", 500000)
 expl_min = env_float("DRL_MULTI_EXPL_MIN", 0.1)
 actor_lr = env_float("DRL_MULTI_ACTOR_LR", 1e-3)
@@ -1405,6 +1409,10 @@ if not 0.0 <= critic_interaction_fraction <= 1.0:
     raise ValueError("DRL_MULTI_CRITIC_INTERACTION_FRACTION must be in [0, 1]")
 if critic_warmup_expl_noise < 0.0:
     raise ValueError("DRL_MULTI_CRITIC_WARMUP_EXPL_NOISE must be non-negative")
+if random_linear_exploration_steps < 0:
+    raise ValueError(
+        "DRL_MULTI_RANDOM_LINEAR_EXPLORATION_STEPS must be non-negative"
+    )
 if actor_gradient_safety_distance <= 0.0:
     raise ValueError("DRL_MULTI_ACTOR_GRADIENT_SAFETY_DISTANCE must be positive")
 if actor_gradient_gate_batch_size < 1 or actor_gradient_gate_min_samples < 1:
@@ -2126,6 +2134,7 @@ print("Actor anchor safe distance:", actor_anchor_safe_distance)
 print("Actor Q normalization alpha:", actor_q_normalization_alpha)
 print("Exploration noise:", expl_noise)
 print("Critic warmup exploration noise:", critic_warmup_expl_noise)
+print("Random linear exploration steps:", random_linear_exploration_steps)
 print("Exploration min:", expl_min)
 print("Exploration decay steps:", expl_decay_steps)
 print("Exploration decay unit: environment steps")
@@ -2488,7 +2497,7 @@ while timestep < max_timesteps:
                 "context_neighbors_mean=%.2f | context_neighbors_max=%.0f | "
                 "last_context_neighbors_mean=%.2f | last_context_neighbors_max=%.0f | "
                 "actor_unlocked=%i | "
-                "expl_noise=%.4f | "
+                "expl_noise=%.4f | random_linear_samples=%i | "
                 "replay=%i | interaction_replay=%i | samples/sec=%.3f"
                 % (
                     episode_num,
@@ -2539,6 +2548,7 @@ while timestep < max_timesteps:
                         if timestep < actor_update_delay_steps
                         else expl_noise
                     ),
+                    episode_random_linear_samples,
                     replay_buffer.size(),
                     replay_buffer.interaction_size(),
                     steps_per_sec,
@@ -2794,6 +2804,7 @@ while timestep < max_timesteps:
         episode_rewards = np.zeros(len(agent_names), dtype=np.float32)
         episode_timesteps = 0
         episode_sample_count = 0
+        episode_random_linear_samples = 0
         episode_success_flags = np.zeros(len(agent_names), dtype=np.int32)
         episode_collision_flags = np.zeros(len(agent_names), dtype=np.int32)
         episode_final_distances = {name: None for name in agent_names}
@@ -2836,6 +2847,7 @@ while timestep < max_timesteps:
 
     raw_actions = []
     env_actions = []
+    active_action_offset = 0
     replay_interaction_flags = (
         interaction_mask(
             neighbor_contexts,
@@ -2861,14 +2873,23 @@ while timestep < max_timesteps:
             action = _model_action(weak_actor, state)
         else:
             action = network.get_action(np.array(state))
+            action_sample_index = timestep + active_action_offset
             noise_scale = (
                 critic_warmup_expl_noise
-                if timestep < actor_update_delay_steps
+                if action_sample_index < actor_update_delay_steps
                 else expl_noise
             )
-            action = (
-                action + np.random.normal(0, noise_scale, size=action_dim)
-            ).clip(-max_action, max_action)
+            use_random_linear = (
+                action_sample_index < random_linear_exploration_steps
+            )
+            action = exploratory_action(
+                action,
+                noise_scale,
+                max_action,
+                randomize_linear=use_random_linear,
+            )
+            episode_random_linear_samples += int(use_random_linear)
+        active_action_offset += 1
 
         raw_actions.append(action)
         env_actions.append([(action[0] + 1) / 2, action[1]])

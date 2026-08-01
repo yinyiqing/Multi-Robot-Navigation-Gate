@@ -34,6 +34,7 @@ CRITIC_LR="${DRL_MULTI_CRITIC_LR:-0.0001}"
 ACTOR_UPDATE_DELAY="${DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS:-0}"
 EXPL_NOISE="${DRL_MULTI_EXPL_NOISE:-0.10}"
 WARMUP_EXPL_NOISE="${DRL_MULTI_CRITIC_WARMUP_EXPL_NOISE:-0.10}"
+RANDOM_LINEAR_STEPS="${DRL_MULTI_RANDOM_LINEAR_EXPLORATION_STEPS:-0}"
 EXPL_MIN="${DRL_MULTI_EXPL_MIN:-0.03}"
 EXPL_DECAY_STEPS="${DRL_MULTI_EXPL_DECAY_STEPS:-100000}"
 
@@ -52,6 +53,10 @@ done
 }
 [[ "$RESUME_TRAINING" == 0 || "$RESUME_TRAINING" == 1 ]] || {
   echo "DRL_MULTI_RESUME_TRAINING must be 0 or 1"
+  exit 2
+}
+[[ "$RANDOM_LINEAR_STEPS" =~ ^[0-9]+$ ]] || {
+  echo "DRL_MULTI_RANDOM_LINEAR_EXPLORATION_STEPS must be a non-negative integer"
   exit 2
 }
 
@@ -184,6 +189,7 @@ setsid bash -lc "
   export DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS='$ACTOR_UPDATE_DELAY'
   export DRL_MULTI_EXPL_NOISE='$EXPL_NOISE'
   export DRL_MULTI_CRITIC_WARMUP_EXPL_NOISE='$WARMUP_EXPL_NOISE'
+  export DRL_MULTI_RANDOM_LINEAR_EXPLORATION_STEPS='$RANDOM_LINEAR_STEPS'
   export DRL_MULTI_EXPL_MIN='$EXPL_MIN'
   export DRL_MULTI_EXPL_DECAY_STEPS='$EXPL_DECAY_STEPS'
 
@@ -200,7 +206,7 @@ echo "Warm start: 5A Actor; fresh original 24-dimensional Critic"
 echo "Updates: Critic starts at replay $MIN_REPLAY_SIZE; Actor starts at agent sample $ACTOR_UPDATE_DELAY"
 echo "Reward: progress=$PROGRESS_WEIGHT forward=$FORWARD_WEIGHT turn=$TURN_WEIGHT obstacle=$OBSTACLE_WEIGHT timeout=${TIMEOUT_REWARD:-disabled}"
 echo "Optimizer: actor_lr=$ACTOR_LR critic_lr=$CRITIC_LR batch=$BATCH_SIZE gamma=$DISCOUNT"
-echo "Exploration: warmup=$WARMUP_EXPL_NOISE train=$EXPL_NOISE min=$EXPL_MIN"
+echo "Exploration: warmup=$WARMUP_EXPL_NOISE train=$EXPL_NOISE min=$EXPL_MIN random_linear_steps=$RANDOM_LINEAR_STEPS"
 echo "Budget: $MAX_EPOCHS x 5000 agent samples"
 echo "Log: $log_file"
 echo "Runner log: $runner_log"

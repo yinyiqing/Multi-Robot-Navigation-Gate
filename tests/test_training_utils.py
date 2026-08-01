@@ -2,6 +2,8 @@ import sys
 import unittest
 from pathlib import Path
 
+import numpy as np
+
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "TD3"))
@@ -10,9 +12,18 @@ from training_utils import (
     apply_timeout_reward,
     decay_exploration_noise,
     episode_train_iterations,
+    exploratory_action,
     replay_ready_for_updates,
     replay_done,
 )
+
+
+class FakeRng:
+    def uniform(self, low, high):
+        return 0.25
+
+    def normal(self, mean, scale, size):
+        return np.full(size, 0.5, dtype=np.float32)
 
 
 class TrainingUtilsTests(unittest.TestCase):
@@ -71,6 +82,24 @@ class TrainingUtilsTests(unittest.TestCase):
             decay_exploration_noise(0.05, 0.05, 0.02, 0)
         with self.assertRaises(ValueError):
             decay_exploration_noise(0.01, 0.01, 0.02, 10)
+
+    def test_random_linear_exploration_preserves_policy_steering(self):
+        action = exploratory_action(
+            [0.9, -0.4], 0.1, 1.0, randomize_linear=True, rng=FakeRng()
+        )
+        np.testing.assert_allclose(action, [0.25, 0.1])
+
+    def test_standard_exploration_noises_both_action_dimensions(self):
+        action = exploratory_action(
+            [0.2, -0.4], 0.1, 1.0, randomize_linear=False, rng=FakeRng()
+        )
+        np.testing.assert_allclose(action, [0.7, 0.1])
+
+    def test_exploration_clips_actions(self):
+        action = exploratory_action(
+            [0.9, 0.9], 0.1, 1.0, randomize_linear=False, rng=FakeRng()
+        )
+        np.testing.assert_allclose(action, [1.0, 1.0])
 
 
 if __name__ == "__main__":
