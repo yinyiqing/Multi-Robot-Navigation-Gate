@@ -7,6 +7,7 @@ START_A = ROOT / "scripts" / "start_training_dense_simple_td3_hparam_a.sh"
 START_B = ROOT / "scripts" / "start_training_dense_simple_td3_hparam_b.sh"
 START_C = ROOT / "scripts" / "start_training_dense_simple_td3_hparam_c.sh"
 START_D = ROOT / "scripts" / "start_training_dense_simple_td3_hparam_d.sh"
+START_D2 = ROOT / "scripts" / "start_training_dense_simple_td3_hparam_d2.sh"
 
 
 class SimpleTd3ActionCoverageProtocolTests(unittest.TestCase):
@@ -16,6 +17,7 @@ class SimpleTd3ActionCoverageProtocolTests(unittest.TestCase):
         cls.start_b = START_B.read_text(encoding="utf-8")
         cls.start_c = START_C.read_text(encoding="utf-8")
         cls.start_d = START_D.read_text(encoding="utf-8")
+        cls.start_d2 = START_D2.read_text(encoding="utf-8")
 
     def test_random_linear_exploration_defaults_off(self):
         self.assertIn(
@@ -39,6 +41,18 @@ class SimpleTd3ActionCoverageProtocolTests(unittest.TestCase):
         self.assertIn("DRL_MULTI_RANDOM_LINEAR_EXPLORATION_STEPS", self.start_d)
         self.assertIn("21000", self.start_d)
         self.assertIn("start_training_dense_simple_td3_hparam_b.sh", self.start_d)
+
+    def test_experiment_d2_uses_controlled_single_ego_exploration(self):
+        self.assertIn("DRL_MULTI_RANDOM_LINEAR_EXPLORATION_SCOPE=single_ego", self.start_d2)
+        self.assertIn("DRL_MULTI_CRITIC_WARMUP_EXPL_NOISE=0.0", self.start_d2)
+        self.assertIn("DRL_MULTI_RANDOM_LINEAR_EXPLORATION_STEPS", self.start_d2)
+        self.assertIn("DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS=1000000000", self.start_d2)
+
+    def test_experiment_d2_uses_ego_motion_critic_without_extra_objectives(self):
+        self.assertIn("DRL_MULTI_USE_LOCAL_CRITIC=1", self.start_d2)
+        self.assertIn("DRL_MULTI_LOCAL_CRITIC_CONTEXT_MODE=ego_motion", self.start_d2)
+        self.assertIn("DRL_MULTI_CRITIC_INTERACTION_FRACTION=0.0", self.start_d2)
+        self.assertIn("start_training_dense_simple_td3_hparam_b.sh", self.start_d2)
 
 
 if __name__ == "__main__":

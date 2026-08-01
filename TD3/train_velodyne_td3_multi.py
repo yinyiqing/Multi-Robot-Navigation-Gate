@@ -34,6 +34,7 @@ from training_utils import (
     exploratory_action,
     replay_ready_for_updates,
     replay_done,
+    single_ego_exploration_index,
 )
 
 
@@ -1267,6 +1268,9 @@ critic_warmup_expl_noise = env_float(
 random_linear_exploration_steps = env_int(
     "DRL_MULTI_RANDOM_LINEAR_EXPLORATION_STEPS", 0
 )
+random_linear_exploration_scope = os.environ.get(
+    "DRL_MULTI_RANDOM_LINEAR_EXPLORATION_SCOPE", "all"
+).strip().lower()
 expl_decay_steps = env_int("DRL_MULTI_EXPL_DECAY_STEPS", 500000)
 expl_min = env_float("DRL_MULTI_EXPL_MIN", 0.1)
 actor_lr = env_float("DRL_MULTI_ACTOR_LR", 1e-3)
@@ -1412,6 +1416,10 @@ if critic_warmup_expl_noise < 0.0:
 if random_linear_exploration_steps < 0:
     raise ValueError(
         "DRL_MULTI_RANDOM_LINEAR_EXPLORATION_STEPS must be non-negative"
+    )
+if random_linear_exploration_scope not in ("all", "single_ego"):
+    raise ValueError(
+        "DRL_MULTI_RANDOM_LINEAR_EXPLORATION_SCOPE must be all or single_ego"
     )
 if actor_gradient_safety_distance <= 0.0:
     raise ValueError("DRL_MULTI_ACTOR_GRADIENT_SAFETY_DISTANCE must be positive")
@@ -2135,6 +2143,7 @@ print("Actor Q normalization alpha:", actor_q_normalization_alpha)
 print("Exploration noise:", expl_noise)
 print("Critic warmup exploration noise:", critic_warmup_expl_noise)
 print("Random linear exploration steps:", random_linear_exploration_steps)
+print("Random linear exploration scope:", random_linear_exploration_scope)
 print("Exploration min:", expl_min)
 print("Exploration decay steps:", expl_decay_steps)
 print("Exploration decay unit: environment steps")
@@ -2868,6 +2877,15 @@ while timestep < max_timesteps:
         if use_oracle_interaction_rollout
         else [False] * len(agent_names)
     )
+    controlled_exploration_active = (
+        random_linear_exploration_scope == "single_ego"
+        and timestep < random_linear_exploration_steps
+    )
+    controlled_exploration_index = (
+        single_ego_exploration_index(active_mask, env_step_count)
+        if controlled_exploration_active
+        else None
+    )
 
     for idx, state in enumerate(states):
         if not active_mask[idx]:
@@ -2880,20 +2898,26 @@ while timestep < max_timesteps:
         else:
             action = network.get_action(np.array(state))
             action_sample_index = timestep + active_action_offset
-            noise_scale = (
-                critic_warmup_expl_noise
-                if action_sample_index < actor_update_delay_steps
-                else expl_noise
+            use_random_linear = bool(
+                idx == controlled_exploration_index
+                if controlled_exploration_active
+                else action_sample_index < random_linear_exploration_steps
             )
-            use_random_linear = (
-                action_sample_index < random_linear_exploration_steps
+            preserve_frozen_policy = bool(
+                controlled_exploration_active and not use_random_linear
             )
-            action = exploratory_action(
-                action,
-                noise_scale,
-                max_action,
-                randomize_linear=use_random_linear,
-            )
+            if not preserve_frozen_policy:
+                noise_scale = (
+                    critic_warmup_expl_noise
+                    if action_sample_index < actor_update_delay_steps
+                    else expl_noise
+                )
+                action = exploratory_action(
+                    action,
+                    noise_scale,
+                    max_action,
+                    randomize_linear=use_random_linear,
+                )
             episode_random_linear_samples += int(use_random_linear)
         active_action_offset += 1
 

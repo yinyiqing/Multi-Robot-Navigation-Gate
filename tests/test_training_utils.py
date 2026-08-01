@@ -15,6 +15,7 @@ from training_utils import (
     exploratory_action,
     replay_ready_for_updates,
     replay_done,
+    single_ego_exploration_index,
 )
 
 
@@ -100,6 +101,20 @@ class TrainingUtilsTests(unittest.TestCase):
             [0.9, 0.9], 0.1, 1.0, randomize_linear=False, rng=FakeRng()
         )
         np.testing.assert_allclose(action, [1.0, 1.0])
+
+    def test_single_ego_exploration_rotates_over_active_agents(self):
+        active = [True, False, True, True]
+        self.assertEqual(single_ego_exploration_index(active, 0), 0)
+        self.assertEqual(single_ego_exploration_index(active, 1), 2)
+        self.assertEqual(single_ego_exploration_index(active, 2), 3)
+        self.assertEqual(single_ego_exploration_index(active, 3), 0)
+
+    def test_single_ego_exploration_handles_no_active_agent(self):
+        self.assertIsNone(single_ego_exploration_index([False, False], 0))
+
+    def test_single_ego_exploration_rejects_negative_step(self):
+        with self.assertRaises(ValueError):
+            single_ego_exploration_index([True], -1)
 
 
 if __name__ == "__main__":

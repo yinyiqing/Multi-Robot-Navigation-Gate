@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Calibrate a 24D TD3 Critic with controlled same-state Gazebo branches."""
+"""Calibrate a TD3 Critic with controlled same-state Gazebo branches."""
 
 import argparse
 import json
@@ -23,11 +23,14 @@ from collect_actor_counterfactuals import (
     select_anchor_agents,
 )
 from critic_calibration import (
+    combine_actor_and_critic_context,
     discounted_n_step_target,
+    infer_critic_state_dim,
     summarize_counterfactual_calibration,
 )
 from critic_models import Critic
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
+from neighbor_context import context_feature_dim, normalize_context_mode
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -76,12 +79,41 @@ class FrozenPolicyAndCritic:
             checkpoint_path, map_location=self.device, weights_only=False
         )
         network = checkpoint["network"]
+        self.critic_state_dim = infer_critic_state_dim(network["critic"])
+        self.critic_context_mode = normalize_context_mode(
+            network.get("critic_context_mode", "legacy")
+        )
+        context_width = self.critic_state_dim - STATE_DIM
+        if context_width < 0:
+            raise ValueError("Critic state width is smaller than Actor state width")
+        feature_dim = context_feature_dim(
+            self.critic_context_mode,
+            legacy_include_actions=self.critic_context_mode == "legacy",
+        )
+        if context_width and context_width % feature_dim:
+            raise ValueError(
+                "Critic context width is incompatible with checkpoint context mode"
+            )
+        self.max_neighbors = context_width // feature_dim
         self.actor = Actor(STATE_DIM, ACTION_DIM).to(self.device)
         self.actor.load_state_dict(torch.load(base_actor_path, map_location=self.device))
         self.actor.eval()
-        self.critic = Critic(STATE_DIM, ACTION_DIM).to(self.device)
+        self.critic = Critic(self.critic_state_dim, ACTION_DIM).to(self.device)
         self.critic.load_state_dict(network["critic"])
         self.critic.eval()
+
+    def critic_states(self, env, actor_states, previous_env_actions, active_mask):
+        contexts = []
+        if self.max_neighbors:
+            contexts = env.build_neighbor_context(
+                previous_env_actions,
+                max_neighbors=self.max_neighbors,
+                include_actions=self.critic_context_mode == "legacy",
+                active_mask=active_mask,
+            )
+        return combine_actor_and_critic_context(
+            actor_states, contexts, self.critic_state_dim
+        )
 
     @torch.no_grad()
     def action(self, state):
@@ -133,6 +165,7 @@ def run_speed_branch(
     ego_collision = False
     ego_target = False
     final_distance = initial_distance
+    final_env_actions = None
 
     for step in range(horizon):
         if step == 0:
@@ -147,6 +180,7 @@ def run_speed_branch(
         states, step_rewards, dones, targets, collisions = env.step(
             env_actions, branch_active_mask
         )
+        final_env_actions = env_actions
         rewards.append(float(step_rewards[ego_index]))
         final_distance = float(states[ego_index][-4])
         minimum_clearance = min(
@@ -164,7 +198,10 @@ def run_speed_branch(
     bootstrap_qmin = 0.0
     if branch_active_mask[ego_index]:
         final_action = policy.action(states[ego_index])
-        q1, q2 = policy.q_values(states[ego_index], final_action)
+        final_critic_states = policy.critic_states(
+            env, states, final_env_actions, branch_active_mask
+        )
+        q1, q2 = policy.q_values(final_critic_states[ego_index], final_action)
         bootstrap_qmin = min(q1, q2)
     return {
         "observed_rewards": rewards,
@@ -236,6 +273,7 @@ def main():
         active_neighbors_only=True,
         weak_coupling_layout=True,
         scenario_mode="manifest",
+        neighbor_context_mode=policy.critic_context_mode,
         fixed_physics_step_size=0.001,
     )
     records = []
@@ -266,6 +304,17 @@ def main():
                     _, anchor_raw_actions = policy_actions(
                         anchor_states, anchor_active_mask, policy
                     )
+                    previous_env_actions = (
+                        action_prefix[-1]
+                        if action_prefix
+                        else [[0.0, 0.0] for _ in AGENT_NAMES]
+                    )
+                    anchor_critic_states = policy.critic_states(
+                        env,
+                        anchor_states,
+                        previous_env_actions,
+                        anchor_active_mask,
+                    )
                     for ego_index in egos:
                         actor_action = anchor_raw_actions[ego_index]
                         for speed in speeds:
@@ -282,7 +331,7 @@ def main():
                             candidate_action = actor_action.copy()
                             candidate_action[0] = speed
                             q1, q2 = policy.q_values(
-                                anchor_states[ego_index], candidate_action
+                                anchor_critic_states[ego_index], candidate_action
                             )
                             outcome = run_speed_branch(
                                 env,
@@ -334,6 +383,9 @@ def main():
         "manifest": str(args.manifest),
         "checkpoint": str(args.checkpoint),
         "base_actor": str(args.base_actor),
+        "critic_state_dim": policy.critic_state_dim,
+        "critic_context_mode": policy.critic_context_mode,
+        "critic_max_neighbors": policy.max_neighbors,
         "speeds": speeds,
         "horizon": args.horizon,
         "discount": args.discount,

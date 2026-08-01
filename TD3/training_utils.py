@@ -65,3 +65,15 @@ def exploratory_action(
     else:
         action += random_source.normal(0.0, noise_scale, size=action.size)
     return np.clip(action, -max_action, max_action)
+
+
+def single_ego_exploration_index(active_mask, environment_step):
+    """Choose one active agent deterministically for controlled exploration."""
+    if environment_step < 0:
+        raise ValueError("environment_step must be non-negative")
+    active_indices = [
+        index for index, is_active in enumerate(active_mask) if bool(is_active)
+    ]
+    if not active_indices:
+        return None
+    return active_indices[environment_step % len(active_indices)]
