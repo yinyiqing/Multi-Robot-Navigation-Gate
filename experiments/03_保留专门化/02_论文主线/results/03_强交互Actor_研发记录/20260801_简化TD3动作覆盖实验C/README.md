@@ -33,3 +33,29 @@
 - 启动：`scripts/start_training_dense_simple_td3_hparam_c.sh`
 - 停止：`scripts/stop_training_dense_simple_td3_hparam_c.sh`
 - 审计：`scripts/audit_simple_td3_critic.py`
+
+## 结果
+
+Actor全程冻结，参数与5A完全相同。固定validation结果如下：
+
+| epoch | success rate | full success rate |
+|---:|---:|---:|
+| 1 | 0.724 | 0.360 |
+| 2 | 0.736 | 0.400 |
+| 3 | 0.756 | 0.400 |
+| 4 | 0.712 | 0.320 |
+
+Critic危险状态（最小激光距离不超过`0.5m`）速度排序：
+
+| epoch | `Q(full)-Q(stop)` | 偏好全速的样本比例 |
+|---:|---:|---:|
+| 1 | +0.107 | 86.9% |
+| 2 | -0.565 | 0.0% |
+| 3 | +0.973 | 100.0% |
+| 4 | +1.915 | 100.0% |
+
+前`10000`条随机线速度数据中，危险状态五档动作数量为`114/123/113/114/131`，分布均衡；后`10117`条恢复5A采样后变为`231/12/4/10/358`，中间速度再次消失。
+
+结论：动作覆盖确实能把Critic排序纠正，但在`10000`步停止覆盖后，5A的双峰动作分布再次把Critic带回错误方向。实验C不允许解冻Actor，由实验D将均衡覆盖延长到完整Critic warmup阶段。
+
+正式日志位于`logs/formal/`，审计位于`audits/`。checkpoint、模型和TensorBoard文件保留在本地归档中，不提交GitHub。
