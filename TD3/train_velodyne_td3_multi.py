@@ -2271,10 +2271,9 @@ stop_training = False
 while timestep < max_timesteps:
     if episode_done:
         if timestep != 0 and not skip_episode_summary_once:
+            train_iterations = 0
             if replay_ready_for_updates(replay_buffer.size(), minimum_replay_size):
-                train_iterations = episode_train_iterations(
-                    episode_sample_count, len(agent_names)
-                )
+                train_iterations = episode_train_iterations(episode_timesteps)
                 if use_local_critic:
                     network.train_local_critic(
                         replay_buffer,
@@ -2480,7 +2479,8 @@ while timestep < max_timesteps:
             mean_coop_neighbors = float(np.mean(coop_neighbor_counts))
             print(
                 "Episode %i complete | agent_samples=%i | env_steps=%i | "
-                "episode_env_steps=%i | episode_agent_samples=%i | mean_reward=%.3f | "
+                "episode_env_steps=%i | episode_agent_samples=%i | critic_updates=%i | "
+                "updates_per_env_step=%.3f | mean_reward=%.3f | "
                 "success=%i/%i | collision=%i/%i | mean_final_distance=%.3f | "
                 "mean_progress=%.4f | min_laser=%.3f | mean_lin=%.3f | mean_ang=%.3f | "
                 "mean_robot_dist=%.3f | raw_reward=%.3f | adjusted_reward=%.3f | "
@@ -2505,6 +2505,12 @@ while timestep < max_timesteps:
                     env_step_count,
                     episode_timesteps,
                     episode_sample_count,
+                    train_iterations,
+                    (
+                        train_iterations / episode_timesteps
+                        if episode_timesteps > 0
+                        else 0.0
+                    ),
                     float(np.mean(episode_rewards)),
                     success_count,
                     len(agent_names),

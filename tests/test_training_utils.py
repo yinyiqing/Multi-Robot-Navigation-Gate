@@ -50,14 +50,14 @@ class TrainingUtilsTests(unittest.TestCase):
         self.assertEqual(replay_done(False, True), 1)
         self.assertEqual(replay_done(False, False), 0)
 
-    def test_updates_scale_with_collective_steps(self):
-        self.assertEqual(episode_train_iterations(500, 5), 100)
-        self.assertEqual(episode_train_iterations(501, 5), 101)
-        self.assertEqual(episode_train_iterations(0, 5), 1)
+    def test_updates_match_joint_environment_steps(self):
+        self.assertEqual(episode_train_iterations(100), 100)
+        self.assertEqual(episode_train_iterations(1), 1)
+        self.assertEqual(episode_train_iterations(0), 1)
 
-    def test_update_scaling_rejects_invalid_agent_count(self):
+    def test_update_scaling_rejects_negative_environment_steps(self):
         with self.assertRaises(ValueError):
-            episode_train_iterations(10, 0)
+            episode_train_iterations(-1)
 
     def test_replay_warmup_delays_all_updates(self):
         self.assertFalse(replay_ready_for_updates(0, 0))

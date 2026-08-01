@@ -1,5 +1,3 @@
-import math
-
 import numpy as np
 
 
@@ -21,11 +19,11 @@ def apply_timeout_reward(rewards, terminated, truncated, timeout_reward):
     return adjusted
 
 
-def episode_train_iterations(agent_samples, num_agents):
-    """Keep updates proportional to collective environment steps, not inactive agents."""
-    if num_agents < 1:
-        raise ValueError("num_agents must be positive")
-    return max(int(math.ceil(float(agent_samples) / num_agents)), 1)
+def episode_train_iterations(environment_steps):
+    """Run one gradient update per joint environment transition."""
+    if environment_steps < 0:
+        raise ValueError("environment_steps must be non-negative")
+    return max(int(environment_steps), 1)
 
 
 def replay_ready_for_updates(replay_size, minimum_size):

@@ -1,6 +1,6 @@
 # ICRA论文主线：两个独立Actor + Gate
 
-状态：`5A作为普通Actor冻结；v9无学习增益；统一靠右直接接管无净收益；独立Dense Actor仍待解决；Gate继续暂停`。
+状态：`5A作为普通Actor冻结；独立Dense Actor仍待解决；已定位Critic更新与校准协议问题；Gate继续暂停`。
 
 导师沟通后的当前目标是：
 
@@ -61,16 +61,16 @@ Gate的前提是A和B都能单独从起点完成导航。旧epoch-16策略只能
 
 ## 3. 独立Dense Actor训练
 
-失败对照：[D5 independent Dense Actor v1](results/05_当前冻结方案/D5_independent_dense_actor_from_5a_full_v1_s20260728/README.md)。v2-v8的后续修复与失败记录见[强交互Actor研发记录](results/03_强交互Actor_研发记录/README.md)。当前启动脚本已切换到v9，但尚未启动。
+失败对照：[D5 independent Dense Actor v1](results/05_当前冻结方案/D5_independent_dense_actor_from_5a_full_v1_s20260728/README.md)。后续独立Actor、简化TD3和Critic诊断记录见[强交互Actor研发记录](results/03_强交互Actor_研发记录/README.md)。当前没有批准启动的新训练配置。
 
 固定规则：
 
 1. 从5A Actor warm-start，不从epoch-16或5D开始。
 2. 新Actor在每个episode中全程控制，禁止`2.0 m` oracle或另一Actor接管。
 3. 保持TD3、原24维Actor输入和`0.8自身 + 0.2邻车`加权reward。
-4. Critic使用训练期邻车相对位置/速度；Actor部署输入不变。
-5. 全状态使用轻量5A动作anchor限制策略漂移；危险接近时额外禁止新Actor比5A加速，但允许减速和改变转向。
-6. 使用`dense/train`的6000场无放回循环，不再用只有单冲突边的140场子集代替完整Dense训练。
+4. 保留`0.8自身 + 0.2邻车`时，Critic必须获得预测该reward所需的训练期邻车信息；Actor部署输入暂时不变。
+5. 不再用统一减速、加速上限或5A anchor掩盖Critic错误；先通过同状态N-step反事实校准再解冻Actor。
+6. 第一阶段使用五车、策略无关且错峰可解的Dense train视图学习让行；之后扩展到完整`dense/train`，不以140场单冲突集代替最终训练和验证。
 7. 同时检查full success、collision、unresolved、timeout和平均步数；不接受“碰撞下降但全部变成超时”。
 
 ### v3-v7 复盘
@@ -103,13 +103,14 @@ v9只针对上述已确认机制修正：恢复Q尺度归一化；全状态使�
 1. 固定200场复核已完成：v6有真实收益，但因`0.120` timeout和`2.59`倍平均步数未通过验收，不再运行其完整1000场validation。
 2. 后续候选统一使用固定步进、单实例Gazebo和多次重复统计，不再依据单次逐场波动判断提升。
 3. 统一靠右直接接管已否定；不把固定规则伪装成Dense Actor，也不据此生成监督示范。
-4. 训练前先做观测可判别性检查；当前单帧20-bin若不能稳定判断运动方向和闭合趋势，就不再继续调reward。
-5. 观测检查通过后，先在`0.6 m`错峰可解的Dense train子集学习让行和重新启动，再扩展到需要途中换路的场景；validation和test保持完整，不按策略成绩过滤。
-6. 在完整1000场dense validation上确认候选独立超过5A/5D，并且没有系统性超时。
-7. 补测新Actor的0-edge/standard validation能力，确认它与5A是否真的互补；如果新Actor全面优于5A，则不强行训练无意义的Gate。
-8. 只有两个独立Actor存在稳定互补性时，才冻结它们并训练Gate。
-9. Gate使用可部署的本机感知做状态选择，不读取场景名、dense标签或其他机器人真值。
-10. Actor、Gate和所有阈值冻结后，最后一次运行sealed test。
+4. 训练更新恢复为每个联合环境步一次；日志必须直接报告`critic_updates/env_step`，不再用`agent_samples / 固定车辆数`近似活跃车辆变化后的环境步。
+5. Critic解冻前校准固定同一Gazebo锚点和其他车辆动作，只改变ego动作；旧的`min_laser`阈值Q扫描只作报警，不作正确动作标签。
+6. 校准通过后，先在`0.6 m`错峰可解的五车Dense train子集学习让行和重新启动，再扩展到需要途中换路的场景；validation和test保持完整，不按策略成绩过滤。
+7. 在完整1000场dense validation上确认候选独立超过5A/5D，并且没有系统性超时。
+8. 补测新Actor的0-edge/standard validation能力，确认它与5A是否真的互补；如果新Actor全面优于5A，则不强行训练无意义的Gate。
+9. 只有两个独立Actor存在稳定互补性时，才冻结它们并训练Gate。
+10. Gate使用可部署的本机感知做状态选择，不读取场景名、dense标签或其他机器人真值。
+11. Actor、Gate和所有阈值冻结后，最后一次运行sealed test。
 
 ## 5. 论文主张边界
 
