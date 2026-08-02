@@ -74,3 +74,7 @@ Gate强Actor激活比例`0.402`。两条路径均确认CPU设备、manifest、�
 DRL_EDGE2_TARGET_EPISODES=200 DRL_EDGE2_RUN_NAME=<run_name> \
   bash scripts/experiment.sh start edge2-confirmation-5a
 ```
+
+启动器会在识别到Gazebo fixed-step stall时自动清理当前ROS/Gazebo子进程，并从
+同一checkpoint最多恢复5次；其他异常仍立即退出。自动恢复不删除、替换或重复已
+落盘episode，也不改变模型、seed、场景顺序或固定物理步参数。

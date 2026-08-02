@@ -31,10 +31,12 @@ esac
 TARGET_EPISODES="${DRL_EDGE2_TARGET_EPISODES:-1}"
 SEED="${DRL_EDGE2_SEED:-20260803}"
 RESUME_RUN_NAME="${DRL_EDGE2_RUN_NAME:-}"
+MAX_STALL_RESTARTS="${DRL_EDGE2_MAX_STALL_RESTARTS:-5}"
 PID_FILE="$PROJECT_ROOT/.edge2_confirmation_${MODE//-/_}.pid"
 [[ "$TARGET_EPISODES" =~ ^[1-9][0-9]*$ ]] || { echo "Target episodes must be positive"; exit 2; }
 (( TARGET_EPISODES <= 200 )) || { echo "Edge-2 confirmation is limited to 200 scenes"; exit 2; }
 [[ "$SEED" =~ ^[0-9]+$ ]] || { echo "Seed must be an integer"; exit 2; }
+[[ "$MAX_STALL_RESTARTS" =~ ^[0-9]+$ ]] || { echo "Max stall restarts must be a non-negative integer"; exit 2; }
 
 required_files=(
   "$MANIFEST_PATH"
@@ -101,11 +103,14 @@ if [[ "$MODE" == "learned-gate" ]]; then
 fi
 
 setsid bash -lc "
-  set -eo pipefail
-  cleanup() {
+  set -o pipefail
+  cleanup_children() {
     pgid=\"\$(ps -o pgid= -p \$\$ | tr -d ' ')\"
     ps -eo pid=,pgid= | awk -v pgid=\"\$pgid\" -v self=\"\$\$\" \\
       '\$2 == pgid && \$1 != self { print \$1 }' | xargs -r kill 2>/dev/null || true
+  }
+  cleanup() {
+    cleanup_children
     unlink '$PID_FILE' 2>/dev/null || true
   }
   trap cleanup EXIT
@@ -136,7 +141,31 @@ setsid bash -lc "
   export DRL_MULTI_RAW_LIDAR_MAX_RANGE=6.0
   unset DRL_MULTI_CASE_ORACLE_MAP DRL_MULTI_RULE_ORACLE_MODE
   cd '$TD3_DIR'
-  python3 -u test_velodyne_td3_multi.py >'$log_file' 2>&1
+  attempt=0
+  while true; do
+    attempt_log='$log_file'
+    if (( attempt > 0 )); then
+      attempt_log=\"\${attempt_log%.log}_autoretry_\$(printf '%02d' \"\$attempt\").log\"
+    fi
+    echo \"Exact-edge-2 attempt \$((attempt + 1)) started | log=\$attempt_log\"
+    if python3 -u test_velodyne_td3_multi.py >\"\$attempt_log\" 2>&1; then
+      exit 0
+    else
+      status=\$?
+    fi
+    if ! rg -q 'TimeoutError: Gazebo did not complete [0-9]+ fixed physics steps' \"\$attempt_log\"; then
+      echo \"Exact-edge-2 stopped on a non-recoverable error | status=\$status | log=\$attempt_log\"
+      exit \"\$status\"
+    fi
+    if (( attempt >= $MAX_STALL_RESTARTS )); then
+      echo \"Exact-edge-2 exhausted $MAX_STALL_RESTARTS automatic stall restarts | log=\$attempt_log\"
+      exit \"\$status\"
+    fi
+    attempt=\$((attempt + 1))
+    echo \"Fixed-step stall detected; restarting Gazebo from checkpoint | retry=\$attempt/$MAX_STALL_RESTARTS\"
+    cleanup_children
+    sleep 2
+  done
 " >"$runner_log" 2>&1 < /dev/null &
 
 echo $! > "$PID_FILE"
@@ -145,5 +174,6 @@ echo "PID: $(cat "$PID_FILE")"
 echo "Scenarios: $TARGET_EPISODES / 200"
 echo "Seed/device: $SEED/cpu"
 echo "Resume run: ${RESUME_RUN_NAME:-disabled}"
+echo "Automatic fixed-step stall restarts: $MAX_STALL_RESTARTS"
 echo "Log: $log_file"
 echo "Stats: $stats_path"
