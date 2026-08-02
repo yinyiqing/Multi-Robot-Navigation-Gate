@@ -1,6 +1,6 @@
 # 局部专家全程化：Actor B工作线
 
-状态：`epoch-16完整状态分叉pilot呈正向趋势，等待200场复核；离线蒸馏与D2b fresh Critic已拒绝`。
+状态：`epoch-16完整状态分叉pilot呈正向趋势，200场复核运行中；离线蒸馏与D2b fresh Critic已拒绝`。
 
 ## 1. 目标
 
@@ -77,3 +77,5 @@ Actor B必须从起点独立运行到终点。`5A + epoch-16`的`2.0 m`真值切
 离线双教师可行性筛选见 [01_双教师离线蒸馏pilot](01_双教师离线蒸馏pilot/README.md)。
 
 D2b Critic校准见 [02_D2b_Critic同状态校准](02_D2b_Critic同状态校准/README.md)，当前在线实验见 [03_epoch16完整训练状态分叉pilot](03_epoch16完整训练状态分叉pilot/README.md)。
+
+固定200场复核见 [04_epoch17_epoch18固定200场复核](04_epoch17_epoch18固定200场复核/README.md)。
