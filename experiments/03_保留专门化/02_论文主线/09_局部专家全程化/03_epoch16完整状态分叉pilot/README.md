@@ -1,6 +1,6 @@
 # epoch-16完整训练状态分叉pilot
 
-状态：`运行中`。
+状态：`已完成；短程全状态更新呈正向趋势，但Actor B尚未达到独立准入线`。
 
 ## 假设
 
@@ -40,6 +40,57 @@ TD3/checkpoints/interaction_focused_actor_from_5a_fullstrong_balanced_formal_s20
 - 每轮验证50个固定scenario；任一明显碰撞、timeout或全局动作偏置退化立即停止。
 
 该pilot只回答“复用专家完整训练状态后，第一步全程化是否有正向趋势”，不直接作为论文最终结果。
+
+## 结果
+
+运行时间：`2026-08-02 23:40`至`2026-08-03 00:59`。
+
+日志：
+
+```text
+logs/train_actor_b_from_epoch16_full_pilot_v1_s20260802_20260802_234053.log
+```
+
+固定50场结果：
+
+| 指标 | epoch 17冻结基线 | epoch 18短训 | 变化 |
+|---|---:|---:|---:|
+| agent success | 0.760 | 0.780 | +0.020 |
+| collision | 0.144 | 0.124 | -0.020 |
+| unresolved | 0.096 | 0.096 | 0.000 |
+| full success | 0.300 | 0.420 | +0.120 |
+| timeout episode | 0.380 | 0.340 | -0.040 |
+| avg env steps | 161.90 | 146.14 | -15.76 |
+| avg final distance | 0.346 | 0.327 | -0.019 |
+| avg reward | 39.654 | 50.843 | +11.189 |
+
+epoch 18在碰撞没有反弹的情况下提高了full success并缩短episode，说明复用原专家Critic/replay后进行全状态更新这条方向成立。它修复的是部分“交互后不重启/不能收尾”问题，而不是把停车简单变成碰撞。
+
+但该结果只通过趋势筛选，没有通过独立Actor准入：`timeout=0.340`仍高于`0.30`停止线，`full=0.420`也不足以支持Actor B已经具备可靠全程导航能力。因此不继续叠加epoch或改多个超参数，先扩大固定场景复核。
+
+## 机制核验
+
+- epoch 17 Actor与原epoch-16 Actor逐张量一致，最大参数差为`0`，冻结基线有效；
+- Actor只在`326500` agent samples后解锁，解锁前日志均为`actor_unlocked=0`；
+- 观察到的Actor gradient gate全部通过，危险样本上的梯度未出现恒定加速或单侧转向；
+- epoch 17到epoch 18的相对参数L2漂移为`3.75e-4`，最大单参数变化为`7.00e-4`；
+- 在8192个真实replay状态上，Actor输出平均变化为`[+0.0144, -0.0065]`，绝对变化均值为`[0.0144, 0.0109]`；仅`15.3%`状态的最大动作变化超过`0.05`。
+
+因此当前改善来自小范围状态相关修正，不是全局动作偏置。
+
+## 决策
+
+1. 冻结epoch 18候选，不继续当前配置长训。
+2. 使用固定200场对epoch 17/18做同场复核，并保留逐场结果。
+3. 单独复核strong-interaction保持率，确认局部避障专门化没有被稀释。
+4. 通过后再与冻结5A做`A-only/B-only/both/neither`互补性审计；当前不训练Gate。
+
+候选checkpoint：
+
+```text
+TD3/checkpoints/actor_b_from_epoch16_full_pilot_v1_s20260802_best.pt
+TD3/pytorch_models/actor_b_from_epoch16_full_pilot_v1_s20260802_epoch_018_actor.pth
+```
 
 ## 脚本
 
