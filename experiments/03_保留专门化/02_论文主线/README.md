@@ -1,6 +1,6 @@
 # ICRA论文主线：两个独立Actor + Gate
 
-状态：`5A作为普通Actor冻结；独立Dense Actor仍待解决；已定位Critic更新与校准协议问题；Gate继续暂停`。
+状态：`5A作为普通Actor冻结；批准从epoch-16恢复全程导航能力训练Actor B；Gate继续暂停`。
 
 导师沟通后的当前目标是：
 
@@ -10,7 +10,7 @@ Dense/强交互状态 -> 独立Actor B（待重训）
 实际执行           -> Gate在A/B之间选择
 ```
 
-Gate的前提是A和B都能单独从起点完成导航。旧epoch-16策略只能在局部交互区使用，因此不能直接作为Actor B。
+Gate的前提是A和B都能单独从起点完成导航。旧epoch-16策略不能直接作为Actor B，但它将作为新Actor B的warm-start，而不是被丢弃。
 
 旧的“5A + 条件交互Actor + 状态Gate”完整协议保留在 [历史文档](HISTORY_CONDITIONAL_ACTOR_GATE.md)，用于追溯，不再代表当前实验决策。
 
@@ -25,7 +25,7 @@ Gate的前提是A和B都能单独从起点完成导航。旧epoch-16策略只能
 | 5A | `0.9726` | `0.8750` |
 | 5D | `0.9718` | `0.8710` |
 
-选择5A作为普通Actor，也作为Dense Actor的warm-start。5D继续作为历史generalist基线。
+选择5A作为普通Actor。Dense Actor改为从epoch-16局部专家warm-start，以直接检验能否在保留局部避碰能力的同时恢复全程导航；5D继续作为历史generalist基线。
 
 ### Dense validation
 
@@ -61,11 +61,11 @@ Gate的前提是A和B都能单独从起点完成导航。旧epoch-16策略只能
 
 ## 3. 独立Dense Actor训练
 
-失败对照：[D5 independent Dense Actor v1](results/05_当前冻结方案/D5_independent_dense_actor_from_5a_full_v1_s20260728/README.md)。后续独立Actor、简化TD3和Critic诊断记录见[强交互Actor研发记录](results/03_强交互Actor_研发记录/README.md)。当前没有批准启动的新训练配置。
+失败对照：[D5 independent Dense Actor v1](results/05_当前冻结方案/D5_independent_dense_actor_from_5a_full_v1_s20260728/README.md)。后续独立Actor、简化TD3和Critic诊断记录见[强交互Actor研发记录](results/03_强交互Actor_研发记录/README.md)。当前批准的新路线见[局部专家全程化](09_局部专家全程化/README.md)。
 
 固定规则：
 
-1. 从5A Actor warm-start，不从epoch-16或5D开始。
+1. 从epoch-16局部交互Actor warm-start；此前所有独立Dense Actor均从5A开始，因此这是新的直接检验。
 2. 新Actor在每个episode中全程控制，禁止`2.0 m` oracle或另一Actor接管。
 3. 保持TD3、原24维Actor输入和`0.8自身 + 0.2邻车`加权reward。
 4. 保留`0.8自身 + 0.2邻车`时，Critic必须获得预测该reward所需的训练期邻车信息；Actor部署输入暂时不变。
