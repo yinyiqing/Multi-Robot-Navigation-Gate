@@ -1303,6 +1303,9 @@ actor_train_mode = os.environ.get("DRL_MULTI_ACTOR_TRAIN_MODE", "full").strip().
 use_oracle_interaction_rollout = env_flag(
     "DRL_MULTI_USE_ORACLE_INTERACTION_ROLLOUT", False
 )
+use_oracle_target_policy = env_flag(
+    "DRL_MULTI_USE_ORACLE_TARGET_POLICY", use_oracle_interaction_rollout
+)
 actor_interaction_only = env_flag(
     "DRL_MULTI_ACTOR_INTERACTION_ONLY", False
 )
@@ -1389,9 +1392,13 @@ local_critic_feature_dim = context_feature_dim(
 )
 if oracle_interaction_distance <= 0.0:
     raise ValueError("DRL_MULTI_ORACLE_INTERACTION_DISTANCE must be positive")
-if (use_oracle_interaction_rollout or actor_interaction_only) and not use_local_critic:
+if (
+    use_oracle_interaction_rollout
+    or use_oracle_target_policy
+    or actor_interaction_only
+) and not use_local_critic:
     raise ValueError(
-        "Oracle interaction rollout and interaction-only Actor updates require "
+        "Oracle rollout/target policies and interaction-only Actor updates require "
         "DRL_MULTI_USE_LOCAL_CRITIC=1"
     )
 if use_actor_gradient_gate and not use_local_critic:
@@ -1955,7 +1962,11 @@ elif load_model:
         print("Load error:", exc)
 
 weak_actor = None
-if use_oracle_interaction_rollout or actor_angular_anchor_weight > 0.0:
+if (
+    use_oracle_interaction_rollout
+    or use_oracle_target_policy
+    or actor_angular_anchor_weight > 0.0
+):
     weak_actor_path = os.path.join(
         "./pytorch_models", f"{oracle_weak_actor_name}_actor.pth"
     )
@@ -2095,7 +2106,7 @@ print("Actor learning rate:", actor_lr)
 print("Actor train mode:", network.actor_train_mode)
 print("Oracle interaction rollout:", use_oracle_interaction_rollout)
 print("Reference Actor:", oracle_weak_actor_name)
-print("Oracle target policy:", use_oracle_interaction_rollout)
+print("Oracle target policy:", use_oracle_target_policy)
 print("Oracle interaction distance:", oracle_interaction_distance)
 print("Actor interaction-only updates:", actor_interaction_only)
 print("Critic interaction fraction:", critic_interaction_fraction)
@@ -2311,7 +2322,7 @@ while timestep < max_timesteps:
                         timestep >= actor_update_delay_steps,
                         actor_interaction_only,
                         weak_actor,
-                        use_oracle_interaction_rollout,
+                        use_oracle_target_policy,
                         oracle_interaction_distance,
                         local_critic_feature_dim,
                         critic_interaction_fraction,
