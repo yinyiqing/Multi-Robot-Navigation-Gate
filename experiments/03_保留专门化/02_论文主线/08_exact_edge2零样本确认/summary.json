@@ -1,0 +1,296 @@
+{
+  "result_version": 1,
+  "status": "failed",
+  "integrity": {
+    "expected_episodes": 200,
+    "unique_scenario_ids": 200,
+    "manifest_order_matches": true
+  },
+  "overall": {
+    "baseline": {
+      "episodes": 200,
+      "agent_success_count": 737,
+      "agent_success": 0.737,
+      "collision_count": 263,
+      "collision": 0.263,
+      "unresolved_count": 0,
+      "unresolved": 0.0,
+      "full_success_count": 65,
+      "full_success": 0.325,
+      "timeout_count": 0,
+      "timeout": 0.0,
+      "mean_env_steps": 16.535
+    },
+    "learned_gate": {
+      "episodes": 200,
+      "agent_success_count": 812,
+      "agent_success": 0.812,
+      "collision_count": 188,
+      "collision": 0.188,
+      "unresolved_count": 0,
+      "unresolved": 0.0,
+      "full_success_count": 81,
+      "full_success": 0.405,
+      "timeout_count": 0,
+      "timeout": 0.0,
+      "mean_env_steps": 26.625,
+      "mean_dense_action_share": 0.5425134314364919,
+      "mean_gate_switches": 10.955,
+      "mean_gate_probability": 0.4738104960792857
+    },
+    "historical_baseline_same_ids": {
+      "episodes": 200,
+      "agent_success_count": 755,
+      "agent_success": 0.755,
+      "collision_count": 245,
+      "collision": 0.245,
+      "unresolved_count": 0,
+      "unresolved": 0.0,
+      "full_success_count": 71,
+      "full_success": 0.355,
+      "timeout_count": 0,
+      "timeout": 0.0,
+      "mean_env_steps": 27.315
+    },
+    "historical_oracle_same_ids": {
+      "episodes": 200,
+      "agent_success_count": 877,
+      "agent_success": 0.877,
+      "collision_count": 120,
+      "collision": 0.12,
+      "unresolved_count": 3,
+      "unresolved": 0.003,
+      "full_success_count": 118,
+      "full_success": 0.59,
+      "timeout_count": 1,
+      "timeout": 0.005,
+      "mean_env_steps": 53.315
+    }
+  },
+  "paired_full_success": {
+    "both_success": 39,
+    "gate_only_success": 42,
+    "baseline_only_success": 26,
+    "both_failure": 93,
+    "mcnemar_exact_p": 0.06811867428409976
+  },
+  "paired_bootstrap": {
+    "metric": "full_success_delta",
+    "resamples": 20000,
+    "seed": 20260802,
+    "mean": 0.08,
+    "ci95": [
+      0.0,
+      0.16
+    ]
+  },
+  "full_success_delta": 0.08000000000000002,
+  "oracle_gain": 0.26499999999999996,
+  "oracle_gain_recovery": 0.3018867924528303,
+  "criteria": {
+    "full_success_delta_at_least_0_08": true,
+    "bootstrap_ci_lower_above_zero": false,
+    "mcnemar_p_below_0_05": false,
+    "oracle_gain_recovery_at_least_0_60": false,
+    "agent_success_not_lower": true,
+    "timeout_increase_at_most_0_01": true
+  },
+  "strata": {
+    "max_conflict_degree": {
+      "1": {
+        "scenarios": 102,
+        "baseline": {
+          "episodes": 102,
+          "agent_success_count": 356,
+          "agent_success": 0.6980392156862745,
+          "collision_count": 154,
+          "collision": 0.30196078431372547,
+          "unresolved_count": 0,
+          "unresolved": 0.0,
+          "full_success_count": 28,
+          "full_success": 0.27450980392156865,
+          "timeout_count": 0,
+          "timeout": 0.0,
+          "mean_env_steps": 17.980392156862745
+        },
+        "learned_gate": {
+          "episodes": 102,
+          "agent_success_count": 410,
+          "agent_success": 0.803921568627451,
+          "collision_count": 100,
+          "collision": 0.19607843137254902,
+          "unresolved_count": 0,
+          "unresolved": 0.0,
+          "full_success_count": 37,
+          "full_success": 0.3627450980392157,
+          "timeout_count": 0,
+          "timeout": 0.0,
+          "mean_env_steps": 26.99019607843137,
+          "mean_dense_action_share": 0.5355446915400549,
+          "mean_gate_switches": 10.745098039215685,
+          "mean_gate_probability": 0.47034416128282014
+        },
+        "oracle": {
+          "episodes": 102,
+          "agent_success_count": 434,
+          "agent_success": 0.8509803921568627,
+          "collision_count": 76,
+          "collision": 0.14901960784313725,
+          "unresolved_count": 0,
+          "unresolved": 0.0,
+          "full_success_count": 52,
+          "full_success": 0.5098039215686274,
+          "timeout_count": 0,
+          "timeout": 0.0,
+          "mean_env_steps": 53.8235294117647
+        }
+      },
+      "2": {
+        "scenarios": 98,
+        "baseline": {
+          "episodes": 98,
+          "agent_success_count": 381,
+          "agent_success": 0.7775510204081633,
+          "collision_count": 109,
+          "collision": 0.22244897959183674,
+          "unresolved_count": 0,
+          "unresolved": 0.0,
+          "full_success_count": 37,
+          "full_success": 0.37755102040816324,
+          "timeout_count": 0,
+          "timeout": 0.0,
+          "mean_env_steps": 15.03061224489796
+        },
+        "learned_gate": {
+          "episodes": 98,
+          "agent_success_count": 402,
+          "agent_success": 0.8204081632653061,
+          "collision_count": 88,
+          "collision": 0.17959183673469387,
+          "unresolved_count": 0,
+          "unresolved": 0.0,
+          "full_success_count": 44,
+          "full_success": 0.4489795918367347,
+          "timeout_count": 0,
+          "timeout": 0.0,
+          "mean_env_steps": 26.244897959183675,
+          "mean_dense_action_share": 0.5497666096960491,
+          "mean_gate_switches": 11.173469387755102,
+          "mean_gate_probability": 0.47741831392866835
+        },
+        "oracle": {
+          "episodes": 98,
+          "agent_success_count": 443,
+          "agent_success": 0.9040816326530612,
+          "collision_count": 44,
+          "collision": 0.08979591836734693,
+          "unresolved_count": 3,
+          "unresolved": 0.006122448979591836,
+          "full_success_count": 66,
+          "full_success": 0.673469387755102,
+          "timeout_count": 1,
+          "timeout": 0.01020408163265306,
+          "mean_env_steps": 52.785714285714285
+        }
+      }
+    },
+    "simultaneous_conflict_count": {
+      "1": {
+        "scenarios": 119,
+        "baseline": {
+          "episodes": 119,
+          "agent_success_count": 457,
+          "agent_success": 0.7680672268907563,
+          "collision_count": 138,
+          "collision": 0.2319327731092437,
+          "unresolved_count": 0,
+          "unresolved": 0.0,
+          "full_success_count": 43,
+          "full_success": 0.36134453781512604,
+          "timeout_count": 0,
+          "timeout": 0.0,
+          "mean_env_steps": 17.092436974789916
+        },
+        "learned_gate": {
+          "episodes": 119,
+          "agent_success_count": 489,
+          "agent_success": 0.8218487394957983,
+          "collision_count": 106,
+          "collision": 0.1781512605042017,
+          "unresolved_count": 0,
+          "unresolved": 0.0,
+          "full_success_count": 49,
+          "full_success": 0.4117647058823529,
+          "timeout_count": 0,
+          "timeout": 0.0,
+          "mean_env_steps": 26.42016806722689,
+          "mean_dense_action_share": 0.5384455903417006,
+          "mean_gate_switches": 11.294117647058824,
+          "mean_gate_probability": 0.47088138009366837
+        },
+        "oracle": {
+          "episodes": 119,
+          "agent_success_count": 529,
+          "agent_success": 0.8890756302521008,
+          "collision_count": 63,
+          "collision": 0.10588235294117647,
+          "unresolved_count": 3,
+          "unresolved": 0.005042016806722689,
+          "full_success_count": 75,
+          "full_success": 0.6302521008403361,
+          "timeout_count": 1,
+          "timeout": 0.008403361344537815,
+          "mean_env_steps": 55.76470588235294
+        }
+      },
+      "2": {
+        "scenarios": 81,
+        "baseline": {
+          "episodes": 81,
+          "agent_success_count": 280,
+          "agent_success": 0.691358024691358,
+          "collision_count": 125,
+          "collision": 0.30864197530864196,
+          "unresolved_count": 0,
+          "unresolved": 0.0,
+          "full_success_count": 22,
+          "full_success": 0.2716049382716049,
+          "timeout_count": 0,
+          "timeout": 0.0,
+          "mean_env_steps": 15.716049382716049
+        },
+        "learned_gate": {
+          "episodes": 81,
+          "agent_success_count": 323,
+          "agent_success": 0.7975308641975308,
+          "collision_count": 82,
+          "collision": 0.20246913580246914,
+          "unresolved_count": 0,
+          "unresolved": 0.0,
+          "full_success_count": 32,
+          "full_success": 0.3950617283950617,
+          "timeout_count": 0,
+          "timeout": 0.0,
+          "mean_env_steps": 26.925925925925927,
+          "mean_dense_action_share": 0.5484896424276053,
+          "mean_gate_switches": 10.45679012345679,
+          "mean_gate_probability": 0.4781137652433408
+        },
+        "oracle": {
+          "episodes": 81,
+          "agent_success_count": 348,
+          "agent_success": 0.8592592592592593,
+          "collision_count": 57,
+          "collision": 0.14074074074074075,
+          "unresolved_count": 0,
+          "unresolved": 0.0,
+          "full_success_count": 43,
+          "full_success": 0.5308641975308642,
+          "timeout_count": 0,
+          "timeout": 0.0,
+          "mean_env_steps": 49.71604938271605
+        }
+      }
+    }
+  }
+}
