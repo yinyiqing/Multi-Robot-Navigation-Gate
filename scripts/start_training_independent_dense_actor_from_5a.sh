@@ -4,9 +4,10 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TD3_DIR="$PROJECT_ROOT/TD3"
 DATASET_DIR="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/datasets/fixed_v1"
-TRAIN_MANIFEST="$DATASET_DIR/dense/train.json.gz"
-EVAL_MANIFEST="$DATASET_DIR/views/dense_validation_monitor_ultrafast_v3/validation.json.gz"
+TRAIN_MANIFEST="${DRL_MULTI_TRAIN_MANIFEST:-$DATASET_DIR/dense/train.json.gz}"
+EVAL_MANIFEST="${DRL_MULTI_EVAL_MANIFEST:-$DATASET_DIR/views/dense_validation_monitor_ultrafast_v3/validation.json.gz}"
 LOG_DIR="$PROJECT_ROOT/logs"
+LOCK_FILE="/tmp/local_critic_multi_robot_training.lock"
 BASE_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best"
 MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-independent_dense_actor_from_5a_td3_accel_cap_v9_s20260731}"
 SAFE_MODEL="${MODEL_NAME//[^A-Za-z0-9_]/_}"
@@ -16,6 +17,10 @@ ROS_PORT="${DRL_MULTI_ROS_PORT:-13801}"
 GAZEBO_PORT="${DRL_MULTI_GAZEBO_PORT:-13901}"
 TRAIN_SEED="${DRL_MULTI_SEED:-20260728}"
 MAX_EPOCHS="${DRL_MULTI_MAX_EPOCHS:-10}"
+EVAL_EPISODES="${DRL_MULTI_EVAL_EPISODES:-50}"
+EVAL_FREQ="${DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES:-10000}"
+ACTOR_UPDATE_DELAY="${DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS:-21000}"
+TRAINING_VERSION="${DRL_MULTI_TRAINING_VERSION:-independent-dense-actor-from-5a-td3-accel-cap-v9}"
 RESUME_TRAINING="${DRL_MULTI_RESUME_TRAINING:-0}"
 
 for path in "$TRAIN_MANIFEST" "$EVAL_MANIFEST"; do
@@ -32,6 +37,18 @@ done
 [[ "$TRAIN_SEED" =~ ^[0-9]+$ ]] || { echo "DRL_MULTI_SEED must be an integer"; exit 2; }
 [[ "$MAX_EPOCHS" =~ ^[1-9][0-9]*$ ]] || {
   echo "DRL_MULTI_MAX_EPOCHS must be positive"
+  exit 2
+}
+[[ "$EVAL_EPISODES" =~ ^[1-9][0-9]*$ ]] || {
+  echo "DRL_MULTI_EVAL_EPISODES must be positive"
+  exit 2
+}
+[[ "$EVAL_FREQ" =~ ^[1-9][0-9]*$ ]] || {
+  echo "DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES must be positive"
+  exit 2
+}
+[[ "$ACTOR_UPDATE_DELAY" =~ ^[0-9]+$ ]] || {
+  echo "DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS must be non-negative"
   exit 2
 }
 [[ "$RESUME_TRAINING" == 0 || "$RESUME_TRAINING" == 1 ]] || {
@@ -55,6 +72,14 @@ if [[ "$RESUME_TRAINING" == 1 && ! -e "$TD3_DIR/checkpoints/${MODEL_NAME}_latest
   echo "Resume checkpoint is missing: $TD3_DIR/checkpoints/${MODEL_NAME}_latest.pt"
   exit 1
 fi
+if pgrep -af '^python3(\.8)? -u (train|test)_velodyne_td3_multi.py($| )' >/dev/null; then
+  echo "Another multi-robot training or evaluation process is running"
+  exit 1
+fi
+if ! flock -n "$LOCK_FILE" -c true; then
+  echo "Another multi-robot process holds $LOCK_FILE"
+  exit 1
+fi
 for port in "$ROS_PORT" "$GAZEBO_PORT"; do
   if ss -ltn | awk '{print $4}' | grep -Eq ":${port}$"; then
     echo "Port $port is already in use"
@@ -65,9 +90,12 @@ done
 mkdir -p "$LOG_DIR"
 timestamp="$(date +%Y%m%d_%H%M%S)"
 log_file="$LOG_DIR/train_${SAFE_MODEL}_${timestamp}.log"
+runner_log="$LOG_DIR/train_${SAFE_MODEL}_${timestamp}_runner.log"
 
 setsid bash -lc "
   set -eo pipefail
+  exec 9>'$LOCK_FILE'
+  flock -n 9 || { echo 'Multi-robot training lock is busy'; exit 1; }
   cleanup() {
     pgid=\"\$(ps -o pgid= -p \$\$ | tr -d ' ')\"
     ps -eo pid=,pgid= | awk -v pgid=\"\$pgid\" -v self=\"\$\$\" \\
@@ -99,8 +127,8 @@ setsid bash -lc "
   export DRL_MULTI_LOAD_MODEL_NAME='$BASE_MODEL'
   export DRL_MULTI_RESUME_TRAINING='$RESUME_TRAINING'
   export DRL_MULTI_MAX_EPOCHS='$MAX_EPOCHS'
-  export DRL_MULTI_EVAL_EPISODES=50
-  export DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES=10000
+  export DRL_MULTI_EVAL_EPISODES='$EVAL_EPISODES'
+  export DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES='$EVAL_FREQ'
   export DRL_MULTI_BEST_METRIC=full_success
   export DRL_MULTI_EARLY_STOP_PATIENCE=\${DRL_MULTI_EARLY_STOP_PATIENCE:-2}
   export DRL_MULTI_EARLY_STOP_MIN_EPOCHS=\${DRL_MULTI_EARLY_STOP_MIN_EPOCHS:-6}
@@ -108,7 +136,7 @@ setsid bash -lc "
   export DRL_MULTI_EARLY_STOP_SUCCESS_DROP=\${DRL_MULTI_EARLY_STOP_SUCCESS_DROP:-0.12}
   export DRL_MULTI_EARLY_STOP_TIMEOUT_INCREASE=\${DRL_MULTI_EARLY_STOP_TIMEOUT_INCREASE:-0.30}
   export DRL_MULTI_EARLY_STOP_TIMEOUT_ABSOLUTE=\${DRL_MULTI_EARLY_STOP_TIMEOUT_ABSOLUTE:-0.45}
-  export DRL_MULTI_TRAINING_VERSION='independent-dense-actor-from-5a-td3-accel-cap-v9'
+  export DRL_MULTI_TRAINING_VERSION='$TRAINING_VERSION'
 
   export DRL_MULTI_ACTOR_TRAIN_MODE=full
   export DRL_MULTI_USE_ORACLE_INTERACTION_ROLLOUT=0
@@ -184,7 +212,7 @@ setsid bash -lc "
   export DRL_MULTI_EXPL_DECAY_STEPS=900000
   export DRL_MULTI_ACTOR_LR=0.000001
   export DRL_MULTI_CRITIC_LR=0.00008
-  export DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS=21000
+  export DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS='$ACTOR_UPDATE_DELAY'
   export DRL_MULTI_POLICY_FREQ=2
   export DRL_MULTI_ACTOR_Q_NORMALIZATION_ALPHA=1.0
   export DRL_MULTI_ACTOR_ANCHOR_WEIGHT=0.5
@@ -192,8 +220,8 @@ setsid bash -lc "
   export DRL_MULTI_ACTOR_ANCHOR_SAFE_DISTANCE=2.0
 
   cd '$TD3_DIR'
-  python3 -u train_velodyne_td3_multi.py
-" >"$log_file" 2>&1 < /dev/null &
+  python3 -u train_velodyne_td3_multi.py >>'$log_file' 2>&1
+" >>"$runner_log" 2>&1 < /dev/null &
 
 echo $! > "$PID_FILE"
 echo "Started independent Dense Actor training."
@@ -201,14 +229,14 @@ echo "PID: $(cat "$PID_FILE")"
 echo "Model: $MODEL_NAME"
 echo "Warm start: 5A Actor only; fresh ego-motion Critic"
 echo "Control contract: the trainable Actor controls every state"
-echo "Update contract: all Dense states train one Actor; interaction states are oversampled"
+echo "Update contract: all manifest states train one Actor; interaction states are oversampled"
 echo "Reference contract: 5A is initialization plus a mild all-state trust-region anchor, never a controller"
 echo "Oracle contract: disabled for rollout, validation, and target-policy construction"
 echo "Objective contract: normalized TD3 Q plus a one-sided close-approach acceleration cap relative to 5A"
-echo "Train: 6000 fixed dense scenarios, finite cycle"
-echo "Validation monitor: 50 fixed policy-independent dense scenarios"
-echo "Epochs 1-2: frozen 5A baseline; Actor becomes eligible after 21000 agent samples"
-echo "Budget: $MAX_EPOCHS x 10000 agent samples"
-echo "Early stop: patience=2 after epoch 6; stop on clear full-success drop or timeout growth"
+echo "Train manifest: $TRAIN_MANIFEST"
+echo "Validation manifest: $EVAL_MANIFEST"
+echo "Actor becomes eligible after $ACTOR_UPDATE_DELAY agent samples"
+echo "Budget: $MAX_EPOCHS x $EVAL_FREQ agent samples; eval_episodes=$EVAL_EPISODES"
+echo "Early stop patience: ${DRL_MULTI_EARLY_STOP_PATIENCE:-2}"
 echo "Log: $log_file"
-echo "Expected runtime: approximately 20-25 minutes per epoch"
+echo "Runner log: $runner_log"
