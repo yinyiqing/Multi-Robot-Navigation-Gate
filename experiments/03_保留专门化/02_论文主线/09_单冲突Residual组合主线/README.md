@@ -1,6 +1,7 @@
 # 单冲突Residual组合主线
 
-状态：`current`。本目录同时保存新主线协议和直接促成该决策的失败证据。
+状态：`hypothesis retained / current Residual candidate rejected at R0`。本目录同时保存
+主线假设和用于筛选实现方案的失败证据。
 
 ## 当前路线
 
@@ -9,7 +10,10 @@
 冻结Actor A/B + 可部署Gate       -> 多冲突零样本组合
 ```
 
-当前只执行[05_单冲突Residual Actor B](05_单冲突Residual_ActorB/README.md)。
+当前[05_单冲突Residual Actor B](05_单冲突Residual_ActorB/README.md)已完成最小离线
+准入测试。直接用24维单帧状态学习`epoch-16 - 5A`动作差没有通过，因此不启动R1、
+R2或Gate训练。这否定的是当前Residual迁移实现，不是“单冲突学习、多冲突组合泛化”
+这一研究假设。
 
 ## 历史实验
 

@@ -1,6 +1,34 @@
 # 单冲突Residual Actor B协议
 
-状态：`approved / not started`。
+状态：`R0 completed / rejected`。不启动R1、R2和Gazebo长训练。
+
+## R0结果
+
+使用epoch-16 checkpoint中的320000条单冲突Replay做了最小离线测试：前80%训练，
+后20%按时间留出验证。普通状态目标为零Residual，交互状态目标为
+`action_epoch16 - action_5A`。
+
+| 指标 | 结果 | 准入要求 | 判断 |
+| --- | ---: | ---: | --- |
+| 交互动作MSE相对零Residual改善 | `59.8%` | `>=40%` | 通过 |
+| 普通状态Residual MAE（线/角） | `0.349 / 0.074` | 均`<=0.03` | 失败 |
+| 普通状态平均修正（线/角） | `-0.264 / -0.038` | 接近零 | 失败 |
+| 交互状态teacher-choice accuracy | `0.487` | `>=0.70` | 失败 |
+| validation动作范围覆盖（线/角） | `0.989 / 0.988` | 均`>=0.95` | 通过 |
+
+结论：Residual能拟合一部分epoch-16动作差，但不能可靠判断何时使用，最终把普通状态
+也普遍减速。失败不是Residual范围过小造成的；两个动作维度已分别校准到约
+`2.000 / 1.889`，validation覆盖率接近99%。按预先规定的准入规则，当前24维单帧
+Residual方案停止，不用闭环长训练代替这个失败的表达能力测试。
+
+结果文件：
+
+```text
+local_data/r0_replay_temporal_v2/summary.json
+```
+
+限制：Replay没有逐transition的scenario ID，因此80/20是时间切分，不是正式的场景级
+独立validation；但当前结果离准入线很远，已经足以否决继续投入长训练。
 
 ## 目标
 
