@@ -4,8 +4,8 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TD3_DIR="$PROJECT_ROOT/TD3"
 DATASET_DIR="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/datasets/fixed_v1"
-TRAIN_MANIFEST="$DATASET_DIR/dense/train.json.gz"
-EVAL_MANIFEST="$DATASET_DIR/views/dense_validation_monitor_ultrafast_v3/validation.json.gz"
+TRAIN_MANIFEST="${DRL_MULTI_TRAIN_MANIFEST:-$DATASET_DIR/dense/train.json.gz}"
+EVAL_MANIFEST="${DRL_MULTI_EVAL_MANIFEST:-$DATASET_DIR/views/dense_validation_monitor_ultrafast_v3/validation.json.gz}"
 BASE_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best"
 MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-independent_dense_actor_simple_td3_hparam_a_s20260801}"
 EXPERIMENT_LABEL="${DRL_MULTI_EXPERIMENT_LABEL:-A}"
@@ -44,6 +44,7 @@ LOCAL_CRITIC_GEOMETRY_ONLY="${DRL_MULTI_LOCAL_CRITIC_GEOMETRY_ONLY:-0}"
 LOCAL_CRITIC_CONTEXT_MODE="${DRL_MULTI_LOCAL_CRITIC_CONTEXT_MODE:-legacy}"
 LOCAL_CRITIC_MAX_AGENTS="${DRL_MULTI_LOCAL_CRITIC_MAX_AGENTS:-10}"
 CRITIC_INTERACTION_FRACTION="${DRL_MULTI_CRITIC_INTERACTION_FRACTION:-0.0}"
+USE_DYNAMIC_REWARD="${DRL_MULTI_USE_DYNAMIC_REWARD:-1}"
 EXPL_MIN="${DRL_MULTI_EXPL_MIN:-0.03}"
 EXPL_DECAY_STEPS="${DRL_MULTI_EXPL_DECAY_STEPS:-100000}"
 
@@ -82,6 +83,10 @@ done
 }
 [[ "$CONTROLLED_EGO_REPLAY_ONLY" == 0 || "$CONTROLLED_EGO_REPLAY_ONLY" == 1 ]] || {
   echo "DRL_MULTI_CONTROLLED_EGO_REPLAY_ONLY must be 0 or 1"
+  exit 2
+}
+[[ "$USE_DYNAMIC_REWARD" == 0 || "$USE_DYNAMIC_REWARD" == 1 ]] || {
+  echo "DRL_MULTI_USE_DYNAMIC_REWARD must be 0 or 1"
   exit 2
 }
 
@@ -180,7 +185,7 @@ setsid bash -lc "
   export DRL_MULTI_ACTOR_ANCHOR_WEIGHT=0
   export DRL_MULTI_ACTOR_Q_NORMALIZATION_ALPHA=0
 
-  export DRL_MULTI_USE_DYNAMIC_REWARD=1
+  export DRL_MULTI_USE_DYNAMIC_REWARD='$USE_DYNAMIC_REWARD'
   export DRL_MULTI_REWARD_MODE=average
   export DRL_MULTI_REWARD_SELF_WEIGHT=0.8
   export DRL_MULTI_USE_DISTANCE_WEIGHTED_REWARD=1
@@ -243,6 +248,7 @@ echo "Reward: progress=$PROGRESS_WEIGHT forward=$FORWARD_WEIGHT turn=$TURN_WEIGH
 echo "Optimizer: actor_lr=$ACTOR_LR critic_lr=$CRITIC_LR batch=$BATCH_SIZE gamma=$DISCOUNT"
 echo "Exploration: warmup=$WARMUP_EXPL_NOISE train=$EXPL_NOISE min=$EXPL_MIN random_linear_steps=$RANDOM_LINEAR_STEPS scope=$RANDOM_LINEAR_SCOPE"
 echo "Replay: controlled_ego_only=$CONTROLLED_EGO_REPLAY_ONLY"
+echo "Cooperative reward: $USE_DYNAMIC_REWARD"
 echo "Critic context: local=$USE_LOCAL_CRITIC mode=$LOCAL_CRITIC_CONTEXT_MODE max_agents=$LOCAL_CRITIC_MAX_AGENTS interaction_fraction=$CRITIC_INTERACTION_FRACTION"
 echo "Budget: $MAX_EPOCHS x $EVAL_FREQ replay samples; eval_episodes=$EVAL_EPISODES"
 echo "Log: $log_file"

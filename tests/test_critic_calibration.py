@@ -10,9 +10,11 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "TD3"))
 
 from critic_calibration import (
+    calibration_reward_kwargs,
     combine_actor_and_critic_context,
     discounted_n_step_target,
     infer_critic_state_dim,
+    manifest_conflict_pair_indices,
     pairwise_order_counts,
     summarize_counterfactual_calibration,
 )
@@ -82,6 +84,40 @@ class CriticCalibrationTests(unittest.TestCase):
     def test_invalid_discount_is_rejected(self):
         with self.assertRaises(ValueError):
             discounted_n_step_target([1.0], 1.1)
+
+    def test_dense_v9_reward_profile_matches_training_contract(self):
+        profile = calibration_reward_kwargs("dense_v9")
+        self.assertEqual(profile["progress_reward_weight"], 20.0)
+        self.assertEqual(profile["robot_safe_distance"], 1.2)
+        self.assertEqual(profile["robot_proximity_speed_penalty_weight"], 5.0)
+        self.assertTrue(profile["safe_recovery_reward"])
+
+    def test_individual_simple_profile_has_no_reward_coupling(self):
+        profile = calibration_reward_kwargs("individual_simple")
+        self.assertFalse(profile["cooperative_reward"])
+        self.assertEqual(profile["progress_reward_weight"], 10.0)
+        self.assertEqual(profile["robot_safe_distance"], 0.0)
+
+    def test_manifest_conflict_pair_is_resolved_by_agent_name(self):
+        case = {
+            "metrics": {"conflict_edges": [{"agents": ["r4", "r2"]}]}
+        }
+        self.assertEqual(
+            manifest_conflict_pair_indices(case, ["r1", "r2", "r3", "r4"]),
+            [3, 1],
+        )
+
+    def test_manifest_conflict_pair_rejects_multiple_edges(self):
+        case = {
+            "metrics": {
+                "conflict_edges": [
+                    {"agents": ["r1", "r2"]},
+                    {"agents": ["r2", "r3"]},
+                ]
+            }
+        }
+        with self.assertRaisesRegex(ValueError, "exactly one edge"):
+            manifest_conflict_pair_indices(case, ["r1", "r2", "r3"])
 
 
 if __name__ == "__main__":

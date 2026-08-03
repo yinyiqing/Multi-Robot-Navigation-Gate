@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+VIEW_DIR="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/datasets/fixed_v1/views/edge1_full_horizon_v1"
+
+export DRL_MULTI_TRAIN_MANIFEST="$VIEW_DIR/train.json.gz"
+export DRL_MULTI_EVAL_MANIFEST="$VIEW_DIR/validation_monitor_50.json.gz"
+export DRL_MULTI_EXPERIMENT_LABEL=edge1-simple-critic-v2
+export DRL_MULTI_TRAIN_FILE_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-full_actor_edge1_simple_critic_v2_s20260803}"
+export DRL_MULTI_TRAINING_VERSION=full-actor-edge1-simple-critic-v2
+export DRL_MULTI_SEED="${DRL_MULTI_SEED:-20260803}"
+
+# This stage only asks whether a fresh Critic can rank actions correctly.
+export DRL_MULTI_CONTROLLED_EGO_REPLAY_ONLY=1
+export DRL_MULTI_RANDOM_LINEAR_EXPLORATION_SCOPE=single_ego
+export DRL_MULTI_RANDOM_LINEAR_EXPLORATION_STEPS=12000
+export DRL_MULTI_CRITIC_WARMUP_EXPL_NOISE=0.0
+export DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS=1000000000
+
+export DRL_MULTI_MIN_REPLAY_SIZE=3000
+export DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES=12000
+export DRL_MULTI_EVAL_EPISODES=50
+export DRL_MULTI_MAX_EPOCHS=1
+
+# Minimal individual navigation reward; no v9 reward stack or cooperative coupling.
+export DRL_MULTI_USE_DYNAMIC_REWARD=0
+export DRL_MULTI_PROGRESS_REWARD_WEIGHT=10.0
+export DRL_MULTI_FORWARD_REWARD_WEIGHT=0.0
+export DRL_MULTI_TURN_PENALTY_WEIGHT=0.05
+export DRL_MULTI_OBSTACLE_PENALTY_WEIGHT=1.0
+export DRL_MULTI_STAGNATION_PENALTY_WEIGHT=0.0
+export DRL_MULTI_TIMEOUT_REWARD=-150.0
+
+export DRL_MULTI_BATCH_SIZE=128
+export DRL_MULTI_DISCOUNT=0.999
+export DRL_MULTI_CRITIC_LR=0.00002
+export DRL_MULTI_USE_LOCAL_CRITIC=1
+export DRL_MULTI_LOCAL_CRITIC_GEOMETRY_ONLY=0
+export DRL_MULTI_LOCAL_CRITIC_CONTEXT_MODE=ego_motion
+export DRL_MULTI_LOCAL_CRITIC_MAX_AGENTS=5
+export DRL_MULTI_CRITIC_INTERACTION_FRACTION=0.0
+
+export DRL_MULTI_ROS_PORT="${DRL_MULTI_ROS_PORT:-14241}"
+export DRL_MULTI_GAZEBO_PORT="${DRL_MULTI_GAZEBO_PORT:-14341}"
+
+exec "$PROJECT_ROOT/scripts/start_training_dense_simple_td3_hparam_b.sh"

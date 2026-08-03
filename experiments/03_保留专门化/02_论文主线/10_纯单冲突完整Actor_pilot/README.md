@@ -75,8 +75,100 @@ scripts/stop_training_full_actor_edge1_pilot.sh
 
 ### 当前结论边界
 
-本实验否定的是：**Dense Actor 失败仅仅因为多冲突太复杂；换成纯单冲突并沿用 v9 保守配置后，它会自然开始改善。**
+先前把结果解释成“单冲突简化仍无效”过强。后续 Critic 审计表明，Actor 解冻前的优化目标已经失真，因此本次 pilot **不能用于判断单冲突任务是否可学，也不能否定冲突数量是 Dense Actor 难训的重要原因**。它只证明当前 v9 协议没有改善。
 
-它还不能证明“完整 Actor 在单冲突上一定学不会”，原因是训练预算只覆盖 `170/511` 个训练场景，Actor 解冻后只有约 8500 agent samples，而且 `actor_lr=1e-6` 与 `anchor=0.5` 使策略变化很小。
+当前不应提高 Actor 学习率、续训、进入 421 场景完整验证或 edge-2 泛化测试。提高学习率只会放大下述错误 Critic 梯度。
 
-当前不应直接进入 421 场景完整验证或 edge-2 泛化测试，因为最小监控集尚未准入。若继续验证完整 Actor 路线，下一步应只做一次更有辨识力的优化强度对照，而不是原配置续训；否则应回到局部专家与组合泛化主线。
+## 2026-08-03 训练链路复查
+
+### 1. Critic 在危险状态持续鼓励加速
+
+epoch 1 best checkpoint 中 Actor 仍是冻结 5A。对 checkpoint replay 的离线审计得到：
+
+- interaction replay 共 `2321` 条；
+- `697` 条状态的最近机器人距离 `<=1.2 m`，其中 `613` 条正在接近；
+- 上述近距状态的 `dQ1/d(linear_action)` 有 `100%` 为正；
+- 对 raw linear action `[-1,-0.5,0,0.5,1]` 扫描时，Q1 和 Qmin 在 `697/697` 条状态上都选择 `1`；
+- 近距状态平均即时 reward 为 `-1.076`，近距且接近状态为 `-1.452`；
+- 近距且接近样本的环境线速度均值约 `0.83`，速度 `<=0.5` 的样本只有约 `14%`。
+
+这说明 Critic 没有学到“危险时减速”的条件动作排序。5A anchor 和 acceleration cap 只能阻止 Actor 比 5A 更快，不能产生正确的减速梯度。
+
+### 2. 对口同状态 Gazebo 校准未通过
+
+校准器已增加两个必要约束：
+
+- `--anchor-agents conflict_pair`：只测 manifest 唯一冲突边中的两台车；
+- `--reward-profile dense_v9`：真实分支使用本次训练的 v9 reward，而不是旧 D2 reward。
+
+在 epoch 1 best checkpoint 上测试 2 个固定 edge-1 scenario：
+
+| 项目 | 结果 |
+|---|---:|
+| 总分支 | 40 |
+| 可重复分支 | 12 |
+| 可校准状态组 | 3 |
+| 可比较动作对 | 17 |
+| Qmin 排序一致 | `6/17 = 0.353` |
+| Qmin / N-step target MAE | `91.64` |
+| Qmin bias | `-32.34` |
+
+代表性状态中，raw speed 从 `-1` 到 `1` 时 Qmin 从 `-12.54` 单调升到 `-1.66`；真实分支中低速不碰撞，而 `0.5/1.0` 均碰撞并得到约 `-77` 的 N-step target。Critic 仍把碰撞全速动作评为最好。
+
+原始记录：`local_data/critic_calibration_epoch1_v9_conflict_pair.json`。
+
+### 3. edge-1 数据仍未形成纯双车训练信号
+
+数据集的拓扑检查是正确的：每个场景完整路径只有一条冲突边。但当前训练协议仍有三处混入：
+
+- interaction replay 按“任意可见邻车 `<=2 m`”标记，不按 manifest 冲突 pair 标记；
+- epoch 1 全部 transition 中约 `46%` 被标为 interaction，而真正冲突 pair 只占 5 台车中的 2 台；
+- cooperative reward 使用 `10 m` 前向视野内的活跃邻车平均，不只耦合冲突 pair。
+
+因此“场景只有一条边”不等于 Critic 收到的是干净的双车动作因果数据。
+
+### 4. Actor 观测是次级风险，不是本轮首要结论
+
+Actor 仍只看 20 个激光扇区、目标和上一动作，不能显式区分机器人与墙，也没有相对速度。它可能限制最终泛化，但 epoch-16 已证明同一 24 维 Actor 能学到部分反射式单冲突避让，因此现在不应据此宣判任务不可学。应先修复 Critic 动作排序，再判断是否需要改观测。
+
+## 下一次最小实验
+
+下一步不是直接训练 Actor，而是做一轮独立 Critic 准入：
+
+1. 冻结 5A Actor，全程不更新 Actor；
+2. 在全部 5 台车中每步轮换一台 ego 做受控线速度覆盖，其他车执行冻结 5A；
+3. replay 只保存当步被受控的 ego transition，避免其他车当前随机动作对转移产生隐藏混杂；
+4. 关闭 v9 anchor、cap、恢复奖励和其他 Actor 约束，使用紧凑基础 reward；
+5. Critic 未通过同状态 Gazebo 排序校准前，不解冻 Actor；校准可读取冲突 pair 真值作为测量标签，但训练不读取 pair；
+6. 校准通过后只做 `5000` samples 的低学习率 Actor pilot，再决定是否增加 normal-state anchor。
+
+这条实验不训练 pair 专家，不做冲突分解，也不引入 Gate。它仍然让一个 Actor 面向全部 5 台车和完整回合；这里只是先把“Critic 能否正确评价单冲突动作”从“Actor 能否更新”中拆开。这样下一次失败能定位到 Critic，下一次成功才有资格归因到 Actor 学习。
+
+### 已启动的 Critic-only v2
+
+启动时间：`2026-08-03 22:43`。
+
+```bash
+scripts/start_training_full_actor_edge1_simple_critic_v2.sh
+scripts/stop_training_full_actor_edge1_simple_critic_v2.sh
+```
+
+| 项目 | 值 |
+|---|---|
+| model | `full_actor_edge1_simple_critic_v2_s20260803` |
+| train | corrected edge-1 train，511 场 |
+| monitor | corrected edge-1 monitor，50 场 |
+| Actor | 5A 初始化，全程冻结 |
+| 受控探索 | 全 5 车轮换 single ego；不读取冲突 pair |
+| replay | 每步只保存受控 ego transition |
+| reward | individual simple；无 cooperative / v9 附加项 |
+| Critic | fresh 52D ego-motion local Critic |
+| budget | 12000 replay samples，约 9000 次 warmup 后更新 |
+
+日志：
+
+```text
+logs/train_full_actor_edge1_simple_critic_v2_s20260803_20260803_224303.log
+```
+
+训练结束后使用同一个 `individual_simple` reward profile 做同状态校准。pair 真值只用于选取测量对象，不进入训练、Actor 输入或部署策略。

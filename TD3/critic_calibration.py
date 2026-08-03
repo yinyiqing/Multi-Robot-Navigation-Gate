@@ -3,6 +3,82 @@ from collections import defaultdict
 import numpy as np
 
 
+CALIBRATION_REWARD_PROFILES = ("individual_simple", "simple_d2", "dense_v9")
+
+
+def manifest_conflict_pair_indices(case, agent_names):
+    """Resolve a known single conflict edge for calibration only."""
+    if not isinstance(case, dict):
+        raise ValueError("Conflict-pair calibration requires a manifest scenario")
+    edges = case.get("metrics", {}).get("conflict_edges", [])
+    if len(edges) != 1:
+        raise ValueError("Conflict-pair calibration requires exactly one edge")
+    pair = [str(name) for name in edges[0].get("agents", [])]
+    if len(pair) != 2 or len(set(pair)) != 2:
+        raise ValueError("Conflict edge must contain two distinct agents")
+    unknown = [name for name in pair if name not in agent_names]
+    if unknown:
+        raise ValueError("Conflict edge contains unknown agents: " + ", ".join(unknown))
+    return [agent_names.index(name) for name in pair]
+
+
+def calibration_reward_kwargs(profile):
+    """Return the environment reward settings used by a training protocol."""
+    if profile == "individual_simple":
+        return {
+            "cooperative_reward": False,
+            "progress_reward_weight": 10.0,
+            "forward_reward_weight": 0.0,
+            "turn_penalty_weight": 0.05,
+            "obstacle_penalty_weight": 1.0,
+            "stagnation_penalty_weight": 0.0,
+            "robot_safe_distance": 0.0,
+        }
+    if profile == "simple_d2":
+        return {
+            "cooperative_reward": True,
+            "cooperative_reward_self_weight": 0.8,
+            "cooperative_reward_distance_weighted": True,
+            "cooperative_reward_sigma": 2.0,
+            "cooperative_reward_mode": "average",
+            "progress_reward_weight": 10.0,
+            "forward_reward_weight": 0.0,
+            "turn_penalty_weight": 0.05,
+            "obstacle_penalty_weight": 1.0,
+            "stagnation_penalty_weight": 0.0,
+            "robot_safe_distance": 0.0,
+        }
+    if profile == "dense_v9":
+        return {
+            "cooperative_reward": True,
+            "cooperative_reward_self_weight": 0.8,
+            "cooperative_reward_distance_weighted": True,
+            "cooperative_reward_sigma": 2.0,
+            "cooperative_reward_mode": "average",
+            "anti_stagnation_reward": True,
+            "anti_stagnation_penalty": 0.1,
+            "safe_recovery_reward": True,
+            "safe_recovery_penalty": 0.2,
+            "safe_recovery_linear_threshold": 0.25,
+            "safe_recovery_progress_threshold": 0.003,
+            "safe_recovery_min_laser": 0.6,
+            "safe_recovery_robot_distance": 1.2,
+            "safe_recovery_progress_bonus_weight": 0.8,
+            "safe_recovery_idle_penalty_weight": 1.0,
+            "robot_safe_distance": 1.2,
+            "robot_proximity_penalty_weight": 5.0,
+            "robot_proximity_speed_penalty_weight": 5.0,
+            "robot_clearance_reward_weight": 10.0,
+            "robot_clearance_reward_max_gain": 0.1,
+            "progress_reward_weight": 20.0,
+            "forward_reward_weight": 0.5,
+            "turn_penalty_weight": 0.2,
+            "obstacle_penalty_weight": 0.5,
+            "stagnation_penalty_weight": 0.05,
+        }
+    raise ValueError(f"Unknown calibration reward profile: {profile}")
+
+
 def infer_critic_state_dim(critic_state_dict):
     """Infer the Critic state width from its first state projection."""
     try:

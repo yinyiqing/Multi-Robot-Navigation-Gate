@@ -23,9 +23,12 @@ from collect_actor_counterfactuals import (
     select_anchor_agents,
 )
 from critic_calibration import (
+    CALIBRATION_REWARD_PROFILES,
+    calibration_reward_kwargs,
     combine_actor_and_critic_context,
     discounted_n_step_target,
     infer_critic_state_dim,
+    manifest_conflict_pair_indices,
     summarize_counterfactual_calibration,
 )
 from critic_models import Critic
@@ -61,6 +64,18 @@ def parse_args():
     parser.add_argument("--anchor-stride", type=int, default=4)
     parser.add_argument("--max-anchors-per-episode", type=int, default=4)
     parser.add_argument("--agents-per-anchor", type=int, default=2)
+    parser.add_argument(
+        "--anchor-agents",
+        choices=("nearest", "conflict_pair"),
+        default="nearest",
+        help="Select generic nearest agents or the manifest's only conflict pair.",
+    )
+    parser.add_argument(
+        "--reward-profile",
+        choices=CALIBRATION_REWARD_PROFILES,
+        default="simple_d2",
+        help="Match counterfactual returns to the checkpoint's training reward.",
+    )
     parser.add_argument("--max-episode-steps", type=int, default=300)
     parser.add_argument("--speeds", default="-1.0,-0.5,0.0,0.5,1.0")
     parser.add_argument("--discount", type=float, default=0.999)
@@ -255,26 +270,17 @@ def main():
     policy = FrozenPolicyAndCritic(
         args.checkpoint, args.base_actor, args.device
     )
+    reward_kwargs = calibration_reward_kwargs(args.reward_profile)
     env = MultiAgentGazeboEnv(
         args.launchfile,
         ENVIRONMENT_DIM,
         agent_names=list(AGENT_NAMES),
-        cooperative_reward=True,
-        cooperative_reward_self_weight=0.8,
-        cooperative_reward_distance_weighted=True,
-        cooperative_reward_sigma=2.0,
-        cooperative_reward_mode="average",
-        progress_reward_weight=10.0,
-        forward_reward_weight=0.0,
-        turn_penalty_weight=0.05,
-        obstacle_penalty_weight=1.0,
-        stagnation_penalty_weight=0.0,
-        robot_safe_distance=0.0,
         active_neighbors_only=True,
         weak_coupling_layout=True,
         scenario_mode="manifest",
         neighbor_context_mode=policy.critic_context_mode,
         fixed_physics_step_size=0.001,
+        **reward_kwargs,
     )
     records = []
     try:
@@ -295,9 +301,18 @@ def main():
                     and step % args.anchor_stride == 0
                     and anchor_count < args.max_anchors_per_episode
                 ):
-                    egos = select_anchor_agents(
-                        env, active_mask, args.agents_per_anchor, anchor_count
-                    )
+                    if args.anchor_agents == "conflict_pair":
+                        egos = [
+                            index
+                            for index in manifest_conflict_pair_indices(
+                                scenario, list(AGENT_NAMES)
+                            )
+                            if active_mask[index]
+                        ][: args.agents_per_anchor]
+                    else:
+                        egos = select_anchor_agents(
+                            env, active_mask, args.agents_per_anchor, anchor_count
+                        )
                     anchor_states = [np.asarray(value).copy() for value in states]
                     anchor_active_mask = list(active_mask)
                     snapshot = physics_snapshot(env, anchor_states)
@@ -386,6 +401,8 @@ def main():
         "critic_state_dim": policy.critic_state_dim,
         "critic_context_mode": policy.critic_context_mode,
         "critic_max_neighbors": policy.max_neighbors,
+        "anchor_agents": args.anchor_agents,
+        "reward_profile": args.reward_profile,
         "speeds": speeds,
         "horizon": args.horizon,
         "discount": args.discount,
