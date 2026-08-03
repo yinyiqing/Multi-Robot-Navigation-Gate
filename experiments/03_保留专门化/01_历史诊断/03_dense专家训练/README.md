@@ -131,20 +131,11 @@ adapter: 24 -> 128 -> 2
 
 最后一层零初始化，因此训练开始前的动作与固定 `5D` 完全一致。基础 Actor 参数不参与反向传播，checkpoint 同时保存基础 Actor、residual 参数和 residual scale。
 
-预留训练入口（D1-D3 完成前禁止执行）：
+该历史训练和测试入口已经删除，防止误启动被拒绝的`5D + 零初始化Residual`协议。
+实现结论保留用于说明新Residual为什么必须使用5A base和epoch-16教师初始化。
 
-```bash
-scripts/start_training_detached_dense5_moderate_residual_from_5d.sh
-```
-
-预留测试入口：
-
-```bash
-scripts/start_test_detached_dense5_moderate_residual_best.sh
-scripts/start_test_detached_standard5_residual_best.sh
-```
-
-第一版只使用 individual reward，保留训练期几何邻域 Critic。只有 moderate dense 提升且 standard_5 不明显下降，才能认为 residual 专门化成立。
+第一版只使用individual reward和训练期几何邻域Critic，未形成合格模型。当前Residual
+协议见[单冲突Residual Actor B](../../02_论文主线/09_单冲突Residual组合主线/05_单冲突Residual_ActorB/README.md)。
 
 ## dense 定义诊断
 

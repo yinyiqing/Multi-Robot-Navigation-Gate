@@ -1,78 +1,59 @@
 # 实验索引
 
-本目录按研究演进归档。历史目录中的“当前主线”和“下一步”只代表当时判断；跨阶段的当前结论只以 [`03_保留专门化/02_论文主线/README.md`](03_保留专门化/02_论文主线/README.md) 为准。
+历史README中的“当前”和“下一步”只代表当时判断。跨阶段的唯一当前结论以
+[论文主线](03_保留专门化/02_论文主线/README.md)为准。
 
-当前最短路径：
+## 当前最短路径
 
 ```text
 实验总览
-  -> 03_保留专门化
-     -> 02_论文主线（当前协议）
-        -> datasets（固定数据）
-        -> results/05_当前冻结方案（有效 Actor 证据）
-        -> results/04_Gate前置验证（当前 G0 的起点）
+  -> 03_保留专门化/02_论文主线
+     -> 09_单冲突Residual组合主线/05_单冲突Residual_ActorB
+     -> 07_冲突拓扑组合泛化
+     -> 08_exact_edge2零样本确认
 ```
 
-## 状态词
-
-| 状态 | 含义 |
-| --- | --- |
-| `current` | 当前论文协议或正在补齐的正式实验 |
-| `diagnostic` | 用来定位问题，不进入论文主表 |
-| `baseline` | 可以按新口径重跑的正式对照 |
-| `frozen` | 已选定且当前阶段禁止继续更新参数 |
-| `failed` | 结论有价值，但该方法分支停止 |
-| `historical` | 仅用于追溯研究演进 |
-| `planned` | 尚未实现或尚未达到准入条件 |
-
-## 阶段注册表
+## 阶段
 
 | 目录 | 状态 | 作用 |
 | --- | --- | --- |
-| `01_第一次尝试/` | `historical` | 单车、多车共享策略、reward 和局部 Critic 的早期机制验证 |
-| `02_课程学习/` | `historical` / `baseline` | 形成 5A、5D，并记录 PAIR/THREE 覆盖训练退化 |
-| `03_保留专门化/` | `current` | 从失败诊断收敛到冻结双 Actor + Gate 的当前研究阶段 |
+| [`01_第一次尝试/`](01_第一次尝试/) | historical | 基础TD3、多车共享策略和reward机制验证 |
+| [`02_课程学习/`](02_课程学习/) | historical / baseline | 形成5A、5D并记录覆盖训练退化 |
+| [`03_保留专门化/`](03_保留专门化/README.md) | current | 单冲突技能、Residual Actor B、Gate和组合泛化 |
 
-`03_保留专门化/` 内部再按职责分为：`01_历史诊断`、`02_论文主线`、`90_未启用方案`。历史失败、当前工作和未来备选不再平级混放。
+## 当前实验
 
-## 当前实验 ID
+| 实验ID | 状态 | 目的 |
+| --- | --- | --- |
+| `generalist-5a` | frozen | 普通导航Actor A；0-edge full success `0.875` |
+| `interaction-teacher-epoch16` | frozen teacher | 单冲突局部避让教师；不作为最终独立Actor |
+| `actor-b-single-edge-residual` | approved / not started | 冻结5A，只训练epoch-16指导的Residual |
+| `learned-gate-g2a` | frozen baseline | exact-edge-2有`+0.080`方向性收益，但未通过最终准入 |
+| `single-to-multi-conflict-gate` | pending Actor B | 冻结A/B后，只用0-edge和单冲突数据训练Gate |
 
-| 实验 ID | 模型 | 场景 | 状态 | 目的 |
-| --- | --- | --- | --- | --- |
-| `eval-5d-standard` | `generalist-5d` | `standard-5` | `complete` | 1000 episodes: agent `0.8816`, full `0.5690` |
-| `eval-5d-fixed-v1` | `generalist-5d` | fixed standard/dense | `complete` | standard full `0.5750`; dense full `0.2795` |
-| `eval-5d-validation-strata` | `generalist-5d` | fixed validation interaction strata | `complete` | standard low/interact full `0.8544/0.4252`; dense full `0.3140` |
-| `diag-5d-random-dense` | `generalist-5d` | `random-dense-5` | `diagnostic` | 仅区分 spatial density 与 interaction density |
-| `eval-5d-canonical-moderate` | `generalist-5d` | 五个 fixed moderate cases | `baseline` | held-out interaction failure baseline |
-| `eval-weak-5a-vs-5d` | frozen 5A / 5D | fixed 0-edge validation | `complete` | full `0.8750/0.8710`，逐场无显著差异，选择5A以匹配交互Actor |
-| `eval-dense-5a-vs-5d-vs-strong` | frozen 5A / 5D / epoch-16 | fixed dense validation | `running` | 5A/5D full `0.3090/0.3140`；epoch-16 独立结果待完成 |
-| `ordinary-navigation-actor` | frozen `generalist-5a` | low-interaction strata | `frozen` | 248场agent/full `0.9726/0.8750` |
-| `train-standard-expert-v1-v3` | 5D 微调 | fixed standard/train | `failed diagnostic` | 混合分布微调未超过 5D，只作为退化证据 |
-| `train-interaction-edge1-residual-pilot` | frozen 5D + bounded residual | balanced edge-1 view | `rejected candidate` | residual 恒定饱和，full success `0.5130 -> 0.4704` |
-| `train-interaction-edge1-conservative-v2` | normalized-Q + base-action anchor | balanced edge-1 view | `rejected candidate` | 饱和已修复但 full success 仅 `0.5177` |
-| `train-strong-interaction-stage1` | 5D Actor/Critic full warm-start | close + margin | `failed` | Actor只增加线速度且验证退化，停止后续阶段 |
-| `train-pair-interaction-pilot` | 5D Actor/Critic full warm-start | fixed head-on/crossing/lane-swap pairs | `failed diagnostic` | 只改善head-on且碰撞上升，不进入五车主线 |
-| `train-oracle-specialist-pilot` | frozen 5D + interaction-only TD3 Actor | fixed five-agent deep/close/margin | `rejected candidate` | full `0.5000 -> 0.4714`，Actor学到统一转向偏置 |
-| `train-strong-interaction-balanced-formal` | 5A warm-start conditional TD3 Actor | fixed full strong-interaction train/validation | `frozen candidate` | 匹配重复full `0.421 -> 0.700`，训练效果可复现；代价是平均步数增加 |
-| `gate-robot-perception` | raw local 3D lidar | scenario-disjoint perception train/validation | `current` | 先区分机器人与静态障碍；不得更新两个Actor |
-| `eval-heuristic-interaction-gate` | frozen 5A + conditional Actor | mixed validation | `planned` | G0/G1通过后建立可部署距离/TTC Gate基线 |
-| `train-interaction-gate` | frozen 5A + conditional Actor | mixed train/validation | `planned` | G2证明链路可行后只更新Gate参数 |
+## 已拒绝但保留证据
+
+- standard/dense两个完整场景专家；
+- 5D + 零初始化Residual；
+- epoch-16整网全程续训；
+- 只在5A轨迹上的双教师离线蒸馏；
+- 在完整dense和多冲突场景上训练独立Actor B。
+
+这些实验只保留在历史诊断与`results/`中，不保留可误启动的当前训练入口。
 
 ## 阅读顺序
 
 1. [实验总览](实验总览.md)
 2. [论文主线](03_保留专门化/02_论文主线/README.md)
-3. [数据集索引](03_保留专门化/02_论文主线/datasets/README.md)
-4. [结果索引](03_保留专门化/02_论文主线/results/README.md)
-5. [现有场景对照](03_保留专门化/02_论文主线/SCENARIO_COMPARISON.md)
-6. [课程学习简明总结](02_课程学习/课程学习简明总结.md)
+3. [Residual Actor B协议](03_保留专门化/02_论文主线/09_单冲突Residual组合主线/05_单冲突Residual_ActorB/README.md)
+4. [数据集索引](03_保留专门化/02_论文主线/datasets/README.md)
+5. [结果索引](03_保留专门化/02_论文主线/results/README.md)
 
 ## 归档规则
 
-- 正式 run 必须记录短实验 ID、模型 ID、scenario ID、seed、commit 和完整配置。
-- 当前运行日志先写入根目录 `logs/`；结束并形成结论后再归档到对应实验目录。
-- `03_保留专门化/02_论文主线/results/` 的新实验必须先按用途进入编号父目录，禁止恢复平铺结构。
-- 已归档的实验叶子目录保持名称和内容稳定；协议修正使用新实验 ID。
-- `TD3/checkpoints/`、`TD3/results/`、`TD3/runs/` 是可恢复运行产物，不是发布模型。
-- 模型身份以 [模型注册表](../TD3/MODEL_REGISTRY.md) 为准，不从长文件名猜测角色。
-- 历史失败保留结论和必要证据，不复制同一日志到多个位置。
+- 正式run必须记录实验ID、模型ID、scenario ID、seed、commit和完整配置。
+- 当前日志写入根目录`logs/`，形成结论后归档到对应实验目录。
+- 已归档叶子目录不覆盖；协议变化建立新实验ID。
+- train、validation和sealed test必须保持scenario ID互斥。
+- 禁止依据模型成败删除test场景。
+- 历史失败保留结论和必要证据，但其启动脚本不得继续伪装成当前入口。

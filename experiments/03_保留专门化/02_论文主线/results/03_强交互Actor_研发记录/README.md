@@ -1,6 +1,8 @@
 # 强交互 Actor 研发记录
 
-这里保存独立强交互Actor形成前的机制排查和受控试验。当前只保留5A warm-start、新ego-motion Critic、完整Dense独立rollout和固定数据协议；安全聚焦更新与训练期oracle分工属于已否定的条件Actor历史，不再用于独立Actor。
+这里保存强交互Actor、旧Residual和独立Dense Actor的历史机制排查。当前不从本目录
+启动训练；epoch-16只保留为单冲突局部教师，新的Actor B协议见
+[`../../09_单冲突Residual组合主线/05_单冲突Residual_ActorB`](../../09_单冲突Residual组合主线/05_单冲突Residual_ActorB/README.md)。
 
 | 实验 | 状态 | 关键结论 |
 | --- | --- | --- |
@@ -31,4 +33,7 @@
 | `20260801_简化TD3动作覆盖实验C` | rejected | 前1万均衡覆盖曾修正Critic；恢复5A采样后中间速度消失，危险全速偏好复发 |
 | `20260801_简化TD3全程动作覆盖实验D` | rejected diagnostic | Critic更新不足，且五车同时随机动作造成隐藏混杂；旧Q阈值不能作为解冻依据 |
 
-v6 epoch-11的200场复核已完成：收益真实，但没有通过独立Dense Actor的timeout和效率验收。v8确认不能直接放开Critic；v9的单边危险加速上限虽然阻止两类退化，却没有产生学习增益。实验A进一步证明高学习率下随机Critic会立即破坏5A。B-D原本依据危险距离Q排序判断Critic，但D完成后确认该判据缺少同状态真实反事实，同时存在更新不足和随机邻车动作混杂。当前不解冻Actor，也不继续增加reward；先恢复每个联合环境步一次Critic更新，并使用固定其他车辆的同状态N-step反事实校准。
+v6 epoch-11的收益真实，但timeout和效率不合格；v8/v9及简化TD3实验进一步证明，
+完整dense覆盖训练在“危险加速”和“保守等待”之间摆动。该研发线已经关闭，不再继续
+调reward、Critic或解冻完整Actor。当前只复用其中两个结论：冻结5A避免遗忘，使用
+epoch-16已学到的局部动作监督Residual，而不是让Critic从零重新发现避让。

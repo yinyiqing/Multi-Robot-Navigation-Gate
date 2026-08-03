@@ -45,7 +45,7 @@ experiments/03_保留专门化/02_论文主线/results/06_Gate开发/D5_G0_robot
 experiments/03_保留专门化/02_论文主线/results/06_Gate开发/D5_G1_robot_tracking_v1/local_data/
 experiments/03_保留专门化/02_论文主线/results/06_Gate开发/D5_G2_interaction_gate_v1/local_data/
 experiments/03_保留专门化/02_论文主线/07_冲突拓扑组合泛化/local_data/
-experiments/03_保留专门化/02_论文主线/09_局部专家全程化/**/local_data/
+experiments/03_保留专门化/02_论文主线/09_单冲突Residual组合主线/**/local_data/
 
 # Local-only experiment checkpoints; GitHub rejects large .pt artifacts.
 experiments/03_保留专门化/02_论文主线/results/**/checkpoints/

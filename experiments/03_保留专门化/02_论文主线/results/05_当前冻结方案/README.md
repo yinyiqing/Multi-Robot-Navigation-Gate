@@ -1,22 +1,24 @@
-# 当前Actor方案
+# 冻结Actor证据
 
-导师沟通后，当前目标改为“两个可独立完成导航的Actor + Gate”。5A作为普通Actor冻结；epoch-16条件Actor保留为有效的局部避险证据，但不再作为最终Dense Actor。独立Dense Actor v1已确认更新过弱并停止，v2修复完成但尚未启动。
+状态：`frozen evidence / historical naming`。目录名保留以避免破坏历史链接，但这里不再
+代表当前训练方案。
 
-| 实验 | 状态 | 结论 |
+| 实验 | 状态 | 当前用途 |
 | --- | --- | --- |
-| `D4_interaction_focused_actor_from_5a_fullstrong_balanced_formal_s20260726` | frozen candidate | 2560 场均衡全池训练完成 16 epoch，选择 epoch 16 |
-| `D4_interaction_actor_matched_validation_s20260727` | complete | 5A + 条件交互 Actor 的 full success 从 `0.421` 提高到 `0.700` |
-| `D4_weak_actor_5a_vs_5d_s20260727` | complete | 0-edge 场景上 5A/5D 等价；选择与交互 Actor 训练分布一致的 5A |
-| `D4_dense_validation_actor_comparison_s20260728` | complete | 条件Actor独立运行超时严重；必须重训独立Dense Actor |
-| `D5_independent_dense_actor_from_5a_full_v1_s20260728` | stopped / rejected | 7轮monitor未超过5A；危险状态动作几乎未改变 |
-| `D5_independent_dense_actor_from_5a_full_v2_s20260729` | ready / not started | 完整Dense Replay训练一个独立Actor，交互样本只加权多采样 |
+| `D4_interaction_focused_actor_from_5a_fullstrong_balanced_formal_s20260726` | frozen teacher | epoch-16单冲突局部技能教师 |
+| `D4_interaction_actor_matched_validation_s20260727` | complete | 证明局部调用可将full success从`0.421`提高到`0.700` |
+| `D4_weak_actor_5a_vs_5d_s20260727` | complete | 0-edge上5A/5D等价，冻结5A为Actor A和Residual base |
+| `D4_dense_validation_actor_comparison_s20260728` | complete | epoch-16独立运行timeout严重，不能直接作为Actor B |
+| `D5_independent_dense_actor_from_5a_full_v1_s20260728` | rejected | 完整dense独立Actor没有超过5A |
+| `D5_independent_dense_actor_from_5a_full_v2_s20260729` | cancelled | 未启动；其完整dense训练目标已被当前主线否定 |
 
-当前目标系统：
+当前系统定义见[论文主线](../../README.md)：
 
 ```text
-普通状态       -> frozen generalist-5a
-Dense/多冲突状态 -> independent dense Actor（v2待启动）
-状态选择          -> 两个独立Actor通过验证后再训Gate
+Actor A = frozen 5A
+Actor B = frozen 5A + epoch-16-guided single-conflict Residual
+Gate    = frozen A/B + deployable local perception
 ```
 
-训练期 `2.0 m` 真值距离切换只保留为历史条件策略证据，不用于新Dense Actor的rollout。
+本目录中的独立Dense Actor方案不得恢复。Actor B和Gate训练都只能看0-edge与单冲突
+数据，多冲突保留为零样本组合测试。

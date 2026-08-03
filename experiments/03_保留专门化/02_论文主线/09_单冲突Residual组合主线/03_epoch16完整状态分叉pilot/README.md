@@ -1,6 +1,7 @@
 # epoch-16完整训练状态分叉pilot
 
-状态：`已完成；短程全状态更新呈正向趋势，但Actor B尚未达到独立准入线`。
+状态：`historical / rejected after fixed-200 validation`。50场短pilot的正向趋势没有在
+固定200场复现，不得据此恢复epoch-16整网续训。
 
 ## 假设
 
@@ -78,12 +79,11 @@ epoch 18在碰撞没有反弹的情况下提高了full success并缩短episode�
 
 因此当前改善来自小范围状态相关修正，不是全局动作偏置。
 
-## 决策
+## 当时决策
 
 1. 冻结epoch 18候选，不继续当前配置长训。
-2. 使用固定200场对epoch 17/18做同场复核，并保留逐场结果。
-3. 单独复核strong-interaction保持率，确认局部避障专门化没有被稀释。
-4. 通过后再与冻结5A做`A-only/B-only/both/neither`互补性审计；当前不训练Gate。
+2. 固定200场复核已经完成，结果为full success下降、collision上升。
+3. 当前正式决策是拒绝epoch-16整网续训，转向冻结5A的Residual Actor B。
 
 候选checkpoint：
 
@@ -92,7 +92,4 @@ TD3/checkpoints/actor_b_from_epoch16_full_pilot_v1_s20260802_best.pt
 TD3/pytorch_models/actor_b_from_epoch16_full_pilot_v1_s20260802_epoch_018_actor.pth
 ```
 
-## 脚本
-
-- 启动：`scripts/start_training_actor_b_from_epoch16.sh`
-- 停止：`scripts/stop_training_actor_b_from_epoch16.sh`
+历史启动入口已移除，防止误运行被拒绝协议。

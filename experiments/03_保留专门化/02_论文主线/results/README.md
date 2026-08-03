@@ -1,35 +1,37 @@
 # 结果目录索引
 
-本目录按“这些结果在当前论证中起什么作用”分类，而不是按运行日期平铺。历史实验的叶子目录名保持不变，便于追溯日志、checkpoint 和提交记录。
+本目录按证据作用归档，所有“当前路线”判断以父目录
+[论文主线README](../README.md)为准。
 
-## 当前应先看什么
-
-当前Actor证据和独立Dense Actor重训看 [`05_当前冻结方案/`](05_当前冻结方案/README.md)。Gate开发暂停，历史实现保留在 [`06_Gate开发/`](06_Gate开发/README.md)：
+## 当前需要的证据
 
 ```text
-generalist-5a（普通导航，冻结）
-  + independent-dense-actor（从5A重训）
-  -> 两者独立能力和互补性成立后再训Gate
+5A普通导航基线
+  + epoch-16单冲突局部技能证据
+  + 历史Gate的组合上限与失败边界
+  -> 新的单冲突Residual Actor B
+  -> 冻结A/B后的新Gate
 ```
-
-其余目录分别提供基线、失败证据、机制排查和感知前置实验，不能从中重新挑选 Actor 覆盖当前冻结结论。
 
 ## 目录职责
 
 | 目录 | 状态 | 作用 |
 | --- | --- | --- |
-| [`01_基线评估/`](01_基线评估/README.md) | baseline / complete | 5A、5D 和 fixed-v1 的冻结基线 |
-| [`02_普通Actor_失败对照/`](02_普通Actor_失败对照/README.md) | failed diagnostic | 直接训练 standard expert 的退化证据 |
-| [`03_强交互Actor_研发记录/`](03_强交互Actor_研发记录/README.md) | historical diagnostic | 强交互 Actor 从失败机制到正式配置的研发过程 |
-| [`04_Gate前置验证/`](04_Gate前置验证/README.md) | diagnostic / prerequisite | 场景可解性、风险信号、机器人感知和时序表示验证 |
-| [`05_当前冻结方案/`](05_当前冻结方案/README.md) | current / active | 5A普通Actor、条件Actor局限证据和独立Dense Actor重训 |
-| [`06_Gate开发/`](06_Gate开发/README.md) | paused | 历史机器人感知与Gate开发；等待两个独立Actor成立 |
-| [`90_中止与无效运行/`](90_中止与无效运行/README.md) | invalid / aborted | 未形成有效模型比较的运行，仅保留溯源 |
+| [`01_基线评估/`](01_基线评估/README.md) | baseline | 5A、5D和fixed-v1基线 |
+| [`02_普通Actor_失败对照/`](02_普通Actor_失败对照/README.md) | historical / failed | standard expert微调退化证据 |
+| [`03_强交互Actor_研发记录/`](03_强交互Actor_研发记录/README.md) | historical | epoch-16形成过程及独立Dense Actor失败记录 |
+| [`04_Gate前置验证/`](04_Gate前置验证/README.md) | diagnostic | 场景可解性、风险信号和感知边界 |
+| [`05_当前冻结方案/`](05_当前冻结方案/README.md) | frozen evidence | 5A、epoch-16和独立Actor比较；不再表示当前训练方案 |
+| [`06_Gate开发/`](06_Gate开发/README.md) | frozen baseline | G0/G1/G2-A和历史Gate，作为新Gate基线 |
+| [`90_中止与无效运行/`](90_中止与无效运行/README.md) | invalid | 不得用于模型选择的运行 |
+
+新的Residual Actor B结果进入
+[`../09_单冲突Residual组合主线/05_单冲突Residual_ActorB`](../09_单冲突Residual组合主线/05_单冲突Residual_ActorB/README.md)，
+避免继续混入旧独立Dense Actor研发记录。
 
 ## 归档规则
 
-- 新结果先判断用途，再进入对应父目录；禁止重新平铺到 `results/` 根目录。
-- 每个叶子目录只对应一个协议明确的实验或配对评估。
-- 已归档叶子目录不改名、不覆盖；修正协议必须建立新实验 ID。
-- `90_中止与无效运行/` 中的数值不得进入模型选择或论文主表。
-- D3/D4 前缀是历史阶段 ID，不表示当前研究阶段；当前阶段是 D5-G0。
+- 已完成实验保留事实、日志和必要checkpoint说明，不删除失败证据。
+- 历史目录中的旧“下一步”不构成执行授权。
+- 新实验必须先冻结数据边界；Actor B和Gate训练不得读取多冲突validation/test。
+- `90_中止与无效运行`中的数值不得进入论文主表。
