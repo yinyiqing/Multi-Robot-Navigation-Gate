@@ -191,3 +191,25 @@ def summarize_counterfactual_calibration(records, minimum_observed_gap=1e-3):
         "qmin_target_mae": float(np.mean(np.abs(errors))) if errors else None,
         "qmin_target_bias": float(np.mean(errors)) if errors else None,
     }
+
+
+def summarize_calibration_anchor_coverage(records, minimum_observed_gap=1e-3):
+    """Expose whether calibration reached decisions after the initial state."""
+    by_anchor_step = {}
+    for step in sorted({int(record["anchor_step"]) for record in records}):
+        by_anchor_step[str(step)] = summarize_counterfactual_calibration(
+            [record for record in records if int(record["anchor_step"]) == step],
+            minimum_observed_gap,
+        )
+    post_initial = [
+        record for record in records if int(record["anchor_step"]) > 0
+    ]
+    post_initial_summary = summarize_counterfactual_calibration(
+        post_initial, minimum_observed_gap
+    )
+    return {
+        "by_anchor_step": by_anchor_step,
+        "post_initial_repeatable_records": post_initial_summary["repeatable_records"],
+        "post_initial_calibrated_groups": post_initial_summary["calibrated_groups"],
+        "covers_post_initial_anchors": post_initial_summary["calibrated_groups"] > 0,
+    }

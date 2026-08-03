@@ -172,3 +172,39 @@ logs/train_full_actor_edge1_simple_critic_v2_s20260803_20260803_224303.log
 ```
 
 训练结束后使用同一个 `individual_simple` reward profile 做同状态校准。pair 真值只用于选取测量对象，不进入训练、Actor 输入或部署策略。
+
+### Critic-only v2 中途审计与止损
+
+进程在 `5352` samples 后停止，最后一个完整保存并可恢复的 checkpoint 为 `4957` samples，未进入 Actor 更新。Actor optimizer step 始终为 `0`，参数相对 5A 的 L2 变化为 `0`。
+
+| checkpoint | Critic updates | 1.2 m 逼近样本 | 负终止样本 | 逼近状态全速最优 | 逼近状态 `dQ/dv > 0` |
+|---:|---:|---:|---:|---:|---:|
+| 3071 | 92 | 145 | 19 | 4.1% | 13.8% |
+| 3751 | 772 | 175 | 24 | 57.7% | 18.3% |
+| 4957 | 1978 | 214 | 29 | 88.8% | 69.2% |
+
+动作覆盖本身正常：4957 samples 的 raw linear 均值 `0.009`、标准差 `0.575`，低/中/高动作比例约为 `9.5% / 80.6% / 9.9%`。transition 的 ego state、action、reward、done 和 next state 索引一致，没有发现 replay 串线。
+
+主要风险来自监督密度而非动作覆盖：
+
+- 4957 条 replay 中只有 214 条属于 1.2 m 内正在逼近，仅占 4.3%；
+- 负终止只有 29 条，而正终止有 171 条；
+- 逼近样本分到五个速度档后每档只有 38 至 51 条，碰撞终止每档只有 0 至 3 条；
+- 本轮只随机线速度，角速度与冻结 5A 输出的平均绝对差为 `4e-8`，因此不能据此解冻完整 Actor 的角速度分支。
+
+CPU 同状态校准得到总体 pairwise 排序 `47/59 = 79.7%`，但这个数字不能作为冲突 Critic 通过：36 条可重复记录和 8 个有效状态组全部来自 `anchor_step=0`，`anchor_step=4` 的 50 条记录全部不可重复。有效分支主要测到“起点加速是否更快到达”，没有测到回合中途的冲突决策。
+
+校准复现失败的工程原因也已定位：reset 后即使起点位置误差只有 `1e-5 m`，激光 Actor state 偶尔可相差 `2.19`；同一 action prefix 回放 4 步后，最大位置/航向误差达到 `0.24 m / 0.56 rad`。固定步长下的 controller settle 已改为按仿真时间等待并在失败时终止，但 smoke test 表明 Gazebo controller/传感器状态仍未被 reset 完整恢复。
+
+因此当前结论是：v2 没有证明 Critic 失败，也没有达到 Actor 解冻准入。单看 Q 对全速的偏好会误杀，因为部分场景高速确实更优；单看 79.7% 排序又会误判，因为它只覆盖起点。下一轮训练前必须先满足：
+
+1. 校准报告必须有 `post_initial_calibrated_groups > 0`，否则排序分数无效；
+2. replay 必须在 Critic 更新前达到预设的逼近状态和负终止样本下限；
+3. 若要解冻完整 Actor，必须补足角速度动作支持；否则首轮只能限制为线速度方向的更新。
+
+归档结果：
+
+- `local_data/critic_replay_audit_simple_v2_3071.json`
+- `local_data/critic_replay_audit_simple_v2_3751.json`
+- `local_data/critic_replay_audit_simple_v2_4957.json`
+- `local_data/critic_calibration_simple_v2_4957_conflict_pair.json`

@@ -260,8 +260,42 @@ def controller_motion(env):
     return maximum_linear, maximum_angular
 
 
-def settle_controllers(env, timeout=2.0):
+def settle_controllers(env, timeout=4.0):
     zero = Twist()
+    if env.fixed_physics_step_size is not None:
+        settle_step = 0.2
+        elapsed_simulation = 0.0
+        stable_samples = 0
+        while True:
+            env._pause_fixed_physics()
+            for _ in range(3):
+                for publisher in env.vel_pubs.values():
+                    publisher.publish(zero)
+                time.sleep(0.02)
+            previous_velodyne_counts = dict(env.velodyne_update_counts)
+            previous_odom_counts = dict(env.odom_update_counts)
+            target_time = env._advance_fixed_physics(settle_step)
+            env._wait_for_fixed_sensor_updates(
+                previous_velodyne_counts,
+                previous_odom_counts,
+                target_time,
+            )
+            env.wait_for_all_odom()
+            maximum_linear, maximum_angular = controller_motion(env)
+            if maximum_linear <= 0.01 and maximum_angular <= 0.02:
+                stable_samples += 1
+            else:
+                stable_samples = 0
+            elapsed_simulation += settle_step
+            if stable_samples >= 2:
+                return
+            if elapsed_simulation >= timeout:
+                raise RuntimeError(
+                    "controller did not settle after %.1f simulation seconds: "
+                    "linear=%.4f angular=%.4f"
+                    % (elapsed_simulation, maximum_linear, maximum_angular)
+                )
+
     rospy.wait_for_service("/gazebo/unpause_physics")
     env.unpause()
     started = time.monotonic()
@@ -279,12 +313,11 @@ def settle_controllers(env, timeout=2.0):
         if elapsed >= 0.2 and stable_samples >= 3:
             break
         if elapsed >= timeout:
-            print(
-                "controller settle timeout: linear=%.4f angular=%.4f"
-                % (maximum_linear, maximum_angular),
-                flush=True,
+            raise RuntimeError(
+                "controller did not settle after %.1f wall-clock seconds: "
+                "linear=%.4f angular=%.4f"
+                % (elapsed, maximum_linear, maximum_angular)
             )
-            break
     rospy.wait_for_service("/gazebo/pause_physics")
     env.pause()
 

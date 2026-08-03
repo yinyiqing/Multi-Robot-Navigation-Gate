@@ -16,6 +16,7 @@ from critic_calibration import (
     infer_critic_state_dim,
     manifest_conflict_pair_indices,
     pairwise_order_counts,
+    summarize_calibration_anchor_coverage,
     summarize_counterfactual_calibration,
 )
 
@@ -84,6 +85,25 @@ class CriticCalibrationTests(unittest.TestCase):
     def test_invalid_discount_is_rejected(self):
         with self.assertRaises(ValueError):
             discounted_n_step_target([1.0], 1.1)
+
+    def test_anchor_coverage_requires_a_post_initial_calibrated_group(self):
+        records = []
+        for step, repeatable in ((0, True), (4, False)):
+            for predicted, observed in ((1.0, 1.0), (2.0, 2.0)):
+                records.append(
+                    {
+                        "scenario_id": "s1",
+                        "anchor_step": step,
+                        "ego_index": 0,
+                        "predicted_qmin": predicted,
+                        "observed_n_step_target": observed,
+                        "repeatable": repeatable,
+                    }
+                )
+        coverage = summarize_calibration_anchor_coverage(records)
+        self.assertEqual(coverage["by_anchor_step"]["0"]["calibrated_groups"], 1)
+        self.assertEqual(coverage["post_initial_repeatable_records"], 0)
+        self.assertFalse(coverage["covers_post_initial_anchors"])
 
     def test_dense_v9_reward_profile_matches_training_contract(self):
         profile = calibration_reward_kwargs("dense_v9")

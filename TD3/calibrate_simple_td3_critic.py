@@ -29,6 +29,7 @@ from critic_calibration import (
     discounted_n_step_target,
     infer_critic_state_dim,
     manifest_conflict_pair_indices,
+    summarize_calibration_anchor_coverage,
     summarize_counterfactual_calibration,
 )
 from critic_models import Critic
@@ -393,6 +394,14 @@ def main():
     finally:
         env.close()
 
+    summary = summarize_counterfactual_calibration(
+        records, args.minimum_observed_gap
+    )
+    summary.update(
+        summarize_calibration_anchor_coverage(
+            records, args.minimum_observed_gap
+        )
+    )
     result = {
         "format_version": 1,
         "manifest": str(args.manifest),
@@ -406,9 +415,7 @@ def main():
         "speeds": speeds,
         "horizon": args.horizon,
         "discount": args.discount,
-        "summary": summarize_counterfactual_calibration(
-            records, args.minimum_observed_gap
-        ),
+        "summary": summary,
         "records": records,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)

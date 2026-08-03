@@ -1,0 +1,200 @@
+{
+  "actor_optimizer_steps": 0,
+  "actor_relative_parameter_l2_from_base": 0.0,
+  "agent_samples": 3071,
+  "behavior_action_coverage": {
+    "angular_delta_from_actor_mean_absolute": 4.707015222038535e-08,
+    "raw_linear_ge_0p8_share": 0.09736242266362748,
+    "raw_linear_le_neg_0p8_share": 0.0986649299902312,
+    "raw_linear_mean": 0.003546311054378748,
+    "raw_linear_mid_share": 0.8039726473461413,
+    "raw_linear_std": 0.5733810067176819
+  },
+  "behavior_by_raw_linear_bin": {
+    "all": [
+      {
+        "count": 596,
+        "negative_terminal_count": 5,
+        "positive_terminal_count": 12,
+        "raw_linear_range": [
+          -1.0,
+          -0.6
+        ],
+        "reward_mean": 1.2851805686950684
+      },
+      {
+        "count": 593,
+        "negative_terminal_count": 1,
+        "positive_terminal_count": 22,
+        "raw_linear_range": [
+          -0.6,
+          -0.2
+        ],
+        "reward_mean": 3.684868335723877
+      },
+      {
+        "count": 638,
+        "negative_terminal_count": 3,
+        "positive_terminal_count": 28,
+        "raw_linear_range": [
+          -0.2,
+          0.2
+        ],
+        "reward_mean": 4.03434944152832
+      },
+      {
+        "count": 639,
+        "negative_terminal_count": 3,
+        "positive_terminal_count": 22,
+        "raw_linear_range": [
+          0.2,
+          0.6
+        ],
+        "reward_mean": 3.1101930141448975
+      },
+      {
+        "count": 605,
+        "negative_terminal_count": 7,
+        "positive_terminal_count": 29,
+        "raw_linear_range": [
+          0.6,
+          1.0
+        ],
+        "reward_mean": 3.793947696685791
+      }
+    ],
+    "close_approaching": [
+      {
+        "count": 30,
+        "negative_terminal_count": 2,
+        "positive_terminal_count": 0,
+        "raw_linear_range": [
+          -1.0,
+          -0.6
+        ],
+        "reward_mean": -6.1599955558776855
+      },
+      {
+        "count": 29,
+        "negative_terminal_count": 0,
+        "positive_terminal_count": 1,
+        "raw_linear_range": [
+          -0.6,
+          -0.2
+        ],
+        "reward_mean": 3.842094898223877
+      },
+      {
+        "count": 30,
+        "negative_terminal_count": 1,
+        "positive_terminal_count": 2,
+        "raw_linear_range": [
+          -0.2,
+          0.2
+        ],
+        "reward_mean": 3.7301113605499268
+      },
+      {
+        "count": 25,
+        "negative_terminal_count": 2,
+        "positive_terminal_count": 1,
+        "raw_linear_range": [
+          0.2,
+          0.6
+        ],
+        "reward_mean": -3.5949597358703613
+      },
+      {
+        "count": 31,
+        "negative_terminal_count": 1,
+        "positive_terminal_count": 0,
+        "raw_linear_range": [
+          0.6,
+          1.0
+        ],
+        "reward_mean": -2.748863458633423
+      }
+    ]
+  },
+  "checkpoint": "/tmp/full_actor_edge1_simple_critic_v2_3071.pt",
+  "critic_optimizer_steps": 92,
+  "preferences": {
+    "all": {
+      "angular_gradient_one_sided_share": 0.8762618039726473,
+      "count": 3071,
+      "full_best_share": 0.022142624552263106,
+      "full_minus_stop_mean": 0.08450841158628464,
+      "linear_gradient_mean": -0.012085218913853168,
+      "linear_gradient_positive_share": 0.4669488765874308,
+      "qmin_mean_by_raw_linear": [
+        2.1703274250030518,
+        2.294874429702759,
+        2.36665940284729,
+        2.3405253887176514,
+        2.254836082458496
+      ],
+      "twin_abs_disagreement_mean": 0.27055177092552185
+    },
+    "close": {
+      "angular_gradient_one_sided_share": 0.7810945273631841,
+      "count": 201,
+      "full_best_share": 0.03980099502487562,
+      "full_minus_stop_mean": 0.12570583820343018,
+      "linear_gradient_mean": -0.08255892992019653,
+      "linear_gradient_positive_share": 0.23383084577114427,
+      "qmin_mean_by_raw_linear": [
+        2.232652425765991,
+        2.349539279937744,
+        2.424055337905884,
+        2.424813985824585,
+        2.3583576679229736
+      ],
+      "twin_abs_disagreement_mean": 0.3034396469593048
+    },
+    "close_approaching": {
+      "angular_gradient_one_sided_share": 0.7862068965517242,
+      "count": 145,
+      "full_best_share": 0.041379310344827586,
+      "full_minus_stop_mean": 0.1259816437959671,
+      "linear_gradient_mean": -0.10937969386577606,
+      "linear_gradient_positive_share": 0.13793103448275862,
+      "qmin_mean_by_raw_linear": [
+        2.278618097305298,
+        2.3950202465057373,
+        2.46688175201416,
+        2.4675793647766113,
+        2.404599189758301
+      ],
+      "twin_abs_disagreement_mean": 0.3126246929168701
+    },
+    "interaction": {
+      "angular_gradient_one_sided_share": 0.797191887675507,
+      "count": 641,
+      "full_best_share": 0.046801872074883,
+      "full_minus_stop_mean": 0.1145780086517334,
+      "linear_gradient_mean": -0.09471476078033447,
+      "linear_gradient_positive_share": 0.20280811232449297,
+      "qmin_mean_by_raw_linear": [
+        2.3113296031951904,
+        2.429487943649292,
+        2.501443862915039,
+        2.4929544925689697,
+        2.4259068965911865
+      ],
+      "twin_abs_disagreement_mean": 0.3169006109237671
+    }
+  },
+  "replay_states": 3071,
+  "reward": {
+    "done_rate": 0.0429827417779225,
+    "negative_terminal_count": 19,
+    "negative_terminal_rate": 0.006186909801367633,
+    "positive_terminal_count": 113
+  },
+  "state_counts": {
+    "all": 3071,
+    "close": 201,
+    "close_approaching": 145,
+    "interaction": 641
+  }
+}
