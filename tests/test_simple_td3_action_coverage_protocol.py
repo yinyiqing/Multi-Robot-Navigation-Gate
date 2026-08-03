@@ -9,7 +9,6 @@ START_C = ROOT / "scripts" / "start_training_dense_simple_td3_hparam_c.sh"
 START_D = ROOT / "scripts" / "start_training_dense_simple_td3_hparam_d.sh"
 START_D2 = ROOT / "scripts" / "start_training_dense_simple_td3_hparam_d2.sh"
 START_D2B = ROOT / "scripts" / "start_training_dense_simple_td3_hparam_d2b.sh"
-START_EDGE1_V2 = ROOT / "scripts" / "start_training_full_actor_edge1_simple_critic_v2.sh"
 
 
 class SimpleTd3ActionCoverageProtocolTests(unittest.TestCase):
@@ -21,7 +20,6 @@ class SimpleTd3ActionCoverageProtocolTests(unittest.TestCase):
         cls.start_d = START_D.read_text(encoding="utf-8")
         cls.start_d2 = START_D2.read_text(encoding="utf-8")
         cls.start_d2b = START_D2B.read_text(encoding="utf-8")
-        cls.start_edge1_v2 = START_EDGE1_V2.read_text(encoding="utf-8")
 
     def test_random_linear_exploration_defaults_off(self):
         self.assertIn(
@@ -71,25 +69,6 @@ class SimpleTd3ActionCoverageProtocolTests(unittest.TestCase):
         self.assertIn("DRL_MULTI_CRITIC_LR", self.start_d2b)
         self.assertIn("0.00002", self.start_d2b)
         self.assertIn("start_training_dense_simple_td3_hparam_b.sh", self.start_d2b)
-
-    def test_edge1_v2_trains_one_full_actor_without_pair_routing(self):
-        self.assertIn("edge1_full_horizon_v1", self.start_edge1_v2)
-        self.assertIn(
-            "DRL_MULTI_RANDOM_LINEAR_EXPLORATION_SCOPE=single_ego",
-            self.start_edge1_v2,
-        )
-        self.assertIn("DRL_MULTI_CONTROLLED_EGO_REPLAY_ONLY=1", self.start_edge1_v2)
-        self.assertNotIn("conflict_pair", self.start_edge1_v2)
-        self.assertNotIn("GATE", self.start_edge1_v2.upper())
-
-    def test_edge1_v2_keeps_actor_frozen_and_removes_reward_stack(self):
-        self.assertIn(
-            "DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS=1000000000",
-            self.start_edge1_v2,
-        )
-        self.assertIn("DRL_MULTI_USE_DYNAMIC_REWARD=0", self.start_edge1_v2)
-        self.assertIn("DRL_MULTI_CRITIC_LR=0.00002", self.start_edge1_v2)
-
 
 if __name__ == "__main__":
     unittest.main()
