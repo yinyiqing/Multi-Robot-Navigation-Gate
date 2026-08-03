@@ -1,14 +1,41 @@
-# ICRA论文主线：从单冲突学习到多冲突组合泛化
+# ICRA论文方向决策：两个Actor与一个Gate
 
-状态：`current / frozen on 2026-08-03`。
+状态：`diagnosis complete / two-Actor role definition pending on 2026-08-03`。
 
 跨目录的当前结论、实验准入和下一步只以本文件为准。历史README中的“当前”或
 “下一步”只代表当时判断。
 
-## 1. 一句话主张
+## 1. 不变部分
 
-> 只在单冲突场景中学习局部避让修正，再通过可部署Gate反复调用，零样本处理训练
-> 中未见的多冲突组合，同时保留普通导航能力。
+最终系统固定为两个Actor和一个可部署Gate。当前待决定的是两个Actor分别承担什么
+角色，不再混淆为同一个问题。
+
+## 2. 两条候选路线
+
+### 路线A：强弱独立Actor
+
+```text
+Actor A：独立完成普通/弱交互导航
+Actor B：独立完成强交互导航
+Gate：判断当前更适合哪个完整策略
+```
+
+优点是直观，符合最初设想。缺点是Actor B必须同时学会普通前进、冲突协调、恢复和
+到达；历史多轮训练始终在碰撞与保守timeout之间退化。若继续，最小必要变化是给
+Actor加入目标级相对运动/TTC信息，不能只继续调reward。
+
+### 路线B：普通Actor与局部避险技能
+
+```text
+Actor A：5A，负责普通导航
+Actor B：epoch-16，负责短时局部避险
+Gate：判断何时进入避险、何时返回普通导航
+```
+
+它对应的候选论文主张是：
+
+> 只在单冲突场景中学习局部避险，通过Gate反复调用，零样本处理训练中未见的多冲突
+> 组合，同时保持普通导航能力。
 
 创新不写成“两个Actor加一个Gate”，而写成：
 
@@ -16,35 +43,22 @@
 single-conflict skill learning -> compositional generalization to multi-conflict navigation
 ```
 
-## 2. 最终系统
+| 路线 | Actor A | Actor B | 当前证据 |
+| --- | --- | --- | --- |
+| A | 普通/弱交互独立导航 | 强交互独立导航 | 多次训练未同时解决碰撞和timeout |
+| B | 5A普通导航 | epoch-16局部避险 | Oracle多冲突复用显著有效，learned Gate方向为正 |
 
-```text
-Actor A：冻结5A，负责可靠的普通导航
-Actor B：冻结5A + 可训练Residual，可从起点独立运行到终点
-Gate：使用本机传感器，在Actor A和Actor B之间切换
-```
+当前证据更支持路线B，但在确认前不启动新Gate训练。把二者融合成单一Residual Actor
+的R0测试已经失败，不属于两条候选路线，见
+[失败记录](09_单冲突Residual组合主线/05_单冲突Residual_ActorB/README.md)。
 
-Actor B的动作定义为：
-
-```text
-a_B(s) = clip(a_5A(s) + delta_actor(s))
-```
-
-- `a_5A`永久冻结，保证普通导航能力不会被覆盖。
-- `delta_actor`只在单冲突训练场景学习局部避让修正。
-- epoch-16条件交互Actor只作为Residual的教师，不直接作为最终Actor B。
-- Actor B训练和验证时必须全程独立控制，禁止Oracle或另一Actor接管。
-
-详细协议见[单冲突Residual Actor B](09_单冲突Residual组合主线/05_单冲突Residual_ActorB/README.md)。
-
-## 3. 训练与测试边界
+## 3. 路线B的训练与测试边界
 
 ### 训练可见
 
 - 五车场景，`conflict_edge_count=1`、`max_conflict_degree=1`；
-- 普通路段和一次主要冲突都保留，Actor B学习完整episode；
-- 冻结5A提供普通导航基座；
-- 冻结epoch-16为冲突状态提供避让动作参考；
+- 普通路段和一次主要冲突都保留，用于学习Gate的进入与退出；
+- 冻结5A与epoch-16，不再融合或解冻；
 - Gate只能使用0-edge和单冲突训练数据。
 
 ### 训练不可见
@@ -64,7 +78,7 @@ a_B(s) = clip(a_5A(s) + delta_actor(s))
 4. edge>=3、高度数和同时多冲突的泛化边界；
 5. sealed test。
 
-如果Actor B或Gate在训练中读取多冲突场景，就不能再声称零样本组合泛化。
+如果局部Actor或Gate在训练中读取多冲突场景，就不能再声称零样本组合泛化。
 
 ## 4. 已有证据
 
@@ -74,6 +88,10 @@ a_B(s) = clip(a_5A(s) + delta_actor(s))
 - epoch-16只在单冲突场景训练，并在匹配调用协议下把full success从`0.421`
   提高到`0.700`。
 - epoch-16独立全程运行会产生大量timeout，因此它是局部技能教师，不是最终Actor B。
+
+完整路径审计发现epoch-16的2560场训练集中有`11`场因旧8秒标签截断实际为edge-2，
+占`0.43%`。现有结果作为路线可行性证据保留；正式零样本主张需要在修正后的纯
+edge-1训练集重新训练局部Actor。
 
 ### 组合泛化上限
 
@@ -129,26 +147,29 @@ a_B(s) = clip(a_5A(s) + delta_actor(s))
 
 ## 6. 当前执行顺序
 
-1. 构建`5A + epoch-16教师`在单冲突场景中的闭环数据，包含教师组合和学生访问状态。
-2. 离线训练Residual拟合`epoch-16动作 - 5A动作`，普通状态目标为零。
-3. 先验证Residual的动作表达范围和场景级泛化，不启动长训练。
-4. 让Actor B全程独立控制，只更新Residual，用TD3回报和逐渐衰减的教师约束训练。
-5. 固定Actor B，在单冲突validation验证独立导航、碰撞和timeout。
-6. 冻结A/B，只用0-edge和单冲突数据训练Gate。
-7. 在未见的exact-edge-2及更复杂拓扑上做零样本验证。
-8. 全部模型、阈值和协议冻结后才读取sealed test。
+1. 按完整路径重算冲突标签，修正edge-1视图中的3场多冲突泄漏。
+2. 不再尝试24维Residual融合，也不继续扫描独立强Actor的reward。
+3. 先讨论并冻结两个Actor的角色：强弱独立Actor，或普通Actor+局部避险技能。
+4. 若选择局部技能路线，再使用已有目标级检测、跟踪、闭合速度和TTC证据改进Gate。
+5. Gate训练仍只使用0-edge和单冲突数据，不读取多冲突validation或sealed test。
+6. 冻结Gate后，在新的exact-edge-2确认集做一次零样本验证。
+7. 通过预注册门槛后才扩大到edge>=3和sealed test。
 
-当前阶段是第1步。没有完成短pilot准入前，不启动多epoch训练。
+完整场景、输入和训练责任诊断见
+[全场景数据质量诊断](results/04_Gate前置验证/20260803_全场景数据质量诊断/README.md)。
+没有完成标签修正和Gate短pilot准入前，不启动多epoch Actor训练。
 
-## 7. 论文判定
+## 7. 路线选择与论文判定
 
-论文主张至少需要同时成立：
+路线A只有在增加最小相对运动观测后，独立强Actor能稳定超过5A且不把碰撞转成timeout，
+才值得恢复训练。当前没有这个证据。
 
-- Actor B单独运行时具备完整导航能力，不能只把碰撞变成timeout；
-- Actor B相对5A在单冲突上有稳定避让增益；
+路线B的论文主张至少需要同时成立：
+
+- epoch-16在单冲突局部调用时相对5A有稳定避让增益；
 - Gate在0-edge上的能力下降不超过3个百分点；
 - Gate在未见exact-edge-2上显著优于5A；
-- 多冲突训练数据没有泄漏到Actor B或Gate训练阶段。
+- 多冲突训练数据没有泄漏到局部Actor或Gate训练阶段。
 
-若Actor B全面优于Actor A，则不强行保留无意义的Gate；若可部署Gate仍不能转化局部
-技能收益，则论文只能报告方法边界，不能用真值Gate冒充最终结果。
+若可部署Gate仍不能转化局部技能收益，则路线B不能只用真值Gate成绩发表。此时再决定
+是否给路线A增加最小观测，或更换论文方向。
