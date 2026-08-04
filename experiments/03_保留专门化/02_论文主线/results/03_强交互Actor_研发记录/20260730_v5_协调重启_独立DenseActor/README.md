@@ -69,7 +69,7 @@ latest checkpoint：
 
 训练日志：
 
-`logs/train_independent_dense_actor_from_5a_coordination_v5_s20260729_20260729_234629.log`
+`logs/archive/rejected/independent_dense_actor/train_independent_dense_actor_from_5a_coordination_v5_s20260729_20260729_234629.log`
 
 ## 与 v4 对比
 
@@ -157,4 +157,3 @@ v5 的方向是有价值的，但 reward 比例不平衡。
 一句话：
 
 > v4 主要问题是撞；v5 主要问题是等。v6 应该保留 v5 的避撞收益，但把“安全后继续走”拉回来。
-

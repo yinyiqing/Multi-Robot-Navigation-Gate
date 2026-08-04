@@ -49,7 +49,7 @@ TD3/checkpoints/interaction_focused_actor_from_5a_fullstrong_balanced_formal_s20
 日志：
 
 ```text
-logs/train_actor_b_from_epoch16_full_pilot_v1_s20260802_20260802_234053.log
+logs/archive/rejected/epoch16_full_episode/train_actor_b_from_epoch16_full_pilot_v1_s20260802_20260802_234053.log
 ```
 
 固定50场结果：

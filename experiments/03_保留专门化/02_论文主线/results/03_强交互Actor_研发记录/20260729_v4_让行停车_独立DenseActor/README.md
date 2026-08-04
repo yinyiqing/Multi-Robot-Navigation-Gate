@@ -63,7 +63,7 @@ latest checkpoint：
 
 训练日志：
 
-`logs/train_independent_dense_actor_from_5a_yield_v4_s20260729_20260729_200520.log`
+`logs/archive/rejected/independent_dense_actor/train_independent_dense_actor_from_5a_yield_v4_s20260729_20260729_200520.log`
 
 ## 结论
 
@@ -125,4 +125,3 @@ latest checkpoint：
    - 或者继续改 reward，让 actor 学会多车通行顺序。
 
 当前不建议直接开启新训练。
-

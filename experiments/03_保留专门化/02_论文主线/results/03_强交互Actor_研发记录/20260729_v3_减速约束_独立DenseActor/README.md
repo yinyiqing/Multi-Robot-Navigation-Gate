@@ -50,6 +50,6 @@
 
 ## 归档文件
 
-- `logs/train_independent_dense_actor_from_5a_full_v3_s20260729_20260729_171813.log`
+- `logs/archive/rejected/independent_dense_actor/train_independent_dense_actor_from_5a_full_v3_s20260729_20260729_171813.log`
 - `checkpoints/independent_dense_actor_from_5a_full_v3_s20260729_best.pt`
 - `checkpoints/independent_dense_actor_from_5a_full_v3_s20260729_latest.pt`

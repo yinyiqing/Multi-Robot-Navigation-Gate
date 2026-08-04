@@ -50,7 +50,7 @@ Actor解冻后同时出现full success下降、碰撞上升和timeout。按预�
 运行日志保存在本机：
 
 ```text
-logs/train_full_actor_edge1_from_5a_s20260803_20260803_235338.log
+logs/archive/rejected/full_actor_edge1/train_full_actor_edge1_from_5a_s20260803_20260803_235338.log
 ```
 
 历史支线已隔离，默认不读取`trash/`。

@@ -42,6 +42,6 @@ v7没有解除v3-v6的核心减速机制：
 
 归档日志：
 
-`logs/train_independent_dense_actor_from_5a_recovery_v7_s20260731_20260731_101319.log`
+`logs/archive/rejected/independent_dense_actor/train_independent_dense_actor_from_5a_recovery_v7_s20260731_20260731_101319.log`
 
 best/latest checkpoint与模型权重只保留本机，不进入Git。
