@@ -41,6 +41,7 @@
 | corrected edge-1完整Actor | [`10_纯单冲突完整Actor_pilot`](03_保留专门化/02_论文主线/10_纯单冲突完整Actor_pilot/README.md) | `rejected pilot` | 解冻后50场monitor明显退化；只作单Actor对照 |
 | 统一停车/靠右/手工TTC规则 | [`results/04_Gate前置验证`](03_保留专门化/02_论文主线/results/04_Gate前置验证/README.md) | `rejected heuristic` | 可作规则基线，不能替代学习Gate |
 | 第一版学习Gate | [`07_冲突拓扑组合泛化`](03_保留专门化/02_论文主线/07_冲突拓扑组合泛化/README.md) | `frozen baseline / rejected final` | 方向为正但未过统计和oracle恢复准入 |
+| 可部署在线Gate新路线 | [`11_可部署在线Gate研究`](03_保留专门化/02_论文主线/11_可部署在线Gate研究/README.md) | `current / G11-A pending` | 先做时序oracle蒸馏与student-rollout数据聚合；Actor冻结 |
 | 中止和协议错误运行 | [`results/90_中止与无效运行`](03_保留专门化/02_论文主线/results/90_中止与无效运行/README.md) | `invalid` | 不进入论文、趋势判断或模型选择 |
 
 ## 可以复用的基础设施
@@ -63,4 +64,3 @@
 5. oracle结果必须明确标注privileged，不得写成Gate结果。
 6. `results/90_中止与无效运行`中的数值不得用于任何方法判断。
 7. sealed test只允许在模型、特征和阈值全部冻结后读取一次。
-
