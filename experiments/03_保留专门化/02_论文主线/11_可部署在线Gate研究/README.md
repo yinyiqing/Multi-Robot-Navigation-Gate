@@ -122,10 +122,10 @@ G11-A1已在当前协议的640场train与120场内部validation上完成。预�
 - 冻结G0 detector和旧G2-A Gate checkpoint；
 - 可恢复逐机器人时间顺序的frame index、ego index和timestamp。
 
-因此G11-A0是纯离线实验，不启动ROS或Gazebo，也不需要先采集新数据。但现有 shard
-只有3个train和2个validation场景属于corrected edge-1，不能靠过滤得到A1正式数据。
-A0产生的模型只回答表示是否值得继续，不能进入闭环或论文结果。A1需要单独采集符合
-当前协议的数据，且不能读取sealed test。
+G11-A0只回答时序表示是否值得继续；G11-A1已经单独采集当前协议数据并通过离线准入。
+当前可进入G11-B的候选固定为预注册主seed `20260804`的T1 epoch 2 checkpoint。
+G11-B仍只使用导航train，在student实际访问状态查询Oracle并聚合数据；完成聚合重训
+和小validation阈值冻结前，不读取sealed test。
 
 ## 6. 明确不重复
 

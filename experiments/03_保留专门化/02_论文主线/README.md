@@ -1,6 +1,6 @@
 # ICRA论文主线：普通导航Actor、条件避障Actor与在线Gate
 
-状态：`route frozen / deployable Gate pending`。更新时间：`2026-08-04`。
+状态：`route frozen / G11-A1 passed / deployable Gate pending`。更新时间：`2026-08-04`。
 
 本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见
 [PROJECT_STATUS](../../../PROJECT_STATUS.md)，历史实验状态见
