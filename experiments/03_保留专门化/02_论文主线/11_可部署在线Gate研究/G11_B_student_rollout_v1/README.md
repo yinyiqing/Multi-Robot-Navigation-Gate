@@ -1,6 +1,6 @@
 # G11-B Student-Rollout 数据聚合
 
-状态：`smoke passed / formal collection ready`。日期：`2026-08-04`。
+状态：`smoke passed / formal collection running`。日期：`2026-08-04`。
 
 ## 目的
 
@@ -10,6 +10,11 @@ navigation-train场景，在student实际访问状态记录可部署观测，并
 
 本阶段不读取导航validation/test或sealed test，不更新Actor，也不把采集过程中的导航
 结果当成独立评测成绩。
+
+本实验首先训练一个可用Gate，不把single-to-multi零样本泛化设为G11-B成败条件。
+当前数据保持0-edge/single-edge，是已经冻结的第一候选协议；完成后会测试multi-edge。
+若泛化不足，下一轮可以登记multi-edge train数据并重训同一个Gate，不改变双Actor与
+单Gate方法，但届时不得声称零样本拓扑泛化。
 
 ## 冻结输入
 

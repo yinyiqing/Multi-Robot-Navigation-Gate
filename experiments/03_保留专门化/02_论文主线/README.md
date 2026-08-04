@@ -27,6 +27,11 @@ a_t = pi_I(o_t),  if g(h_t) = 1
 导师已于`2026-08-04`认可“普通导航Actor + 条件避障Actor”的角色划分。避障Actor
 不承担全程导航效率，但必须保持目标一致性、解除冲突并允许Gate交还控制。
 
+导师确认的交付是训练一个可部署在线Gate，没有把“single-edge训练到multi-edge零样本
+泛化”设为方法要求。当前先用0-edge和single-edge训练，是为了建立干净、可诊断的第一
+候选；multi-edge是冻结后的评测维度。自然泛化若成立可作为附加贡献，若不成立则允许
+在读取sealed test前书面修订训练集并重训同一个Gate，方法主线仍不改变。
+
 ## 2. 为什么需要Gate
 
 冲突强度会在同一条轨迹中出现和消失，因此episode开始时固定选择Actor只能形成场景
@@ -59,13 +64,14 @@ Gate成立的必要条件是两个Actor存在不同优势区。如果Actor I在�
 - 真值距离只用于训练分工，没有进入Actor的24维部署输入；
 - 正式候选为epoch 16，共训练`320,000` agent samples并覆盖`2560/2560`场。
 
-完整路径复审发现原2560场中有11场实际为edge-2，占`0.43%`。因此当前epoch-16可以
-证明局部技能和系统可行性，但严格的“训练只见single-edge”论文主张还需要：
+完整路径复审发现原2560场中有11场实际为edge-2，占`0.43%`。当前默认论文主张是
+“两个冻结Actor由一个可部署Gate在线分工”，不主张整个系统严格只见single-edge，
+因此不为零样本拓扑主张重训Actor。只有后续明确升级该附加主张时才需要：
 
 1. 用corrected full-horizon edge-1重新训练同协议Actor I；或
 2. 明确收窄论文主张，不把现有模型称为严格零样本冲突拓扑泛化。
 
-在此问题做出书面决策前，不读取sealed test。
+无论是否升级该附加主张，所有训练数据和表述都必须在读取sealed test前冻结。
 
 ## 4. Gate定义
 
@@ -133,6 +139,11 @@ epoch-16全程运行在前256场的full success为`0.2305`、timeout为`0.5156`�
 - 0-edge和corrected full-horizon single-edge；
 - 仿真真值只能生成监督标签，不进入推理输入。
 
+以上是当前G11-A1/B第一候选的冻结数据协议，不是“训练一个Gate”方法本身必须永远只见
+single-edge。若multi-edge评测不足，允许在sealed test前登记新实验ID并加入
+navigation-train的multi-edge数据；修改后必须重做模型选择和全部准入，且不得再声称
+single-to-multi零样本泛化。
+
 ### 模型选择
 
 - train和validation的scenario ID必须互斥；
@@ -158,7 +169,8 @@ epoch-16全程运行在前256场的full success为`0.2305`、timeout为`0.5156`�
 2. single-edge full success显著超过5A，并且改善多于退化；
 3. timeout不出现系统性增加；
 4. 明确超过不区分机器人与静态障碍的min-laser规则Gate；
-5. 在冻结阈值后，对multi-edge仍保持正向收益；
+5. 最终Gate在multi-edge上仍保持正向收益；第一候选若未达到，可加入train内部
+   multi-edge重训同一个Gate，但必须取消零样本泛化表述；
 6. 报告相对同场oracle的收益恢复比例，不能只报告绝对最好值。
 
 主指标为`full_success_rate`，同时报告`agent_success_rate`、`collision_rate`、
@@ -198,7 +210,8 @@ success + collision + unresolved = agents * episodes
 ## 10. 当前执行顺序
 
 1. 固定本文档、模型哈希和数据边界。
-2. 明确严格single-edge主张是否需要重训Actor I；该决定不得在test后修改。
+2. 当前不作整个系统严格single-edge训练的主张，不为该附加主张重训Actor I；若后续
+   升级主张，必须在sealed test前重新冻结协议。
 3. [可部署在线Gate研究](11_可部署在线Gate研究/README.md)的G11-A1时序蒸馏已通过；
    固定预注册主seed Gate采集student rollout并聚合重训，不更新Actor。
 4. 依次完成smoke、小validation阈值选择和独立准入。
