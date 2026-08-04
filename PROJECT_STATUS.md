@@ -48,6 +48,9 @@ Gate
    `p=0.06812`且只恢复oracle收益的`30.2%`，未通过最终准入。
 6. corrected edge-1完整Actor pilot在Actor解冻后，50场monitor的full success从
    `0.42-0.44`降至`0.16/0.10`，已经关闭，只作单Actor失败对照。
+7. G11-A0离线诊断中，单帧加入两个Actor动作没有增益；8帧GRU在360度标签下相对
+   静态Gate的F1与AP连续5个seed提高，区间IoU提高且切换次数下降。该结果只授权采集
+   当前协议的A1数据，不是闭环导航成绩。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -61,7 +64,9 @@ Gate
    场景类别或冲突图。
 3. `2.0 m` oracle用于监督、诊断和上界；最终Gate需要判断何时调用避障Actor更有利，
    不能把“附近有障碍物”直接等同于“附近有机器人”。
-4. 先在0-edge和single-edge互斥validation上完成能力保持与局部收益准入，再评估
+4. G11-A0已经通过表示准入；下一步采集导航train内部互斥的0-edge与corrected
+   full-horizon edge-1数据，完成G11-A1正式离线pilot。
+5. 先在0-edge和single-edge互斥validation上完成能力保持与局部收益准入，再评估
    multi-edge泛化；所有模型与阈值冻结前不读取sealed test。
 
 ## 两个未决问题
@@ -94,4 +99,3 @@ Gate
 | [数据集索引](experiments/03_保留专门化/02_论文主线/datasets/README.md) | train/validation/test边界 |
 | [结果索引](experiments/03_保留专门化/02_论文主线/results/README.md) | 证据所在目录 |
 | [执行手册](README_执行文档.md) | 环境、进程和运行记录要求 |
-

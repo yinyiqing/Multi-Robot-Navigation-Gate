@@ -1,6 +1,6 @@
 # 可部署在线 Gate 研究
 
-状态：`research complete / G11-A pending`。建立日期：`2026-08-04`。
+状态：`G11-A0 passed / G11-A1 pending`。建立日期：`2026-08-04`。
 
 本目录只研究两个冻结 Actor 之间的在线切换：
 
@@ -54,14 +54,29 @@ Actor 选择目标：
 走过的每个状态上直接读取训练期真值标签；部署网络只看本机信息。先在已有 G2-A
 shard 上完成低成本离线复核，只有时序模型明确超过旧静态 MLP 才采集新轨迹。
 
-### G11-A：已有数据离线时序 pilot
+### G11-A0：已有数据兼容性诊断
 
 - 复用现有 train/validation shard，sealed test 不读取；
-- 输入增加 5A 动作、epoch-16 动作、动作差、上一步 mode 和 mode 持续时间；
+- 旧 shard 的 positive-edge 层包含 multi-edge，因此本阶段只比较表示和训练流程，
+  产生的 checkpoint 不进入当前方法或拓扑泛化实验；
+- 输入增加 5A 动作、epoch-16 动作和动作差，并直接学习短时序；A0不读取上一真值
+  mode，避免teacher forcing泄漏；
 - 比较静态 MLP、GRU/TCN 时序 Gate；
 - 同时报 360 度标签和前方标签，不用其中一个冒充另一个；
 - 除 frame precision/recall/FPR 外，增加切换事件召回、进入延迟、持续区间 IoU、
   0-edge 误激活和切换次数。
+
+G11-A0已完成5个seed复核。单帧动作特征S1没有超过S0；8帧GRU T1在360度标签下的
+F1、AP、区间IoU和事件precision均为`5/5` seed提高，切换次数均减少。即使逐seed
+约束T1的总体FPR和standard/weak FPR不高于S0，F1仍提高`1.17-2.41`个百分点，
+因此授权A1采集。旧混合shard、A0 checkpoint和该离线分类指标不得写成闭环结果。
+
+### G11-A1：当前协议正式离线 pilot
+
+- 仅使用导航 train 内部重新划分的 0-edge 与 corrected full-horizon edge-1；
+- train/validation scenario ID 互斥；
+- 只有 A0 证明时序或 Actor 分歧有明确增益后才采集；
+- A1 checkpoint 才有资格进入 student-rollout 和闭环准入。
 
 ### G11-B：Student-rollout 数据聚合
 
@@ -102,9 +117,10 @@ shard 上完成低成本离线复核，只有时序模型明确超过旧静态 M
 - 冻结G0 detector和旧G2-A Gate checkpoint；
 - 可恢复逐机器人时间顺序的frame index、ego index和timestamp。
 
-因此G11-A是纯离线GPU实验，不启动ROS或Gazebo，也不需要先采集新数据。实现前先固定
-输入字段、序列切分、模型哈希和离线准入线；产生的模型只能用于validation开发，不能
-读取sealed test。
+因此G11-A0是纯离线实验，不启动ROS或Gazebo，也不需要先采集新数据。但现有 shard
+只有3个train和2个validation场景属于corrected edge-1，不能靠过滤得到A1正式数据。
+A0产生的模型只回答表示是否值得继续，不能进入闭环或论文结果。A1需要单独采集符合
+当前协议的数据，且不能读取sealed test。
 
 ## 6. 明确不重复
 

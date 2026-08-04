@@ -12,11 +12,15 @@ Usage:
 Current method:
   Actor N  generalist-5a         frozen
   Actor I  interaction-epoch16   frozen
-  Gate     deployable-interaction-gate  protocol pending
+  Gate     G11-A1 temporal Gate  data collection ready
 
-No start/stop command is exposed until the deployable Gate protocol, data split,
-admission criteria, and stopping conditions are recorded. Actor training is closed.
-Historical scripts are not current entrypoints.
+Current commands:
+  bash scripts/experiment.sh start gate-g11-a1-train
+  bash scripts/experiment.sh start gate-g11-a1-validation
+  bash scripts/experiment.sh stop  gate-g11-a1-train
+  bash scripts/experiment.sh stop  gate-g11-a1-validation
+
+Actor training remains closed. Historical scripts are not current entrypoints.
 EOF
 }
 
@@ -46,6 +50,20 @@ case "${1:-}" in
     ;;
   status)
     show_status
+    ;;
+  start)
+    case "${2:-}" in
+      gate-g11-a1-train) exec bash "$PROJECT_ROOT/scripts/start_g11_a1_collection.sh" train ;;
+      gate-g11-a1-validation) exec bash "$PROJECT_ROOT/scripts/start_g11_a1_collection.sh" validation ;;
+      *) usage >&2; exit 2 ;;
+    esac
+    ;;
+  stop)
+    case "${2:-}" in
+      gate-g11-a1-train) exec bash "$PROJECT_ROOT/scripts/stop_g11_a1_collection.sh" train ;;
+      gate-g11-a1-validation) exec bash "$PROJECT_ROOT/scripts/stop_g11_a1_collection.sh" validation ;;
+      *) usage >&2; exit 2 ;;
+    esac
     ;;
   *)
     usage >&2
