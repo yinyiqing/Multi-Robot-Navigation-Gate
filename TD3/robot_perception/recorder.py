@@ -1,3 +1,4 @@
+import json
 import os
 import re
 from pathlib import Path
@@ -23,6 +24,7 @@ class PerceptionShardRecorder:
         max_background_candidates=12,
         actor_state_dim=24,
         oracle_interaction_distance=2.0,
+        run_metadata=None,
     ):
         if frame_stride < 1:
             raise ValueError("frame_stride must be positive")
@@ -37,6 +39,9 @@ class PerceptionShardRecorder:
         self.max_background_candidates = int(max_background_candidates)
         self.actor_state_dim = int(actor_state_dim)
         self.oracle_interaction_distance = float(oracle_interaction_distance)
+        self.run_metadata_json = json.dumps(
+            dict(run_metadata or {}), sort_keys=True, separators=(",", ":")
+        )
         self.current_scenario_id = None
         self.current_path = None
         self.current_pool = "unknown"
@@ -301,6 +306,7 @@ class PerceptionShardRecorder:
                 "oracle_interaction_distance": np.asarray(
                     self.oracle_interaction_distance, dtype=np.float32
                 ),
+                "run_metadata_json": np.asarray(self.run_metadata_json),
                 "format_version": np.asarray(3, dtype=np.int32),
             }
             temporary_path = path.with_suffix(path.suffix + ".tmp")

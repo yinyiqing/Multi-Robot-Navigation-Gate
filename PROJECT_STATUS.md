@@ -67,8 +67,9 @@ Gate
    场景类别或冲突图。
 3. `2.0 m` oracle用于监督、诊断和上界；最终Gate需要判断何时调用避障Actor更有利，
    不能把“附近有障碍物”直接等同于“附近有机器人”。
-4. G11-A1已经通过正式离线准入；下一步只在导航train场景运行固定主seed Gate，采集
-   student实际访问状态并查询训练期Oracle标签，完成G11-B数据聚合。
+4. G11-A1已经通过正式离线准入；G11-B在线T1控制器和1场CPU smoke也已通过，下一步
+   在导航train的640场运行固定主seed Gate，采集student实际访问状态并查询训练期
+   Oracle标签。
 5. G11-B只重新训练Gate，不更新Actor；完成后先在0-edge和single-edge互斥validation
    上做闭环能力保持与局部收益准入，再评估
    multi-edge泛化；所有模型与阈值冻结前不读取sealed test。

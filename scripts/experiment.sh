@@ -12,13 +12,13 @@ Usage:
 Current method:
   Actor N  generalist-5a         frozen
   Actor I  interaction-epoch16   frozen
-  Gate     G11-A1 temporal Gate  data collection ready
+  Gate     G11-B student rollout  formal collection ready
 
 Current commands:
-  bash scripts/experiment.sh start gate-g11-a1-train
-  bash scripts/experiment.sh start gate-g11-a1-validation
-  bash scripts/experiment.sh stop  gate-g11-a1-train
-  bash scripts/experiment.sh stop  gate-g11-a1-validation
+  bash scripts/experiment.sh start gate-g11-b-smoke
+  bash scripts/experiment.sh start gate-g11-b-train
+  bash scripts/experiment.sh stop  gate-g11-b-smoke
+  bash scripts/experiment.sh stop  gate-g11-b-train
 
 Actor training remains closed. Historical scripts are not current entrypoints.
 EOF
@@ -53,15 +53,15 @@ case "${1:-}" in
     ;;
   start)
     case "${2:-}" in
-      gate-g11-a1-train) exec bash "$PROJECT_ROOT/scripts/start_g11_a1_collection.sh" train ;;
-      gate-g11-a1-validation) exec bash "$PROJECT_ROOT/scripts/start_g11_a1_collection.sh" validation ;;
+      gate-g11-b-smoke) exec bash "$PROJECT_ROOT/scripts/start_g11_b_student_collection.sh" smoke ;;
+      gate-g11-b-train) exec bash "$PROJECT_ROOT/scripts/start_g11_b_student_collection.sh" train ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;
   stop)
     case "${2:-}" in
-      gate-g11-a1-train) exec bash "$PROJECT_ROOT/scripts/stop_g11_a1_collection.sh" train ;;
-      gate-g11-a1-validation) exec bash "$PROJECT_ROOT/scripts/stop_g11_a1_collection.sh" validation ;;
+      gate-g11-b-smoke) exec bash "$PROJECT_ROOT/scripts/stop_g11_b_student_collection.sh" smoke ;;
+      gate-g11-b-train) exec bash "$PROJECT_ROOT/scripts/stop_g11_b_student_collection.sh" train ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;

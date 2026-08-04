@@ -96,7 +96,12 @@ class DatasetTest(unittest.TestCase):
 
     def test_shard_recorder_is_resumable(self):
         with tempfile.TemporaryDirectory() as directory:
-            recorder = PerceptionShardRecorder(directory, "train", frame_stride=1)
+            recorder = PerceptionShardRecorder(
+                directory,
+                "train",
+                frame_stride=1,
+                run_metadata={"experiment_id": "unit-test", "policy": "student"},
+            )
             self.assertTrue(recorder.begin_scenario("case/one", "standard", "weak"))
             recorder.record_frame(
                 {"r1": synthetic_points(), "r2": np.empty((0, 3))},
@@ -116,6 +121,10 @@ class DatasetTest(unittest.TestCase):
             self.assertEqual(str(shard["scenario_pool"]), "standard")
             self.assertEqual(str(shard["interaction_band"]), "weak")
             self.assertEqual(int(shard["format_version"]), 3)
+            self.assertEqual(
+                str(shard["run_metadata_json"]),
+                '{"experiment_id":"unit-test","policy":"student"}',
+            )
             self.assertEqual(shard["ego_poses"].shape[1], 3)
             self.assertTrue(np.all(shard["timestamps"] == 1.25))
             self.assertEqual(

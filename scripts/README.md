@@ -10,15 +10,25 @@ bash scripts/experiment.sh list
 bash scripts/experiment.sh status
 ```
 
-当前只批准开发`deployable-interaction-gate`，但新Gate协议尚未登记可执行命令，因此统一
-入口暂不开放start/stop。5A和epoch-16冻结，任何Actor训练脚本都不是当前入口。
+当前只批准G11-B student-rollout数据聚合。1场隔离smoke已经通过，现允许启动
+640场navigation-train正式采集：
+
+```bash
+bash scripts/experiment.sh start gate-g11-b-smoke
+bash scripts/experiment.sh status
+bash scripts/experiment.sh start gate-g11-b-train
+bash scripts/experiment.sh stop gate-g11-b-train
+```
+
+5A、epoch-16和A1主seed Gate均冻结，任何Actor训练脚本都不是当前入口。协议见
+[`G11_B_student_rollout_v1`](../experiments/03_保留专门化/02_论文主线/11_可部署在线Gate研究/G11_B_student_rollout_v1/README.md)。
 
 ## 当前模型ID
 
 - `generalist-5a`：冻结普通导航Actor；
 - `interaction-epoch16`：冻结条件避障Actor；
 - `learned-gate-g2a`：历史未过准入Gate基线；
-- `deployable-interaction-gate`：当前待实现/训练组件。
+- `deployable-interaction-gate`：G11-A1离线准入和G11-B smoke已通过，G11-B1正式采集待运行。
 
 ## 可复用工具
 

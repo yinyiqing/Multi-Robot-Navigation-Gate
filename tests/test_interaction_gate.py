@@ -1,4 +1,5 @@
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -12,8 +13,14 @@ sys.path.insert(0, str(ROOT / "TD3"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from interaction_gate import InteractionGate
-from learned_gate_controller import GateHysteresis
+from learned_gate_controller import (
+    GateHysteresis,
+    LearnedInteractionGateController,
+    infer_max_tracks,
+)
 from robot_perception.gate_features import build_gate_feature, gate_feature_dim
+from robot_perception.models import LocalRobotDetector
+from temporal_interaction_gate import TemporalInteractionGate
 from train_interaction_gate import binary_metrics, gate_metrics, select_threshold
 
 
@@ -76,6 +83,96 @@ class GateHysteresisTest(unittest.TestCase):
     def test_invalid_threshold_order_is_rejected(self):
         with self.assertRaises(ValueError):
             GateHysteresis(0.4, 0.6, minimum_hold_steps=1)
+
+
+class _FixedPolicy(object):
+    def __init__(self, action):
+        self.action = np.asarray(action, dtype=np.float32)
+        self.calls = 0
+
+    def get_action(self, state):
+        self.calls += 1
+        return self.action.copy()
+
+
+class TemporalGateControllerTest(unittest.TestCase):
+    def test_feature_dimension_infers_actor_augmented_tracks(self):
+        self.assertEqual(infer_max_tracks(76), 4)
+        self.assertEqual(infer_max_tracks(82, actor_feature_dim=6), 4)
+        with self.assertRaises(ValueError):
+            infer_max_tracks(80, actor_feature_dim=6)
+
+    def test_temporal_checkpoint_uses_history_and_evaluation_stride(self):
+        with tempfile.TemporaryDirectory() as directory:
+            directory = Path(directory)
+            detector = LocalRobotDetector()
+            detector_path = directory / "detector.pt"
+            torch.save(
+                {
+                    "model_config": {},
+                    "model_state_dict": detector.state_dict(),
+                },
+                detector_path,
+            )
+            gate = TemporalInteractionGate(input_dim=82, hidden_dim=8)
+            for parameter in gate.parameters():
+                torch.nn.init.zeros_(parameter)
+            gate.head[-1].bias.data.fill_(10.0)
+            gate_path = directory / "gate.pt"
+            torch.save(
+                {
+                    "model_id": "T1",
+                    "feature_set": "base_and_actor_actions",
+                    "model_config": {"input_dim": 82, "hidden_dim": 8},
+                    "model_state_dict": gate.state_dict(),
+                    "feature_mean": np.zeros(82, dtype=np.float32),
+                    "feature_std": np.ones(82, dtype=np.float32),
+                    "threshold": 0.5,
+                    "sequence_length": 8,
+                },
+                gate_path,
+            )
+            standard = _FixedPolicy([-0.5, 0.1])
+            dense = _FixedPolicy([0.5, -0.2])
+            controller = LearnedInteractionGateController(
+                standard,
+                dense,
+                detector_path,
+                gate_path,
+                "cpu",
+                switch_off_threshold=0.4,
+                minimum_hold_steps=0,
+                evaluation_stride=2,
+            )
+            controller.reset(["r1"])
+            position = SimpleNamespace(x=0.0, y=0.0)
+            env = SimpleNamespace(
+                last_odom={
+                    "r1": SimpleNamespace(
+                        pose=SimpleNamespace(
+                            pose=SimpleNamespace(position=position)
+                        )
+                    )
+                },
+                raw_lidar_points={"r1": np.empty((0, 3), dtype=np.float32)},
+                _get_robot_yaw=lambda name: 0.0,
+            )
+            state = np.zeros(24, dtype=np.float32)
+
+            action, mode, probability, _ = controller.choose_action(
+                env, "r1", state, 0.2
+            )
+            np.testing.assert_array_equal(action, dense.action)
+            self.assertEqual(mode, "dense")
+            self.assertGreater(probability, 0.99)
+            self.assertEqual(len(controller.feature_histories["r1"]), 1)
+
+            controller.choose_action(env, "r1", state, 0.4)
+            self.assertEqual(len(controller.feature_histories["r1"]), 1)
+            controller.choose_action(env, "r1", state, 0.6)
+            self.assertEqual(len(controller.feature_histories["r1"]), 2)
+            self.assertEqual(standard.calls, 2)
+            self.assertEqual(dense.calls, 3)
 
 
 if __name__ == "__main__":

@@ -239,6 +239,7 @@ gate_switch_off_threshold = (
 )
 gate_minimum_hold_steps = env_int("DRL_MULTI_GATE_MINIMUM_HOLD_STEPS", 3)
 gate_max_candidates = env_int("DRL_MULTI_GATE_MAX_CANDIDATES", 12)
+gate_evaluation_stride = env_int("DRL_MULTI_GATE_EVALUATION_STRIDE", 1)
 if actor_selection_mode == "learned_gate":
     if not gate_checkpoint_path or not gate_detector_checkpoint_path:
         raise ValueError(
@@ -323,6 +324,15 @@ perception_frame_stride = env_int("DRL_MULTI_ROBOT_PERCEPTION_FRAME_STRIDE", 2)
 perception_max_background = env_int(
     "DRL_MULTI_ROBOT_PERCEPTION_MAX_BACKGROUND", 12
 )
+perception_run_metadata_path = env_json_path(
+    "DRL_MULTI_ROBOT_PERCEPTION_RUN_METADATA_PATH"
+)
+perception_run_metadata = {}
+if perception_run_metadata_path:
+    with open(perception_run_metadata_path, "r", encoding="utf-8") as handle:
+        perception_run_metadata = json.load(handle)
+    if not isinstance(perception_run_metadata, dict):
+        raise ValueError("robot-perception run metadata must be a JSON object")
 if perception_output_dir:
     if scenario_mode != "manifest":
         raise ValueError("robot-perception recording requires scenario_mode=manifest")
@@ -544,6 +554,7 @@ if dual_actor_enabled:
             switch_off_threshold=gate_switch_off_threshold,
             minimum_hold_steps=gate_minimum_hold_steps,
             max_candidates=gate_max_candidates,
+            evaluation_stride=gate_evaluation_stride,
         )
 if rule_oracle_mode == "conflict_pair_yield":
     if actor_selection_mode != "single":
@@ -600,6 +611,7 @@ perception_recorder = (
         max_background_candidates=perception_max_background,
         actor_state_dim=state_dim,
         oracle_interaction_distance=interaction_oracle_distance,
+        run_metadata=perception_run_metadata,
     )
     if perception_output_dir
     else None
@@ -630,11 +642,14 @@ if dual_actor_enabled:
         print("Oracle interaction distance:", interaction_oracle_distance)
     elif actor_selection_mode == "learned_gate":
         print("Gate checkpoint:", gate_checkpoint_path)
+        print("Gate model id:", dense_policy_controller.model_id)
+        print("Gate sequence length:", dense_policy_controller.sequence_length)
         print("Gate detector checkpoint:", gate_detector_checkpoint_path)
         print("Gate switch-on threshold:", dense_policy_controller.switch_on_threshold)
         print("Gate switch-off threshold:", dense_policy_controller.switch_off_threshold)
         print("Gate minimum hold steps:", gate_minimum_hold_steps)
         print("Gate maximum candidates:", gate_max_candidates)
+        print("Gate evaluation stride:", gate_evaluation_stride)
 else:
     print("Dual actor mode: disabled")
 print("Rule oracle mode:", rule_oracle_mode or "disabled")

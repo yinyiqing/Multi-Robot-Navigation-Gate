@@ -1,6 +1,6 @@
 # 可部署在线 Gate 研究
 
-状态：`G11-A1 passed / G11-B next`。建立日期：`2026-08-04`。
+状态：`G11-A1 passed / G11-B smoke passed`。建立日期：`2026-08-04`。
 
 本目录只研究两个冻结 Actor 之间的在线切换：
 
@@ -87,9 +87,14 @@ G11-A1已在当前协议的640场train与120场内部validation上完成。预�
 
 - 用 G11-A Gate 运行固定 train 场景；
 - 在它实际访问的每个状态查询真值 Oracle 标签，不回退仿真、不做反事实分叉；
-- 聚合旧 5A 轨迹、Oracle 轨迹和 student 轨迹，重新训练同一个时序 Gate；
+- 聚合A1的5A轨迹与student轨迹，并统一使用Oracle监督标签重新训练同一个时序Gate；
+  第一轮不额外采集Oracle行为轨迹，因为DAgger所需的是student访问状态上的teacher查询；
 - 使用模型集成或 MC dropout 估计不确定性，不确定时默认 5A；
 - validation 只用于冻结阈值、滞回和最短保持时间。
+
+G11-B在线T1控制器与1场student smoke已经通过：8帧历史和2步评估间隔与A1采集尺度
+一致，student shard的manifest、时序、Oracle标签和内嵌运行元数据审计通过。下一步为
+同一navigation-train manifest的640场正式student采集。
 
 ### G11-C：端到端准入
 
