@@ -9,6 +9,21 @@ VALIDATION_DIR="$RUN_DIR/local_data/shards/validation"
 SEED="${1:-20260804}"
 
 [[ "$SEED" =~ ^[0-9]+$ ]] || { echo "Seed must be an integer" >&2; exit 2; }
+command -v flock >/dev/null 2>&1 || { echo "flock is required" >&2; exit 1; }
+lock_dir="$RUN_DIR/local_data/.locks"
+mkdir -p "$lock_dir"
+lock_file="$lock_dir/training_seed${SEED}.lock"
+exec 9>"$lock_file"
+if ! flock -n 9; then
+  echo "G11-A1 seed $SEED is already running" >&2
+  exit 1
+fi
+output_dir="$RUN_DIR/local_data/training/seed${SEED}"
+if [[ -f "$output_dir/summary.json" ]]; then
+  echo "G11-A1 seed $SEED already has a completed summary" >&2
+  exit 1
+fi
+
 for profile in train validation; do
   pid_file="$PROJECT_ROOT/.robot_perception_g11_a1_${profile}.pid"
   if [[ -f "$pid_file" ]]; then
@@ -22,7 +37,7 @@ done
 
 /usr/bin/python3 "$PROJECT_ROOT/scripts/audit_g11_a1_shards.py" > /dev/null
 
-mkdir -p "$RUN_DIR/local_data/training/seed${SEED}" "$PROJECT_ROOT/logs/active/g11_a1"
+mkdir -p "$output_dir" "$PROJECT_ROOT/logs/active/g11_a1"
 log_file="$PROJECT_ROOT/logs/active/g11_a1/train_g11_a1_seed${SEED}_$(date +%Y%m%d_%H%M%S).log"
 
 export CUDA_VISIBLE_DEVICES=""
@@ -44,7 +59,7 @@ cd "$PROJECT_ROOT"
   --epochs 40 \
   --seed "$SEED" \
   --device cpu \
-  --output-dir "$RUN_DIR/local_data/training/seed${SEED}" \
+  --output-dir "$output_dir" \
   2>&1 | tee "$log_file"
 
 echo "G11-A1 training log: $log_file"

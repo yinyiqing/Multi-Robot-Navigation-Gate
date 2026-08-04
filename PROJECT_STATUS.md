@@ -51,6 +51,9 @@ Gate
 7. G11-A0离线诊断中，单帧加入两个Actor动作没有增益；8帧GRU在360度标签下相对
    静态Gate的F1与AP连续5个seed提高，区间IoU提高且切换次数下降。该结果只授权采集
    当前协议的A1数据，不是闭环导航成绩。
+8. G11-A1在导航train内部互斥的640/120场上完成正式离线pilot。预注册主seed及4个
+   复核seed全部通过：T1相对S0的F1平均提高`0.01470`、区间IoU提高`0.02207`，切换
+   次数平均减少`240`；该结果授权student rollout，不是闭环full success。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -64,9 +67,10 @@ Gate
    场景类别或冲突图。
 3. `2.0 m` oracle用于监督、诊断和上界；最终Gate需要判断何时调用避障Actor更有利，
    不能把“附近有障碍物”直接等同于“附近有机器人”。
-4. G11-A0已经通过表示准入；下一步采集导航train内部互斥的0-edge与corrected
-   full-horizon edge-1数据，完成G11-A1正式离线pilot。
-5. 先在0-edge和single-edge互斥validation上完成能力保持与局部收益准入，再评估
+4. G11-A1已经通过正式离线准入；下一步只在导航train场景运行固定主seed Gate，采集
+   student实际访问状态并查询训练期Oracle标签，完成G11-B数据聚合。
+5. G11-B只重新训练Gate，不更新Actor；完成后先在0-edge和single-edge互斥validation
+   上做闭环能力保持与局部收益准入，再评估
    multi-edge泛化；所有模型与阈值冻结前不读取sealed test。
 
 ## 两个未决问题

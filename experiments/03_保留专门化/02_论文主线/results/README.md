@@ -30,7 +30,9 @@ Residual Actor和独立完整Actor不在当前链路中。
 corrected edge-1完整Actor结果位于
 [`../10_纯单冲突完整Actor_pilot`](../10_纯单冲突完整Actor_pilot/README.md)，状态为
 rejected pilot。Residual相关结果位于[`../09_单冲突Residual组合主线`](../09_单冲突Residual组合主线/README.md)，
-状态为rejected。
+状态为rejected。当前Gate的G11-A0/A1离线结果位于
+[`../11_可部署在线Gate研究`](../11_可部署在线Gate研究/README.md)；G11-A1已通过离线
+准入，但在闭环结果产生前仍不得写入导航主表。
 
 ## 归档规则
 

@@ -199,8 +199,8 @@ success + collision + unresolved = agents * episodes
 
 1. 固定本文档、模型哈希和数据边界。
 2. 明确严格single-edge主张是否需要重训Actor I；该决定不得在test后修改。
-3. 按[可部署在线Gate研究](11_可部署在线Gate研究/README.md)先做已有数据时序蒸馏
-   pilot，再决定是否采集student rollout；不更新Actor。
+3. [可部署在线Gate研究](11_可部署在线Gate研究/README.md)的G11-A1时序蒸馏已通过；
+   固定预注册主seed Gate采集student rollout并聚合重训，不更新Actor。
 4. 依次完成smoke、小validation阈值选择和独立准入。
 5. Gate通过后完成主对照、消融和multi-edge边界评估。
 6. 所有组件冻结后一次性读取sealed test。

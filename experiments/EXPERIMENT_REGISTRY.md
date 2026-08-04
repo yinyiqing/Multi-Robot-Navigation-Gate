@@ -25,7 +25,7 @@
 | `2.0 m interaction oracle` | `diagnostic upper bound` | dense validation full success `0.309 -> 0.545` | 已训练Gate或可部署方法 |
 | `G0/G1 perception frontend` | `frozen diagnostic` | 原始点云覆盖足够；保留形状和相对运动连续证据 | 已可靠完成机器人硬分类 |
 | `G2-A learned Gate` | `frozen baseline / admission failed` | exact-edge-2有`+0.080`方向性收益 | 最终Gate或统计显著结果 |
-| `deployable interaction Gate` | `current / pending` | 只更新Gate，两个Actor冻结 | 可以读取仿真真值或场景标签 |
+| `deployable interaction Gate` | `current / G11-A1 passed` | 时序Gate离线准入5/5 seed通过；下一步student rollout | 已证明闭环导航收益或可以读取部署期真值 |
 
 ## 路线级分类
 
@@ -41,7 +41,7 @@
 | corrected edge-1完整Actor | [`10_纯单冲突完整Actor_pilot`](03_保留专门化/02_论文主线/10_纯单冲突完整Actor_pilot/README.md) | `rejected pilot` | 解冻后50场monitor明显退化；只作单Actor对照 |
 | 统一停车/靠右/手工TTC规则 | [`results/04_Gate前置验证`](03_保留专门化/02_论文主线/results/04_Gate前置验证/README.md) | `rejected heuristic` | 可作规则基线，不能替代学习Gate |
 | 第一版学习Gate | [`07_冲突拓扑组合泛化`](03_保留专门化/02_论文主线/07_冲突拓扑组合泛化/README.md) | `frozen baseline / rejected final` | 方向为正但未过统计和oracle恢复准入 |
-| 可部署在线Gate新路线 | [`11_可部署在线Gate研究`](03_保留专门化/02_论文主线/11_可部署在线Gate研究/README.md) | `current / G11-A pending` | 先做时序oracle蒸馏与student-rollout数据聚合；Actor冻结 |
+| 可部署在线Gate新路线 | [`11_可部署在线Gate研究`](03_保留专门化/02_论文主线/11_可部署在线Gate研究/README.md) | `current / G11-A1 passed` | 固定主seed时序Gate进入student-rollout数据聚合；Actor冻结 |
 | 中止和协议错误运行 | [`results/90_中止与无效运行`](03_保留专门化/02_论文主线/results/90_中止与无效运行/README.md) | `invalid` | 不进入论文、趋势判断或模型选择 |
 
 ## 可以复用的基础设施

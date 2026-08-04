@@ -11,8 +11,12 @@
 - `archive/rejected/epoch16_full_episode/`：epoch-16 全程续训路线，2 个历史日志。
 - `archive/rejected/full_actor_edge1/`：单冲突完整 Actor 路线，6 个历史日志。
 - `archive/validation/independent_dense_actor/`：独立 Dense Actor 对照验证，4 个历史日志。
+- `archive/diagnostic/g11_a0/`：G11-A0已有数据时序表示诊断日志。
+- `archive/diagnostic/g11_a1/`：G11-A1 smoke、正式采集、审计和五seed离线训练日志。
+- `archive/rejected/g11_a1_duplicate_training/`：并发污染的主seed训练日志，不进入结果。
+- `archive/rejected/g11_a1_launcher_artifacts/`：旧外层启动器残留日志，不进入结果。
 
-整理日期：2026-08-04。整理时没有正在训练或验证的日志，共归档 31 个文件。
+整理日期：2026-08-04。当前没有正在运行的G11-A1采集或训练日志。
 
 ## 使用规则
 

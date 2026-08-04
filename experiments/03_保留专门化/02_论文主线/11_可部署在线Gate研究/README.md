@@ -1,6 +1,6 @@
 # 可部署在线 Gate 研究
 
-状态：`G11-A0 passed / G11-A1 pending`。建立日期：`2026-08-04`。
+状态：`G11-A1 passed / G11-B next`。建立日期：`2026-08-04`。
 
 本目录只研究两个冻结 Actor 之间的在线切换：
 
@@ -77,6 +77,11 @@ F1、AP、区间IoU和事件precision均为`5/5` seed提高，切换次数均减
 - train/validation scenario ID 互斥；
 - 只有 A0 证明时序或 Actor 分歧有明确增益后才采集；
 - A1 checkpoint 才有资格进入 student-rollout 和闭环准入。
+
+G11-A1已在当前协议的640场train与120场内部validation上完成。预注册主seed通过全部
+离线准入，4个复核seed也全部保持方向：T1相对S0的F1、AP和区间IoU均提高，总体及
+0-edge FPR均下降，event recall下降不超过限制，切换次数均减少。因此固定主seed T1
+进入G11-B；该结论不是闭环导航成绩。
 
 ### G11-B：Student-rollout 数据聚合
 
