@@ -1,175 +1,207 @@
-# ICRA论文方向决策：两个Actor与一个Gate
+# ICRA论文主线：普通导航Actor、条件避障Actor与在线Gate
 
-状态：`diagnosis complete / two-Actor role definition pending on 2026-08-03`。
+状态：`route frozen / deployable Gate pending`。更新时间：`2026-08-04`。
 
-跨目录的当前结论、实验准入和下一步只以本文件为准。历史README中的“当前”或
-“下一步”只代表当时判断。
+本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见
+[PROJECT_STATUS](../../../PROJECT_STATUS.md)，历史实验状态见
+[实验注册表](../../EXPERIMENT_REGISTRY.md)。
 
-## 1. 不变部分
-
-最终系统固定为两个Actor和一个可部署Gate。当前待决定的是两个Actor分别承担什么
-角色，不再混淆为同一个问题。
-
-## 2. 两条候选路线
-
-### 路线A：强弱独立Actor
+## 1. 当前方法
 
 ```text
-Actor A：独立完成普通/弱交互导航
-Actor B：独立完成强交互导航
-Gate：判断当前更适合哪个完整策略
+Actor N：冻结5A，负责普通导航、目标推进和静态障碍
+Actor I：冻结epoch-16，负责短时局部机器人冲突
+Gate：运行时逐机器人、逐时刻选择Actor，并负责进入与退出避障状态
 ```
 
-优点是直观，符合最初设想。缺点是Actor B必须同时学会普通前进、冲突协调、恢复和
-到达；历史多轮训练始终在碰撞与保守timeout之间退化。若继续，最小必要变化是给
-Actor加入目标级相对运动/TTC信息，不能只继续调reward。
-
-### 路线B：普通Actor与局部避险技能
+执行策略为：
 
 ```text
-Actor A：5A，负责普通导航
-Actor B：epoch-16，负责短时局部避险
-Gate：判断何时进入避险、何时返回普通导航
+a_t = pi_I(o_t),  if g(h_t) = 1
+      pi_N(o_t),  otherwise
 ```
 
-它对应的候选论文主张是：
+`o_t`是本车24维Actor观测；`h_t`是Gate可使用的本机激光、导航状态和短时历史。
+部署时禁止使用其他机器人真值、通信、场景名称、冲突图或standard/dense标签。
 
-> 只在单冲突场景中学习局部避险，通过Gate反复调用，零样本处理训练中未见的多冲突
-> 组合，同时保持普通导航能力。
+导师已于`2026-08-04`认可“普通导航Actor + 条件避障Actor”的角色划分。避障Actor
+不承担全程导航效率，但必须保持目标一致性、解除冲突并允许Gate交还控制。
 
-创新不写成“两个Actor加一个Gate”，而写成：
+## 2. 为什么需要Gate
+
+冲突强度会在同一条轨迹中出现和消失，因此episode开始时固定选择Actor只能形成场景
+分类器，不能完成所需的在线分工。
+
+Gate成立的必要条件是两个Actor存在不同优势区。如果Actor I在无冲突、单冲突和多冲突
+上同时以不更差的碰撞、成功、timeout和效率全面支配Actor N，则Gate应被删除并退化为
+单Actor。现有证据相反：
+
+- 5A普通推进快，但在机器人冲突中碰撞较多；
+- epoch-16降低碰撞，但全程运行会大量保守等待和timeout；
+- 在局部冲突窗口调用epoch-16，组合结果明显高于两者全程独立运行。
+
+不得为了证明Gate有用而故意破坏Actor I的导航能力；互补性必须由固定评测得到。
+
+## 3. Actor训练契约
+
+### Actor N：generalist-5a
+
+- 五车共享Actor；
+- 负责目标推进、墙和箱子避障以及普通状态；
+- 当前冻结，不再微调。
+
+### Actor I：interaction-epoch16
+
+- 从5A初始化；
+- 在强交互五车训练集中采用逐机器人、逐时刻oracle分工；
+- 最近活动机器人真值中心距离`<=2.0 m`时，由Actor I执行并进入其更新范围；
+- 其他状态始终由冻结5A执行；
+- 真值距离只用于训练分工，没有进入Actor的24维部署输入；
+- 正式候选为epoch 16，共训练`320,000` agent samples并覆盖`2560/2560`场。
+
+完整路径复审发现原2560场中有11场实际为edge-2，占`0.43%`。因此当前epoch-16可以
+证明局部技能和系统可行性，但严格的“训练只见single-edge”论文主张还需要：
+
+1. 用corrected full-horizon edge-1重新训练同协议Actor I；或
+2. 明确收窄论文主张，不把现有模型称为严格零样本冲突拓扑泛化。
+
+在此问题做出书面决策前，不读取sealed test。
+
+## 4. Gate定义
+
+### 当前oracle
+
+当前有效组合逐机器人、逐时刻计算最近活动机器人的真值距离：
 
 ```text
-single-conflict skill learning -> compositional generalization to multi-conflict navigation
+d_nearest <= 2.0 m -> epoch-16
+d_nearest >  2.0 m -> 5A
 ```
 
-| 路线 | Actor A | Actor B | 当前证据 |
-| --- | --- | --- | --- |
-| A | 普通/弱交互独立导航 | 强交互独立导航 | 多次训练未同时解决碰撞和timeout |
-| B | 5A普通导航 | epoch-16局部避险 | Oracle多冲突复用显著有效，learned Gate方向为正 |
+这是不可部署上界，不是学习Gate成绩。机器人实际只有本机激光；现有20维扇区最小值
+会把机器人、墙和箱子压成同一种障碍。
 
-当前证据更支持路线B，但在确认前不启动新Gate训练。把二者融合成单一Residual Actor
-的R0测试已经失败，不属于两条候选路线，见
-[失败记录](09_单冲突Residual组合主线/05_单冲突Residual_ActorB/README.md)。
+### 可部署Gate
 
-## 3. 路线B的训练与测试边界
+Gate必须使用：
 
-### 训练可见
+- 本机激光点或由其得到的连续形状证据；
+- 本机里程计和目标状态；
+- 自运动补偿后的候选跟踪、闭合速度、CPA/TTC等短时特征；
+- 滞回和最短保持时间，避免频繁抖动。
 
-- 五车场景，`conflict_edge_count=1`、`max_conflict_degree=1`；
-- 普通路段和一次主要冲突都保留，用于学习Gate的进入与退出；
-- 冻结5A与epoch-16，不再融合或解冻；
-- Gate只能使用0-edge和单冲突训练数据。
+Gate不得把“2米内有障碍物”直接当成机器人标签。`2.0 m` oracle可以用于监督初始化、
+诊断和上界；最终选择标准应接近“短期调用Actor I是否比继续Actor N更有利”。
 
-### 训练不可见
+## 5. 已确认结果
 
-- `conflict_edge_count>=2`；
-- `max_conflict_degree>=2`；
-- `simultaneous_conflict_count>=2`；
-- dense sealed test。
+### 匹配单冲突validation，140场
 
-### 最终测试
+| 方法 | agent success | collision | full success | timeout | 平均步数 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 5A全程 | `0.8186` | `0.1814` | `0.4214` | `0/140` | `35.2` |
+| 5A + epoch-16真值oracle | `0.9157` | `0.0800` | `0.7000` | `2/140` | `54.3` |
 
-先在互斥validation上完成模型和阈值选择，再一次性测试：
+这是validation，不是test。组合改善主要位于deep和close层，同时存在更保守、更慢的代价。
+
+### dense validation，1000场
+
+| 方法 | agent success | collision | unresolved | full success | timeout |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 5A全程 | `0.7064` | `0.2930` | `0.0006` | `0.3090` | `0.0030` |
+| 5A + epoch-16真值oracle | `0.8476` | `0.1456` | `0.0068` | `0.5450` | `0.0180` |
+
+epoch-16全程运行在前256场的full success为`0.2305`、timeout为`0.5156`，因此它是
+条件避障Actor，不是独立Dense Actor。
+
+### 历史可部署Gate
+
+第一版G2-A Gate在独立exact-edge-2的200场确认上：
+
+- 5A full success：`0.325`；
+- learned Gate：`0.405`；
+- McNemar exact：`p=0.06812`；
+- oracle增益恢复：`30.2%`。
+
+方向为正但未通过统计和收益恢复门槛，只能作为后续Gate基线。
+
+## 6. 数据边界
+
+### Gate训练可见
+
+- `fixed_v1`导航train内部划分的数据；
+- 0-edge和corrected full-horizon single-edge；
+- 仿真真值只能生成监督标签，不进入推理输入。
+
+### 模型选择
+
+- train和validation的scenario ID必须互斥；
+- 允许用固定小validation选择Gate阈值、滞回和保持时间；
+- 更大validation用于准入，不能反复调参。
+
+### 最终评测
+
+在模型、特征和阈值冻结后按顺序评估：
 
 1. 0-edge能力保持；
-2. exact-edge-1已见结构；
-3. exact-edge-2零样本组合；
-4. edge>=3、高度数和同时多冲突的泛化边界；
-5. sealed test。
+2. single-edge局部收益；
+3. exact-edge-2及更复杂拓扑边界；
+4. dense/standard sealed test。
 
-如果局部Actor或Gate在训练中读取多冲突场景，就不能再声称零样本组合泛化。
+若Gate或Actor I使用multi-edge训练数据，则不得声称single-to-multi零样本泛化。
 
-## 4. 已有证据
+## 7. Gate准入
 
-### 冻结组件
+可部署Gate至少同时满足：
 
-- 5A在248个固定0-edge validation场景上的full success为`0.875`。
-- epoch-16只在单冲突场景训练，并在匹配调用协议下把full success从`0.421`
-  提高到`0.700`。
-- epoch-16独立全程运行会产生大量timeout，因此它是局部技能教师，不是最终Actor B。
+1. 0-edge full success相对5A下降不超过`3`个百分点；
+2. single-edge full success显著超过5A，并且改善多于退化；
+3. timeout不出现系统性增加；
+4. 明确超过不区分机器人与静态障碍的min-laser规则Gate；
+5. 在冻结阈值后，对multi-edge仍保持正向收益；
+6. 报告相对同场oracle的收益恢复比例，不能只报告绝对最好值。
 
-完整路径审计发现epoch-16的2560场训练集中有`11`场因旧8秒标签截断实际为edge-2，
-占`0.43%`。现有结果作为路线可行性证据保留；正式零样本主张需要在修正后的纯
-edge-1训练集重新训练局部Actor。
+主指标为`full_success_rate`，同时报告`agent_success_rate`、`collision_rate`、
+`unresolved_rate`、`timeout_episode_rate`、平均步数、Gate激活比例和切换次数。
+结局必须满足：
 
-### 组合泛化上限
+```text
+success + collision + unresolved = agents * episodes
+```
 
-在完整dense validation上，5A与`5A + epoch-16真值Gate`的结果为：
+## 8. 必须对照
 
-| 方法 | agent success | collision | full success | timeout |
-| --- | ---: | ---: | ---: | ---: |
-| 5A | `0.7064` | `0.2930` | `0.3090` | `0.0030` |
-| 真值Gate组合 | `0.8476` | `0.1456` | `0.5450` | `0.0180` |
+| 对照 | 用途 |
+| --- | --- |
+| 5A always-on | 普通导航基线 |
+| epoch-16 always-on | 条件Actor全程使用的失败边界 |
+| min-laser或距离规则Gate | 不区分机器人语义的可部署下界 |
+| 历史G2-A Gate | 已有学习Gate基线 |
+| 当前learned Gate | 最终方法 |
+| `2.0 m`真值oracle | 不可部署上界 |
+| corrected edge-1完整Actor pilot | “为什么不用单一完整Actor”的失败对照 |
 
-按未见冲突结构分层：
+必要消融包括无时序、无机器人形状证据、无滞回和不同最短保持时间。
 
-| 测试层 | 5A full | 真值Gate | 绝对提升 |
-| --- | ---: | ---: | ---: |
-| `edge=1` | `0.502` | `0.730` | `+0.227` |
-| `edge>=2` | `0.221` | `0.470` | `+0.249` |
-| `edge>=3` | `0.135` | `0.393` | `+0.258` |
-| `max_degree>=2` | `0.201` | `0.466` | `+0.265` |
-| `simultaneous>=2` | `0.156` | `0.396` | `+0.240` |
+## 9. 已关闭路线
 
-这证明局部技能具有重复调用价值，但真值Gate不可部署。
+- standard/dense两个完整场景专家；
+- 独立Dense完整Actor及继续扫描reward/Critic；
+- epoch-16整网全程续训；
+- 24维单帧Residual融合；
+- controlled-ego、pair Actor及复杂Critic支线；
+- corrected edge-1完整Actor继续训练。
 
-### 可部署Gate现状
+失败证据保留，但历史目录中的旧命令不构成执行授权。完整分类见
+[实验注册表](../../EXPERIMENT_REGISTRY.md)。
 
-冻结learned Gate在独立exact-edge-2的200场确认中：
+## 10. 当前执行顺序
 
-- full success：`0.325 -> 0.405`；
-- agent success：`0.737 -> 0.812`；
-- timeout：`0 -> 0`；
-- McNemar exact `p=0.06812`；
-- 只恢复真值Gate收益的`30.2%`。
+1. 固定本文档、模型哈希和数据边界。
+2. 明确严格single-edge主张是否需要重训Actor I；该决定不得在test后修改。
+3. 复用G0/G1连续特征建立新的Gate短pilot，不更新Actor。
+4. 依次完成smoke、小validation阈值选择和独立准入。
+5. Gate通过后完成主对照、消融和multi-edge边界评估。
+6. 所有组件冻结后一次性读取sealed test。
 
-方向为正，但没有通过预注册统计和Oracle收益恢复门槛。它是新Gate的基线，不是最终
-论文结果。完整证据见[冲突拓扑组合泛化](07_冲突拓扑组合泛化/README.md)和
-[exact-edge-2确认](08_exact_edge2零样本确认/README.md)。
-
-## 5. 已拒绝路线
-
-以下路线不得恢复为当前方案：
-
-1. 在完整dense或多冲突场景上训练Actor B；这会破坏零样本组合泛化命题。
-2. 直接复制epoch-16整网，再解冻为全程Actor；固定200场复核中full success
-   `0.305 -> 0.260`，collision `0.111 -> 0.157`。
-3. 在5A轨迹上离线蒸馏两个教师；teacher-choice accuracy仅`0.540-0.586`，且没有
-   覆盖学生自己访问的状态。
-4. 冻结5D并让Residual从零依赖Critic探索；曾产生恒定加速和单侧转向偏置。
-5. 训练standard/dense两个完整场景专家；空间密度不是运行时交互状态，历史微调也
-   多次覆盖已有能力。
-
-这些结果只作为失败对照保留在`results/`和
-[`09_单冲突Residual组合主线`](09_单冲突Residual组合主线/README.md)，不保留可误启动
-的训练入口。
-
-## 6. 当前执行顺序
-
-1. 按完整路径重算冲突标签，修正edge-1视图中的3场多冲突泄漏。
-2. 不再尝试24维Residual融合，也不继续扫描独立强Actor的reward。
-3. 先讨论并冻结两个Actor的角色：强弱独立Actor，或普通Actor+局部避险技能。
-4. 若选择局部技能路线，再使用已有目标级检测、跟踪、闭合速度和TTC证据改进Gate。
-5. Gate训练仍只使用0-edge和单冲突数据，不读取多冲突validation或sealed test。
-6. 冻结Gate后，在新的exact-edge-2确认集做一次零样本验证。
-7. 通过预注册门槛后才扩大到edge>=3和sealed test。
-
-完整场景、输入和训练责任诊断见
-[全场景数据质量诊断](results/04_Gate前置验证/20260803_全场景数据质量诊断/README.md)。
-没有完成标签修正和Gate短pilot准入前，不启动多epoch Actor训练。
-
-## 7. 路线选择与论文判定
-
-路线A只有在增加最小相对运动观测后，独立强Actor能稳定超过5A且不把碰撞转成timeout，
-才值得恢复训练。当前没有这个证据。
-
-路线B的论文主张至少需要同时成立：
-
-- epoch-16在单冲突局部调用时相对5A有稳定避让增益；
-- Gate在0-edge上的能力下降不超过3个百分点；
-- Gate在未见exact-edge-2上显著优于5A；
-- 多冲突训练数据没有泄漏到局部Actor或Gate训练阶段。
-
-若可部署Gate仍不能转化局部技能收益，则路线B不能只用真值Gate成绩发表。此时再决定
-是否给路线A增加最小观测，或更换论文方向。
+任何新长跑必须先在本文件登记实验ID、数据split、模型哈希、seed、准入和停止条件。

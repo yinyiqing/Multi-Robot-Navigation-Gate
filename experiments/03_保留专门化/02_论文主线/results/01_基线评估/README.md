@@ -9,4 +9,5 @@
 | `D3_fixed_v1_generalist_validation` | complete | fixed-v1 validation 及冲突边分层基线 |
 | `D4_warmstart_baseline_5a_vs_5d_s20260725` | complete | 强交互训练前 5A/5D 同协议比较 |
 
-这些结果用于定义难度和历史对照。当前普通导航 Actor 的最终选择还需结合 `05_当前冻结方案/` 中的弱交互配对验证。
+这些结果用于定义难度和历史对照。结合`05_当前冻结方案/`中的弱交互配对验证，当前已
+冻结5A为普通导航Actor；5D只保留为历史基线。

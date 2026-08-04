@@ -48,7 +48,7 @@ epoch 18减少了一些timeout，但通过增加碰撞换取，full success反�
 
 1. 拒绝直接复制epoch-16整网并继续全状态训练；
 2. 不追加epoch或seed；
-3. epoch-16只保留为单冲突局部教师；
-4. 当前路线改为冻结5A、只训练epoch-16指导的Residual。
+3. epoch-16保留为条件局部Actor；
+4. 当时提出的Residual后续在R0被拒绝，当前直接冻结5A和epoch-16并训练Gate。
 
 历史启动入口已移除，防止误运行被拒绝协议。

@@ -1,8 +1,8 @@
 # 强交互 Actor 研发记录
 
 这里保存强交互Actor、旧Residual和独立Dense Actor的历史机制排查。当前不从本目录
-启动训练；epoch-16只保留为单冲突局部教师，新的Actor B协议见
-[`../../09_单冲突Residual组合主线/05_单冲突Residual_ActorB`](../../09_单冲突Residual组合主线/05_单冲突Residual_ActorB/README.md)。
+启动训练；epoch-16已冻结为当前条件避障Actor。Residual路线已经拒绝，当前方法见
+[论文主线](../../README.md)。
 
 | 实验 | 状态 | 关键结论 |
 | --- | --- | --- |
@@ -35,5 +35,5 @@
 
 v6 epoch-11的收益真实，但timeout和效率不合格；v8/v9及简化TD3实验进一步证明，
 完整dense覆盖训练在“危险加速”和“保守等待”之间摆动。该研发线已经关闭，不再继续
-调reward、Critic或解冻完整Actor。当前只复用其中两个结论：冻结5A避免遗忘，使用
-epoch-16已学到的局部动作监督Residual，而不是让Critic从零重新发现避让。
+调reward、Critic或解冻完整Actor。当前只复用其中两个结论：冻结5A避免遗忘，并把
+epoch-16限制在局部冲突窗口调用。

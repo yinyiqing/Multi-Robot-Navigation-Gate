@@ -1,37 +1,41 @@
 # 结果目录索引
 
-本目录按证据作用归档，所有“当前路线”判断以父目录
-[论文主线README](../README.md)为准。
+本目录按证据作用归档。当前路线只以[父目录论文协议](../README.md)为准，历史目录名中的
+“当前”不表示它仍是当前方案。
 
-## 当前需要的证据
+## 当前证据链
 
 ```text
 5A普通导航基线
-  + epoch-16单冲突局部技能证据
-  + 历史Gate的组合上限与失败边界
-  -> 新的单冲突Residual Actor B
-  -> 冻结A/B后的新Gate
+  + epoch-16局部调用有效性
+  + 2.0 m真值oracle组合上界
+  + 历史Gate可部署基线与失败边界
+  -> 新的可部署在线Gate
 ```
+
+Residual Actor和独立完整Actor不在当前链路中。
 
 ## 目录职责
 
 | 目录 | 状态 | 作用 |
 | --- | --- | --- |
-| [`01_基线评估/`](01_基线评估/README.md) | baseline | 5A、5D和fixed-v1基线 |
-| [`02_普通Actor_失败对照/`](02_普通Actor_失败对照/README.md) | historical / failed | standard expert微调退化证据 |
-| [`03_强交互Actor_研发记录/`](03_强交互Actor_研发记录/README.md) | historical | epoch-16形成过程及独立Dense Actor失败记录 |
-| [`04_Gate前置验证/`](04_Gate前置验证/README.md) | diagnostic | 场景可解性、风险信号和感知边界 |
-| [`05_当前冻结方案/`](05_当前冻结方案/README.md) | frozen evidence | 5A、epoch-16和独立Actor比较；不再表示当前训练方案 |
-| [`06_Gate开发/`](06_Gate开发/README.md) | frozen baseline | G0/G1/G2-A和历史Gate，作为新Gate基线 |
-| [`90_中止与无效运行/`](90_中止与无效运行/README.md) | invalid | 不得用于模型选择的运行 |
+| [`01_基线评估/`](01_基线评估/README.md) | frozen baseline | 5A、5D和fixed-v1基线 |
+| [`02_普通Actor_失败对照/`](02_普通Actor_失败对照/README.md) | rejected | standard expert微调退化证据 |
+| [`03_强交互Actor_研发记录/`](03_强交互Actor_研发记录/README.md) | historical / rejected family | epoch-16形成过程和独立Dense Actor失败记录 |
+| [`04_Gate前置验证/`](04_Gate前置验证/README.md) | diagnostic | 可解性、风险信号、感知和规则边界 |
+| [`05_当前冻结方案/`](05_当前冻结方案/README.md) | frozen evidence | 5A、epoch-16及oracle组合核心证据；目录名为历史命名 |
+| [`06_Gate开发/`](06_Gate开发/README.md) | frozen baseline | G0/G1/G2-A与第一版Gate |
+| [`90_中止与无效运行/`](90_中止与无效运行/README.md) | invalid | 不得用于模型选择或论文结果 |
 
-新的Residual Actor B结果进入
-[`../09_单冲突Residual组合主线/05_单冲突Residual_ActorB`](../09_单冲突Residual组合主线/05_单冲突Residual_ActorB/README.md)，
-避免继续混入旧独立Dense Actor研发记录。
+corrected edge-1完整Actor结果位于
+[`../10_纯单冲突完整Actor_pilot`](../10_纯单冲突完整Actor_pilot/README.md)，状态为
+rejected pilot。Residual相关结果位于[`../09_单冲突Residual组合主线`](../09_单冲突Residual组合主线/README.md)，
+状态为rejected。
 
 ## 归档规则
 
-- 已完成实验保留事实、日志和必要checkpoint说明，不删除失败证据。
-- 历史目录中的旧“下一步”不构成执行授权。
-- 新实验必须先冻结数据边界；Actor B和Gate训练不得读取多冲突validation/test。
-- `90_中止与无效运行`中的数值不得进入论文主表。
+- 已完成实验保留事实、日志来源和必要checkpoint说明；
+- 历史README中的旧“下一步”不构成执行授权；
+- partial、validation、test和oracle必须明确标注；
+- `90_中止与无效运行`数值不得进入论文主表；
+- 新Gate结果建立新实验ID，不覆盖G2-A历史结果。

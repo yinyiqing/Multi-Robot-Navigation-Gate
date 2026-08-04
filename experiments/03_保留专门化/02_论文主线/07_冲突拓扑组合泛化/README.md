@@ -38,8 +38,9 @@
 
 - 普通Actor：冻结5A；0-edge validation full success约`0.875`。
 - 局部交互Actor：冻结epoch-16；原24维TD3 Actor。
-- 局部Actor训练：2560/2560场均满足`edge_count=1`、`max_degree=1`、
-  `simultaneous_conflict_count=1`。
+- 局部Actor训练：按原8秒标签，2560场均满足`edge_count=1`、`max_degree=1`、
+  `simultaneous_conflict_count=1`；后续完整路径复审发现其中11场实际为edge-2，因此
+  这不是严格的full-horizon single-edge训练证据。
 - G0/G1：本机VLP-16候选形状分数与自运动补偿跟踪特征已完成。
 - G2-A：前方180度交互Gate已训练，validation recall/FPR为
   `0.861/0.111`，standard/0-edge FPR为`0.070`。
@@ -174,7 +175,8 @@ test只运行最终方法和预先固定的必要基线，不依据test结果修
 - [x] 完成200场准入（`full_success=0.415`，Oracle增益恢复`45.1%`，未通过）。
 - [x] 完成G4标签稳定性smoke（锚点恢复`0/1`，未通过并停止）。
 - [x] 该版Gate停止，不读取sealed test。
-- [ ] 新Residual Actor B通过后，以新Gate建立独立协议。
+- [x] Residual Actor B的R0未通过，该分支关闭。
+- [ ] 按父目录当前协议建立新的可部署Gate实验ID。
 
 每次实验完成后必须在本节更新状态，并在本目录新增对应结果README。禁止只留下日志
 而不记录协议、checkpoint、场景清单、seed、结果和决策。
@@ -188,24 +190,7 @@ test只运行最终方法和预先固定的必要基线，不依据test结果修
 进入完整validation或sealed test；必须先删除“已解决edge>=3复杂拓扑”的主张，
 再决定是否对edge-1/2正收益做最小确认。
 
-## 7. G3运行入口
+## 7. 历史运行入口
 
-默认只运行1场smoke，且使用独立端口、PID和本目录下的输出路径：
-
-```bash
-bash scripts/experiment.sh start learned-gate-validation
-bash scripts/experiment.sh status
-```
-
-smoke通过后显式设置场景数。开发入口硬限制最多200场：
-
-```bash
-DRL_LEARNED_GATE_TARGET_EPISODES=50 \
-  bash scripts/experiment.sh start learned-gate-validation
-```
-
-停止命令只管理该入口创建的进程组：
-
-```bash
-bash scripts/experiment.sh stop learned-gate-validation
-```
+本目录对应的G3/G4已经完成并关闭。统一入口不再暴露这些start/stop命令；如需复现实验，
+必须从归档README核对模型、manifest、seed和Git commit，并明确标记为历史复现。

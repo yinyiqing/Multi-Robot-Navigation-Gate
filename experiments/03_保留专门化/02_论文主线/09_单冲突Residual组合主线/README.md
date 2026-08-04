@@ -1,19 +1,18 @@
 # 单冲突Residual组合主线
 
-状态：`hypothesis retained / current Residual candidate rejected at R0`。本目录同时保存
-主线假设和用于筛选实现方案的失败证据。
+状态：`closed / rejected evidence`。本目录保存Residual、整网续训和蒸馏的失败证据，
+不再表示当前主线。
 
-## 当前路线
+## 原候选路线
 
 ```text
 冻结5A + epoch-16指导的Residual -> 独立Actor B
 冻结Actor A/B + 可部署Gate       -> 多冲突零样本组合
 ```
 
-当前[05_单冲突Residual Actor B](05_单冲突Residual_ActorB/README.md)已完成最小离线
-准入测试。直接用24维单帧状态学习`epoch-16 - 5A`动作差没有通过，因此不启动R1、
-R2或Gate训练。这否定的是当前Residual迁移实现，不是“单冲突学习、多冲突组合泛化”
-这一研究假设。
+[05_单冲突Residual Actor B](05_单冲突Residual_ActorB/README.md)已完成最小离线准入。
+直接用24维单帧状态学习`epoch-16 - 5A`动作差没有通过，因此R1/R2没有启动。当前已经
+冻结5A和epoch-16为两个独立角色，直接开发Gate，不再寻找新的Residual Actor B。
 
 ## 历史实验
 
@@ -38,4 +37,4 @@ R2或Gate训练。这否定的是当前Residual迁移实现，不是“单冲突
 - Residual先学习教师动作差，再进入闭环TD3；
 - Actor和Gate训练均禁止使用多冲突场景。
 
-全仓此前没有运行过这一组合。
+该组合已经完成R0并被拒绝。这里的设计差异只用于解释历史，不构成重启理由。

@@ -1,0 +1,97 @@
+# 当前项目状态
+
+更新时间：`2026-08-04`。
+
+本文件是进入项目后的第一阅读入口。方法定义、实验准入和数据边界以
+[论文主线协议](experiments/03_保留专门化/02_论文主线/README.md)为准；历史 README
+中的“当前”和“下一步”只代表当时判断。
+
+## 一句话方法
+
+在无通信、局部观测的五车导航中，冻结普通导航 Actor 和条件避障 Actor，由运行时
+Gate 根据本机传感器在两者之间逐机器人、逐时刻切换。
+
+```text
+Actor N = generalist-5a
+  普通推进、目标导航、墙和箱子避障
+
+Actor I = interaction-epoch16
+  局部机器人冲突中的减速、避让和脱困
+
+Gate
+  仅用本机可部署观测决定 N -> I 和 I -> N
+```
+
+导师已于`2026-08-04`认可“普通导航 Actor + 条件避障 Actor”的角色划分。避障 Actor
+不是完整 Dense Actor，也不要求全程独立导航；它仍需保持最低限度的目标趋势和退出
+冲突能力。
+
+## 当前冻结组件
+
+| ID | artifact | SHA-256 | 状态 |
+| --- | --- | --- | --- |
+| `generalist-5a` | `TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best_actor.pth` | `fa28855049b67b3ee44c66d55d4f14441fc7c521e5429862c75b152f7d5cacc5` | 普通导航 Actor |
+| `interaction-epoch16` | `interaction_focused_actor_from_5a_fullstrong_balanced_formal_s20260726_epoch_016_actor.pth` | `6ec1942fcd497ab1cc2a85a5aaec8f524395dc21ff21a442dca243a52e917c0b` | 条件避障 Actor |
+
+两者的部署 Actor 输入均为本车24维观测。`interaction-epoch16`训练时使用了仿真真值
+进行状态分工，但真值距离没有进入 Actor 输入。
+
+## 已确认事实
+
+1. 在140场单冲突 validation 上，5A全程运行的full success为`0.4214`；按`2.0 m`
+   真值距离局部调用epoch-16后为`0.7000`。
+2. 在dense validation 1000场上，5A为`0.3090`；真值组合为`0.5450`。
+3. epoch-16全程运行的前256场中，full success为`0.2305`，timeout为`0.5156`。
+   它降低碰撞但不适合承担普通导航。
+4. `2.0 m`切换使用其他机器人真值位置，只是不可部署oracle上界，不是已训练Gate。
+5. 历史可部署Gate在独立exact-edge-2的200场上从`0.325`提高到`0.405`，但
+   `p=0.06812`且只恢复oracle收益的`30.2%`，未通过最终准入。
+6. corrected edge-1完整Actor pilot在Actor解冻后，50场monitor的full success从
+   `0.42-0.44`降至`0.16/0.10`，已经关闭，只作单Actor失败对照。
+
+以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
+横向比较。
+
+## 当前工作
+
+当前只开发可部署Gate：
+
+1. 冻结5A和epoch-16，不再更新两个Actor。
+2. Gate使用本机激光雷达、导航状态及必要的短时历史，不能读取其他机器人里程计、
+   场景类别或冲突图。
+3. `2.0 m` oracle用于监督、诊断和上界；最终Gate需要判断何时调用避障Actor更有利，
+   不能把“附近有障碍物”直接等同于“附近有机器人”。
+4. 先在0-edge和single-edge互斥validation上完成能力保持与局部收益准入，再评估
+   multi-edge泛化；所有模型与阈值冻结前不读取sealed test。
+
+## 两个未决问题
+
+| 问题 | 当前处理 |
+| --- | --- |
+| epoch-16原2560场训练集经完整路径复审有11场实际为edge-2 | 现有模型保留为方法可行性证据；若论文严格主张“只见单冲突”，必须用corrected edge-1重训条件避障Actor，或收窄主张 |
+| 本机观测难以区分机器人、墙和箱子 | 复用G0/G1的形状软分数、跟踪和相对运动连续特征；历史手工阈值与旧Gate只作基线 |
+
+## 已关闭路线
+
+- standard/dense两个完整场景专家；
+- 独立Dense完整Actor及继续扫描reward/Critic；
+- epoch-16整网全程续训；
+- `5D + 零初始化Residual`；
+- `5A + epoch-16动作差`的24维单帧Residual；
+- controlled-ego、pair Actor和复杂Critic支线；
+- corrected edge-1完整Actor继续训练。
+
+这些路线可以作为论文失败对照或机制诊断引用，但不得从其旧README、checkpoint的
+`best`后缀或局部最好成绩推导当前下一步。
+
+## 导航
+
+| 文档 | 用途 |
+| --- | --- |
+| [论文主线协议](experiments/03_保留专门化/02_论文主线/README.md) | 当前方法、数据边界、准入和实验矩阵 |
+| [实验注册表](experiments/EXPERIMENT_REGISTRY.md) | 历史路线状态和可复用结论 |
+| [模型注册表](TD3/MODEL_REGISTRY.md) | 模型ID、artifact和使用限制 |
+| [数据集索引](experiments/03_保留专门化/02_论文主线/datasets/README.md) | train/validation/test边界 |
+| [结果索引](experiments/03_保留专门化/02_论文主线/results/README.md) | 证据所在目录 |
+| [执行手册](README_执行文档.md) | 环境、进程和运行记录要求 |
+

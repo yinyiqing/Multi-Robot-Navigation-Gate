@@ -2,7 +2,9 @@
 
 ## 用途
 
-该视图用于判断：完整 Actor 在 Dense 多冲突训练中学不出来，是否主要由场景中的冲突组合复杂度造成。
+该视图最初用于判断完整Actor在Dense多冲突训练中学不出来是否由冲突组合复杂度造成；
+当前也作为新Gate的corrected single-edge数据来源候选。Gate正式使用前仍需从导航train
+内部冻结自己的train/validation划分和哈希。
 
 源数据为 `views/edge1_pilot`，并使用全路径冲突审计重新过滤。一个场景只有同时满足以下条件才保留：
 

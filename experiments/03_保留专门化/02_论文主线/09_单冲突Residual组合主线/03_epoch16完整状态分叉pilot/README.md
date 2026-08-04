@@ -83,7 +83,8 @@ epoch 18在碰撞没有反弹的情况下提高了full success并缩短episode�
 
 1. 冻结epoch 18候选，不继续当前配置长训。
 2. 固定200场复核已经完成，结果为full success下降、collision上升。
-3. 当前正式决策是拒绝epoch-16整网续训，转向冻结5A的Residual Actor B。
+3. 当时转向冻结5A的Residual Actor B；该Residual随后也在R0被拒绝。当前直接冻结
+   5A和epoch-16并开发Gate。
 
 候选checkpoint：
 

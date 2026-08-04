@@ -1,40 +1,50 @@
 # 脚本索引
 
-研究决策以[论文主线](../experiments/03_保留专门化/02_论文主线/README.md)为准。
+当前状态见[PROJECT_STATUS](../PROJECT_STATUS.md)，研究决策以
+[论文主线](../experiments/03_保留专门化/02_论文主线/README.md)为准。
 
-## 当前入口
+## 统一入口
 
 ```bash
 bash scripts/experiment.sh list
 bash scripts/experiment.sh status
 ```
 
-当前批准的实验是`actor-b-single-edge-residual`，但R0/R1实现尚未完成，因此统一入口
-暂不开放start/stop。没有经过短pilot检查前不得直接拼接历史训练脚本启动长跑。
+当前只批准开发`deployable-interaction-gate`，但新Gate协议尚未登记可执行命令，因此统一
+入口暂不开放start/stop。5A和epoch-16冻结，任何Actor训练脚本都不是当前入口。
 
-## 当前模型名称
+## 当前模型ID
 
-- `generalist-5a`：冻结Actor A和Actor B的base；
-- `interaction-teacher-epoch16`：冻结的单冲突动作教师；
-- `actor-b-single-edge-residual`：待实现的独立Actor B；
-- `single-to-multi-conflict-gate`：Actor B通过后再训练的Gate。
+- `generalist-5a`：冻结普通导航Actor；
+- `interaction-epoch16`：冻结条件避障Actor；
+- `learned-gate-g2a`：历史未过准入Gate基线；
+- `deployable-interaction-gate`：当前待实现/训练组件。
 
-## 历史脚本
+## 可复用工具
 
-根目录仍有早期baseline、数据采集、感知和Gate诊断工具。它们只用于复核归档证据，
-不代表当前建议。以下旧训练入口已删除，防止误启动：
+- `generate_fixed_scenarios.py`、`audit_*`、`build_*view*`：数据生成和审计；
+- `evaluate_robot_detector.py`、`evaluate_robot_tracking.py`：Gate感知前端评估；
+- `compare_actor_validation.py`及分析脚本：固定结果比较；
+- `start_validation_*`：必须核对模型、manifest和split后才能复现历史评测。
 
-- epoch-16整网全程续训及其200场比较；
-- 5D + 零初始化Residual；
-- 旧moderate Residual测试。
+## 历史入口
 
-通用的场景生成、manifest审计、结果分析、机器人感知和Gate特征代码继续保留，因为
-新主线仍需要这些基础设施。
+根目录保留大量早期baseline、Actor训练、感知和Gate脚本以支持复现。文件存在不表示当前
+建议。以下家族均已关闭：
+
+- `start_training_independent_dense_actor_*`；
+- `start_training_dense_simple_td3_hparam_*`；
+- `start_training_full_actor_edge1_from_5a.sh`；
+- epoch-16整网续训、Residual、pair和controlled-ego相关历史入口；
+- 旧stage课程训练入口。
+
+历史脚本运行前必须先在[实验注册表](../experiments/EXPERIMENT_REGISTRY.md)确认状态，并
+显式说明是复现而非当前训练。
 
 ## 运行规则
 
-- Actor B和Gate训练只能读取0-edge与单冲突manifest。
-- exact-edge-2及以上只能用于零样本validation/test。
-- 每个后台入口必须使用独立PID和ROS/Gazebo端口。
-- stop脚本只能停止对应PID的进程组，禁止全局`pkill`。
-- 运行日志必须记录模型哈希、manifest哈希、seed、commit和完整配置。
+- Gate训练只使用当前协议允许的train split；
+- sealed test在模型和阈值冻结前禁止读取；
+- 每个后台入口使用独立PID和ROS/Gazebo端口；
+- stop脚本只能停止对应PID进程组，禁止全局`pkill`；
+- 日志必须记录模型/manifest哈希、seed、commit、配置和停止条件。

@@ -1,6 +1,8 @@
 # Local-Critic Multi-Robot Navigation
 
-本项目研究 ROS/Gazebo 中无通信、局部观测的多机器人导航。两个导航 Actor 执行时只使用本车 24 维观测；训练阶段允许 Critic 使用局部邻居几何信息。后续 Gate 只能使用本机传感器，不得读取其他机器人真值。
+本项目研究 ROS/Gazebo 中无通信、局部观测的多机器人导航。当前状态先读
+[PROJECT_STATUS](PROJECT_STATUS.md)。两个导航 Actor 执行时只使用本车24维观测；
+Gate只能使用本机传感器，不得读取其他机器人真值。
 
 ## 当前研究问题
 
@@ -19,7 +21,9 @@
   -> 只训练 Gate，在两个冻结 Actor 之间进行状态级切换
 ```
 
-当前处于 `D5-G0`：Actor 开发暂停，正在解决 Gate 的可观测性前提，即机器人与静态障碍的区分。唯一决策源是 [论文协议](experiments/03_保留专门化/02_论文主线/README.md)。
+当前角色定义已经冻结：5A负责普通导航，epoch-16负责局部机器人冲突。Actor开发关闭，
+当前只开发可部署Gate。唯一协议源是
+[论文主线](experiments/03_保留专门化/02_论文主线/README.md)。
 
 ## 当前结论
 
@@ -29,6 +33,8 @@
 - 当前 `2.0 m` oracle 使用其他机器人真实位置，只是不可部署上界，不是最终 Gate。
 - 20 维激光不区分机器人、墙和箱子。二维运动点簇、三维手工形状和现有时序风险编码均未达到准入线，不能直接接入 Gate。
 - 两个 Actor 从现在起冻结。下一步只开发机器人感知与 Gate，不继续微调 Actor，不读取 test。
+- corrected edge-1完整Actor pilot在解冻后明显退化，已关闭并只作为单Actor失败对照。
+- 24维单帧Residual、epoch-16整网续训、pair和controlled-ego路线均已拒绝。
 
 ## 从这里开始
 
@@ -48,8 +54,10 @@ bash scripts/experiment.sh status
 
 | 位置 | 内容 | 状态 |
 | --- | --- | --- |
-| [论文协议](experiments/03_保留专门化/02_论文主线/README.md) | 研究问题、dense 定义、决策门和实验矩阵 | 唯一当前协议 |
+| [当前状态](PROJECT_STATUS.md) | 当前组件、结论、未决问题和已关闭路线 | 第一阅读入口 |
+| [论文协议](experiments/03_保留专门化/02_论文主线/README.md) | 方法、数据边界、准入和实验矩阵 | 唯一当前协议 |
 | [实验索引](experiments/README.md) | 各阶段作用、状态和阅读顺序 | 当前索引 |
+| [实验注册表](experiments/EXPERIMENT_REGISTRY.md) | 历史路线的通过、失败、诊断和无效分类 | 当前索引 |
 | [模型注册表](TD3/MODEL_REGISTRY.md) | 短模型 ID、实际文件名和使用限制 | 当前索引 |
 | [脚本索引](scripts/README.md) | 当前入口、历史脚本和命名规范 | 当前索引 |
 | [执行手册](README_执行文档.md) | ROS、Gazebo、后台进程和环境配置 | 运维参考 |

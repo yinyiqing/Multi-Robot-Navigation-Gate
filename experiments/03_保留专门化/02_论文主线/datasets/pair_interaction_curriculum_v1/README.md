@@ -1,6 +1,9 @@
 # Pair Interaction Curriculum v1
 
-用途：训练和验证保持原 TD3 结构的强交互 Actor。该数据集只覆盖基础双车冲突，不代表最终论文 test。
+状态：`historical diagnostic / route closed`。
+
+用途：历史上用于训练和验证保持原TD3结构的双车强交互Actor。该数据集只覆盖基础双车
+冲突，不用于当前双Actor或Gate训练，也不代表论文test。
 
 ## 固定划分
 
@@ -34,10 +37,5 @@ python3 scripts/audit_fixed_scenarios.py --num-agents 2 \
   experiments/03_保留专门化/02_论文主线/datasets/pair_interaction_curriculum_v1/validation.json.gz
 ```
 
-训练入口：
-
-```bash
-bash scripts/start_training_pair_interaction_pilot.sh
-```
-
-该 pilot 使用完整 5D Actor/Critic warm-start、原 `24 -> 800 -> 600 -> 2` Actor、`0.8 self + 0.2 neighbor` reward。仅将基础前进奖励和低速停滞惩罚权重设为零，不改变 goal、collision 和 progress reward。
+历史pilot使用完整5D Actor/Critic warm-start、原`24 -> 800 -> 600 -> 2` Actor和
+`0.8 self + 0.2 neighbor` reward。该入口已关闭，数据只保留用于复现与场景诊断。

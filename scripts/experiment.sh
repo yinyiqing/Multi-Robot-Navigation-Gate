@@ -9,11 +9,14 @@ Usage:
   bash scripts/experiment.sh list
   bash scripts/experiment.sh status
 
-Current experiment:
-  actor-b-single-edge-residual  approved, implementation not yet admitted
+Current method:
+  Actor N  generalist-5a         frozen
+  Actor I  interaction-epoch16   frozen
+  Gate     deployable-interaction-gate  protocol pending
 
-No start/stop command is exposed until the R0/R1 short-pilot protocol and
-implementation checks are complete. Historical scripts are not current entrypoints.
+No start/stop command is exposed until the deployable Gate protocol, data split,
+admission criteria, and stopping conditions are recorded. Actor training is closed.
+Historical scripts are not current entrypoints.
 EOF
 }
 

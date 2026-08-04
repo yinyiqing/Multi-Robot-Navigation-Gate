@@ -2,6 +2,9 @@
 
 状态：`R0 completed / rejected`。不启动R1、R2和Gazebo长训练。
 
+以下R1/R2内容是实验前预注册的历史方案，不是当前执行计划。当前方法直接冻结5A和
+epoch-16并开发Gate。
+
 ## R0结果
 
 使用epoch-16 checkpoint中的320000条单冲突Replay做了最小离线测试：前80%训练，
@@ -89,7 +92,7 @@ interaction target = action_epoch16 - action_5A
 不能只使用5A轨迹。数据至少包含：
 
 1. `5A + epoch-16真值组合`访问的状态；
-2. 当前Residual学生自己访问的状态；
+2. 当时Residual学生自己访问的状态；
 3. 普通状态的零Residual目标；
 4. 交互状态的epoch-16动作差目标。
 
@@ -110,7 +113,7 @@ interaction target = action_epoch16 - action_5A
 
 ## 与历史实验的控制变量
 
-| 项目 | 旧Residual | 当前候选 |
+| 项目 | 旧Residual | 本次已拒绝候选 |
 | --- | --- | --- |
 | base | 冻结5D | 冻结5A |
 | Residual起点 | 零，靠Critic探索 | epoch-16动作差监督初始化 |
@@ -119,7 +122,7 @@ interaction target = action_epoch16 - action_5A
 | 训练目标 | Q最大化/anchor | 教师初始化后再逐步转TD3 |
 | 最终要求 | 局部提升 | Actor B全程独立导航 |
 
-因此当前候选不是旧Residual的重复。
+因此该候选不是旧Residual的重复，但R0结果仍然否决了它。
 
 ## 准入
 
@@ -131,5 +134,4 @@ interaction target = action_epoch16 - action_5A
 4. Actor B独立运行，不使用Oracle接管；
 5. 固定200场复核保持方向，不依据50场波动宣布成功。
 
-Actor B通过后才冻结A/B并训练Gate。Gate只用0-edge和单冲突数据；exact-edge-2及
-以上始终保留为零样本测试。
+该候选没有通过，因此后续阶段未执行。当前Gate直接在冻结5A和epoch-16之间选择。

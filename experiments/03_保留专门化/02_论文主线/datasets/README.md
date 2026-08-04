@@ -5,11 +5,12 @@
 | 目录 | 状态 | 用途 | 是否用于当前正式方法 |
 | --- | --- | --- | --- |
 | [`fixed_v1/`](fixed_v1/README.md) | frozen | standard/dense 固定随机场景及互斥划分 | 是，主场景池与基线 |
+| [`fixed_v1/views/edge1_full_horizon_v1/`](fixed_v1/views/edge1_full_horizon_v1/README.md) | frozen derived view | 完整路径复算后的纯single-edge train/validation | 是，当前Gate的single-edge来源 |
 | `candidates_20260717/` | provenance | fixed-v1 筛选前候选清单 | 否，不直接训练或测试 |
 | [`pilot/`](pilot/README.md) | pilot | 生成、筛选和 manifest 回放冒烟验证 | 否 |
 | [`pair_interaction_curriculum_v1/`](pair_interaction_curriculum_v1/README.md) | historical diagnostic | 两车 head-on/crossing/lane-swap 诊断 | 否，不再继续双车路线 |
 
-当前机器人感知使用 [`fixed_v1/views/robot_perception_v1/`](fixed_v1/views/robot_perception_v1/README.md)。它只从导航 train 内部重新划分 `7200/900/900` 个感知 train/validation/sealed-test 场景，不读取导航 validation/test。
+当前机器人感知基线使用 [`fixed_v1/views/robot_perception_v1/`](fixed_v1/views/robot_perception_v1/README.md)。它只从导航 train 内部重新划分 `7200/900/900` 个感知 train/validation/sealed-test 场景，不读取导航 validation/test。
 
 `fixed_v1` 下的 test 在方法和阈值冻结前不得用于调参。运行时 Gate 不得读取场景池名称、冲突边或其他离线标签。
 
@@ -47,4 +48,6 @@ export DRL_MULTI_MANIFEST_PATH=/path/to/dense/train.json.gz
 export DRL_MULTI_MANIFEST_SAMPLING=random  # 训练；测试使用 cycle
 ```
 
-Gate 直接混合 standard 与 dense 的 train split，不生成第三类 Gate 场景。
+当前Gate训练不得无筛选地读取全部dense train。场景必须从导航train内部按0-edge和
+corrected full-horizon single-edge构建互斥视图；multi-edge只用于冻结后的泛化评估。
+具体Gate manifest、哈希和scenario互斥报告必须在新实验协议中登记后才能启动。
