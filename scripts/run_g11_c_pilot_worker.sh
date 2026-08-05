@@ -75,12 +75,34 @@ if len(set(rows[:, 12].tolist())) != 50:
 PY
 }
 
+verify_partial_result() {
+  local stats_path="$1"
+  local state_path="$2"
+  python3 - "$stats_path" "$state_path" <<'PY'
+import sys
+import numpy as np
+import torch
+
+rows = np.load(sys.argv[1], allow_pickle=True)
+state = torch.load(sys.argv[2], map_location="cpu", weights_only=False)
+if rows.ndim != 2 or rows.shape[1] != 17 or not 0 < len(rows) < 50:
+    raise SystemExit("pilot partial result has wrong shape: %s" % (rows.shape,))
+if len(set(rows[:, 12].tolist())) != len(rows):
+    raise SystemExit("pilot partial result contains duplicate scenarios")
+if int(state.get("episode_num", -1)) != len(rows):
+    raise SystemExit("pilot state/result episode mismatch")
+manifest_state = state.get("manifest_sampling_state") or {}
+if int(manifest_state.get("curriculum_case_index", -1)) != len(rows):
+    raise SystemExit("pilot state/result manifest index mismatch")
+print(len(rows))
+PY
+}
+
 run_one() {
   local policy="$1"
   local repeat="$2"
   local seed="$3"
   local run_name="g11_c_${policy}_r${repeat}_s${seed}"
-  local log_file="$RUNTIME_DIR/logs/${run_name}.log"
   local state_path="$RUNTIME_DIR/checkpoints/${run_name}_state.pt"
   local stats_path="$RUNTIME_DIR/results/${run_name}.npy"
 
@@ -127,19 +149,40 @@ run_one() {
       ;;
   esac
 
-  echo "Starting $run_name"
-  wait_for_ports
-  set +e
-  (cd "$TD3_DIR" && nice -n 10 python3 -u test_velodyne_td3_multi.py) \
-    >"$log_file" 2>&1
-  status=$?
-  set -e
-  if ! verify_result "$stats_path"; then
-    echo "$run_name failed with exit code $status" >&2
+  local attempt status log_file completed=0
+  for attempt in $(seq 1 5); do
+    if [[ "$attempt" -eq 1 && ! -f "$RUNTIME_DIR/logs/${run_name}.log" ]]; then
+      log_file="$RUNTIME_DIR/logs/${run_name}.log"
+    else
+      log_file="$RUNTIME_DIR/logs/${run_name}_resume${attempt}_$(date +%Y%m%d_%H%M%S).log"
+    fi
+    echo "Starting $run_name attempt $attempt"
+    wait_for_ports
+    set +e
+    (cd "$TD3_DIR" && nice -n 10 python3 -u test_velodyne_td3_multi.py) \
+      >"$log_file" 2>&1
+    status=$?
+    set -e
+    wait_for_ports
+    if verify_result "$stats_path" 2>/dev/null; then
+      completed=1
+      echo "Completed $run_name on attempt $attempt"
+      break
+    fi
+    if [[ ! -f "$stats_path" || ! -f "$state_path" ]]; then
+      echo "$run_name failed before writing resumable state (exit $status)" >&2
+      return 1
+    fi
+    progress="$(verify_partial_result "$stats_path" "$state_path")" || {
+      echo "$run_name produced inconsistent partial state (exit $status)" >&2
+      return 1
+    }
+    echo "$run_name interrupted at $progress/50 (exit $status); restarting Gazebo"
+  done
+  if [[ "$completed" -ne 1 ]]; then
+    echo "$run_name did not complete after 5 attempts" >&2
     return 1
   fi
-  echo "Completed $run_name"
-  wait_for_ports
 }
 
 run_one 5a 1 20260805
