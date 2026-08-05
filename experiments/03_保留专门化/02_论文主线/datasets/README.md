@@ -6,7 +6,7 @@
 | --- | --- | --- | --- |
 | [`fixed_v1/`](fixed_v1/README.md) | frozen | standard/dense 固定随机场景及互斥划分 | 是，主场景池与基线 |
 | [`fixed_v1/views/edge1_full_horizon_v1/`](fixed_v1/views/edge1_full_horizon_v1/README.md) | frozen derived view | 完整路径复算后的纯single-edge train/validation | 是，当前Gate的single-edge来源 |
-| [`fixed_v1/views/g11_a1_gate_v1/`](fixed_v1/views/g11_a1_gate_v1/README.md) | frozen derived view | 导航train内部的full-path 0-edge与edge-1互斥划分 | 是，G11-A1采集清单 |
+| [`fixed_v1/views/g11_a1_gate_v1/`](fixed_v1/views/g11_a1_gate_v1/README.md) | frozen derived view | 导航train内部的full-path 0-edge与edge-1互斥划分 | 是，G11-A1采集与G12容量对照清单 |
 | [`fixed_v1/views/g11_d2_admission_v1/`](fixed_v1/views/g11_d2_admission_v1/README.md) | frozen validation view | 排除旧开发场景的200场0-edge/edge-1独立准入 | 是，G11-D2闭环准入 |
 | [`fixed_v1/views/g11_e_edge2_generalization_v1/`](fixed_v1/views/g11_e_edge2_generalization_v1/README.md) | frozen validation partitions | exact-edge-2前50场pilot与后150场confirmation | 是，G11-E冻结后泛化诊断 |
 | `candidates_20260717/` | provenance | fixed-v1 筛选前候选清单 | 否，不直接训练或测试 |

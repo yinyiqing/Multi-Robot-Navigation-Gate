@@ -9,7 +9,12 @@ import numpy as np
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
-from actor_models import Actor, ResidualActor, is_residual_actor_state_dict
+from actor_models import (
+    Actor,
+    ResidualActor,
+    actor_hidden_dims_from_state_dict,
+    is_residual_actor_state_dict,
+)
 from interaction_oracle import interaction_mask
 from learned_gate_controller import LearnedInteractionGateController
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
@@ -55,6 +60,19 @@ class TD3(object):
             raise ValueError("Residual test mode requires a residual actor checkpoint")
         if self.actor_mode != "residual" and residual_checkpoint:
             raise ValueError("Residual actor checkpoint requires residual test mode")
+        if self.actor_mode != "residual":
+            hidden_dim_1, hidden_dim_2 = actor_hidden_dims_from_state_dict(actor_state)
+            current_hidden_dims = (
+                self.actor.hidden_dim_1,
+                self.actor.hidden_dim_2,
+            )
+            if (hidden_dim_1, hidden_dim_2) != current_hidden_dims:
+                self.actor = Actor(
+                    self.actor.layer_1.in_features,
+                    self.actor.layer_3.out_features,
+                    hidden_dim_1=hidden_dim_1,
+                    hidden_dim_2=hidden_dim_2,
+                ).to(device)
         self.actor.load_state_dict(actor_state)
         if self.actor_mode == "residual":
             self.residual_scale = self.actor.residual_scale

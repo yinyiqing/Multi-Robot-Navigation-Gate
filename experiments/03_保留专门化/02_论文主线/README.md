@@ -49,6 +49,11 @@ Gate成立的必要条件是两个Actor存在不同优势区。如果Actor I在�
 
 ## 3. Actor训练契约
 
+当前方法中的5A和epoch-16继续冻结。唯一例外是
+[G12参数匹配单Actor容量对照](12_参数匹配单Actor容量对照/README.md)：它训练一个不进入
+主方法的加宽单Actor baseline，用于排除双Actor收益只是参数量翻倍。该授权不允许更新
+5A、epoch-16，也不恢复任何历史Actor路线。
+
 ### Actor N：generalist-5a
 
 - 五车共享Actor；
@@ -192,6 +197,7 @@ success + collision + unresolved = agents * episodes
 | 当前learned Gate | 最终方法 |
 | `2.0 m`真值oracle | 不可部署上界 |
 | corrected edge-1完整Actor pilot | “为什么不用单一完整Actor”的失败对照 |
+| G12参数匹配加宽单Actor | 控制两个Actor checkpoint带来的参数容量增加 |
 
 必要消融包括无时序、无机器人形状证据、无滞回和不同最短保持时间。
 
@@ -219,9 +225,10 @@ success + collision + unresolved = agents * episodes
 4. G11-D1的4个B2训练复核seed已全部通过，F1标准差仅`0.00132`。主seed保持
    `20260804`，没有从复核seed中挑峰值；新的独立validation manifest与七策略运行协议
    均已冻结，当前可启动G11-D2闭环准入。
-5. Gate通过后完成主对照、消融和multi-edge边界评估。G11-E的50场exact-edge-2 pilot
-   与后150场confirmation已经在D2运行期间完成清单冻结和互斥审计，但不得与D2并行
-   启动第二套Gazebo。
-6. 所有组件冻结后一次性读取sealed test。
+5. D2完整分析归档后，先执行G12参数匹配加宽单Actor的80k容量pilot。只有出现预注册的
+   正向趋势才允许另行登记320k扩展；失败时直接保留为容量对照，不扫描reward/Critic。
+6. 随后完成主对照、消融和multi-edge边界评估。G11-E的50场exact-edge-2 pilot与后
+   150场confirmation已经完成清单冻结和互斥审计，不得与D2或G12并行启动第二套Gazebo。
+7. 所有组件冻结后一次性读取sealed test。
 
 任何新长跑必须先在本文件登记实验ID、数据split、模型哈希、seed、准入和停止条件。

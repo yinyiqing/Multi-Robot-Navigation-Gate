@@ -8,7 +8,13 @@ import torch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "TD3"))
 
-from actor_models import Actor, ResidualActor, is_residual_actor_state_dict
+from actor_models import (
+    Actor,
+    ResidualActor,
+    actor_hidden_dims_from_state_dict,
+    function_preserving_expand_actor_state_dict,
+    is_residual_actor_state_dict,
+)
 
 
 class ActorModelTests(unittest.TestCase):
@@ -31,6 +37,53 @@ class ActorModelTests(unittest.TestCase):
                 "layer_3.bias",
             },
         )
+
+    def test_capacity_matched_actor_parameter_count(self):
+        wide_actor = Actor(
+            self.state_dim,
+            self.action_dim,
+            hidden_dim_1=1137,
+            hidden_dim_2=855,
+        )
+        parameter_count = sum(parameter.numel() for parameter in wide_actor.parameters())
+
+        self.assertEqual(parameter_count, 1_003_127)
+        self.assertEqual(
+            actor_hidden_dims_from_state_dict(wide_actor.state_dict()), (1137, 855)
+        )
+
+    def test_function_preserving_expansion_matches_base_and_keeps_new_branch_live(self):
+        wide_actor = Actor(
+            self.state_dim,
+            self.action_dim,
+            hidden_dim_1=1137,
+            hidden_dim_2=855,
+        )
+        expanded = function_preserving_expand_actor_state_dict(
+            self.base_actor.state_dict(), wide_actor
+        )
+        wide_actor.load_state_dict(expanded)
+
+        expected = self.base_actor(self.states)
+        actual = wide_actor(self.states)
+        self.assertLessEqual((actual - expected).abs().max().item(), 1e-6)
+
+        loss = wide_actor(self.states).square().mean()
+        loss.backward()
+        added_output_gradient = wide_actor.layer_3.weight.grad[:, 600:]
+        self.assertGreater(added_output_gradient.abs().sum().item(), 0.0)
+
+    def test_expansion_rejects_narrower_target(self):
+        narrow_actor = Actor(
+            self.state_dim,
+            self.action_dim,
+            hidden_dim_1=799,
+            hidden_dim_2=599,
+        )
+        with self.assertRaisesRegex(ValueError, "must not be narrower"):
+            function_preserving_expand_actor_state_dict(
+                self.base_actor.state_dict(), narrow_actor
+            )
 
     def test_zero_initialized_residual_matches_base_actor(self):
         residual_actor = ResidualActor(

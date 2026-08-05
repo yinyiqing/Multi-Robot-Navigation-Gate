@@ -11,7 +11,13 @@ import torch.nn.functional as F
 from numpy import inf
 from torch.utils.tensorboard import SummaryWriter
 
-from actor_models import Actor, ResidualActor, is_residual_actor_state_dict
+from actor_models import (
+    Actor,
+    ResidualActor,
+    actor_hidden_dims_from_state_dict,
+    function_preserving_expand_actor_state_dict,
+    is_residual_actor_state_dict,
+)
 from actor_objectives import (
     actor_slowdown_safety_loss,
     conservative_actor_objective,
@@ -344,6 +350,9 @@ class TD3(object):
         residual_scale=0.15,
         actor_q_normalization_alpha=0.0,
         critic_context_mode="legacy",
+        actor_hidden_dim_1=800,
+        actor_hidden_dim_2=600,
+        allow_actor_warmstart_expansion=False,
     ):
         self.state_dim = state_dim
         self.critic_state_dim = critic_state_dim or state_dim
@@ -353,6 +362,11 @@ class TD3(object):
         self.actor_train_mode = (actor_train_mode or "full").strip().lower()
         self.actor_q_normalization_alpha = float(actor_q_normalization_alpha)
         self.critic_context_mode = normalize_context_mode(critic_context_mode)
+        self.actor_hidden_dim_1 = int(actor_hidden_dim_1)
+        self.actor_hidden_dim_2 = int(actor_hidden_dim_2)
+        self.allow_actor_warmstart_expansion = bool(
+            allow_actor_warmstart_expansion
+        )
         if self.actor_q_normalization_alpha < 0.0:
             raise ValueError("actor_q_normalization_alpha must be non-negative")
         self.actor = self._make_actor().to(device)
@@ -383,7 +397,12 @@ class TD3(object):
                 residual_scale=self.residual_scale,
             )
         if self.actor_train_mode in ("full", "head_only"):
-            return Actor(self.state_dim, self.action_dim)
+            return Actor(
+                self.state_dim,
+                self.action_dim,
+                hidden_dim_1=self.actor_hidden_dim_1,
+                hidden_dim_2=self.actor_hidden_dim_2,
+            )
         raise ValueError(
             "Unsupported DRL_MULTI_ACTOR_TRAIN_MODE: %s. Use full, head_only, or residual."
             % self.actor_train_mode
@@ -1128,7 +1147,30 @@ class TD3(object):
                 raise ValueError(
                     "Residual actor checkpoint requires DRL_MULTI_ACTOR_TRAIN_MODE=residual"
                 )
-            self.actor.load_state_dict(actor_state)
+            source_hidden_dims = actor_hidden_dims_from_state_dict(actor_state)
+            target_hidden_dims = (
+                self.actor_hidden_dim_1,
+                self.actor_hidden_dim_2,
+            )
+            if source_hidden_dims == target_hidden_dims:
+                self.actor.load_state_dict(actor_state)
+            elif self.allow_actor_warmstart_expansion:
+                expanded_state = function_preserving_expand_actor_state_dict(
+                    actor_state, self.actor
+                )
+                self.actor.load_state_dict(expanded_state)
+                print(
+                    "Function-preserving Actor expansion:",
+                    "%ix%i -> %ix%i"
+                    % (*source_hidden_dims, *target_hidden_dims),
+                )
+            else:
+                raise ValueError(
+                    "Actor checkpoint hidden dimensions %s do not match configured "
+                    "dimensions %s; enable DRL_MULTI_ALLOW_ACTOR_WARMSTART_EXPANSION "
+                    "only for a registered capacity experiment"
+                    % (source_hidden_dims, target_hidden_dims)
+                )
         self.actor_target.load_state_dict(self.actor.state_dict())
 
     def load(self, filename, directory):
@@ -1172,6 +1214,9 @@ class TD3(object):
             "actor_anchor_weight": self.actor_anchor_weight,
             "actor_q_normalization_alpha": self.actor_q_normalization_alpha,
             "critic_context_mode": self.critic_context_mode,
+            "actor_hidden_dim_1": self.actor_hidden_dim_1,
+            "actor_hidden_dim_2": self.actor_hidden_dim_2,
+            "allow_actor_warmstart_expansion": self.allow_actor_warmstart_expansion,
         }
 
     def load_state_dict(self, state):
@@ -1190,6 +1235,19 @@ class TD3(object):
             raise ValueError(
                 "Checkpoint actor mode %s does not match configured mode %s"
                 % (saved_mode, self.actor_train_mode)
+            )
+        saved_hidden_dims = (
+            int(state.get("actor_hidden_dim_1", 800)),
+            int(state.get("actor_hidden_dim_2", 600)),
+        )
+        configured_hidden_dims = (
+            self.actor_hidden_dim_1,
+            self.actor_hidden_dim_2,
+        )
+        if saved_hidden_dims != configured_hidden_dims:
+            raise ValueError(
+                "Checkpoint Actor hidden dimensions %s do not match configured %s"
+                % (saved_hidden_dims, configured_hidden_dims)
             )
         self.actor.load_state_dict(state["actor"])
         self.actor_target.load_state_dict(state["actor_target"])
@@ -1300,6 +1358,11 @@ actor_q_normalization_alpha = (
     env_float("DRL_MULTI_ACTOR_Q_NORMALIZATION_ALPHA", 0.0) or 0.0
 )
 actor_train_mode = os.environ.get("DRL_MULTI_ACTOR_TRAIN_MODE", "full").strip().lower()
+actor_hidden_dim_1 = env_int("DRL_MULTI_ACTOR_HIDDEN_DIM_1", 800)
+actor_hidden_dim_2 = env_int("DRL_MULTI_ACTOR_HIDDEN_DIM_2", 600)
+allow_actor_warmstart_expansion = env_flag(
+    "DRL_MULTI_ALLOW_ACTOR_WARMSTART_EXPANSION", False
+)
 use_oracle_interaction_rollout = env_flag(
     "DRL_MULTI_USE_ORACLE_INTERACTION_ROLLOUT", False
 )
@@ -1699,6 +1762,8 @@ if policy_noise < 0.0 or noise_clip < 0.0:
     raise ValueError("TD3 target policy noise values must be non-negative")
 if policy_freq < 1:
     raise ValueError("DRL_MULTI_POLICY_FREQ must be positive")
+if actor_hidden_dim_1 < 1 or actor_hidden_dim_2 < 1:
+    raise ValueError("DRL_MULTI_ACTOR_HIDDEN_DIM_1/2 must be positive")
 if timeout_reward is not None and timeout_reward > 0.0:
     raise ValueError("DRL_MULTI_TIMEOUT_REWARD must be non-positive")
 if robot_clearance_reward_max_gain <= 0.0:
@@ -1905,6 +1970,12 @@ if checkpoint:
         "residual_hidden_dim", residual_hidden_dim
     )
     residual_scale = checkpoint["network"].get("residual_scale", residual_scale)
+    actor_hidden_dim_1 = int(
+        checkpoint["network"].get("actor_hidden_dim_1", actor_hidden_dim_1)
+    )
+    actor_hidden_dim_2 = int(
+        checkpoint["network"].get("actor_hidden_dim_2", actor_hidden_dim_2)
+    )
 
 network = TD3(
     state_dim,
@@ -1919,6 +1990,9 @@ network = TD3(
     residual_scale=residual_scale,
     actor_q_normalization_alpha=actor_q_normalization_alpha,
     critic_context_mode=local_critic_context_mode,
+    actor_hidden_dim_1=actor_hidden_dim_1,
+    actor_hidden_dim_2=actor_hidden_dim_2,
+    allow_actor_warmstart_expansion=allow_actor_warmstart_expansion,
 )
 replay_buffer = ReplayBuffer(buffer_size, seed)
 
@@ -2104,6 +2178,13 @@ if eval_protocol_reset:
 print("Max epochs:", max_epochs or "unlimited")
 print("Actor learning rate:", actor_lr)
 print("Actor train mode:", network.actor_train_mode)
+print(
+    "Actor hidden dimensions:",
+    "%ix%i" % (network.actor_hidden_dim_1, network.actor_hidden_dim_2),
+)
+print(
+    "Actor warm-start expansion:", network.allow_actor_warmstart_expansion
+)
 print("Oracle interaction rollout:", use_oracle_interaction_rollout)
 print("Reference Actor:", oracle_weak_actor_name)
 print("Oracle target policy:", use_oracle_target_policy)

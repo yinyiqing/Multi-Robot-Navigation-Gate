@@ -18,10 +18,13 @@ bash scripts/run_g11_b_aggregated_training.sh 20260804
 bash scripts/run_g11_d_seed_replication.sh
 /usr/bin/python3 scripts/build_g11_d2_admission_view.py
 bash scripts/experiment.sh start gate-g11-d2-admission
+bash scripts/experiment.sh queue actor-g12-capacity-pilot
 ```
 
-5A、epoch-16和A1主seed Gate均冻结，任何Actor训练脚本都不是当前入口。协议见
-[`G11_B_student_rollout_v1`](../experiments/03_保留专门化/02_论文主线/11_可部署在线Gate研究/G11_B_student_rollout_v1/README.md)。
+5A、epoch-16和A1主seed Gate均冻结。唯一Actor训练入口是D2归档后执行的G12参数匹配
+单Actor容量对照；它不更新当前Actor，也不恢复历史Actor路线。Gate协议见
+[`G11_B_student_rollout_v1`](../experiments/03_保留专门化/02_论文主线/11_可部署在线Gate研究/G11_B_student_rollout_v1/README.md)，
+容量对照见[`G12`](../experiments/03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/README.md)。
 
 ## 当前模型ID
 

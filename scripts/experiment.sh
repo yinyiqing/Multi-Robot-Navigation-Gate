@@ -8,6 +8,7 @@ usage() {
 Usage:
   bash scripts/experiment.sh list
   bash scripts/experiment.sh status
+  bash scripts/experiment.sh queue actor-g12-capacity-pilot
 
 Current method:
   Actor N  generalist-5a         frozen
@@ -18,9 +19,14 @@ Current command:
   bash scripts/experiment.sh start gate-g11-d2-admission
   bash scripts/experiment.sh stop  gate-g11-d2-admission
 
+Queued after G11-D2 archive:
+  bash scripts/experiment.sh start actor-g12-capacity-pilot
+  bash scripts/experiment.sh stop  actor-g12-capacity-pilot
+
 G11-C is complete. Its start/stop entrypoint is retained only for exact resumption.
 
-Actor training remains closed. Historical scripts are not current entrypoints.
+Actor training remains closed except for the registered G12 capacity-control baseline.
+Historical scripts are not current entrypoints.
 EOF
 }
 
@@ -37,6 +43,10 @@ show_status() {
         printf '  logs=logs/active/gate-g11-c-pilot/'
       elif [[ "$(basename "$pid_file")" == ".g11_d2_admission.pid" ]]; then
         printf '  logs=logs/active/gate-g11-d2-admission/'
+      elif [[ "$(basename "$pid_file")" == ".g12_capacity_actor.pid" ]]; then
+        printf '  logs=logs/active/capacity-matched-actor-g12-p1/'
+      elif [[ "$(basename "$pid_file")" == ".g12_capacity_queue.pid" ]]; then
+        printf '  state=waiting-for-d2  logs=logs/active/capacity-matched-actor-g12-p1/queue.log'
       fi
       printf '\n'
     else
@@ -57,12 +67,19 @@ case "${1:-}" in
   status)
     show_status
     ;;
+  queue)
+    case "${2:-}" in
+      actor-g12-capacity-pilot) exec bash "$PROJECT_ROOT/scripts/queue_training_capacity_matched_actor.sh" ;;
+      *) usage >&2; exit 2 ;;
+    esac
+    ;;
   start)
     case "${2:-}" in
       gate-g11-b-smoke) exec bash "$PROJECT_ROOT/scripts/start_g11_b_student_collection.sh" smoke ;;
       gate-g11-b-train) exec bash "$PROJECT_ROOT/scripts/start_g11_b_student_collection.sh" train ;;
       gate-g11-c-pilot) exec bash "$PROJECT_ROOT/scripts/start_g11_c_pilot.sh" ;;
       gate-g11-d2-admission) exec bash "$PROJECT_ROOT/scripts/start_g11_d2_admission.sh" ;;
+      actor-g12-capacity-pilot) exec bash "$PROJECT_ROOT/scripts/start_training_capacity_matched_actor.sh" ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;
@@ -72,6 +89,7 @@ case "${1:-}" in
       gate-g11-b-train) exec bash "$PROJECT_ROOT/scripts/stop_g11_b_student_collection.sh" train ;;
       gate-g11-c-pilot) exec bash "$PROJECT_ROOT/scripts/stop_g11_c_pilot.sh" ;;
       gate-g11-d2-admission) exec bash "$PROJECT_ROOT/scripts/stop_g11_d2_admission.sh" ;;
+      actor-g12-capacity-pilot) exec bash "$PROJECT_ROOT/scripts/stop_training_capacity_matched_actor.sh" ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;
