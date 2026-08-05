@@ -107,6 +107,10 @@ G11-B2来源平衡聚合重训已经完成，尚未得到闭环validation结论�
 
 ### G11-C：端到端准入
 
+第一步见[`G11_C_50场闭环pilot`](G11_C_50场闭环pilot/README.md)：在A1内部validation
+固定50场、两个重复上配对比较5A、A1与B2。它只决定是否保留student聚合；通过后才进入
+以下更大独立准入。
+
 沿用旧 G3 的固定协议，至少比较 5A、epoch-16 always-on、最小 LiDAR/TTC 规则、
 旧 G2-A、新 Gate 和真值 Oracle。200场准入仍要求：
 

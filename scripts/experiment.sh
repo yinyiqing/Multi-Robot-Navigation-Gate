@@ -12,13 +12,11 @@ Usage:
 Current method:
   Actor N  generalist-5a         frozen
   Actor I  interaction-epoch16   frozen
-  Gate     G11-B student rollout  formal collection ready
+  Gate     G11-B2                 trained, closed-loop pilot pending
 
 Current commands:
-  bash scripts/experiment.sh start gate-g11-b-smoke
-  bash scripts/experiment.sh start gate-g11-b-train
-  bash scripts/experiment.sh stop  gate-g11-b-smoke
-  bash scripts/experiment.sh stop  gate-g11-b-train
+  bash scripts/experiment.sh start gate-g11-c-pilot
+  bash scripts/experiment.sh stop  gate-g11-c-pilot
 
 Actor training remains closed. Historical scripts are not current entrypoints.
 EOF
@@ -55,6 +53,7 @@ case "${1:-}" in
     case "${2:-}" in
       gate-g11-b-smoke) exec bash "$PROJECT_ROOT/scripts/start_g11_b_student_collection.sh" smoke ;;
       gate-g11-b-train) exec bash "$PROJECT_ROOT/scripts/start_g11_b_student_collection.sh" train ;;
+      gate-g11-c-pilot) exec bash "$PROJECT_ROOT/scripts/start_g11_c_pilot.sh" ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;
@@ -62,6 +61,7 @@ case "${1:-}" in
     case "${2:-}" in
       gate-g11-b-smoke) exec bash "$PROJECT_ROOT/scripts/stop_g11_b_student_collection.sh" smoke ;;
       gate-g11-b-train) exec bash "$PROJECT_ROOT/scripts/stop_g11_b_student_collection.sh" train ;;
+      gate-g11-c-pilot) exec bash "$PROJECT_ROOT/scripts/stop_g11_c_pilot.sh" ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;

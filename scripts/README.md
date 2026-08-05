@@ -15,6 +15,7 @@ G11-B1采集和G11-B2主seed聚合训练均已完成。当前入口保留用于�
 
 ```bash
 bash scripts/run_g11_b_aggregated_training.sh 20260804
+bash scripts/experiment.sh start gate-g11-c-pilot
 ```
 
 5A、epoch-16和A1主seed Gate均冻结，任何Actor训练脚本都不是当前入口。协议见
