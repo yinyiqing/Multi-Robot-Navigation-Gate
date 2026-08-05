@@ -1,6 +1,6 @@
 # 可部署在线 Gate 研究
 
-状态：`G11-C pilot passed / G11-D seed replication next`。更新日期：`2026-08-05`。
+状态：`G11-D1 passed / G11-D2 runnable`。更新日期：`2026-08-05`。
 
 本目录只研究两个冻结 Actor 之间的在线切换：
 
@@ -115,7 +115,8 @@ G11-B2来源平衡聚合重训已经完成。G11-C闭环pilot中，B2在两个�
 G11-C已经完成。合并100场中5A/A1/B2的full success为`0.64/0.68/0.77`，B2的
 collision为`0.060`；但其interaction Actor占比为`0.789`、平均步数为`51.25`，且
 B2相对A1的配对差异在该小样本上未显著。当前按[`G11_D_Gate复核与独立准入`](G11_D_Gate复核与独立准入/README.md)
-先做训练seed复核，再启动不参与调参的独立闭环准入。
+先做训练seed复核，再启动不参与调参的独立闭环准入。G11-D1现已`4/4`复核seed通过，
+D2的独立200场validation manifest和七策略运行顺序也已冻结且未读取test；当前可以启动。
 
 沿用旧 G3 的固定协议，至少比较 5A、epoch-16 always-on、最小 LiDAR/TTC 规则、
 旧 G2-A、新 Gate 和真值 Oracle。200场准入仍要求：

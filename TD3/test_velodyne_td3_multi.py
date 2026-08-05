@@ -16,6 +16,7 @@ from multi_agent_velodyne_env import MultiAgentGazeboEnv
 from oracle_controllers import ConflictPairYieldOracle, RightHandPassOracle
 from outcome_utils import resolve_terminal_outcome
 from robot_perception.recorder import PerceptionShardRecorder
+from rule_gate_controllers import MinLidarActorSwitcher
 
 
 class TD3(object):
@@ -213,10 +214,11 @@ if actor_selection_mode not in (
     "case_oracle",
     "interaction_oracle",
     "learned_gate",
+    "min_lidar_gate",
 ):
     raise ValueError(
         "DRL_MULTI_ACTOR_SELECTION_MODE must be one of: single, hard_switch, "
-        "case_oracle, interaction_oracle, learned_gate"
+        "case_oracle, interaction_oracle, learned_gate, min_lidar_gate"
     )
 if actor_selection_mode != "single" and not dual_actor_enabled:
     raise ValueError(
@@ -240,6 +242,15 @@ gate_switch_off_threshold = (
 gate_minimum_hold_steps = env_int("DRL_MULTI_GATE_MINIMUM_HOLD_STEPS", 3)
 gate_max_candidates = env_int("DRL_MULTI_GATE_MAX_CANDIDATES", 12)
 gate_evaluation_stride = env_int("DRL_MULTI_GATE_EVALUATION_STRIDE", 1)
+min_lidar_switch_on_distance = env_float(
+    "DRL_MULTI_MIN_LIDAR_SWITCH_ON_DISTANCE", 2.0
+)
+min_lidar_switch_off_distance = env_float(
+    "DRL_MULTI_MIN_LIDAR_SWITCH_OFF_DISTANCE", 2.2
+)
+min_lidar_minimum_hold_steps = env_int(
+    "DRL_MULTI_MIN_LIDAR_MINIMUM_HOLD_STEPS", 3
+)
 if actor_selection_mode == "learned_gate":
     if not gate_checkpoint_path or not gate_detector_checkpoint_path:
         raise ValueError(
@@ -556,6 +567,15 @@ if dual_actor_enabled:
             max_candidates=gate_max_candidates,
             evaluation_stride=gate_evaluation_stride,
         )
+    elif actor_selection_mode == "min_lidar_gate":
+        dense_policy_controller = MinLidarActorSwitcher(
+            standard_policy=network,
+            interaction_policy=dense_network,
+            lidar_bins=environment_dim,
+            switch_on_distance=min_lidar_switch_on_distance,
+            switch_off_distance=min_lidar_switch_off_distance,
+            minimum_hold_steps=min_lidar_minimum_hold_steps,
+        )
 if rule_oracle_mode == "conflict_pair_yield":
     if actor_selection_mode != "single":
         raise ValueError("Conflict-pair yield oracle only supports single actor mode")
@@ -650,6 +670,10 @@ if dual_actor_enabled:
         print("Gate minimum hold steps:", gate_minimum_hold_steps)
         print("Gate maximum candidates:", gate_max_candidates)
         print("Gate evaluation stride:", gate_evaluation_stride)
+    elif actor_selection_mode == "min_lidar_gate":
+        print("Min-LiDAR switch-on distance:", min_lidar_switch_on_distance)
+        print("Min-LiDAR switch-off distance:", min_lidar_switch_off_distance)
+        print("Min-LiDAR minimum hold steps:", min_lidar_minimum_hold_steps)
 else:
     print("Dual actor mode: disabled")
 print("Rule oracle mode:", rule_oracle_mode or "disabled")
@@ -947,7 +971,7 @@ while True:
     )
     gate_stats = (
         dense_policy_controller.episode_stats()
-        if actor_selection_mode == "learned_gate"
+        if actor_selection_mode in ("learned_gate", "min_lidar_gate")
         else {"switches": 0, "mean_probability": 0.0}
     )
     dense_action_share = float(np.sum(episode_dense_action_steps)) / max(

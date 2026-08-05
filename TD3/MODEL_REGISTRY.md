@@ -10,7 +10,7 @@
 | `generalist-5a` | 普通导航Actor N | `TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best` | frozen current |
 | `interaction-epoch16` | 条件避障Actor I | `interaction_focused_actor_from_5a_fullstrong_balanced_formal_s20260726_epoch_016` | frozen current |
 | `learned-gate-g2a` | 第一版可部署Gate | G2-A checkpoint，见Gate结果README | frozen baseline; admission failed |
-| `deployable-interaction-gate` | 当前待训练Gate | 新协议冻结后命名 | current pending |
+| `deployable-interaction-gate` | 当前B2 Gate | G11-B2主seed checkpoint，见Gate研究README | current candidate; D2 runnable |
 | `gate-robot-perception` | G0/G1形状与相对运动前端 | G0/G1 pilot artifacts | frozen frontend baseline |
 
 `interaction-teacher-epoch16`是历史文档中的同义ID，不表示它只用于Residual教师。当前

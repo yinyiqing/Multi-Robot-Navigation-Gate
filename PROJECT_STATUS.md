@@ -84,10 +84,12 @@ Gate
    场景类别或冲突图。
 3. `2.0 m` oracle用于监督、诊断和上界；最终Gate需要判断何时调用避障Actor更有利，
    不能把“附近有障碍物”直接等同于“附近有机器人”。
-4. G11-C已完成并归档。当前保留B2主seed作为候选，不依据这50场继续调阈值；先执行
-   G11-D1的4个CPU训练seed复核，主seed不因复核结果重新挑选。
-5. D1通过后执行预注册的独立0-edge/single-edge闭环准入，比较5A、epoch-16
-   always-on、规则Gate、A1、B2和oracle，并检查B2的过度激活、效率和timeout代价。
+4. G11-C已完成并归档。G11-D1的4个CPU训练复核seed也已全部通过，离线F1均值为
+   `0.84487 +/- 0.00132`；主seed仍为`20260804`，没有从复核seed中挑峰值。
+5. 来自导航validation、排除旧G3场景的D2独立200场manifest已经冻结，SHA-256为
+   `6250b941f127d550641a621d4253e17ea0770ff3c0cb94e6254e1f26b9f4978a`；D2运行器已冻结，
+   将比较5A、epoch-16 always-on、min-LiDAR规则Gate、旧G2-A、A1、B2和oracle，
+   并检查B2的过度激活、效率和timeout代价。
 6. 独立准入通过后再评估multi-edge。若自然泛化不足，可以在读取sealed test前书面
    修订协议、加入navigation-train的multi-edge数据并重训同一个Gate；此时不再声称
    single-to-multi零样本泛化。

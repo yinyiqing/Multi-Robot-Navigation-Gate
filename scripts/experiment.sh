@@ -12,10 +12,11 @@ Usage:
 Current method:
   Actor N  generalist-5a         frozen
   Actor I  interaction-epoch16   frozen
-  Gate     G11-B2                 retained by pilot, replication next
+  Gate     G11-B2                 D1 passed, D2 admission ready
 
 Current command:
-  bash scripts/run_g11_d_seed_replication.sh
+  bash scripts/experiment.sh start gate-g11-d2-admission
+  bash scripts/experiment.sh stop  gate-g11-d2-admission
 
 G11-C is complete. Its start/stop entrypoint is retained only for exact resumption.
 
@@ -34,6 +35,8 @@ show_status() {
         "$pid" "${pid_file#$PROJECT_ROOT/}"
       if [[ "$(basename "$pid_file")" == ".g11_c_pilot.pid" ]]; then
         printf '  logs=logs/active/gate-g11-c-pilot/'
+      elif [[ "$(basename "$pid_file")" == ".g11_d2_admission.pid" ]]; then
+        printf '  logs=logs/active/gate-g11-d2-admission/'
       fi
       printf '\n'
     else
@@ -59,6 +62,7 @@ case "${1:-}" in
       gate-g11-b-smoke) exec bash "$PROJECT_ROOT/scripts/start_g11_b_student_collection.sh" smoke ;;
       gate-g11-b-train) exec bash "$PROJECT_ROOT/scripts/start_g11_b_student_collection.sh" train ;;
       gate-g11-c-pilot) exec bash "$PROJECT_ROOT/scripts/start_g11_c_pilot.sh" ;;
+      gate-g11-d2-admission) exec bash "$PROJECT_ROOT/scripts/start_g11_d2_admission.sh" ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;
@@ -67,6 +71,7 @@ case "${1:-}" in
       gate-g11-b-smoke) exec bash "$PROJECT_ROOT/scripts/stop_g11_b_student_collection.sh" smoke ;;
       gate-g11-b-train) exec bash "$PROJECT_ROOT/scripts/stop_g11_b_student_collection.sh" train ;;
       gate-g11-c-pilot) exec bash "$PROJECT_ROOT/scripts/stop_g11_c_pilot.sh" ;;
+      gate-g11-d2-admission) exec bash "$PROJECT_ROOT/scripts/stop_g11_d2_admission.sh" ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;
