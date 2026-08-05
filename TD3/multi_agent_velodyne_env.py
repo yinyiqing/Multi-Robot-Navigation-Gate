@@ -21,6 +21,11 @@ from std_srvs.srv import Empty
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
 
+try:
+    from multi_robot_scenario.srv import StepWorld
+except ImportError:
+    StepWorld = None
+
 from scenario_manifests import load_manifest_dataset, validate_manifest_scenarios
 from temporal_interaction import build_front_lidar_gaps
 from velodyne_env import COLLISION_DIST, GOAL_REACHED_DIST, TIME_DELTA, check_pos
@@ -317,11 +322,18 @@ class MultiAgentGazeboEnv:
             if fixed_physics_step_size is None
             else float(fixed_physics_step_size)
         )
+        self.require_fixed_step_service = _env_bool(
+            "DRL_MULTI_REQUIRE_FIXED_STEP_SERVICE", False
+        )
         if (
             self.fixed_physics_step_size is not None
             and self.fixed_physics_step_size <= 0.0
         ):
             raise ValueError("fixed_physics_step_size must be positive")
+        if self.require_fixed_step_service and self.fixed_physics_step_size is None:
+            raise ValueError(
+                "DRL_MULTI_REQUIRE_FIXED_STEP_SERVICE requires fixed physics stepping"
+            )
         self.scenario_mode = scenario_mode.strip().lower()
         if self.scenario_mode not in ("standard", "dense", "curriculum", "manifest"):
             raise ValueError(
@@ -335,6 +347,7 @@ class MultiAgentGazeboEnv:
         self.current_curriculum_case = None
         self.roscore_process = None
         self.roslaunch_process = None
+        self.fixed_step_world_service = None
 
         self.upper = 5.0
         self.lower = -5.0
@@ -501,6 +514,10 @@ class MultiAgentGazeboEnv:
         self.reset_simulation_proxy = rospy.ServiceProxy(
             "/gazebo/reset_simulation", Empty
         )
+        if self.fixed_physics_step_size is not None and StepWorld is not None:
+            self.fixed_step_world_service = rospy.ServiceProxy(
+                "/gazebo/step_world", StepWorld
+            )
         self.goal_publisher = rospy.Publisher("goal_points", MarkerArray, queue_size=10)
         self.clock_subscriber = rospy.Subscriber(
             "/clock", Clock, self._clock_callback, queue_size=1
@@ -1732,16 +1749,11 @@ class MultiAgentGazeboEnv:
                     )
                 ),
             )
-            result = subprocess.run(
-                ["gz", "world", "--multi-step", str(remaining)],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.PIPE,
-                text=True,
-                timeout=15.0,
-                check=False,
-            )
-            if result.returncode != 0:
-                errors.append(result.stderr.strip())
+            try:
+                self._request_fixed_physics_steps(remaining)
+            except (RuntimeError, subprocess.TimeoutExpired) as exc:
+                errors.append(str(exc))
+                continue
             try:
                 self._wait_for_sim_time_at_least(
                     target_time - self.fixed_physics_step_size
@@ -1769,6 +1781,34 @@ class MultiAgentGazeboEnv:
                 " | ".join(error for error in errors if error),
             )
         )
+
+    def _request_fixed_physics_steps(self, steps):
+        if self.fixed_step_world_service is not None:
+            try:
+                response = self.fixed_step_world_service(int(steps))
+            except rospy.ServiceException as exc:
+                raise RuntimeError("Gazebo fixed-step service call failed") from exc
+            if not response.success:
+                raise RuntimeError(
+                    "Gazebo fixed-step service rejected %d steps: %s"
+                    % (steps, response.status_message)
+                )
+            return float(response.sim_time)
+
+        result = subprocess.run(
+            ["gz", "world", "--multi-step", str(steps)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=15.0,
+            check=False,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(
+                "Gazebo CLI fixed-step request failed: %s"
+                % (result.stderr.strip() or "exit %d" % result.returncode)
+            )
+        return None
 
     def _wait_for_sim_time_at_least(self, minimum_time, timeout=5.0):
         deadline = time.monotonic() + timeout
@@ -1838,6 +1878,20 @@ class MultiAgentGazeboEnv:
     def _wait_for_fixed_agent_interfaces(self, timeout=30.0):
         if self.fixed_agent_interfaces_ready:
             return
+        if self.require_fixed_step_service and StepWorld is None:
+            raise RuntimeError(
+                "Required Gazebo fixed-step service bindings are unavailable; "
+                "rebuild and source the multi_robot_scenario package"
+            )
+        if StepWorld is not None:
+            try:
+                rospy.wait_for_service("/gazebo/step_world", timeout=timeout)
+            except rospy.ROSException as exc:
+                raise RuntimeError(
+                    "Gazebo fixed-step world service did not become ready"
+                ) from exc
+            if self.fixed_step_world_service is None:
+                raise RuntimeError("Gazebo fixed-step service proxy is unavailable")
         # Gazebo inserts spawned models on world updates. A server launched
         # paused can otherwise consume the first measured multi-step request
         # while robot plugins are still loading.

@@ -80,7 +80,9 @@ Gate
 3. `2.0 m` oracle用于监督、诊断和上界；最终Gate需要判断何时调用避障Actor更有利，
    不能把“附近有障碍物”直接等同于“附近有机器人”。
 4. G11-B2主seed已完成，只重新训练Gate且没有更新Actor。当前在预注册的固定50场上
-   配对比较5A、A1 Gate和B2 Gate，先判断student聚合是否改善实际闭环导航。
+   配对比较5A、A1 Gate和B2 Gate，已完成`106/300`场，先判断student聚合是否改善
+   实际闭环导航。运行中发现的Gazebo异步fixed-step消息丢失已替换为带完成确认的常驻
+   world service；没有修改场景、模型、seed或步进语义。
 5. 50场pilot通过后再做seed复核和更大准入，并在0-edge和single-edge互斥validation
    上做闭环能力保持与局部收益准入，再评估multi-edge。若自然泛化不足，可以在读取
    sealed test前书面修订协议、加入navigation-train的multi-edge数据并重训同一个Gate；
