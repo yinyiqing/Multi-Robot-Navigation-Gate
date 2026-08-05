@@ -5,8 +5,8 @@
 
 ## 目录约定
 
-- `local/logs/<run-id>/`：统一的运行中日志位置，不纳入Git；整组完成后自动归档。
-- `logs/`：仅保留历史归档索引和旧路线归档，不再写入新的活动日志。
+- `logs/active/<run-id>/`：统一的运行中日志位置，不纳入Git；整组完成后自动归档。
+- `logs/archive/validation/g11_c/`：G11-C闭环pilot完成后的日志归档位置。
 - `archive/rejected/independent_dense_actor/`：独立 Dense Actor 路线，19 个历史日志。
 - `archive/rejected/epoch16_full_episode/`：epoch-16 全程续训路线，2 个历史日志。
 - `archive/rejected/full_actor_edge1/`：单冲突完整 Actor 路线，6 个历史日志。
@@ -17,8 +17,8 @@
 - `archive/rejected/g11_a1_duplicate_training/`：并发污染的主seed训练日志，不进入结果。
 - `archive/rejected/g11_a1_launcher_artifacts/`：旧外层启动器残留日志，不进入结果。
 
-整理日期：2026-08-05。G11-B1正式采集和G11-B2主seed训练均已结束；当前没有正在运行
-的G11采集或训练日志。
+整理日期：2026-08-05。G11-B1正式采集和G11-B2主seed训练均已结束；G11-C闭环pilot
+当前写入`logs/active/gate-g11-c-pilot/`。
 
 ## 使用规则
 

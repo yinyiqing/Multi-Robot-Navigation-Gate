@@ -52,8 +52,9 @@ epoch-16原训练集经完整路径复审有11场实际为edge-2。若论文保�
 - episode数、最大步数和指标口径；
 - 预先规定的准入和停止条件。
 
-缺少任一项只能作为diagnostic。正在运行的日志统一写入`local/logs/<run-id>/`；整组
-实验成功结束并生成结构化summary后，再归档到对应实验目录的`local_data/logs/`。
+缺少任一项只能作为diagnostic。正在运行的日志统一写入仓库根目录的
+`logs/active/<run-id>/`；整组实验成功结束并生成结构化summary后，再归档到
+`logs/archive/`下对应分类目录。
 checkpoint、结果数组和TensorBoard数据仍由实验入口写入各自登记的本地目录；形成结论后
 把必要事实写入对应实验README。
 

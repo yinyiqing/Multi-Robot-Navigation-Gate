@@ -2,6 +2,7 @@
 import gzip
 import json
 import math
+import os
 import shutil
 import time
 from pathlib import Path
@@ -22,8 +23,9 @@ MANIFEST = (
 )
 POLICIES = ("5a", "a1", "b2")
 REPEATS = {1: 20260805, 2: 20260806}
-ACTIVE_LOG_DIR = PROJECT_ROOT / "local/logs/gate-g11-c-pilot"
-ARCHIVE_LOG_DIR = RUN_DIR / "local_data/logs"
+ACTIVE_LOG_DIR = PROJECT_ROOT / "logs/active/gate-g11-c-pilot"
+ARCHIVE_LOG_DIR = PROJECT_ROOT / "logs/archive/validation/g11_c"
+LEGACY_LOG_DIR = RUN_DIR / "local_data/logs"
 LEGACY_RUNNER_LOG = RUN_DIR / "local_data/pilot_runner.log"
 
 
@@ -99,10 +101,12 @@ def archive_completed_logs(
     active_log_dir=ACTIVE_LOG_DIR,
     archive_log_dir=ARCHIVE_LOG_DIR,
     legacy_runner_log=LEGACY_RUNNER_LOG,
+    legacy_log_dir=LEGACY_LOG_DIR,
 ):
     active_log_dir = Path(active_log_dir)
     archive_log_dir = Path(archive_log_dir)
     legacy_runner_log = Path(legacy_runner_log)
+    legacy_log_dir = Path(legacy_log_dir)
     if not active_log_dir.is_dir():
         return []
 
@@ -126,7 +130,16 @@ def archive_completed_logs(
         legacy_runner_log.unlink()
     runner_archive = archive_log_dir / "pilot_runner.log"
     if runner_archive.exists():
-        legacy_runner_log.symlink_to(Path("logs") / runner_archive.name)
+        legacy_runner_log.symlink_to(
+            os.path.relpath(runner_archive, legacy_runner_log.parent)
+        )
+    if legacy_log_dir.is_symlink():
+        legacy_log_dir.unlink()
+    if not legacy_log_dir.exists():
+        legacy_log_dir.symlink_to(
+            os.path.relpath(archive_log_dir, legacy_log_dir.parent),
+            target_is_directory=True,
+        )
     return moved
 
 

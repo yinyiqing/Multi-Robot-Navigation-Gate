@@ -75,22 +75,26 @@ class PilotViewTest(unittest.TestCase):
     def test_completed_logs_move_from_active_to_archive(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            active = root / "local/logs/gate-g11-c-pilot"
-            archive = root / "experiment/local_data/logs"
+            active = root / "logs/active/gate-g11-c-pilot"
+            archive = root / "logs/archive/validation/g11_c"
+            legacy_logs = root / "experiment/local_data/logs"
             legacy_runner = root / "experiment/local_data/pilot_runner.log"
             active.mkdir(parents=True)
             (active / "pilot_runner.log").write_text("runner\n", encoding="utf-8")
             (active / "policy.log").write_text("policy\n", encoding="utf-8")
-            archive.parent.mkdir(parents=True)
-            archive.symlink_to(active, target_is_directory=True)
+            legacy_logs.parent.mkdir(parents=True)
+            legacy_logs.symlink_to(active, target_is_directory=True)
             legacy_runner.symlink_to(active / "pilot_runner.log")
 
-            moved = archive_completed_logs(active, archive, legacy_runner)
+            moved = archive_completed_logs(
+                active, archive, legacy_runner, legacy_logs
+            )
 
             self.assertEqual(len(moved), 2)
             self.assertFalse(active.exists())
             self.assertEqual((archive / "policy.log").read_text(), "policy\n")
             self.assertEqual(legacy_runner.resolve(), archive / "pilot_runner.log")
+            self.assertEqual(legacy_logs.resolve(), archive)
 
 
 if __name__ == "__main__":

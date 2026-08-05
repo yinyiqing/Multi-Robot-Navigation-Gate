@@ -32,7 +32,7 @@ show_status() {
       printf 'running         pid=%s  pid_file=%s' \
         "$pid" "${pid_file#$PROJECT_ROOT/}"
       if [[ "$(basename "$pid_file")" == ".g11_c_pilot.pid" ]]; then
-        printf '  logs=local/logs/gate-g11-c-pilot/'
+        printf '  logs=logs/active/gate-g11-c-pilot/'
       fi
       printf '\n'
     else

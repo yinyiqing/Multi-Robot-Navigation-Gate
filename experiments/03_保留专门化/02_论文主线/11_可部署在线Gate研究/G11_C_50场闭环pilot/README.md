@@ -70,6 +70,6 @@ bash scripts/experiment.sh status
 bash scripts/experiment.sh stop gate-g11-c-pilot
 ```
 
-运行期间的统一日志目录为`local/logs/gate-g11-c-pilot/`。六组运行和`summary.json`全部
-完成后，日志自动归档到本目录的`local_data/logs/`；`local_data/pilot_runner.log`保留
-兼容链接。
+运行期间的统一日志目录为仓库根目录的`logs/active/gate-g11-c-pilot/`。六组运行和
+`summary.json`全部完成后，日志自动归档到`logs/archive/validation/g11_c/`；本目录的
+`local_data/logs`和`local_data/pilot_runner.log`只保留兼容链接。
