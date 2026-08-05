@@ -219,7 +219,9 @@ success + collision + unresolved = agents * episodes
 4. G11-D1的4个B2训练复核seed已全部通过，F1标准差仅`0.00132`。主seed保持
    `20260804`，没有从复核seed中挑峰值；新的独立validation manifest与七策略运行协议
    均已冻结，当前可启动G11-D2闭环准入。
-5. Gate通过后完成主对照、消融和multi-edge边界评估。
+5. Gate通过后完成主对照、消融和multi-edge边界评估。G11-E的50场exact-edge-2 pilot
+   与后150场confirmation已经在D2运行期间完成清单冻结和互斥审计，但不得与D2并行
+   启动第二套Gazebo。
 6. 所有组件冻结后一次性读取sealed test。
 
 任何新长跑必须先在本文件登记实验ID、数据split、模型哈希、seed、准入和停止条件。

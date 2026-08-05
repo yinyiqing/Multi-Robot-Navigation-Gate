@@ -90,9 +90,11 @@ Gate
    `6250b941f127d550641a621d4253e17ea0770ff3c0cb94e6254e1f26b9f4978a`；D2运行器已冻结，
    将比较5A、epoch-16 always-on、min-LiDAR规则Gate、旧G2-A、A1、B2和oracle，
    并检查B2的过度激活、效率和timeout代价。
-6. 独立准入通过后再评估multi-edge。若自然泛化不足，可以在读取sealed test前书面
-   修订协议、加入navigation-train的multi-edge数据并重训同一个Gate；此时不再声称
-   single-to-multi零样本泛化。
+6. 独立准入通过后再评估multi-edge。G11-E已经在不启动Gazebo的情况下冻结50场
+   exact-edge-2 pilot与后150场confirmation，二者与当前Gate训练、G11-C和G11-D2均
+   无场景重叠；实际运行必须等待G11-D2完成。若自然泛化不足，可以在读取sealed test前
+   书面修订协议、加入navigation-train的multi-edge数据并重训同一个Gate；此时不再
+   声称single-to-multi零样本泛化。
 
 ## 问题与主张边界
 
