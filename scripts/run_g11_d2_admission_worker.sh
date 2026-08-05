@@ -53,6 +53,7 @@ export ROS_HOSTNAME=localhost
 export ROS_MASTER_URI="http://localhost:$ROS_PORT"
 export ROS_PORT_SIM="$ROS_PORT"
 export GAZEBO_MASTER_URI="http://localhost:$GAZEBO_PORT"
+export GAZEBO_IP=127.0.0.1
 export GAZEBO_RESOURCE_PATH="$PROJECT_ROOT/catkin_ws/src/multi_robot_scenario/launch"
 export DRL_MULTI_NUM_AGENTS=5
 export DRL_MULTI_TEST_LAUNCHFILE="multi_robot_scenario_strong_interaction_pilot_5.launch"
