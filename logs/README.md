@@ -17,7 +17,8 @@
 - `archive/rejected/g11_a1_duplicate_training/`：并发污染的主seed训练日志，不进入结果。
 - `archive/rejected/g11_a1_launcher_artifacts/`：旧外层启动器残留日志，不进入结果。
 
-整理日期：2026-08-05。G11-B1正式采集已结束；当前没有正在运行的G11采集或训练日志。
+整理日期：2026-08-05。G11-B1正式采集和G11-B2主seed训练均已结束；当前没有正在运行
+的G11采集或训练日志。
 
 ## 使用规则
 

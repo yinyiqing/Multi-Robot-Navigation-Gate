@@ -1,6 +1,6 @@
 # G11-B Student-Rollout 数据聚合
 
-状态：`G11-B1 collection audited / G11-B2 training pending`。更新日期：`2026-08-05`。
+状态：`G11-B1 audited / G11-B2 trained / closed-loop pilot pending`。更新日期：`2026-08-05`。
 
 ## 目的
 
@@ -149,3 +149,25 @@ bash scripts/run_g11_b_aggregated_training.sh 20260804
 
 聚合Gate离线通过后才允许固定50场闭环pilot。只有该pilot能初步回答student数据聚合
 是否改善导航，G11-B1的训练集`0.750`不能替代它。
+
+## G11-B2主seed结果
+
+主seed `20260804`完成40 epoch，best为epoch 3，阈值为`0.43`。checkpoint SHA-256：
+
+```text
+fc59b4f783f7c5461ebb0239fab4b34896ad910ee78e7223e88d29ce9c3f5a52
+```
+
+| A1内部validation | A1主seed | B2聚合Gate | B2 - A1 |
+| --- | ---: | ---: | ---: |
+| F1 | `0.85550` | `0.84622` | `-0.00928` |
+| AP | `0.93071` | `0.92530` | `-0.00541` |
+| FPR | `0.26501` | `0.26306` | `-0.00195` |
+| weak FPR | `0.30267` | `0.30267` | `0.00000` |
+| interval IoU | `0.74748` | `0.73344` | `-0.01405` |
+| switches | `871` | `897` | `+26` |
+
+B2满足冻结S0的overall FPR `<=0.26842`和weak FPR `<=0.30481`，因此通过最低离线门槛；
+但它没有在A1的5A访问分布上提高Oracle模仿，不能据此声称DAgger有效。下一步只授权
+固定50场闭环pilot，配对比较5A、A1 Gate和B2 Gate。若B2相对A1没有明确导航改善，
+默认保留A1并停止追加聚合seed，避免为轻微离线波动继续消耗时间。

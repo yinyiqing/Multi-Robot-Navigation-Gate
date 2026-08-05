@@ -62,6 +62,10 @@ Gate
    `42,899`个Gate帧，数据集SHA-256为
    `bda1a3ebe16eb481da8629b21f8f030fe9f0a6499da6409c90b0c2e936614fba`。采集轨迹的
    full success为`0.750`，只作训练集运行诊断，不是validation或方法成绩。
+10. G11-B2主seed已完成来源与场景等权聚合训练，checkpoint SHA-256为
+    `fc59b4f783f7c5461ebb0239fab4b34896ad910ee78e7223e88d29ce9c3f5a52`。它满足冻结S0
+    FPR上限，但相对A1主seed在同一内部validation上的F1为`-0.00928`、AP为`-0.00541`、
+    区间IoU为`-0.01405`；只授权固定50场闭环pilot，不构成聚合有效的结论。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -75,10 +79,9 @@ Gate
    场景类别或冲突图。
 3. `2.0 m` oracle用于监督、诊断和上界；最终Gate需要判断何时调用避障Actor更有利，
    不能把“附近有障碍物”直接等同于“附近有机器人”。
-4. G11-A1已经通过正式离线准入；G11-B1在线student采集和全量审计已完成。当前将A1
-   的冻结5A轨迹与G11-B1 student轨迹按`来源 + scenario_id`等权聚合，训练G11-B2同一个
-   8帧时序Gate；A1的120场内部validation及S0 FPR上限保持冻结。
-5. G11-B2只重新训练Gate，不更新Actor；完成后先在0-edge和single-edge互斥validation
+4. G11-B2主seed已完成，只重新训练Gate且没有更新Actor。当前在预注册的固定50场上
+   配对比较5A、A1 Gate和B2 Gate，先判断student聚合是否改善实际闭环导航。
+5. 50场pilot通过后再做seed复核和更大准入，并在0-edge和single-edge互斥validation
    上做闭环能力保持与局部收益准入，再评估multi-edge。若自然泛化不足，可以在读取
    sealed test前书面修订协议、加入navigation-train的multi-edge数据并重训同一个Gate；
    此时不再声称single-to-multi零样本泛化。

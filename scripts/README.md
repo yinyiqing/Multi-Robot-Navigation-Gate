@@ -10,8 +10,8 @@ bash scripts/experiment.sh list
 bash scripts/experiment.sh status
 ```
 
-G11-B1的640场student rollout已完成并通过审计。当前批准按来源和场景等权聚合训练
-G11-B2 Gate：
+G11-B1采集和G11-B2主seed聚合训练均已完成。当前入口保留用于复核；下一步是登记后的
+固定50场闭环pilot：
 
 ```bash
 bash scripts/run_g11_b_aggregated_training.sh 20260804
@@ -25,7 +25,7 @@ bash scripts/run_g11_b_aggregated_training.sh 20260804
 - `generalist-5a`：冻结普通导航Actor；
 - `interaction-epoch16`：冻结条件避障Actor；
 - `learned-gate-g2a`：历史未过准入Gate基线；
-- `deployable-interaction-gate`：G11-A1离线准入与G11-B1正式采集已通过，G11-B2聚合Gate待训练。
+- `deployable-interaction-gate`：G11-B2聚合Gate已训练，等待固定50场闭环pilot。
 
 ## 可复用工具
 

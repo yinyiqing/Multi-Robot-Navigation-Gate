@@ -1,6 +1,6 @@
 # 可部署在线 Gate 研究
 
-状态：`G11-A1 passed / G11-B1 collected / G11-B2 pending`。更新日期：`2026-08-05`。
+状态：`G11-A1 passed / G11-B2 trained / closed-loop pilot pending`。更新日期：`2026-08-05`。
 
 本目录只研究两个冻结 Actor 之间的在线切换：
 
@@ -103,7 +103,7 @@ G11-A1已在当前协议的640场train与120场内部validation上完成。预�
 G11-B在线T1控制器与1场student smoke已经通过：8帧历史和2步评估间隔与A1采集尺度
 一致，student shard的manifest、时序、Oracle标签和内嵌运行元数据审计通过。正式
 G11-B1也已完成同一navigation-train manifest的`640/640`场采集并通过全量审计；当前
-进入G11-B2来源平衡聚合重训，尚未得到闭环validation结论。
+G11-B2来源平衡聚合重训已经完成，尚未得到闭环validation结论。
 
 ### G11-C：端到端准入
 
