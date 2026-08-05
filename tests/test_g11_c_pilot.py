@@ -1,4 +1,5 @@
 import sys
+import tempfile
 import unittest
 from collections import Counter
 from pathlib import Path
@@ -9,7 +10,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from analyze_g11_c_pilot import aggregate, mcnemar_exact, paired
+from analyze_g11_c_pilot import aggregate, archive_completed_logs, mcnemar_exact, paired
 from build_g11_c_pilot_view import select_scenarios
 
 
@@ -70,6 +71,26 @@ class PilotViewTest(unittest.TestCase):
         self.assertEqual(metrics["full_success_degraded"], 1)
         self.assertEqual(metrics["mcnemar_exact_p"], 1.0)
         self.assertEqual(mcnemar_exact(0, 0), 1.0)
+
+    def test_completed_logs_move_from_active_to_archive(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            active = root / "local/logs/gate-g11-c-pilot"
+            archive = root / "experiment/local_data/logs"
+            legacy_runner = root / "experiment/local_data/pilot_runner.log"
+            active.mkdir(parents=True)
+            (active / "pilot_runner.log").write_text("runner\n", encoding="utf-8")
+            (active / "policy.log").write_text("policy\n", encoding="utf-8")
+            archive.parent.mkdir(parents=True)
+            archive.symlink_to(active, target_is_directory=True)
+            legacy_runner.symlink_to(active / "pilot_runner.log")
+
+            moved = archive_completed_logs(active, archive, legacy_runner)
+
+            self.assertEqual(len(moved), 2)
+            self.assertFalse(active.exists())
+            self.assertEqual((archive / "policy.log").read_text(), "policy\n")
+            self.assertEqual(legacy_runner.resolve(), archive / "pilot_runner.log")
 
 
 if __name__ == "__main__":

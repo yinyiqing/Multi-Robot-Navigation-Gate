@@ -4,7 +4,8 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 RUN_DIR="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/11_可部署在线Gate研究/G11_C_50场闭环pilot"
 PID_FILE="$PROJECT_ROOT/.g11_c_pilot.pid"
-RUNNER_LOG="$RUN_DIR/local_data/pilot_runner.log"
+ACTIVE_LOG_DIR="$PROJECT_ROOT/local/logs/gate-g11-c-pilot"
+RUNNER_LOG="$ACTIVE_LOG_DIR/pilot_runner.log"
 ROS_PORT=14623
 GAZEBO_PORT=14723
 
@@ -40,9 +41,9 @@ for port in "$ROS_PORT" "$GAZEBO_PORT"; do
   fi
 done
 
-mkdir -p "$RUN_DIR/local_data"
+mkdir -p "$RUN_DIR/local_data" "$ACTIVE_LOG_DIR"
 setsid bash "$PROJECT_ROOT/scripts/run_g11_c_pilot_worker.sh" \
-  >"$RUNNER_LOG" 2>&1 < /dev/null &
+  >>"$RUNNER_LOG" 2>&1 < /dev/null &
 echo $! > "$PID_FILE"
 
 echo "Started G11-C fixed 50-scene paired pilot."

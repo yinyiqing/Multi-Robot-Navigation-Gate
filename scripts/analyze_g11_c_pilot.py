@@ -2,6 +2,8 @@
 import gzip
 import json
 import math
+import shutil
+import time
 from pathlib import Path
 
 import numpy as np
@@ -20,6 +22,9 @@ MANIFEST = (
 )
 POLICIES = ("5a", "a1", "b2")
 REPEATS = {1: 20260805, 2: 20260806}
+ACTIVE_LOG_DIR = PROJECT_ROOT / "local/logs/gate-g11-c-pilot"
+ARCHIVE_LOG_DIR = RUN_DIR / "local_data/logs"
+LEGACY_RUNNER_LOG = RUN_DIR / "local_data/pilot_runner.log"
 
 
 def load_rows(policy, repeat, seed):
@@ -90,6 +95,41 @@ def paired(candidate, baseline):
     }
 
 
+def archive_completed_logs(
+    active_log_dir=ACTIVE_LOG_DIR,
+    archive_log_dir=ARCHIVE_LOG_DIR,
+    legacy_runner_log=LEGACY_RUNNER_LOG,
+):
+    active_log_dir = Path(active_log_dir)
+    archive_log_dir = Path(archive_log_dir)
+    legacy_runner_log = Path(legacy_runner_log)
+    if not active_log_dir.is_dir():
+        return []
+
+    if archive_log_dir.is_symlink():
+        archive_log_dir.unlink()
+    archive_log_dir.mkdir(parents=True, exist_ok=True)
+    moved = []
+    for source in sorted(active_log_dir.iterdir()):
+        target = archive_log_dir / source.name
+        if target.exists() or target.is_symlink():
+            timestamp = time.strftime("%Y%m%d_%H%M%S")
+            target = archive_log_dir / (
+                "%s_archived_%s%s" % (source.stem, timestamp, source.suffix)
+            )
+        shutil.move(str(source), str(target))
+        moved.append(target)
+    active_log_dir.rmdir()
+
+    legacy_runner_log.parent.mkdir(parents=True, exist_ok=True)
+    if legacy_runner_log.exists() or legacy_runner_log.is_symlink():
+        legacy_runner_log.unlink()
+    runner_archive = archive_log_dir / "pilot_runner.log"
+    if runner_archive.exists():
+        legacy_runner_log.symlink_to(Path("logs") / runner_archive.name)
+    return moved
+
+
 def main():
     with gzip.open(MANIFEST, "rt", encoding="utf-8") as handle:
         scenarios = json.load(handle)["scenarios"]
@@ -150,6 +190,9 @@ def main():
         json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
     print(json.dumps(summary, ensure_ascii=False, indent=2))
+    moved_logs = archive_completed_logs()
+    if moved_logs:
+        print("Archived %d G11-C logs to %s" % (len(moved_logs), ARCHIVE_LOG_DIR))
 
 
 if __name__ == "__main__":

@@ -1,12 +1,12 @@
 # 运行日志索引
 
-本目录只保存训练和验证的原始运行输出，不负责判定模型是否可用。实验状态、关键指标和模型选择应以
+本目录保存已经归档的历史运行输出，不负责判定模型是否可用。实验状态、关键指标和模型选择应以
 `experiments/EXPERIMENT_REGISTRY.md` 及对应实验目录的 `README.md` 为准。
 
 ## 目录约定
 
-- `logs/*.log`：正在运行或尚未归档的日志。进程结束并完成结论登记后再移动。
-- `active/`：预留给需要手工集中管理的运行中日志；当前为空。
+- `local/logs/<run-id>/`：统一的运行中日志位置，不纳入Git；整组完成后自动归档。
+- `logs/`：仅保留历史归档索引和旧路线归档，不再写入新的活动日志。
 - `archive/rejected/independent_dense_actor/`：独立 Dense Actor 路线，19 个历史日志。
 - `archive/rejected/epoch16_full_episode/`：epoch-16 全程续训路线，2 个历史日志。
 - `archive/rejected/full_actor_edge1/`：单冲突完整 Actor 路线，6 个历史日志。

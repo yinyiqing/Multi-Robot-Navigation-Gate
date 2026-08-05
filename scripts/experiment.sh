@@ -12,7 +12,7 @@ Usage:
 Current method:
   Actor N  generalist-5a         frozen
   Actor I  interaction-epoch16   frozen
-  Gate     G11-B2                 trained, closed-loop pilot pending
+  Gate     G11-B2                 trained, closed-loop pilot running
 
 Current commands:
   bash scripts/experiment.sh start gate-g11-c-pilot
@@ -29,8 +29,12 @@ show_status() {
     [[ -f "$pid_file" ]] || continue
     pid="$(tr -d '[:space:]' < "$pid_file")"
     if [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null; then
-      printf 'legacy-running  pid=%s  pid_file=%s\n' \
+      printf 'running         pid=%s  pid_file=%s' \
         "$pid" "${pid_file#$PROJECT_ROOT/}"
+      if [[ "$(basename "$pid_file")" == ".g11_c_pilot.pid" ]]; then
+        printf '  logs=local/logs/gate-g11-c-pilot/'
+      fi
+      printf '\n'
     else
       printf 'stale           pid=%s  pid_file=%s\n' \
         "${pid:-invalid}" "${pid_file#$PROJECT_ROOT/}"

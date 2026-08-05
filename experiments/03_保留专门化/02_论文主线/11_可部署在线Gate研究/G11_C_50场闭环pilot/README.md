@@ -69,3 +69,7 @@ bash scripts/experiment.sh start gate-g11-c-pilot
 bash scripts/experiment.sh status
 bash scripts/experiment.sh stop gate-g11-c-pilot
 ```
+
+运行期间的统一日志目录为`local/logs/gate-g11-c-pilot/`。六组运行和`summary.json`全部
+完成后，日志自动归档到本目录的`local_data/logs/`；`local_data/pilot_runner.log`保留
+兼容链接。

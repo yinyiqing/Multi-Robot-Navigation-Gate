@@ -5,6 +5,7 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TD3_DIR="$PROJECT_ROOT/TD3"
 RUN_DIR="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/11_可部署在线Gate研究/G11_C_50场闭环pilot"
 RUNTIME_DIR="$RUN_DIR/local_data"
+ACTIVE_LOG_DIR="$PROJECT_ROOT/local/logs/gate-g11-c-pilot"
 MANIFEST="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/datasets/fixed_v1/views/g11_c_pilot_v1/validation.json.gz"
 BASE_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best"
 INTERACTION_MODEL="interaction_focused_actor_from_5a_fullstrong_balanced_formal_s20260726_epoch_016"
@@ -66,7 +67,7 @@ export DRL_MULTI_FIXED_PHYSICS_STEP_SIZE=0.001
 export DRL_MULTI_REQUIRE_FIXED_STEP_SERVICE=1
 unset DRL_MULTI_CASE_ORACLE_MAP DRL_MULTI_RULE_ORACLE_MODE
 
-mkdir -p "$RUNTIME_DIR/logs" "$RUNTIME_DIR/results" "$RUNTIME_DIR/checkpoints"
+mkdir -p "$ACTIVE_LOG_DIR" "$RUNTIME_DIR/results" "$RUNTIME_DIR/checkpoints"
 
 wait_for_ports() {
   for _ in $(seq 1 60); do
@@ -169,10 +170,10 @@ run_one() {
 
   local attempt status log_file completed=0
   for attempt in $(seq 1 5); do
-    if [[ "$attempt" -eq 1 && ! -f "$RUNTIME_DIR/logs/${run_name}.log" ]]; then
-      log_file="$RUNTIME_DIR/logs/${run_name}.log"
+    if [[ "$attempt" -eq 1 && ! -f "$ACTIVE_LOG_DIR/${run_name}.log" ]]; then
+      log_file="$ACTIVE_LOG_DIR/${run_name}.log"
     else
-      log_file="$RUNTIME_DIR/logs/${run_name}_resume${attempt}_$(date +%Y%m%d_%H%M%S).log"
+      log_file="$ACTIVE_LOG_DIR/${run_name}_resume${attempt}_$(date +%Y%m%d_%H%M%S).log"
     fi
     echo "Starting $run_name attempt $attempt"
     wait_for_ports
