@@ -23,9 +23,11 @@ cleanup() {
 }
 trap cleanup EXIT
 
+set +u
 source /opt/ros/noetic/setup.bash
 source "$PROJECT_ROOT/env.python.sh"
 source "$PROJECT_ROOT/catkin_ws/devel_isolated/setup.bash"
+set -u
 export CUDA_VISIBLE_DEVICES=""
 export ROS_HOSTNAME=localhost
 export ROS_MASTER_URI="http://localhost:$ROS_PORT"
