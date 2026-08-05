@@ -21,6 +21,12 @@ from train_temporal_interaction_gate import (
     project_relative_path,
     select_threshold_with_fpr_caps,
 )
+from train_g11_b_aggregated_gate import (
+    concatenate_sources,
+    group_balance_weights,
+    normalize_source_balanced,
+    source_scenario_sample_weights,
+)
 
 
 class ActorComparisonFeatureTest(unittest.TestCase):
@@ -96,6 +102,72 @@ class TemporalMetricTest(unittest.TestCase):
         self.assertLessEqual(metrics["fpr"], 0.25)
         self.assertLessEqual(metrics["weak_fpr"], 0.25)
         self.assertTrue(metrics["meets_fpr_caps"])
+
+
+class AggregatedDatasetTest(unittest.TestCase):
+    @staticmethod
+    def dataset(prefix, lengths):
+        frame_count = sum(lengths)
+        sequences = []
+        offset = 0
+        scenarios = []
+        for index, length in enumerate(lengths):
+            sequences.append(np.arange(offset, offset + length))
+            scenarios.extend(["%s-%d" % (prefix, index)] * length)
+            offset += length
+        from train_temporal_interaction_gate import GateDataset
+
+        return GateDataset(
+            base_features=np.arange(frame_count * 2, dtype=np.float32).reshape(
+                frame_count, 2
+            ),
+            actor_features=np.zeros((frame_count, 1), dtype=np.float32),
+            labels={
+                "front": np.zeros(frame_count, dtype=np.float32),
+                "any": np.zeros(frame_count, dtype=np.float32),
+            },
+            scenarios=np.asarray(scenarios),
+            strata=np.asarray(["standard_weak"] * frame_count),
+            sequence_indices=sequences,
+        )
+
+    def test_concatenation_offsets_sequences_and_prefixes_sources(self):
+        first = self.dataset("case", [2, 1])
+        second = self.dataset("case", [3])
+        result = concatenate_sources((("a1", first), ("student", second)))
+        self.assertEqual(len(result.base_features), 6)
+        np.testing.assert_array_equal(result.sequence_indices[-1], [3, 4, 5])
+        self.assertEqual(result.scenarios[0], "a1::case-0")
+        self.assertEqual(result.scenarios[-1], "student::case-0")
+
+    def test_group_balance_gives_every_source_scenario_equal_mass(self):
+        groups = np.asarray(["a", "a", "b", "b", "b", "c"])
+        weights = group_balance_weights(groups)
+        masses = [float(np.sum(weights[groups == name])) for name in ("a", "b", "c")]
+        np.testing.assert_allclose(masses, [1.0 / 3.0] * 3)
+
+    def test_training_weights_keep_groups_equal_after_class_balance(self):
+        groups = np.asarray(["long", "long", "long", "short", "short"])
+        labels = np.asarray([0, 0, 1, 0, 1])
+        weights = source_scenario_sample_weights(labels, groups)
+        self.assertAlmostEqual(
+            float(np.sum(weights[groups == "long"])),
+            float(np.sum(weights[groups == "short"])),
+        )
+        self.assertAlmostEqual(float(weights[0] + weights[1]), float(weights[2]))
+        self.assertAlmostEqual(float(weights[3]), float(weights[4]))
+
+    def test_source_balanced_normalization_uses_group_not_frame_mean(self):
+        train = np.asarray([[0.0], [0.0], [0.0], [10.0]], dtype=np.float32)
+        groups = np.asarray(["long", "long", "long", "short"])
+        normalized, validation, mean, std = normalize_source_balanced(
+            train, np.asarray([[5.0]], dtype=np.float32), groups
+        )
+        self.assertAlmostEqual(float(mean[0]), 5.0)
+        self.assertAlmostEqual(float(std[0]), 5.0)
+        self.assertAlmostEqual(float(np.mean(normalized[:3, 0])), -1.0)
+        self.assertAlmostEqual(float(normalized[-1, 0]), 1.0)
+        self.assertAlmostEqual(float(validation[0, 0]), 0.0)
 
 
 if __name__ == "__main__":

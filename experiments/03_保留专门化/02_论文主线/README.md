@@ -1,6 +1,6 @@
 # ICRA论文主线：普通导航Actor、条件避障Actor与在线Gate
 
-状态：`route frozen / G11-A1 passed / deployable Gate pending`。更新时间：`2026-08-04`。
+状态：`route frozen / G11-B1 collected / aggregated Gate pending`。更新时间：`2026-08-05`。
 
 本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见
 [PROJECT_STATUS](../../../PROJECT_STATUS.md)，历史实验状态见
@@ -212,8 +212,9 @@ success + collision + unresolved = agents * episodes
 1. 固定本文档、模型哈希和数据边界。
 2. 当前不作整个系统严格single-edge训练的主张，不为该附加主张重训Actor I；若后续
    升级主张，必须在sealed test前重新冻结协议。
-3. [可部署在线Gate研究](11_可部署在线Gate研究/README.md)的G11-A1时序蒸馏已通过；
-   固定预注册主seed Gate采集student rollout并聚合重训，不更新Actor。
+3. [可部署在线Gate研究](11_可部署在线Gate研究/README.md)的G11-A1时序蒸馏已通过，
+   G11-B1的640场student rollout已完成并通过全量审计；当前按来源和场景等权聚合A1与
+   student轨迹，重训同一个Gate，不更新Actor。
 4. 依次完成smoke、小validation阈值选择和独立准入。
 5. Gate通过后完成主对照、消融和multi-edge边界评估。
 6. 所有组件冻结后一次性读取sealed test。

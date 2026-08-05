@@ -1,6 +1,6 @@
 # 可部署在线 Gate 研究
 
-状态：`G11-A1 passed / G11-B smoke passed`。建立日期：`2026-08-04`。
+状态：`G11-A1 passed / G11-B1 collected / G11-B2 pending`。更新日期：`2026-08-05`。
 
 本目录只研究两个冻结 Actor 之间的在线切换：
 
@@ -101,8 +101,9 @@ G11-A1已在当前协议的640场train与120场内部validation上完成。预�
 - validation 只用于冻结阈值、滞回和最短保持时间。
 
 G11-B在线T1控制器与1场student smoke已经通过：8帧历史和2步评估间隔与A1采集尺度
-一致，student shard的manifest、时序、Oracle标签和内嵌运行元数据审计通过。下一步为
-同一navigation-train manifest的640场正式student采集。
+一致，student shard的manifest、时序、Oracle标签和内嵌运行元数据审计通过。正式
+G11-B1也已完成同一navigation-train manifest的`640/640`场采集并通过全量审计；当前
+进入G11-B2来源平衡聚合重训，尚未得到闭环validation结论。
 
 ### G11-C：端到端准入
 
@@ -136,9 +137,9 @@ G11-B在线T1控制器与1场student smoke已经通过：8帧历史和2步评估
 - 可恢复逐机器人时间顺序的frame index、ego index和timestamp。
 
 G11-A0只回答时序表示是否值得继续；G11-A1已经单独采集当前协议数据并通过离线准入。
-当前可进入G11-B的候选固定为预注册主seed `20260804`的T1 epoch 2 checkpoint。
-G11-B仍只使用导航train，在student实际访问状态查询Oracle并聚合数据；完成聚合重训
-和小validation阈值冻结前，不读取sealed test。
+G11-B1由预注册主seed `20260804`的T1 epoch 2 checkpoint生成，正式student数据已经
+冻结。G11-B2仍只使用导航train聚合训练；完成聚合重训和小validation阈值冻结前，不
+读取sealed test。
 
 ## 6. 明确不重复
 

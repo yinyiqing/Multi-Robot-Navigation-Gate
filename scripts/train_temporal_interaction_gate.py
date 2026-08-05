@@ -521,6 +521,7 @@ def train_candidate(
     std,
     args,
     fpr_caps=None,
+    train_sample_weights=None,
 ):
     reset_random_seed(args.seed)
     model.apply(lambda module: module.reset_parameters() if hasattr(module, "reset_parameters") else None)
@@ -533,7 +534,15 @@ def train_candidate(
     weak_mask = np.asarray(
         [str(value).endswith("_weak") for value in validation_strata], dtype=bool
     )
-    weights = sample_weights(train_labels, train_scenarios)
+    weights = (
+        sample_weights(train_labels, train_scenarios)
+        if train_sample_weights is None
+        else np.asarray(train_sample_weights, dtype=np.float32)
+    )
+    if weights.shape != train_labels.shape or not np.all(np.isfinite(weights)):
+        raise ValueError("training sample weights must be finite and match labels")
+    if np.any(weights <= 0.0):
+        raise ValueError("training sample weights must be positive")
     optimizer = torch.optim.Adam(
         model.parameters(),
         lr=args.learning_rate,
@@ -652,6 +661,9 @@ def train_candidate(
         "threshold_policy": args.threshold_policy,
         "fpr_caps": fpr_caps,
     }
+    checkpoint_metadata = getattr(args, "checkpoint_metadata", None)
+    if checkpoint_metadata is not None:
+        checkpoint["training_data"] = checkpoint_metadata
     torch.save(checkpoint, output_dir / "best.pt")
     return {
         "parameter_count": sum(parameter.numel() for parameter in model.parameters()),

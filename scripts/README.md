@@ -10,14 +10,11 @@ bash scripts/experiment.sh list
 bash scripts/experiment.sh status
 ```
 
-当前只批准G11-B student-rollout数据聚合。1场隔离smoke已经通过，现允许启动
-640场navigation-train正式采集：
+G11-B1的640场student rollout已完成并通过审计。当前批准按来源和场景等权聚合训练
+G11-B2 Gate：
 
 ```bash
-bash scripts/experiment.sh start gate-g11-b-smoke
-bash scripts/experiment.sh status
-bash scripts/experiment.sh start gate-g11-b-train
-bash scripts/experiment.sh stop gate-g11-b-train
+bash scripts/run_g11_b_aggregated_training.sh 20260804
 ```
 
 5A、epoch-16和A1主seed Gate均冻结，任何Actor训练脚本都不是当前入口。协议见
@@ -28,7 +25,7 @@ bash scripts/experiment.sh stop gate-g11-b-train
 - `generalist-5a`：冻结普通导航Actor；
 - `interaction-epoch16`：冻结条件避障Actor；
 - `learned-gate-g2a`：历史未过准入Gate基线；
-- `deployable-interaction-gate`：G11-A1离线准入和G11-B smoke已通过，G11-B1正式采集待运行。
+- `deployable-interaction-gate`：G11-A1离线准入与G11-B1正式采集已通过，G11-B2聚合Gate待训练。
 
 ## 可复用工具
 

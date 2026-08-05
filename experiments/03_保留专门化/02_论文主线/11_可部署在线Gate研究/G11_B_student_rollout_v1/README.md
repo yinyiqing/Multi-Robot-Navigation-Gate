@@ -1,6 +1,6 @@
 # G11-B Student-Rollout 数据聚合
 
-状态：`smoke passed / formal collection running`。日期：`2026-08-04`。
+状态：`G11-B1 collection audited / G11-B2 training pending`。更新日期：`2026-08-05`。
 
 ## 目的
 
@@ -98,3 +98,54 @@ bash scripts/experiment.sh stop gate-g11-b-train
 
 正式采集完成后先做全量审计，再实现来源平衡的聚合训练。离线结果至少不得破坏A1的
 FPR约束；真正的继续/停止判断仍由后续固定闭环50场pilot决定，而不是本目录中的分类峰值。
+
+## 正式采集结果
+
+G11-B1已于`2026-08-05`完成`640/640`场。全量审计确认没有缺失、额外或重复shard，
+帧/候选形状、有限值、逐机器人时序、Oracle标签和内嵌冻结元数据均通过。
+
+| 数据审计 | 数值 |
+| --- | ---: |
+| shards | `640` |
+| Gate frames | `42,899` |
+| candidates | `149,749` |
+| Oracle positive frames | `25,701` |
+| visible / missed robots | `46,047 / 1,189` |
+| dataset SHA-256 | `bda1a3ebe16eb481da8629b21f8f030fe9f0a6499da6409c90b0c2e936614fba` |
+
+采集策略在navigation-train上的运行诊断如下。这些场景参与Gate训练，数值不能作为
+validation、test或最终方法成绩，也不能与其他manifest上的结果直接比较。
+
+| 诊断项 | 数值 |
+| --- | ---: |
+| agent success | `0.9319` (`2982/3200`) |
+| collision | `0.0656` (`210/3200`) |
+| unresolved | `0.0025` (`8/3200`) |
+| full success | `0.7500` (`480/640`) |
+| timeout episodes | `0.0125` (`8/640`) |
+| mean Gate action share | `0.5685` |
+| mean Gate probability | `0.4272` |
+| mean switches / episode | `8.484` |
+
+0-edge轨迹中的Gate动作占比仍偏高（dense `0.6745`，standard `0.4328`）。0-edge是按
+静态名义路径定义，不代表执行时机器人绝不接近，但该现象仍提示误激活和静态障碍混淆
+需要由聚合重训及固定validation检查。日志末尾的Gazebo段错误发生在达到640场并写完
+最后shard之后的ROS退出阶段；完整审计已排除数据损坏。
+
+## G11-B2聚合训练协议
+
+- 训练源：A1冻结5A轨迹640场 + B1 student轨迹640场；
+- 标签：两者统一使用训练期`2.0 m` Oracle；
+- 权重与特征归一化：按`source + scenario_id`等权，长轨迹不获得额外总权重；
+- 模型：只训练8帧T1 Gate，两个Actor和detector保持冻结；
+- validation：保持A1内部120场不变，以冻结A1 S0的overall/weak FPR为上限；
+- 波动处理：主seed先做闭环pilot，方向成立后再做多seed复核；单次采集峰值不作结论。
+
+运行入口：
+
+```bash
+bash scripts/run_g11_b_aggregated_training.sh 20260804
+```
+
+聚合Gate离线通过后才允许固定50场闭环pilot。只有该pilot能初步回答student数据聚合
+是否改善导航，G11-B1的训练集`0.750`不能替代它。

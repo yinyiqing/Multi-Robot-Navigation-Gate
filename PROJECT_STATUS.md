@@ -1,6 +1,6 @@
 # 当前项目状态
 
-更新时间：`2026-08-04`。
+更新时间：`2026-08-05`。
 
 本文件是进入项目后的第一阅读入口。方法定义、实验准入和数据边界以
 [论文主线协议](experiments/03_保留专门化/02_论文主线/README.md)为准；历史 README
@@ -58,6 +58,10 @@ Gate
 8. G11-A1在导航train内部互斥的640/120场上完成正式离线pilot。预注册主seed及4个
    复核seed全部通过：T1相对S0的F1平均提高`0.01470`、区间IoU提高`0.02207`，切换
    次数平均减少`240`；该结果授权student rollout，不是闭环full success。
+9. G11-B1已完成navigation-train的`640/640`场student rollout并通过全量审计，共
+   `42,899`个Gate帧，数据集SHA-256为
+   `bda1a3ebe16eb481da8629b21f8f030fe9f0a6499da6409c90b0c2e936614fba`。采集轨迹的
+   full success为`0.750`，只作训练集运行诊断，不是validation或方法成绩。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -71,10 +75,10 @@ Gate
    场景类别或冲突图。
 3. `2.0 m` oracle用于监督、诊断和上界；最终Gate需要判断何时调用避障Actor更有利，
    不能把“附近有障碍物”直接等同于“附近有机器人”。
-4. G11-A1已经通过正式离线准入；G11-B在线T1控制器和1场CPU smoke也已通过，下一步
-   在导航train的640场运行固定主seed Gate，采集student实际访问状态并查询训练期
-   Oracle标签。
-5. G11-B只重新训练Gate，不更新Actor；完成后先在0-edge和single-edge互斥validation
+4. G11-A1已经通过正式离线准入；G11-B1在线student采集和全量审计已完成。当前将A1
+   的冻结5A轨迹与G11-B1 student轨迹按`来源 + scenario_id`等权聚合，训练G11-B2同一个
+   8帧时序Gate；A1的120场内部validation及S0 FPR上限保持冻结。
+5. G11-B2只重新训练Gate，不更新Actor；完成后先在0-edge和single-edge互斥validation
    上做闭环能力保持与局部收益准入，再评估multi-edge。若自然泛化不足，可以在读取
    sealed test前书面修订协议、加入navigation-train的multi-edge数据并重训同一个Gate；
    此时不再声称single-to-multi零样本泛化。
