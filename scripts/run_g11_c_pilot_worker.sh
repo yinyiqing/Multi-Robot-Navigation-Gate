@@ -15,10 +15,27 @@ PID_FILE="$PROJECT_ROOT/.g11_c_pilot.pid"
 ROS_PORT=14623
 GAZEBO_PORT=14723
 
-cleanup() {
+stop_runtime_children() {
   pgid="$(ps -o pgid= -p $$ | tr -d ' ')"
-  ps -eo pid=,pgid= | awk -v pgid="$pgid" -v self="$$" \
-    '$2 == pgid && $1 != self { print $1 }' | xargs -r kill 2>/dev/null || true
+  child_pids="$(
+    ps -eo pid=,pgid= | awk -v pgid="$pgid" -v self="$$" \
+      '$2 == pgid && $1 != self { print $1 }'
+  )"
+  if [[ -n "$child_pids" ]]; then
+    xargs -r kill 2>/dev/null <<<"$child_pids" || true
+    sleep 2
+    child_pids="$(
+      ps -eo pid=,pgid= | awk -v pgid="$pgid" -v self="$$" \
+        '$2 == pgid && $1 != self { print $1 }'
+    )"
+    if [[ -n "$child_pids" ]]; then
+      xargs -r kill -KILL 2>/dev/null <<<"$child_pids" || true
+    fi
+  fi
+}
+
+cleanup() {
+  stop_runtime_children
   unlink "$PID_FILE" 2>/dev/null || true
 }
 trap cleanup EXIT
@@ -163,6 +180,7 @@ run_one() {
       >"$log_file" 2>&1
     status=$?
     set -e
+    stop_runtime_children
     wait_for_ports
     if verify_result "$stats_path" 2>/dev/null; then
       completed=1
