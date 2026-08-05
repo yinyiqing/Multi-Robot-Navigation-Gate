@@ -66,6 +66,11 @@ Gate
     `fc59b4f783f7c5461ebb0239fab4b34896ad910ee78e7223e88d29ce9c3f5a52`。它满足冻结S0
     FPR上限，但相对A1主seed在同一内部validation上的F1为`-0.00928`、AP为`-0.00541`、
     区间IoU为`-0.01405`；只授权固定50场闭环pilot，不构成聚合有效的结论。
+11. G11-C固定50场、两个仿真重复的闭环pilot已经完成，共`300/300`个episode。合并
+    结果中5A/A1/B2的full success分别为`0.64/0.68/0.77`，collision分别为
+    `0.110/0.076/0.060`；B2在两个重复中均高于A1，因此student-rollout聚合通过
+    “是否保留”的pilot判断。B2仍有`0.789`的interaction Actor占比、`51.25`平均步数
+    和`0.03` timeout，且相对A1的小样本配对检验未显著，不能写成最终Gate准入通过。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -79,14 +84,13 @@ Gate
    场景类别或冲突图。
 3. `2.0 m` oracle用于监督、诊断和上界；最终Gate需要判断何时调用避障Actor更有利，
    不能把“附近有障碍物”直接等同于“附近有机器人”。
-4. G11-B2主seed已完成，只重新训练Gate且没有更新Actor。当前在预注册的固定50场上
-   配对比较5A、A1 Gate和B2 Gate，已完成`106/300`场，先判断student聚合是否改善
-   实际闭环导航。运行中发现的Gazebo异步fixed-step消息丢失已替换为带完成确认的常驻
-   world service；没有修改场景、模型、seed或步进语义。
-5. 50场pilot通过后再做seed复核和更大准入，并在0-edge和single-edge互斥validation
-   上做闭环能力保持与局部收益准入，再评估multi-edge。若自然泛化不足，可以在读取
-   sealed test前书面修订协议、加入navigation-train的multi-edge数据并重训同一个Gate；
-   此时不再声称single-to-multi零样本泛化。
+4. G11-C已完成并归档。当前保留B2主seed作为候选，不依据这50场继续调阈值；先执行
+   G11-D1的4个CPU训练seed复核，主seed不因复核结果重新挑选。
+5. D1通过后执行预注册的独立0-edge/single-edge闭环准入，比较5A、epoch-16
+   always-on、规则Gate、A1、B2和oracle，并检查B2的过度激活、效率和timeout代价。
+6. 独立准入通过后再评估multi-edge。若自然泛化不足，可以在读取sealed test前书面
+   修订协议、加入navigation-train的multi-edge数据并重训同一个Gate；此时不再声称
+   single-to-multi零样本泛化。
 
 ## 问题与主张边界
 

@@ -10,12 +10,12 @@ bash scripts/experiment.sh list
 bash scripts/experiment.sh status
 ```
 
-G11-B1采集和G11-B2主seed聚合训练均已完成。当前入口保留用于复核；下一步是登记后的
-固定50场闭环pilot：
+G11-B1采集、G11-B2主seed聚合训练和G11-C固定50场闭环pilot均已完成。当前先执行
+登记后的CPU训练seed复核：
 
 ```bash
 bash scripts/run_g11_b_aggregated_training.sh 20260804
-bash scripts/experiment.sh start gate-g11-c-pilot
+bash scripts/run_g11_d_seed_replication.sh
 ```
 
 5A、epoch-16和A1主seed Gate均冻结，任何Actor训练脚本都不是当前入口。协议见
@@ -26,7 +26,8 @@ bash scripts/experiment.sh start gate-g11-c-pilot
 - `generalist-5a`：冻结普通导航Actor；
 - `interaction-epoch16`：冻结条件避障Actor；
 - `learned-gate-g2a`：历史未过准入Gate基线；
-- `deployable-interaction-gate`：G11-B2聚合Gate已训练，等待固定50场闭环pilot。
+- `deployable-interaction-gate`：G11-B2聚合Gate已通过G11-C保留判断，等待训练seed复核
+  和独立闭环准入。
 
 ## 可复用工具
 

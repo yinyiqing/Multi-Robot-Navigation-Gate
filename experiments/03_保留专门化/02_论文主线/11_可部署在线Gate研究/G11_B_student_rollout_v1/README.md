@@ -1,6 +1,6 @@
 # G11-B Student-Rollout 数据聚合
 
-状态：`G11-B1 audited / G11-B2 trained / closed-loop pilot pending`。更新日期：`2026-08-05`。
+状态：`G11-B1 audited / G11-B2 retained by G11-C pilot`。更新日期：`2026-08-05`。
 
 ## 目的
 
@@ -168,6 +168,7 @@ fc59b4f783f7c5461ebb0239fab4b34896ad910ee78e7223e88d29ce9c3f5a52
 | switches | `871` | `897` | `+26` |
 
 B2满足冻结S0的overall FPR `<=0.26842`和weak FPR `<=0.30481`，因此通过最低离线门槛；
-但它没有在A1的5A访问分布上提高Oracle模仿，不能据此声称DAgger有效。下一步只授权
-固定50场闭环pilot，配对比较5A、A1 Gate和B2 Gate。若B2相对A1没有明确导航改善，
-默认保留A1并停止追加聚合seed，避免为轻微离线波动继续消耗时间。
+但它没有在A1的5A访问分布上提高Oracle模仿，不能只靠本目录的离线指标声称DAgger有效。
+后续G11-C闭环pilot已经完成：B2在两个50场仿真重复中的full success为`0.78/0.76`，
+均高于A1的`0.70/0.66`，因此保留聚合路线并执行预注册训练seed复核。主seed不变，不从
+复核seed中挑选峰值；最终结论仍需独立闭环准入。

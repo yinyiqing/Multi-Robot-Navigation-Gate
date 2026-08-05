@@ -1,6 +1,6 @@
 # 可部署在线 Gate 研究
 
-状态：`G11-A1 passed / G11-B2 trained / closed-loop pilot pending`。更新日期：`2026-08-05`。
+状态：`G11-C pilot passed / G11-D seed replication next`。更新日期：`2026-08-05`。
 
 本目录只研究两个冻结 Actor 之间的在线切换：
 
@@ -103,13 +103,19 @@ G11-A1已在当前协议的640场train与120场内部validation上完成。预�
 G11-B在线T1控制器与1场student smoke已经通过：8帧历史和2步评估间隔与A1采集尺度
 一致，student shard的manifest、时序、Oracle标签和内嵌运行元数据审计通过。正式
 G11-B1也已完成同一navigation-train manifest的`640/640`场采集并通过全量审计；当前
-G11-B2来源平衡聚合重训已经完成，尚未得到闭环validation结论。
+G11-B2来源平衡聚合重训已经完成。G11-C闭环pilot中，B2在两个仿真重复上均超过A1，
+因此保留该路线并进入训练seed复核；这不是最终validation准入结论。
 
 ### G11-C：端到端准入
 
 第一步见[`G11_C_50场闭环pilot`](G11_C_50场闭环pilot/README.md)：在A1内部validation
 固定50场、两个重复上配对比较5A、A1与B2。它只决定是否保留student聚合；通过后才进入
 以下更大独立准入。
+
+G11-C已经完成。合并100场中5A/A1/B2的full success为`0.64/0.68/0.77`，B2的
+collision为`0.060`；但其interaction Actor占比为`0.789`、平均步数为`51.25`，且
+B2相对A1的配对差异在该小样本上未显著。当前按[`G11_D_Gate复核与独立准入`](G11_D_Gate复核与独立准入/README.md)
+先做训练seed复核，再启动不参与调参的独立闭环准入。
 
 沿用旧 G3 的固定协议，至少比较 5A、epoch-16 always-on、最小 LiDAR/TTC 规则、
 旧 G2-A、新 Gate 和真值 Oracle。200场准入仍要求：
@@ -142,8 +148,8 @@ G11-B2来源平衡聚合重训已经完成，尚未得到闭环validation结论�
 
 G11-A0只回答时序表示是否值得继续；G11-A1已经单独采集当前协议数据并通过离线准入。
 G11-B1由预注册主seed `20260804`的T1 epoch 2 checkpoint生成，正式student数据已经
-冻结。G11-B2仍只使用导航train聚合训练；完成聚合重训和小validation阈值冻结前，不
-读取sealed test。
+冻结。G11-B2仍只使用导航train聚合训练，主seed和阈值已经冻结；G11-C未读取sealed
+test。当前不得依据G11-C重新调阈值，也不得在独立准入前读取sealed test。
 
 ## 6. 明确不重复
 

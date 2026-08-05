@@ -12,11 +12,12 @@ Usage:
 Current method:
   Actor N  generalist-5a         frozen
   Actor I  interaction-epoch16   frozen
-  Gate     G11-B2                 trained, closed-loop pilot running
+  Gate     G11-B2                 retained by pilot, replication next
 
-Current commands:
-  bash scripts/experiment.sh start gate-g11-c-pilot
-  bash scripts/experiment.sh stop  gate-g11-c-pilot
+Current command:
+  bash scripts/run_g11_d_seed_replication.sh
+
+G11-C is complete. Its start/stop entrypoint is retained only for exact resumption.
 
 Actor training remains closed. Historical scripts are not current entrypoints.
 EOF

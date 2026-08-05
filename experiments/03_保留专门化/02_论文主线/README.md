@@ -1,6 +1,6 @@
 # ICRA论文主线：普通导航Actor、条件避障Actor与在线Gate
 
-状态：`route frozen / G11-B2 trained / 50-scene pilot running (106/300)`。更新时间：`2026-08-05`。
+状态：`route frozen / G11-C pilot passed / G11-D seed replication next`。更新时间：`2026-08-05`。
 
 本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见
 [PROJECT_STATUS](../../../PROJECT_STATUS.md)，历史实验状态见
@@ -213,10 +213,11 @@ success + collision + unresolved = agents * episodes
 2. 当前不作整个系统严格single-edge训练的主张，不为该附加主张重训Actor I；若后续
    升级主张，必须在sealed test前重新冻结协议。
 3. [可部署在线Gate研究](11_可部署在线Gate研究/README.md)的G11-A1时序蒸馏已通过，
-   G11-B1的640场student rollout和G11-B2主seed聚合训练已完成；B2保持FPR约束但离线
-   分类指标小幅低于A1，当前必须由固定50场闭环pilot判断是否保留聚合；该pilot已完成
-   `106/300`场，Gazebo固定步进已改为带完成确认的常驻world service，不改变实验协议。
-4. pilot先配对比较5A、A1 Gate和B2 Gate；只有B2闭环方向成立才做seed复核和独立准入。
+   G11-B1的640场student rollout和G11-B2主seed聚合训练已完成；G11-C固定50场、两个
+   仿真重复也已完成。B2的full success为`0.78/0.76`，两次均高于A1的`0.70/0.66`，
+   因此保留student聚合路线；该结论只通过pilot停止条件，不是最终准入。
+4. 当前执行G11-D1的4个B2训练seed复核。主seed保持`20260804`，不从复核seed中挑峰值；
+   D1通过后才启动新的独立validation闭环准入。
 5. Gate通过后完成主对照、消融和multi-edge边界评估。
 6. 所有组件冻结后一次性读取sealed test。
 

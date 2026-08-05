@@ -1,6 +1,6 @@
 # G11-C 固定50场闭环Pilot
 
-状态：`running / 106 of 300 episodes complete`。登记日期：`2026-08-05`。
+状态：`complete / retained B2 for replication`。登记日期：`2026-08-05`，完成日期：`2026-08-05`。
 
 ## 问题
 
@@ -61,6 +61,29 @@ episode已经通过相同的仿真时间和传感器校验，可以保留；发�
 3. 若B2方向成立，再做多seed复核和更大独立准入；
 4. A1/B2还必须在edge-1相对5A有收益，并检查0-edge能力保持；
 5. 单次峰值、训练集`0.750`和离线分类指标都不能替代该配对结果。
+
+## 最终结果
+
+六组运行全部完成，结果文件均为`50 x 17`且各有50个唯一scenario ID。两次重复只是
+仿真seed，不是重新训练Gate。
+
+| repeat | 5A full | A1 full | B2 full | B2 vs A1改善/退化 |
+| --- | ---: | ---: | ---: | ---: |
+| `1` | `0.66` | `0.70` | `0.78` | `10 / 6` |
+| `2` | `0.62` | `0.66` | `0.76` | `10 / 5` |
+
+合并100场中，5A/A1/B2的full success为`0.64/0.68/0.77`，agent success为
+`0.888/0.920/0.934`，collision为`0.110/0.076/0.060`。B2在两次重复中均超过A1，
+因此通过本pilot的“是否保留student聚合”停止条件。
+
+该结果不是最终准入：B2的interaction Actor占比为`0.789`，平均步数为`51.25`，timeout
+为`0.03`；A1对应为`0.690/37.23/0.02`。B2相对A1的单次McNemar exact分别为
+`p=0.4545/0.3018`，样本不足以声称显著。分层上B2主要改善`standard-edge1`，在
+`dense-edge1`略低于A1；`dense-zero`虽然保持full success，但interaction Actor占比
+达到`0.940`。后续不得在这50场上继续调阈值。
+
+最终汇总位于`local_data/summary.json`，运行日志已归档到仓库根目录
+`logs/archive/validation/g11_c/`；本目录只保留兼容链接。
 
 运行入口：
 
