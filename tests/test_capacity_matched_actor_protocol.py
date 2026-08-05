@@ -19,9 +19,15 @@ class CapacityMatchedActorProtocolTests(unittest.TestCase):
         self.assertIn("d2_summary.json", self.queue_script)
         self.assertIn("sleep 60", self.queue_script)
 
-    def test_queue_avoids_an_occupied_gpu(self):
-        self.assertIn("--query-compute-apps=pid", self.queue_script)
-        self.assertIn('export CUDA_VISIBLE_DEVICES=""', self.queue_script)
+    def test_queue_waits_for_gpu_capacity_and_uses_cuda(self):
+        self.assertIn(
+            "--query-gpu=memory.free,utilization.gpu", self.queue_script
+        )
+        self.assertIn("MIN_FREE_GPU_MIB", self.queue_script)
+        self.assertIn("MAX_GPU_UTILIZATION", self.queue_script)
+        self.assertIn("sleep 60", self.queue_script)
+        self.assertIn("export CUDA_VISIBLE_DEVICES=0", self.queue_script)
+        self.assertNotIn("G12 will use CPU", self.queue_script)
 
     def test_uses_balanced_navigation_train_view(self):
         self.assertIn("g11_a1_gate_v1", self.script)

@@ -7,6 +7,8 @@ D2_PID_FILE="$PROJECT_ROOT/.g11_d2_admission.pid"
 D2_SUMMARY="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/11_可部署在线Gate研究/G11_D_Gate复核与独立准入/local_data/d2_summary.json"
 LOG_DIR="$PROJECT_ROOT/logs/active/capacity-matched-actor-g12-p1"
 QUEUE_LOG="$LOG_DIR/queue.log"
+MIN_FREE_GPU_MIB="${G12_MIN_FREE_GPU_MIB:-8192}"
+MAX_GPU_UTILIZATION="${G12_MAX_GPU_UTILIZATION:-20}"
 
 run_worker() {
   cleanup() {
@@ -29,17 +31,25 @@ run_worker() {
     exit 1
   fi
 
-  gpu_processes=""
-  if command -v nvidia-smi >/dev/null 2>&1; then
-    gpu_processes="$(nvidia-smi --query-compute-apps=pid --format=csv,noheader,nounits 2>/dev/null | sed '/^[[:space:]]*$/d' || true)"
-  fi
-  if [[ -n "$gpu_processes" ]]; then
-    export CUDA_VISIBLE_DEVICES=""
-    echo "[$(date --iso-8601=seconds)] Existing GPU clients detected; G12 will use CPU."
-  else
-    export CUDA_VISIBLE_DEVICES=0
-    echo "[$(date --iso-8601=seconds)] GPU is free; G12 will use GPU 0."
-  fi
+  command -v nvidia-smi >/dev/null 2>&1 || {
+    echo "[$(date --iso-8601=seconds)] nvidia-smi is unavailable; refusing to start GPU-required G12."
+    exit 1
+  }
+
+  while true; do
+    gpu_state="$(nvidia-smi --query-gpu=memory.free,utilization.gpu --format=csv,noheader,nounits 2>/dev/null | head -n 1 || true)"
+    free_mib="$(printf '%s' "$gpu_state" | cut -d, -f1 | tr -d '[:space:]')"
+    utilization="$(printf '%s' "$gpu_state" | cut -d, -f2 | tr -d '[:space:]')"
+    if [[ "$free_mib" =~ ^[0-9]+$ && "$utilization" =~ ^[0-9]+$ ]] \
+      && (( free_mib >= MIN_FREE_GPU_MIB && utilization <= MAX_GPU_UTILIZATION )); then
+      break
+    fi
+    echo "[$(date --iso-8601=seconds)] GPU 0 not ready (free=${free_mib:-unknown} MiB, utilization=${utilization:-unknown}%); waiting."
+    sleep 60
+  done
+
+  export CUDA_VISIBLE_DEVICES=0
+  echo "[$(date --iso-8601=seconds)] GPU 0 ready (free=${free_mib} MiB, utilization=${utilization}%); G12 will use CUDA."
 
   echo "[$(date --iso-8601=seconds)] G11-D2 archive verified; starting G12-P1."
   bash "$PROJECT_ROOT/scripts/start_training_capacity_matched_actor.sh"

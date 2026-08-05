@@ -73,7 +73,7 @@ epoch 1位于Actor解冻边界，作为函数保持5A基线。后续checkpoint�
 
 1. G11-D2生成`d2_summary.json`、归档日志并移除PID；
 2. 运行无Gazebo单元测试与5A checkpoint输出审计；
-3. 检查GPU占用，选择不干扰其他任务的设备；
+3. 等待GPU 0至少有`8 GiB`可用显存且利用率不高于`20%`，随后固定使用CUDA训练；
 4. 当前排队：`bash scripts/experiment.sh queue actor-g12-capacity-pilot`；D2已归档时也可直接
    `bash scripts/experiment.sh start actor-g12-capacity-pilot`；
 5. 日志：`logs/active/capacity-matched-actor-g12-p1/`；
