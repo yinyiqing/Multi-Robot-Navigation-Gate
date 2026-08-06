@@ -80,6 +80,9 @@ Gate
     因此该运行只证明无约束fresh-Critic TD3发生训练坍塌，不能证明大Actor容量不足。
 14. G12-R1已预注册：原宽度5A在相同数据、seed、fresh Critic和前40k训练协议下作唯一
     宽度控制；前20k冻结Actor，后20k解冻Actor，结果只用于定位P1坍塌来源。
+15. G12正式大Actor路线已纠正：Gate的0-edge/edge-1清单只用于P1/R1诊断；R2从头复现
+    完整单车到五车课程，R3/R4在完整standard/dense train上全程控制五车，并对强交互
+    子集做预注册重采样。正式大Actor不会排除train中的multi-edge场景。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -102,10 +105,12 @@ Gate
    声称single-to-multi零样本泛化。
 6. G12-P1已停止并降级为训练稳定性诊断。后续容量对照遵循
    [G12-R公平路线](experiments/03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/REVISED_PLAN.md)：
-   先做原宽度控制，再让参数匹配Actor从头完成普通导航课程和受约束的0-edge/edge-1
-   联合训练。任何新长跑必须先冻结具体超参数和manifest，不得用D2或sealed test调参。
+   先做原宽度控制，再让参数匹配Actor从头完成普通导航课程和完整五车分布联合训练。
+   任何新长跑必须先冻结具体超参数和manifest，不得用D2或sealed test调参。
 7. G12-R1协议已冻结，日志写入`logs/active/capacity-original-width-r1/`。R1只改变Actor
    宽度并把硬上限固定为40k；完成前不得启动R2。
+8. R2启动前必须构建与G11-C/D2/E互斥的120场G12完整场景内部validation，并盘点形成
+   5A的有效课程节点和累计样本预算；不得直接执行历史课程README。
 
 ## 问题与主张边界
 

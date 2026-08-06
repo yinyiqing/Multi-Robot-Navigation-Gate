@@ -6,7 +6,7 @@
 | --- | --- | --- | --- |
 | [`fixed_v1/`](fixed_v1/README.md) | frozen | standard/dense 固定随机场景及互斥划分 | 是，主场景池与基线 |
 | [`fixed_v1/views/edge1_full_horizon_v1/`](fixed_v1/views/edge1_full_horizon_v1/README.md) | frozen derived view | 完整路径复算后的纯single-edge train/validation | 是，当前Gate的single-edge来源 |
-| [`fixed_v1/views/g11_a1_gate_v1/`](fixed_v1/views/g11_a1_gate_v1/README.md) | frozen derived view | 导航train内部的full-path 0-edge与edge-1互斥划分 | 是，G11-A1采集与G12容量对照清单 |
+| [`fixed_v1/views/g11_a1_gate_v1/`](fixed_v1/views/g11_a1_gate_v1/README.md) | frozen derived view | 导航train内部的full-path 0-edge与edge-1互斥划分 | 是，G11-A1采集与G12-P1/R1诊断清单 |
 | [`fixed_v1/views/g11_d2_admission_v1/`](fixed_v1/views/g11_d2_admission_v1/README.md) | frozen validation view | 排除旧开发场景的200场0-edge/edge-1独立准入 | 是，G11-D2闭环准入 |
 | [`fixed_v1/views/g11_e_edge2_generalization_v1/`](fixed_v1/views/g11_e_edge2_generalization_v1/README.md) | frozen validation partitions | exact-edge-2前50场pilot与后150场confirmation | 是，G11-E冻结后泛化诊断 |
 | `candidates_20260717/` | provenance | fixed-v1 筛选前候选清单 | 否，不直接训练或测试 |
@@ -54,3 +54,8 @@ export DRL_MULTI_MANIFEST_SAMPLING=random  # 训练；测试使用 cycle
 当前Gate训练不得无筛选地读取全部dense train。场景必须从导航train内部按0-edge和
 corrected full-horizon single-edge构建互斥视图；multi-edge只用于冻结后的泛化评估。
 具体Gate manifest、哈希和scenario互斥报告必须在新实验协议中登记后才能启动。
+
+上述限制只适用于Gate，不适用于G12正式参数匹配单Actor。G12-R2从头复现完整课程，
+G12-R3/R4读取完整standard/dense train并重采样strong-interaction子集；它不使用
+`g11_a1_gate_v1`作为正式训练边界。G12内部完整场景validation必须在R2启动前新建、
+冻结并审计与G11-C/D2/E互斥。

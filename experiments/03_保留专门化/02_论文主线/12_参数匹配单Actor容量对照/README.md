@@ -1,11 +1,13 @@
 # G12 参数匹配单Actor容量对照
 
-状态：`P1 completed as training-collapse diagnostic / revised route frozen`。日期：`2026-08-06`。
+状态：`P1 diagnostic archived / R1 running / R2-R5 full-scene route revised`。日期：`2026-08-06`。
 
 P1在`40,007 agent samples`处按预注册规则早停。函数保持初始化通过，但Actor解冻后的
 full success从`0.717`降至`0.050`并出现动作单侧饱和，因此该运行不能支持“参数匹配
 单Actor容量不足”的结论。后续公平对照以
-[G12-R修订路线](REVISED_PLAN.md)为准，本文件以下内容保留P1原始预注册协议。
+[G12-R修订路线](REVISED_PLAN.md)与[完整场景协议](FULL_SCENE_PROTOCOL.md)为准。本文件
+以下内容保留P1原始预注册协议，其中`g11_a1_gate_v1`只适用于P1/R1诊断，不是正式
+R2-R5大Actor的数据边界。
 
 ## 研究问题
 
@@ -14,7 +16,8 @@ full success从`0.717`降至`0.050`并出现动作单侧饱和，因此该运行
 > 双Actor与Gate的收益，能否由一个拥有近似相同Actor参数总量的普通单Actor获得？
 
 G12是论文对照，不替换`generalist-5a + interaction-epoch16 + Gate`主方法，也不重新开放
-Actor路线搜索。只有本README登记的pilot获得一次Actor训练授权。
+历史Actor路线搜索。Actor训练授权仅覆盖REVISED_PLAN登记的R1-R5；每次长跑仍需先冻结
+具体manifest、seed、预算和停止条件。
 
 ## 参数匹配
 

@@ -1,6 +1,6 @@
 # ICRA论文主线：普通导航Actor、条件避障Actor与在线Gate
 
-状态：`route frozen / G11-D2 navigation passed but efficiency failed / G12-R1 preregistered`。
+状态：`route frozen / G11-D2 navigation passed but efficiency failed / G12-R1 running`。
 更新时间：`2026-08-06`。
 
 本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见
@@ -230,8 +230,12 @@ success + collision + unresolved = agents * episodes
    执行原宽度控制、从头课程训练和受约束联合训练。
 6. G12-R1使用原宽度`24-800-600-2`复现P1前40k协议：同一train/validation、seed、
    fresh Critic、前20k Critic warm-up和后20k Actor更新；该诊断完成前不得启动R2。
-7. 完成主对照、消融和multi-edge边界评估。G11-E的50场exact-edge-2 pilot与后150场
+7. G12正式大Actor不沿用Gate的0-edge/edge-1训练边界。R2用`24-1137-855-2`随机初始化
+   复现完整单车到五车课程；R3/R4使用完整standard/dense train并重采样强交互子集，
+   单一Actor全程控制五车。具体协议见
+   [G12完整场景协议](12_参数匹配单Actor容量对照/FULL_SCENE_PROTOCOL.md)。
+8. 完成主对照、消融和multi-edge边界评估。G11-E的50场exact-edge-2 pilot与后150场
    confirmation已经完成清单冻结和互斥审计，不得并行启动第二套Gazebo。
-8. Gate、参数匹配单Actor和所有阈值冻结后一次性读取sealed test。
+9. Gate、参数匹配单Actor和所有阈值冻结后一次性读取sealed test。
 
 任何新长跑必须先在本文件登记实验ID、数据split、模型哈希、seed、准入和停止条件。
