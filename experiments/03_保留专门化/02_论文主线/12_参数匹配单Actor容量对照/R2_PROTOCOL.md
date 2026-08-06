@@ -65,6 +65,10 @@ S0已经按100k预算完成并通过。五次full success为
 `0.983/1.000/1.000/0.992/1.000`，冻结best位于epoch 2。完整结果、诊断和artifact哈希见
 [R2_S0_RESULTS](R2_S0_RESULTS.md)。
 
+S1训练前置固定case诊断已经冻结为每case 3次的
+[S1诊断协议](R2_S1_DIAGNOSTIC_PROTOCOL.md)。该诊断不更新网络；只在出现可复现缺口后
+登记对应case组的训练配置。
+
 ## 4. 启停与日志
 
 ```bash

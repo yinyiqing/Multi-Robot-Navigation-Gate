@@ -8,8 +8,8 @@ usage() {
 Usage:
   bash scripts/experiment.sh list
   bash scripts/experiment.sh status
-  bash scripts/experiment.sh start actor-g12-r2-s0
-  bash scripts/experiment.sh stop actor-g12-r2-s0
+  bash scripts/experiment.sh start actor-g12-r2-s1-diagnostic
+  bash scripts/experiment.sh stop actor-g12-r2-s1-diagnostic
 
 Current method:
   Actor N  generalist-5a         frozen
@@ -17,13 +17,13 @@ Current method:
   Gate     G11-B2                 D2 navigation passed, efficiency failed
 
 Current command:
-  actor-g12-r2-s0  Random wide Actor, n1 broad navigation, 100k samples
+  actor-g12-r2-s1-diagnostic  Frozen S0 best, 42 fixed n1 cases x 3 repeats
 
 G11-C, G11-D2, G12-P1 and G12-R1 are complete. Their start/stop entrypoints are
 retained only for controlled reproduction.
 
-Only G12-R2-S0 is currently authorized for Actor training. Historical scripts are not
-current execution instructions.
+G12-R2-S0 is complete. S1 training is not authorized until this fixed-case diagnostic
+identifies a concrete repair set. Historical scripts are not current execution instructions.
 EOF
 }
 
@@ -48,6 +48,8 @@ show_status() {
         printf '  logs=logs/active/capacity-original-width-r1/'
       elif [[ "$(basename "$pid_file")" == ".g12_r2_s0.pid" ]]; then
         printf '  logs=logs/active/capacity-wide-g12-r2/'
+      elif [[ "$(basename "$pid_file")" == ".g12_r2_s1_diagnostic.pid" ]]; then
+        printf '  logs=logs/active/capacity-wide-g12-r2/s1-diagnostic/'
       fi
       printf '\n'
     else
@@ -83,6 +85,7 @@ case "${1:-}" in
       actor-g12-capacity-pilot) exec bash "$PROJECT_ROOT/scripts/start_training_capacity_matched_actor.sh" ;;
       actor-g12-r1-original-width) exec bash "$PROJECT_ROOT/scripts/start_training_capacity_original_width_control.sh" ;;
       actor-g12-r2-s0) exec bash "$PROJECT_ROOT/scripts/start_training_g12_r2_s0.sh" ;;
+      actor-g12-r2-s1-diagnostic) exec bash "$PROJECT_ROOT/scripts/start_g12_r2_s1_diagnostic.sh" ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;
@@ -95,6 +98,7 @@ case "${1:-}" in
       actor-g12-capacity-pilot) exec bash "$PROJECT_ROOT/scripts/stop_training_capacity_matched_actor.sh" ;;
       actor-g12-r1-original-width) exec bash "$PROJECT_ROOT/scripts/stop_training_capacity_original_width_control.sh" ;;
       actor-g12-r2-s0) exec bash "$PROJECT_ROOT/scripts/stop_training_g12_r2_s0.sh" ;;
+      actor-g12-r2-s1-diagnostic) exec bash "$PROJECT_ROOT/scripts/stop_g12_r2_s1_diagnostic.sh" ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;
