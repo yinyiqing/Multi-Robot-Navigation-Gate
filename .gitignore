@@ -29,6 +29,7 @@ catkin_ws/src/multi_robot_scenario/launch/pioneer3dx_multi_*_standard.rviz
 .g11_c_pilot.pid
 .g11_d2_admission.pid
 .g12_capacity_*.pid
+.g12_r2_*.pid
 catkin_ws/build_isolated/
 catkin_ws/devel_isolated/
 catkin_ws/.catkin_workspace
