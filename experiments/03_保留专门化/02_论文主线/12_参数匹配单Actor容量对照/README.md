@@ -1,6 +1,11 @@
 # G12 参数匹配单Actor容量对照
 
-状态：`registered / waits for G11-D2 archive`。日期：`2026-08-05`。
+状态：`P1 completed as training-collapse diagnostic / revised route frozen`。日期：`2026-08-06`。
+
+P1在`40,007 agent samples`处按预注册规则早停。函数保持初始化通过，但Actor解冻后的
+full success从`0.717`降至`0.050`并出现动作单侧饱和，因此该运行不能支持“参数匹配
+单Actor容量不足”的结论。后续公平对照以
+[G12-R修订路线](REVISED_PLAN.md)为准，本文件以下内容保留P1原始预注册协议。
 
 ## 研究问题
 

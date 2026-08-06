@@ -1,6 +1,6 @@
 # 当前项目状态
 
-更新时间：`2026-08-05`。
+更新时间：`2026-08-06`。
 
 本文件是进入项目后的第一阅读入口。方法定义、实验准入和数据边界以
 [论文主线协议](experiments/03_保留专门化/02_论文主线/README.md)为准；历史 README
@@ -71,34 +71,37 @@ Gate
     `0.110/0.076/0.060`；B2在两个重复中均高于A1，因此student-rollout聚合通过
     “是否保留”的pilot判断。B2仍有`0.789`的interaction Actor占比、`51.25`平均步数
     和`0.03` timeout，且相对A1的小样本配对检验未显著，不能写成最终Gate准入通过。
+12. G11-D2独立validation的200场七策略评测已完成。5A/A1/B2的full success分别为
+    `0.650/0.740/0.745`；B2相对5A配对McNemar exact `p=0.01266`，single-edge子集
+    `p=0.00599`。B2通过导航准入，但平均步数为5A的`2.058`倍、interaction占比为
+    `0.7756`，未通过预注册效率准入；B2相对A1为22场改善、21场退化，`p=1.0`。
+13. G12-P1参数匹配加宽单Actor在函数保持初始化后仍有`0.717` full success，但Actor
+    解冻20k samples后降至`0.050`并触发早停。动作漂移到近似固定`[0.992,-0.913]`，
+    因此该运行只证明无约束fresh-Critic TD3发生训练坍塌，不能证明大Actor容量不足。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
 
 ## 当前工作
 
-当前只开发可部署Gate：
+当前主线仍是可部署Gate；参数匹配单Actor只作论文公平对照：
 
 1. 冻结5A和epoch-16，不再更新两个Actor。
 2. Gate使用本机激光雷达、导航状态及必要的短时历史，不能读取其他机器人里程计、
    场景类别或冲突图。
 3. `2.0 m` oracle用于监督、诊断和上界；最终Gate需要判断何时调用避障Actor更有利，
    不能把“附近有障碍物”直接等同于“附近有机器人”。
-4. G11-C已完成并归档。G11-D1的4个CPU训练复核seed也已全部通过，离线F1均值为
-   `0.84487 +/- 0.00132`；主seed仍为`20260804`，没有从复核seed中挑峰值。
-5. 来自导航validation、排除旧G3场景的D2独立200场manifest已经冻结，SHA-256为
-   `6250b941f127d550641a621d4253e17ea0770ff3c0cb94e6254e1f26b9f4978a`；D2运行器已冻结，
-   将比较5A、epoch-16 always-on、min-LiDAR规则Gate、旧G2-A、A1、B2和oracle，
-   并检查B2的过度激活、效率和timeout代价。
-6. 独立准入通过后再评估multi-edge。G11-E已经在不启动Gazebo的情况下冻结50场
+4. G11-D2已经归档：B2导航收益成立，但效率准入失败；A1与B2尚无显著差异，不能把
+   student-rollout聚合写成已证明的闭环增益。
+5. 下一项Gate实验是multi-edge边界评估。G11-E已经冻结50场
    exact-edge-2 pilot与后150场confirmation，二者与当前Gate训练、G11-C和G11-D2均
-   无场景重叠；实际运行必须等待G11-D2完成。若自然泛化不足，可以在读取sealed test前
+   无场景重叠。若自然泛化不足，可以在读取sealed test前
    书面修订协议、加入navigation-train的multi-edge数据并重训同一个Gate；此时不再
    声称single-to-multi零样本泛化。
-7. 为回答“两个同构Actor的收益是否只是参数量翻倍”，G12已预注册参数匹配的单Actor
-   容量对照：`24 -> 1137 -> 855 -> 2`共`1,003,127`参数，与两个冻结Actor合计只差
-   `477`。它只在G11-D2完整归档后启动80k pilot，使用导航train内部均衡的0-edge与
-   edge-1数据；这是对照实验的有限Actor训练授权，不解冻或替换当前两个Actor。
+6. G12-P1已停止并降级为训练稳定性诊断。后续容量对照遵循
+   [G12-R公平路线](experiments/03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/REVISED_PLAN.md)：
+   先做原宽度控制，再让参数匹配Actor从头完成普通导航课程和受约束的0-edge/edge-1
+   联合训练。任何新长跑必须先冻结具体超参数和manifest，不得用D2或sealed test调参。
 
 ## 问题与主张边界
 

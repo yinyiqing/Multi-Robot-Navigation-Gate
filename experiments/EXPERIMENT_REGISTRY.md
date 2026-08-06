@@ -1,6 +1,6 @@
 # 实验注册表
 
-更新时间：`2026-08-05`。当前方法以[PROJECT_STATUS](../PROJECT_STATUS.md)和
+更新时间：`2026-08-06`。当前方法以[PROJECT_STATUS](../PROJECT_STATUS.md)和
 [论文主线协议](03_保留专门化/02_论文主线/README.md)为准。
 
 ## 状态定义
@@ -42,7 +42,7 @@
 | 统一停车/靠右/手工TTC规则 | [`results/04_Gate前置验证`](03_保留专门化/02_论文主线/results/04_Gate前置验证/README.md) | `rejected heuristic` | 可作规则基线，不能替代学习Gate |
 | 第一版学习Gate | [`07_冲突拓扑组合泛化`](03_保留专门化/02_论文主线/07_冲突拓扑组合泛化/README.md) | `frozen baseline / rejected final` | 方向为正但未过统计和oracle恢复准入 |
 | 可部署在线Gate新路线 | [`11_可部署在线Gate研究`](03_保留专门化/02_论文主线/11_可部署在线Gate研究/README.md) | `current / G11-D1 passed` | B2训练seed稳定；当前冻结D2独立200场并做闭环准入，Actor冻结 |
-| 参数匹配单Actor容量对照 | [`12_参数匹配单Actor容量对照`](03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/README.md) | `registered diagnostic` | D2归档后只授权一次80k加宽Actor pilot；检验双Actor收益是否只是参数翻倍 |
+| 参数匹配单Actor容量对照 | [`12_参数匹配单Actor容量对照`](03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/README.md) | `P1 diagnostic complete / G12-R planned` | P1为无约束TD3训练坍塌，不能作容量结论；后续按G12-R做原宽度控制、从头课程和受约束联合训练 |
 | 中止和协议错误运行 | [`results/90_中止与无效运行`](03_保留专门化/02_论文主线/results/90_中止与无效运行/README.md) | `invalid` | 不进入论文、趋势判断或模型选择 |
 
 ## 可以复用的基础设施

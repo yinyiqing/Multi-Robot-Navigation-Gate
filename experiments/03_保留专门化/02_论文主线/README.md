@@ -1,6 +1,7 @@
 # ICRA论文主线：普通导航Actor、条件避障Actor与在线Gate
 
-状态：`route frozen / G11-D1 passed / G11-D2 runnable`。更新时间：`2026-08-05`。
+状态：`route frozen / G11-D2 navigation passed but efficiency failed / G12-R planned`。
+更新时间：`2026-08-06`。
 
 本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见
 [PROJECT_STATUS](../../../PROJECT_STATUS.md)，历史实验状态见
@@ -222,13 +223,13 @@ success + collision + unresolved = agents * episodes
    G11-B1的640场student rollout和G11-B2主seed聚合训练已完成；G11-C固定50场、两个
    仿真重复也已完成。B2的full success为`0.78/0.76`，两次均高于A1的`0.70/0.66`，
    因此保留student聚合路线；该结论只通过pilot停止条件，不是最终准入。
-4. G11-D1的4个B2训练复核seed已全部通过，F1标准差仅`0.00132`。主seed保持
-   `20260804`，没有从复核seed中挑峰值；新的独立validation manifest与七策略运行协议
-   均已冻结，当前可启动G11-D2闭环准入。
-5. D2完整分析归档后，先执行G12参数匹配加宽单Actor的80k容量pilot。只有出现预注册的
-   正向趋势才允许另行登记320k扩展；失败时直接保留为容量对照，不扫描reward/Critic。
-6. 随后完成主对照、消融和multi-edge边界评估。G11-E的50场exact-edge-2 pilot与后
-   150场confirmation已经完成清单冻结和互斥审计，不得与D2或G12并行启动第二套Gazebo。
-7. 所有组件冻结后一次性读取sealed test。
+4. G11-D2已经完成。B2相对5A的导航收益显著，但因平均步数为`2.058x`、interaction
+   占比`0.7756`而未通过效率准入；B2相对A1的配对检验为`p=1.0`。
+5. G12-P1在40k处因Actor动作饱和和full success坍塌早停，只作训练稳定性诊断，不作
+   参数容量结论。后续按[G12-R公平参数匹配路线](12_参数匹配单Actor容量对照/REVISED_PLAN.md)
+   执行原宽度控制、从头课程训练和受约束联合训练。
+6. 完成主对照、消融和multi-edge边界评估。G11-E的50场exact-edge-2 pilot与后150场
+   confirmation已经完成清单冻结和互斥审计，不得并行启动第二套Gazebo。
+7. Gate、参数匹配单Actor和所有阈值冻结后一次性读取sealed test。
 
 任何新长跑必须先在本文件登记实验ID、数据split、模型哈希、seed、准入和停止条件。
