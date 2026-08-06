@@ -16,9 +16,11 @@
 
 ### R2课程
 
-R2复现形成5A的历史有效课程链路：单车局部导航、两车/三车回接、3D2和五车5A。历史
-README和脚本只作证据；启动前必须重新登记每一阶段真正采用的case manifest、上游
-checkpoint关系、样本预算与停止条件，不能直接执行历史README中的“下一步”。
+历史审计发现2D、3D2和5A的selected checkpoint均位于Actor解冻前或解冻边界，且最初
+`TD3_velodyne_multi_v4`的训练预算未登记，因此不能机械声称从随机初始化复刻了历史5A。
+R2保留有效课程思想：先建立单车broad导航，完成固定单车case补课，再按n2/n3/n5增加
+车数。A阶段保持原始24维Critic并完整warm start，不插入fresh-Critic D支路。完整审计、
+预算和停止条件见[R2协议](R2_PROTOCOL.md)与[R2历史课程审计](R2_CURRICULUM_AUDIT.md)。
 
 ### R3/R4完整五车分布
 

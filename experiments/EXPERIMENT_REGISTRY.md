@@ -25,7 +25,8 @@
 | `2.0 m interaction oracle` | `diagnostic upper bound` | dense validation full success `0.309 -> 0.545` | 已训练Gate或可部署方法 |
 | `G0/G1 perception frontend` | `frozen diagnostic` | 原始点云覆盖足够；保留形状和相对运动连续证据 | 已可靠完成机器人硬分类 |
 | `G2-A learned Gate` | `frozen baseline / admission failed` | exact-edge-2有`+0.080`方向性收益 | 最终Gate或统计显著结果 |
-| `deployable interaction Gate` | `current / G11-D1 passed` | B2在两个50场仿真重复中均超过A1，4/4训练复核seed通过 | 已通过最终闭环准入、统计显著或可以读取部署期真值 |
+| `deployable interaction Gate` | `current / G11-D2 navigation passed, efficiency failed` | B2在独立200场相对5A导航收益显著，但interaction占比和步数过高 | 已通过最终效率准入或可以读取部署期真值 |
+| `G12-R2-S0` | `current registered baseline` | 随机加宽Actor的n1 broad导航阶段，100k samples | 参数匹配单Actor已完成或容量不足 |
 
 ## 路线级分类
 
@@ -41,8 +42,8 @@
 | corrected edge-1完整Actor | [`10_纯单冲突完整Actor_pilot`](03_保留专门化/02_论文主线/10_纯单冲突完整Actor_pilot/README.md) | `rejected pilot` | 解冻后50场monitor明显退化；只作单Actor对照 |
 | 统一停车/靠右/手工TTC规则 | [`results/04_Gate前置验证`](03_保留专门化/02_论文主线/results/04_Gate前置验证/README.md) | `rejected heuristic` | 可作规则基线，不能替代学习Gate |
 | 第一版学习Gate | [`07_冲突拓扑组合泛化`](03_保留专门化/02_论文主线/07_冲突拓扑组合泛化/README.md) | `frozen baseline / rejected final` | 方向为正但未过统计和oracle恢复准入 |
-| 可部署在线Gate新路线 | [`11_可部署在线Gate研究`](03_保留专门化/02_论文主线/11_可部署在线Gate研究/README.md) | `current / G11-D1 passed` | B2训练seed稳定；当前冻结D2独立200场并做闭环准入，Actor冻结 |
-| 参数匹配单Actor容量对照 | [`12_参数匹配单Actor容量对照`](03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/README.md) | `P1/R1 diagnostic complete / R2 next` | 原宽度R1也从`0.717`退化到`0.283`，证明P1不能归因于参数翻倍；正式大Actor按完整场景路线从头训练 |
+| 可部署在线Gate新路线 | [`11_可部署在线Gate研究`](03_保留专门化/02_论文主线/11_可部署在线Gate研究/README.md) | `current / G11-D2 navigation passed, efficiency failed` | B2相对5A导航收益显著，但效率未准入；Actor冻结 |
+| 参数匹配单Actor容量对照 | [`12_参数匹配单Actor容量对照`](03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/README.md) | `P1/R1 diagnostic complete / R2-S0 registered` | P1不能归因于参数翻倍；当前只授权随机加宽Actor的n1 broad 100k阶段 |
 | 中止和协议错误运行 | [`results/90_中止与无效运行`](03_保留专门化/02_论文主线/results/90_中止与无效运行/README.md) | `invalid` | 不进入论文、趋势判断或模型选择 |
 
 ## 可以复用的基础设施

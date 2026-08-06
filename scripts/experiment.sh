@@ -8,6 +8,8 @@ usage() {
 Usage:
   bash scripts/experiment.sh list
   bash scripts/experiment.sh status
+  bash scripts/experiment.sh start actor-g12-r2-s0
+  bash scripts/experiment.sh stop actor-g12-r2-s0
 
 Current method:
   Actor N  generalist-5a         frozen
@@ -15,14 +17,13 @@ Current method:
   Gate     G11-B2                 D2 navigation passed, efficiency failed
 
 Current command:
-  No long-running experiment is registered for launch.
-  G12-R2 must wait for its full-scene selection manifest and curriculum audit.
+  actor-g12-r2-s0  Random wide Actor, n1 broad navigation, 100k samples
 
 G11-C, G11-D2, G12-P1 and G12-R1 are complete. Their start/stop entrypoints are
 retained only for controlled reproduction.
 
-Actor training remains closed until the G12-R2 protocol and launcher are registered.
-Historical scripts are not current execution instructions.
+Only G12-R2-S0 is currently authorized for Actor training. Historical scripts are not
+current execution instructions.
 EOF
 }
 
@@ -45,6 +46,8 @@ show_status() {
         printf '  state=waiting-for-d2  logs=logs/active/capacity-matched-actor-g12-p1/queue.log'
       elif [[ "$(basename "$pid_file")" == ".g12_capacity_r1.pid" ]]; then
         printf '  logs=logs/active/capacity-original-width-r1/'
+      elif [[ "$(basename "$pid_file")" == ".g12_r2_s0.pid" ]]; then
+        printf '  logs=logs/active/capacity-wide-g12-r2/'
       fi
       printf '\n'
     else
@@ -79,6 +82,7 @@ case "${1:-}" in
       gate-g11-d2-admission) exec bash "$PROJECT_ROOT/scripts/start_g11_d2_admission.sh" ;;
       actor-g12-capacity-pilot) exec bash "$PROJECT_ROOT/scripts/start_training_capacity_matched_actor.sh" ;;
       actor-g12-r1-original-width) exec bash "$PROJECT_ROOT/scripts/start_training_capacity_original_width_control.sh" ;;
+      actor-g12-r2-s0) exec bash "$PROJECT_ROOT/scripts/start_training_g12_r2_s0.sh" ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;
@@ -90,6 +94,7 @@ case "${1:-}" in
       gate-g11-d2-admission) exec bash "$PROJECT_ROOT/scripts/stop_g11_d2_admission.sh" ;;
       actor-g12-capacity-pilot) exec bash "$PROJECT_ROOT/scripts/stop_training_capacity_matched_actor.sh" ;;
       actor-g12-r1-original-width) exec bash "$PROJECT_ROOT/scripts/stop_training_capacity_original_width_control.sh" ;;
+      actor-g12-r2-s0) exec bash "$PROJECT_ROOT/scripts/stop_training_g12_r2_s0.sh" ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;

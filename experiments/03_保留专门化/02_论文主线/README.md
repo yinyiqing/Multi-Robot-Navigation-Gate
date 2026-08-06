@@ -231,9 +231,12 @@ success + collision + unresolved = agents * episodes
 6. G12-R1原宽度控制已完成：full success从`0.717`降至`0.283`，说明无约束TD3/fresh
    Critic是P1与R1的共同不稳定来源，参数扩宽不是P1坍塌的充分解释。R1只作诊断，不作
    R2 warm start或论文主性能模型。
-7. G12正式大Actor不沿用Gate的0-edge/edge-1训练边界。R2用`24-1137-855-2`随机初始化
-   复现完整单车到五车课程；R3/R4使用完整standard/dense train并重采样强交互子集，
-   单一Actor全程控制五车。具体协议见
+7. G12正式大Actor不沿用Gate的0-edge/edge-1训练边界。R2课程清单与历史审计已经冻结；
+   当前登记`G12-R2-S0`：`24-1137-855-2`Actor/Critic随机初始化，seed `20260811`，在
+   `g12_r2_curriculum_v1/n1`上训练`100k` agent samples，每20k用互斥120场validation
+   评估。S0不加载5A，不读取D2、G11-E或sealed test；异常即停止且不能作为容量结论。
+   R3/R4再使用完整standard/dense train并重采样强交互子集。具体协议见
+   [G12-R2协议](12_参数匹配单Actor容量对照/R2_PROTOCOL.md)和
    [G12完整场景协议](12_参数匹配单Actor容量对照/FULL_SCENE_PROTOCOL.md)。
 8. 完成主对照、消融和multi-edge边界评估。G11-E的50场exact-edge-2 pilot与后150场
    confirmation已经完成清单冻结和互斥审计，不得并行启动第二套Gazebo。

@@ -1,6 +1,6 @@
 # G12-R 公平参数匹配单Actor路线
 
-状态：`route revised / R1 completed / full-scene baseline next`。
+状态：`route revised / R1 completed / R2-S0 registered`。
 日期：`2026-08-06`。
 
 ## 1. 研究问题
@@ -140,9 +140,9 @@ R3通过后保持数据、`1:1`采样、loss和优化器不变，扩展到`320,0
 | 顺序 | 工作 |
 | --- | --- |
 | 1 | 完成并归档R1，形成训练稳定性结论（已完成） |
-| 2 | 构建并冻结G12完整场景内部validation，审计与D2/G11-E互斥（下一步） |
-| 3 | 盘点历史5A课程的case、预算和有效节点，冻结R2逐阶段运行manifest |
-| 4 | R2从头训练加宽Actor并通过普通导航准入 |
+| 2 | 构建并冻结G12完整场景内部validation，审计与D2/G11-E互斥（已完成） |
+| 3 | 盘点历史5A课程的case、预算和有效节点，冻结R2逐阶段运行manifest（已完成） |
+| 4 | R2从头训练加宽Actor并通过普通导航准入（S0已登记） |
 | 5 | R3完整五车混合分布40k pilot |
 | 6 | R3通过后执行R4 320k和复核seed |
 | 7 | 冻结模型后完成统一评测、统计、图表和论文写作 |

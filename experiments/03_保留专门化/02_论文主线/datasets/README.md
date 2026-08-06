@@ -10,6 +10,7 @@
 | [`fixed_v1/views/g11_d2_admission_v1/`](fixed_v1/views/g11_d2_admission_v1/README.md) | frozen validation view | 排除旧开发场景的200场0-edge/edge-1独立准入 | 是，G11-D2闭环准入 |
 | [`fixed_v1/views/g11_e_edge2_generalization_v1/`](fixed_v1/views/g11_e_edge2_generalization_v1/README.md) | frozen validation partitions | exact-edge-2前50场pilot与后150场confirmation | 是，G11-E冻结后泛化诊断 |
 | [`fixed_v1/views/g12_full_scene_selection_v1/`](fixed_v1/views/g12_full_scene_selection_v1/README.md) | frozen internal validation | 与train及G11-C/D2/E互斥的120场完整场景分层选择集 | 是，G12-R2至R4模型选择 |
+| [`fixed_v1/views/g12_r2_curriculum_v1/`](fixed_v1/views/g12_r2_curriculum_v1/README.md) | frozen derived curriculum | standard train与G12 validation的n1/n2/n3/n5完整episode视图 | 是，G12-R2逐车数课程 |
 | `candidates_20260717/` | provenance | fixed-v1 筛选前候选清单 | 否，不直接训练或测试 |
 | [`pilot/`](pilot/README.md) | pilot | 生成、筛选和 manifest 回放冒烟验证 | 否 |
 | [`pair_interaction_curriculum_v1/`](pair_interaction_curriculum_v1/README.md) | historical diagnostic | 两车 head-on/crossing/lane-swap 诊断 | 否，不再继续双车路线 |

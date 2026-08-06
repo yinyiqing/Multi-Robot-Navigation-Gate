@@ -112,8 +112,9 @@ Gate
    作为R2 warm start或论文主性能模型。
 8. G12完整场景内部validation已经冻结为`g12_full_scene_selection_v1`：120场按来源和
    0-edge/edge-1/multi-edge同时平衡，与全部navigation train及G11-C/D2/E逐一互斥。
-   R2启动前剩余前置项是盘点形成5A的有效课程节点和累计样本预算；不得直接执行历史
-   课程README。
+   历史课程审计也已完成：2D/3D2/5A的selected checkpoint没有可靠Actor更新证据，且
+   初始基础模型预算未知。R2改为随机加宽Actor先做n1 broad导航，再补固定单车case并按
+   n2/n3/n5扩展；当前只授权100k samples的R2-S0。
 
 ## 问题与主张边界
 
