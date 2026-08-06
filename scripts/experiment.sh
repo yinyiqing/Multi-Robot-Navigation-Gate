@@ -8,20 +8,17 @@ usage() {
 Usage:
   bash scripts/experiment.sh list
   bash scripts/experiment.sh status
-  bash scripts/experiment.sh queue actor-g12-capacity-pilot
+  bash scripts/experiment.sh start actor-g12-r1-original-width
+  bash scripts/experiment.sh stop  actor-g12-r1-original-width
 
 Current method:
   Actor N  generalist-5a         frozen
   Actor I  interaction-epoch16   frozen
-  Gate     G11-B2                 D1 passed, D2 admission ready
+  Gate     G11-B2                 D2 navigation passed, efficiency failed
 
 Current command:
-  bash scripts/experiment.sh start gate-g11-d2-admission
-  bash scripts/experiment.sh stop  gate-g11-d2-admission
-
-Queued after G11-D2 archive:
-  bash scripts/experiment.sh start actor-g12-capacity-pilot
-  bash scripts/experiment.sh stop  actor-g12-capacity-pilot
+  bash scripts/experiment.sh start actor-g12-r1-original-width
+  bash scripts/experiment.sh stop  actor-g12-r1-original-width
 
 G11-C is complete. Its start/stop entrypoint is retained only for exact resumption.
 
@@ -47,6 +44,8 @@ show_status() {
         printf '  logs=logs/active/capacity-matched-actor-g12-p1/'
       elif [[ "$(basename "$pid_file")" == ".g12_capacity_queue.pid" ]]; then
         printf '  state=waiting-for-d2  logs=logs/active/capacity-matched-actor-g12-p1/queue.log'
+      elif [[ "$(basename "$pid_file")" == ".g12_capacity_r1.pid" ]]; then
+        printf '  logs=logs/active/capacity-original-width-r1/'
       fi
       printf '\n'
     else
@@ -80,6 +79,7 @@ case "${1:-}" in
       gate-g11-c-pilot) exec bash "$PROJECT_ROOT/scripts/start_g11_c_pilot.sh" ;;
       gate-g11-d2-admission) exec bash "$PROJECT_ROOT/scripts/start_g11_d2_admission.sh" ;;
       actor-g12-capacity-pilot) exec bash "$PROJECT_ROOT/scripts/start_training_capacity_matched_actor.sh" ;;
+      actor-g12-r1-original-width) exec bash "$PROJECT_ROOT/scripts/start_training_capacity_original_width_control.sh" ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;
@@ -90,6 +90,7 @@ case "${1:-}" in
       gate-g11-c-pilot) exec bash "$PROJECT_ROOT/scripts/stop_g11_c_pilot.sh" ;;
       gate-g11-d2-admission) exec bash "$PROJECT_ROOT/scripts/stop_g11_d2_admission.sh" ;;
       actor-g12-capacity-pilot) exec bash "$PROJECT_ROOT/scripts/stop_training_capacity_matched_actor.sh" ;;
+      actor-g12-r1-original-width) exec bash "$PROJECT_ROOT/scripts/stop_training_capacity_original_width_control.sh" ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;

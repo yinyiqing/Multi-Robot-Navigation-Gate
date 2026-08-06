@@ -1,6 +1,6 @@
 # G12-R 公平参数匹配单Actor路线
 
-状态：`route agreed / run parameters pending preregistration / no new run started`。
+状态：`route agreed / R0 archived / R1 preregistered`。
 日期：`2026-08-06`。
 
 ## 1. 研究问题
@@ -33,7 +33,7 @@ TD3更新后发生动作饱和和性能坍塌，只能作为训练稳定性诊�
 
 ### R0：归档当前P1并完成机制诊断
 
-状态：`completed evidence / pending archival document`。
+状态：`completed / archived`。完整记录见[R0诊断](R0_P1_DIAGNOSTIC.md)。
 
 - 初始加宽Actor与5A最大输出误差：`4.62e-7`；
 - Epoch 1 validation：full success `0.717`；
@@ -42,6 +42,8 @@ TD3更新后发生动作饱和和性能坍塌，只能作为训练稳定性诊�
 - 结论：训练坍塌，不得表述为容量失败。
 
 ### R1：原宽度训练稳定性控制
+
+状态：`preregistered`。冻结运行参数见[R1协议](R1_PROTOCOL.md)。
 
 目的：只改变网络宽度，复现P1的5A warm start、fresh Critic、数据、seed、学习率、
 20k Critic warm-up和40k总预算。
