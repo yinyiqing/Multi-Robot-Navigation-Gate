@@ -92,6 +92,9 @@ Gate
 15. G12正式大Actor路线已纠正：Gate的0-edge/edge-1清单只用于P1/R1诊断；R2从头复现
     完整单车到五车课程，R3/R4在完整standard/dense train上全程控制五车，并对强交互
     子集做预注册重采样。正式大Actor不会排除train中的multi-edge场景。
+16. G12-R2-S0已按100k预算完成。五次单车broad validation的full success为
+    `0.983/1.000/1.000/0.992/1.000`，epoch 2为冻结best；全程没有P1/R1式坍塌。S0通过
+    基础导航准入，但不构成两车、五车或冲突能力结论。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -122,7 +125,8 @@ Gate
    0-edge/edge-1/multi-edge同时平衡，与全部navigation train及G11-C/D2/E逐一互斥。
    历史课程审计也已完成：2D/3D2/5A的selected checkpoint没有可靠Actor更新证据，且
    初始基础模型预算未知。R2改为随机加宽Actor先做n1 broad导航，再补固定单车case并按
-   n2/n3/n5扩展；当前只授权100k samples的R2-S0。
+   n2/n3/n5扩展。R2-S0已经完成并通过；下一步先用冻结best只评测stage1/e/f/g固定困难
+   case，确认存在具体缺口后才允许启动S1补课。
 9. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
    scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
    manifest哈希、缺失/重复/错序ID。不同场景或不同评测协议的历史汇总值不得混入同一表。

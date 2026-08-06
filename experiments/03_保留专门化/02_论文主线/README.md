@@ -1,6 +1,6 @@
 # ICRA论文主线：普通导航Actor、条件避障Actor与在线Gate
 
-状态：`route frozen / G11-D2 navigation passed but efficiency failed / G12-R1 completed`。
+状态：`route frozen / G11-D2 navigation passed but efficiency failed / G12-R2-S0 passed`。
 更新时间：`2026-08-06`。
 
 本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见

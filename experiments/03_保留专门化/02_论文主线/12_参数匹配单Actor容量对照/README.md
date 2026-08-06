@@ -1,6 +1,11 @@
 # G12 参数匹配单Actor容量对照
 
-状态：`P1/R1 diagnostics archived / R2-R5 full-scene route next`。日期：`2026-08-06`。
+状态：`P1/R1 diagnostics archived / R2-S0 completed and passed / S1 diagnostic next`。
+日期：`2026-08-06`。
+
+R2-S0加宽Actor从随机初始化完成100k单车broad训练，五次full success为
+`0.983/1.000/1.000/0.992/1.000`，冻结best位于epoch 2。结果见
+[R2-S0记录](R2_S0_RESULTS.md)。下一步先评测固定困难case，不默认启动S1训练。
 
 P1在`40,007 agent samples`处按预注册规则早停。函数保持初始化通过，但Actor解冻后的
 full success从`0.717`降至`0.050`并出现动作单侧饱和，因此该运行不能支持“参数匹配

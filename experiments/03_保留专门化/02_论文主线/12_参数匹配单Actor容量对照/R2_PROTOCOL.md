@@ -1,6 +1,7 @@
 # G12-R2加宽单Actor普通导航课程协议
 
-状态：`S0 frozen and runnable / S1-S4 budgets preregistered`。日期：`2026-08-06`。
+状态：`S0 completed and passed / S1 targeted evaluation pending / S2-S4 budgets preregistered`。
+日期：`2026-08-06`。
 
 ## 1. 固定边界
 
@@ -26,6 +27,9 @@
 基础总预算上限为`380k`。S0若持续改善但未达准入，可在不改变超参数的前提下预注册扩展
 到`200k`；若动作饱和、NaN、Q爆炸或连续两个eval明显恶化则停止诊断，不扫描validation。
 S1每个case阶段后必须回测broad n1 validation，出现遗忘则回滚，不能只按targeted峰值前进。
+S0结束后先用冻结best对stage1/e/f/g固定case做只评测诊断，不默认启动S1更新。只有诊断
+确认具体缺口时才使用S1的最多`80k`预算；若固定case全部通过，S1训练预算记为`0`并直接
+进入S2。这不会改变S2-S4的数据、预算或初始化边界。
 
 S2-S4不经过2D/3D2。原始Critic输入始终为24维且reward保持individual navigation，
 因此阶段间完整warm start Actor和Critic，避免fresh Critic解冻造成P1/R1式坍塌。
@@ -57,6 +61,10 @@ S0通过条件以120场validation为准：full success至少`0.85`，collision�
 timeout不高于`0.10`，且动作与Q诊断无异常。未通过只说明S0尚未形成基础导航，不构成
 大Actor容量结论。
 
+S0已经按100k预算完成并通过。五次full success为
+`0.983/1.000/1.000/0.992/1.000`，冻结best位于epoch 2。完整结果、诊断和artifact哈希见
+[R2_S0_RESULTS](R2_S0_RESULTS.md)。
+
 ## 4. 启停与日志
 
 ```bash
@@ -67,4 +75,3 @@ bash scripts/experiment.sh stop actor-g12-r2-s0
 
 日志统一写入`logs/active/capacity-wide-g12-r2/`。完成后归档到
 `logs/archive/training/g12_r2/`，并在启动S1前记录checkpoint哈希和S0准入结果。
-

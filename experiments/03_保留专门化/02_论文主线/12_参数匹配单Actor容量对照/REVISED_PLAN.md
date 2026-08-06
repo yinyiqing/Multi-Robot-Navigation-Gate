@@ -1,6 +1,6 @@
 # G12-R 公平参数匹配单Actor路线
 
-状态：`route revised / R1 completed / R2-S0 registered`。
+状态：`route revised / R1 completed / R2-S0 passed`。
 日期：`2026-08-06`。
 
 ## 1. 研究问题
@@ -79,6 +79,10 @@ R1只改变P1的Actor宽度并硬停止于40k。原宽度full success从`0.717`�
 - 不从5A做函数扩宽warm start，不读取Gate数据、D2、G11-E或sealed test；
 - 保存每阶段全部sample数和Actor更新数，不能只报告最后320k。
 
+S0已经完成：100k内五次单车broad validation full success为
+`0.983/1.000/1.000/0.992/1.000`，冻结epoch 2 best。启动S1更新前先评测固定困难case，
+只修复实际缺口；不得因为历史课程存在S1名称就自动消耗80k预算。
+
 进入R3的最低条件：
 
 1. 新建的G12内部完整场景validation上，0-edge full success相对5A下降不超过`0.03`；
@@ -145,7 +149,7 @@ R3通过后保持数据、`1:1`采样、loss和优化器不变，扩展到`320,0
 | 1 | 完成并归档R1，形成训练稳定性结论（已完成） |
 | 2 | 构建并冻结G12完整场景内部validation，审计与D2/G11-E互斥（已完成） |
 | 3 | 盘点历史5A课程的case、预算和有效节点，冻结R2逐阶段运行manifest（已完成） |
-| 4 | R2从头训练加宽Actor并通过普通导航准入（S0已登记） |
+| 4 | R2从头训练加宽Actor并通过普通导航准入（S0已完成并通过） |
 | 5 | R3完整五车混合分布40k pilot |
 | 6 | R3通过后执行R4 320k和复核seed |
 | 7 | 冻结模型后完成统一评测、统计、图表和论文写作 |
