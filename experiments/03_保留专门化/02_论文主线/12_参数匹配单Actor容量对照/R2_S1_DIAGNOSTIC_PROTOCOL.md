@@ -1,6 +1,6 @@
 # G12-R2-S1固定困难Case诊断协议
 
-状态：`frozen and runnable`。日期：`2026-08-06`。
+状态：`completed / repair required`。日期：`2026-08-06`。
 
 ## 1. 目的
 
@@ -59,3 +59,7 @@ master上的残留仿真发生模型名冲突。该运行全部作废，不读�
 `logs/archive/diagnostic/g12_r2_s1_launcher_cleanup_failed_20260806/`，结构化中间结果移至
 `local_data/s1_diagnostic_invalid_launcher_cleanup_20260806/`。执行器现要求每个stage
 结束后终止完整进程组并确认`14621/14721`端口释放，随后从126场完整重跑。
+
+有效重跑已经完成：`126/126`场中full success为`72/126`，42个stage-case项中
+`22 pass / 0 borderline / 20 repair`。完整结果与下一步边界见
+[R2_S1_DIAGNOSTIC_RESULTS](R2_S1_DIAGNOSTIC_RESULTS.md)。

@@ -1,6 +1,6 @@
 # ICRA论文主线：普通导航Actor、条件避障Actor与在线Gate
 
-状态：`route frozen / G11-D2 navigation passed but efficiency failed / G12-R2-S0 passed`。
+状态：`route frozen / G11-D2 navigation passed but efficiency failed / G12-R2-S1 repair required`。
 更新时间：`2026-08-06`。
 
 本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见
@@ -238,10 +238,9 @@ success + collision + unresolved = agents * episodes
 6. G12-R1原宽度控制已完成：full success从`0.717`降至`0.283`，说明无约束TD3/fresh
    Critic是P1与R1的共同不稳定来源，参数扩宽不是P1坍塌的充分解释。R1只作诊断，不作
    R2 warm start或论文主性能模型。
-7. G12正式大Actor不沿用Gate的0-edge/edge-1训练边界。R2课程清单与历史审计已经冻结；
-   当前登记`G12-R2-S0`：`24-1137-855-2`Actor/Critic随机初始化，seed `20260811`，在
-   `g12_r2_curriculum_v1/n1`上训练`100k` agent samples，每20k用互斥120场validation
-   评估。S0不加载5A，不读取D2、G11-E或sealed test；异常即停止且不能作为容量结论。
+7. G12正式大Actor不沿用Gate的0-edge/edge-1训练边界。R2-S0已通过；S1固定困难case诊断
+   已完成`126/126`场，full success为`72/126`，其中`22 pass / 0 borderline / 20 repair`。
+   当前先登记repair-only补课manifest、分段预算和broad n1回归门槛，不能直接跑满80k。
    R3/R4再使用完整standard/dense train并重采样强交互子集。具体协议见
    [G12-R2协议](12_参数匹配单Actor容量对照/R2_PROTOCOL.md)和
    [G12完整场景协议](12_参数匹配单Actor容量对照/FULL_SCENE_PROTOCOL.md)。

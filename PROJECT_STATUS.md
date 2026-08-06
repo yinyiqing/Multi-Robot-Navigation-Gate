@@ -95,6 +95,10 @@ Gate
 16. G12-R2-S0已按100k预算完成。五次单车broad validation的full success为
     `0.983/1.000/1.000/0.992/1.000`，epoch 2为冻结best；全程没有P1/R1式坍塌。S0通过
     基础导航准入，但不构成两车、五车或冲突能力结论。
+17. G12-R2-S1固定困难case诊断已完成`126/126`场，总full success为`72/126=0.5714`；
+    42个stage-case项中`22 pass / 0 borderline / 20 repair`。普通近目标与隔墙导航通过，
+    缺口集中在近障恢复、贴墙姿态、离墙推进和反向脱离。该结果授权登记repair-only S1
+    补课，但不授权直接跑满80k，也不是论文性能指标。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -125,8 +129,8 @@ Gate
    0-edge/edge-1/multi-edge同时平衡，与全部navigation train及G11-C/D2/E逐一互斥。
    历史课程审计也已完成：2D/3D2/5A的selected checkpoint没有可靠Actor更新证据，且
    初始基础模型预算未知。R2改为随机加宽Actor先做n1 broad导航，再补固定单车case并按
-   n2/n3/n5扩展。R2-S0已经完成并通过；下一步先用冻结best只评测stage1/e/f/g固定困难
-   case，确认存在具体缺口后才允许启动S1补课。
+   n2/n3/n5扩展。R2-S0已经完成并通过；S1困难case诊断已确认20个repair项。下一步先冻结
+   repair-only manifest、分段预算与broad n1回归门槛，再启动S1补课。
 9. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
    scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
    manifest哈希、缺失/重复/错序ID。不同场景或不同评测协议的历史汇总值不得混入同一表。

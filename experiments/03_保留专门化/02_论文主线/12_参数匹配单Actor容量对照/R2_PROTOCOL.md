@@ -1,6 +1,6 @@
 # G12-R2加宽单Actor普通导航课程协议
 
-状态：`S0 completed and passed / S1 targeted evaluation pending / S2-S4 budgets preregistered`。
+状态：`S0 passed / S1 diagnostic completed and repair required / S2-S4 budgets preregistered`。
 日期：`2026-08-06`。
 
 ## 1. 固定边界
@@ -68,6 +68,11 @@ S0已经按100k预算完成并通过。五次full success为
 S1训练前置固定case诊断已经冻结为每case 3次的
 [S1诊断协议](R2_S1_DIAGNOSTIC_PROTOCOL.md)。该诊断不更新网络；只在出现可复现缺口后
 登记对应case组的训练配置。
+
+S1诊断已经完成，full success为`72/126`，得到`22 pass / 0 borderline / 20 repair`。
+缺口集中在近障恢复、贴墙姿态、离墙推进和反向脱离；结果见
+[S1诊断结果](R2_S1_DIAGNOSTIC_RESULTS.md)。下一步必须先登记repair-only训练manifest与
+分段回归门槛，不能直接按历史stage顺序自动跑满`80k`。
 
 ## 4. 启停与日志
 
