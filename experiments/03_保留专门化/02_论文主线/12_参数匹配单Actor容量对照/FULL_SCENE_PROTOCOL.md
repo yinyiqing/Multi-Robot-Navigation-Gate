@@ -1,6 +1,6 @@
 # G12 R2-R5完整场景单Actor协议
 
-状态：`design frozen in principle / manifests and numeric optimizer settings pending preregistration`。
+状态：`selection manifest frozen / R2 curriculum and numeric optimizer settings pending preregistration`。
 日期：`2026-08-06`。
 
 ## 1. “完整场景”的定义
@@ -77,12 +77,23 @@ R2启动前新建`g12_full_scene_selection_v1`：
 - 固定分配为standard的`35/20/5`场与dense的`5/20/35`场，顺序分别对应
   `0-edge/edge-1/multi-edge`；这既保持来源等权，也避免伪造dense中的大量0-edge；
 - 与G11-C、G11-D2、G11-E以及所有train scenario ID互斥；
-- 按策略无关的完整静态路径拓扑分层，不根据任何模型成功与否筛选；
+- 按原始manifest中的策略无关静态路径冲突指标`metrics.conflict_edge_count`分层，不根据
+  任何模型成功与否筛选；该字段使用生成器冻结的`8 s` horizon，不称为full-horizon；
 - manifest、生成脚本、SHA-256和互斥审计在R2启动前提交。
 
 可行性审计：排除G11-C/D2/E共450个不同scenario ID后，standard validation剩余
 `141/162/82`场，dense validation剩余`7/161/547`场，顺序均为
 `0-edge/edge-1/multi-edge`。上述120场配额均有足够候选。
+
+selection已经冻结：
+
+```text
+fixed_v1/views/g12_full_scene_selection_v1/validation.json.gz
+SHA-256 52435d6c5bdf9914e7212dd29cb4bfec074257f72d85f0d71741deee7c63b635
+```
+
+六层实际候选与上述可行性审计一致；120个ID与全部navigation train、G11-C、G11-D2和
+G11-E逐一交集为0。构建与审计细节见该view的README。
 
 该120场只用于R2-R4 checkpoint选择。G11-D2和G11-E在大Actor冻结前不可读取或用于
 调参；sealed test只在所有方法冻结后运行一次。

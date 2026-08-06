@@ -110,8 +110,10 @@ Gate
    任何新长跑必须先冻结具体超参数和manifest，不得用D2或sealed test调参。
 7. G12-R1已归档到`logs/archive/diagnostic/g12_r1/`，只作机制诊断，其checkpoint不得
    作为R2 warm start或论文主性能模型。
-8. R2启动前必须构建与G11-C/D2/E互斥的120场G12完整场景内部validation，并盘点形成
-   5A的有效课程节点和累计样本预算；不得直接执行历史课程README。
+8. G12完整场景内部validation已经冻结为`g12_full_scene_selection_v1`：120场按来源和
+   0-edge/edge-1/multi-edge同时平衡，与全部navigation train及G11-C/D2/E逐一互斥。
+   R2启动前剩余前置项是盘点形成5A的有效课程节点和累计样本预算；不得直接执行历史
+   课程README。
 
 ## 问题与主张边界
 
