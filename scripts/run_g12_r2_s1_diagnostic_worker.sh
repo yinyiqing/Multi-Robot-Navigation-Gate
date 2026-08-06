@@ -11,6 +11,7 @@ PID_FILE="$PROJECT_ROOT/.g12_r2_s1_diagnostic.pid"
 LOCK_FILE="/tmp/local_critic_multi_robot_training.lock"
 ROS_PORT=14621
 GAZEBO_PORT=14721
+source "$PROJECT_ROOT/scripts/lib_g12_r2_s1_runtime.sh"
 STAGES=(
   stage1_single
   stage1e_single_rescue
@@ -24,9 +25,7 @@ cleanup_stage() {
     stage_pid_file="$PROJECT_ROOT/.test_multi_curriculum_${stage}_detached.pid"
     [[ -f "$stage_pid_file" ]] || continue
     stage_pid="$(tr -d '[:space:]' < "$stage_pid_file")"
-    if [[ "$stage_pid" =~ ^[0-9]+$ ]] && kill -0 "$stage_pid" 2>/dev/null; then
-      kill -- "-$stage_pid" 2>/dev/null || kill "$stage_pid" 2>/dev/null || true
-    fi
+    g12_r2_s1_stop_stage "$stage_pid" "$ROS_PORT" "$GAZEBO_PORT" || true
     unlink "$stage_pid_file" 2>/dev/null || true
   done
 }
@@ -35,11 +34,18 @@ cleanup() {
   cleanup_stage
   unlink "$PID_FILE" 2>/dev/null || true
 }
-trap cleanup EXIT INT TERM
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 exec 9>"$LOCK_FILE"
 flock -n 9 || { echo "Multi-robot lock is busy" >&2; exit 1; }
 mkdir -p "$RESULTS_DIR" "$CHECKPOINT_DIR" "$LOG_DIR"
+
+if ! g12_r2_s1_ports_are_free "$ROS_PORT" "$GAZEBO_PORT"; then
+  echo "S1 ROS/Gazebo ports are occupied before the diagnostic starts" >&2
+  exit 1
+fi
 
 export CUDA_VISIBLE_DEVICES=0
 export DRL_MULTI_SEED=20260812
@@ -77,11 +83,12 @@ for stage in "${STAGES[@]}"; do
   while kill -0 "$stage_pid" 2>/dev/null; do
     sleep 5
   done
+  g12_r2_s1_stop_stage "$stage_pid" "$ROS_PORT" "$GAZEBO_PORT"
   unlink "$stage_pid_file" 2>/dev/null || true
   /usr/bin/python3 "$PROJECT_ROOT/scripts/analyze_g12_r2_s1_diagnostic.py" \
     --stage "$stage" --results-dir "$RESULTS_DIR" >/dev/null
   echo "Completed $stage"
-  sleep 3
+  sleep 1
 done
 
 /usr/bin/python3 "$PROJECT_ROOT/scripts/analyze_g12_r2_s1_diagnostic.py" \

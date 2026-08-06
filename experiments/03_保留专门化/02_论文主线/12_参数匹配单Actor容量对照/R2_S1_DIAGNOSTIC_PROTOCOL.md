@@ -51,3 +51,11 @@ bash scripts/experiment.sh stop actor-g12-r2-s1-diagnostic
 日志写入`logs/active/capacity-wide-g12-r2/s1-diagnostic/`，完成后归档到
 `logs/archive/validation/g12_r2_s1_diagnostic/`。结构化结果写入本目录
 `local_data/s1_diagnostic/summary.json`。
+
+## 5. 无效运行记录
+
+`2026-08-06`首次运行在`stage1_single`结束后未清理其ROS/Gazebo进程，后续stage与同一
+master上的残留仿真发生模型名冲突。该运行全部作废，不读取任何stage指标；日志归档到
+`logs/archive/diagnostic/g12_r2_s1_launcher_cleanup_failed_20260806/`，结构化中间结果移至
+`local_data/s1_diagnostic_invalid_launcher_cleanup_20260806/`。执行器现要求每个stage
+结束后终止完整进程组并确认`14621/14721`端口释放，随后从126场完整重跑。
