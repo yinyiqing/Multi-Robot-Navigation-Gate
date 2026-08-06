@@ -1,6 +1,7 @@
 # G12-R1：原宽度训练稳定性控制协议
 
-状态：`preregistered / ready to run`。日期：`2026-08-06`。
+状态：`completed / result archived`。日期：`2026-08-06`。结果见
+[R1诊断](R1_DIAGNOSTIC.md)。
 
 ## 唯一问题
 

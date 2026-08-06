@@ -1,6 +1,6 @@
 # G12-R 公平参数匹配单Actor路线
 
-状态：`route revised / R1 running / full-scene baseline frozen in principle`。
+状态：`route revised / R1 completed / full-scene baseline next`。
 日期：`2026-08-06`。
 
 ## 1. 研究问题
@@ -63,11 +63,13 @@ R2-R5的具体数据、采样和准入见[完整场景协议](FULL_SCENE_PROTOCO
 
 ### R1：原宽度训练稳定性控制
 
-状态：`running`。冻结参数见[R1协议](R1_PROTOCOL.md)。
+状态：`completed / archived diagnostic`。冻结参数见[R1协议](R1_PROTOCOL.md)，完整结果见
+[R1诊断](R1_DIAGNOSTIC.md)。
 
-R1只改变P1的Actor宽度并硬停止于40k。原宽度也坍塌，说明主要问题是无约束TD3/fresh
-Critic；只有加宽Actor坍塌，才重点检查扩宽初始化和新增参数优化尺度。无论结果如何，
-R1都不是正式大Actor，也不决定完整场景中单Actor的最终能力。
+R1只改变P1的Actor宽度并硬停止于40k。原宽度full success从`0.717`降至`0.283`，证明
+主要问题是无约束TD3/fresh Critic，而不是参数量翻倍；P1降至`0.050`，说明扩宽可能放大
+不稳定性，但单seed不足以形成独立因果结论。R1不是正式大Actor，也不决定完整场景中
+单Actor的最终能力。
 
 ### R2：加宽Actor从头完成普通导航课程
 
@@ -137,8 +139,8 @@ R3通过后保持数据、`1:1`采样、loss和优化器不变，扩展到`320,0
 
 | 顺序 | 工作 |
 | --- | --- |
-| 1 | 完成并归档R1，形成训练稳定性结论 |
-| 2 | 构建并冻结G12完整场景内部validation，审计与D2/G11-E互斥 |
+| 1 | 完成并归档R1，形成训练稳定性结论（已完成） |
+| 2 | 构建并冻结G12完整场景内部validation，审计与D2/G11-E互斥（下一步） |
 | 3 | 盘点历史5A课程的case、预算和有效节点，冻结R2逐阶段运行manifest |
 | 4 | R2从头训练加宽Actor并通过普通导航准入 |
 | 5 | R3完整五车混合分布40k pilot |

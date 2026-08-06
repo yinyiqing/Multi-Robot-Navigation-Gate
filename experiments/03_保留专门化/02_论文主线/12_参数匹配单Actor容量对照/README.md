@@ -1,6 +1,6 @@
 # G12 参数匹配单Actor容量对照
 
-状态：`P1 diagnostic archived / R1 running / R2-R5 full-scene route revised`。日期：`2026-08-06`。
+状态：`P1/R1 diagnostics archived / R2-R5 full-scene route next`。日期：`2026-08-06`。
 
 P1在`40,007 agent samples`处按预注册规则早停。函数保持初始化通过，但Actor解冻后的
 full success从`0.717`降至`0.050`并出现动作单侧饱和，因此该运行不能支持“参数匹配
@@ -8,6 +8,9 @@ full success从`0.717`降至`0.050`并出现动作单侧饱和，因此该运行
 [G12-R修订路线](REVISED_PLAN.md)与[完整场景协议](FULL_SCENE_PROTOCOL.md)为准。本文件
 以下内容保留P1原始预注册协议，其中`g11_a1_gate_v1`只适用于P1/R1诊断，不是正式
 R2-R5大Actor的数据边界。
+
+R1原宽度控制的full success同样从`0.717`降到`0.283`，因此P1不能归因于参数翻倍。
+完整结果见[R1诊断](R1_DIAGNOSTIC.md)。P1/R1 checkpoint都不得作为R2 warm start。
 
 ## 研究问题
 

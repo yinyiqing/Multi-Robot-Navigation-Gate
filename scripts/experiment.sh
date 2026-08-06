@@ -8,8 +8,6 @@ usage() {
 Usage:
   bash scripts/experiment.sh list
   bash scripts/experiment.sh status
-  bash scripts/experiment.sh start actor-g12-r1-original-width
-  bash scripts/experiment.sh stop  actor-g12-r1-original-width
 
 Current method:
   Actor N  generalist-5a         frozen
@@ -17,13 +15,14 @@ Current method:
   Gate     G11-B2                 D2 navigation passed, efficiency failed
 
 Current command:
-  bash scripts/experiment.sh start actor-g12-r1-original-width
-  bash scripts/experiment.sh stop  actor-g12-r1-original-width
+  No long-running experiment is registered for launch.
+  G12-R2 must wait for its full-scene selection manifest and curriculum audit.
 
-G11-C is complete. Its start/stop entrypoint is retained only for exact resumption.
+G11-C, G11-D2, G12-P1 and G12-R1 are complete. Their start/stop entrypoints are
+retained only for controlled reproduction.
 
-Actor training remains closed except for the registered G12 capacity-control baseline.
-Historical scripts are not current entrypoints.
+Actor training remains closed until the G12-R2 protocol and launcher are registered.
+Historical scripts are not current execution instructions.
 EOF
 }
 

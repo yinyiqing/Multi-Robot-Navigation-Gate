@@ -10,8 +10,11 @@ bash scripts/experiment.sh list
 bash scripts/experiment.sh status
 ```
 
-G11-B1采集、G11-B2主seed聚合训练和G11-C固定50场闭环pilot均已完成。当前先执行
-登记后的CPU训练seed复核；D1现已完成，命令保留用于完整恢复：
+G11-B1/B2、G11-C、G11-D2和G12-P1/R1均已完成。当前没有已注册的新长跑命令；
+G12-R2启动前必须先构建完整场景selection manifest、审计与G11-C/D2/E互斥，并冻结
+从单车到五车的课程预算。
+
+以下旧命令只保留用于受控复现，不是当前执行顺序：
 
 ```bash
 bash scripts/run_g11_b_aggregated_training.sh 20260804
@@ -21,8 +24,9 @@ bash scripts/experiment.sh start gate-g11-d2-admission
 bash scripts/experiment.sh queue actor-g12-capacity-pilot
 ```
 
-5A、epoch-16和A1主seed Gate均冻结。唯一Actor训练入口是D2归档后执行的G12参数匹配
-单Actor容量对照；它不更新当前Actor，也不恢复历史Actor路线。Gate协议见
+5A、epoch-16和当前Gate均冻结。G12-P1/R1只作训练稳定性诊断，checkpoint不得作为R2
+warm start。后续Actor训练授权只覆盖尚待注册的G12-R2完整课程；它不更新当前Actor，
+也不恢复历史Actor路线。Gate协议见
 [`G11_B_student_rollout_v1`](../experiments/03_保留专门化/02_论文主线/11_可部署在线Gate研究/G11_B_student_rollout_v1/README.md)，
 容量对照见[`G12`](../experiments/03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/README.md)。
 
@@ -31,8 +35,7 @@ bash scripts/experiment.sh queue actor-g12-capacity-pilot
 - `generalist-5a`：冻结普通导航Actor；
 - `interaction-epoch16`：冻结条件避障Actor；
 - `learned-gate-g2a`：历史未过准入Gate基线；
-- `deployable-interaction-gate`：G11-B2聚合Gate已通过G11-C保留判断和G11-D1训练seed
-  复核，当前执行G11-D2独立闭环准入。
+- `deployable-interaction-gate`：G11-B2聚合Gate在G11-D2通过导航准入，但效率准入失败。
 
 ## 可复用工具
 

@@ -1,6 +1,6 @@
 # ICRA论文主线：普通导航Actor、条件避障Actor与在线Gate
 
-状态：`route frozen / G11-D2 navigation passed but efficiency failed / G12-R1 running`。
+状态：`route frozen / G11-D2 navigation passed but efficiency failed / G12-R1 completed`。
 更新时间：`2026-08-06`。
 
 本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见
@@ -228,8 +228,9 @@ success + collision + unresolved = agents * episodes
 5. G12-P1在40k处因Actor动作饱和和full success坍塌早停，只作训练稳定性诊断，不作
    参数容量结论。后续按[G12-R公平参数匹配路线](12_参数匹配单Actor容量对照/REVISED_PLAN.md)
    执行原宽度控制、从头课程训练和受约束联合训练。
-6. G12-R1使用原宽度`24-800-600-2`复现P1前40k协议：同一train/validation、seed、
-   fresh Critic、前20k Critic warm-up和后20k Actor更新；该诊断完成前不得启动R2。
+6. G12-R1原宽度控制已完成：full success从`0.717`降至`0.283`，说明无约束TD3/fresh
+   Critic是P1与R1的共同不稳定来源，参数扩宽不是P1坍塌的充分解释。R1只作诊断，不作
+   R2 warm start或论文主性能模型。
 7. G12正式大Actor不沿用Gate的0-edge/edge-1训练边界。R2用`24-1137-855-2`随机初始化
    复现完整单车到五车课程；R3/R4使用完整standard/dense train并重采样强交互子集，
    单一Actor全程控制五车。具体协议见

@@ -1,6 +1,6 @@
 # 模型注册表
 
-更新时间：`2026-08-04`。代码继续使用历史artifact文件名以保持兼容；论文和新文档统一
+更新时间：`2026-08-06`。代码继续使用历史artifact文件名以保持兼容；论文和新文档统一
 使用本表短ID。当前方法见[PROJECT_STATUS](../PROJECT_STATUS.md)。
 
 ## 当前模型
@@ -28,6 +28,7 @@
 | `actor-b-single-edge-residual` | `actor_b_from_epoch16_full_pilot_v1_s20260802`等历史候选 | rejected | R0/闭环路线均未准入 |
 | `full-edge1-actor-pilot` | `full_actor_edge1_from_5a_s20260803` | rejected pilot | 解冻后退化；`best`主要对应冻结5A阶段 |
 | `independent-dense-actor-*` | `independent_dense_actor_*` | rejected family | 不从局部峰值或`best`恢复训练 |
+| `capacity-original-width-r1` | `capacity_original_width_r1_n5_seed20260810` | diagnostic only | 同协议原宽度也退化；不得作R2 warm start或容量成绩 |
 
 未列出的`TD3/checkpoints/*.pt`默认是历史训练恢复状态，不是当前模型。使用前必须在
 [实验注册表](../experiments/EXPERIMENT_REGISTRY.md)确认其路线状态。
