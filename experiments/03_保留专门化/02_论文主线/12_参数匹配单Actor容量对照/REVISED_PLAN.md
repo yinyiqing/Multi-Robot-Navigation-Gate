@@ -119,7 +119,10 @@ R3通过后保持数据、`1:1`采样、loss和优化器不变，扩展到`320,0
 
 - 正式协议至少3个seed；主seed预注册，不从seed中挑最好结果；
 - 模型冻结后才按顺序运行G12内部holdout、G11-D2、G11-E和sealed test；
-- 与5A、epoch-16 always-on、A1、B2及2m oracle使用同一场景做配对统计；
+- 与5A、epoch-16 always-on、规则Gate、A1、B2、最终Gate及2m oracle重新运行同一个冻结
+  manifest；scenario ID、顺序、evaluation seed列表、重复次数、物理参数和终止条件完全一致；
+- 逐场保存`scenario_id + repeat`，分析前强制审计manifest哈希及缺失、重复、错序ID；审计
+  不通过时不得生成方法对比表；
 - 同时报告0-edge、edge-1、multi-edge、standard/dense、平均步数和碰撞；
 - 若大Actor达到或超过双Actor+Gate，如实收窄或否定“专门化优于容量”的主张。
 

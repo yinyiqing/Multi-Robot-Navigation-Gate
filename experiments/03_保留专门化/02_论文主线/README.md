@@ -165,6 +165,13 @@ single-to-multi零样本泛化。
 3. exact-edge-2及更复杂拓扑边界；
 4. dense/standard sealed test。
 
+同一张方法对比表中的5A、epoch-16 always-on、规则Gate、A1、B2、最终Gate、参数匹配
+单Actor和oracle必须重新运行同一个冻结manifest。所有方法必须共享完全相同的scenario
+ID与顺序、评测seed列表、重复次数、物理参数、最大步数和终止条件。结果逐场记录
+`scenario_id`和evaluation repeat；分析器必须先校验manifest SHA-256以及ID缺失、重复、
+错序和repeat不一致，任何一项失败都应终止分析。历史上不同集合或不同运行协议的汇总
+成功率只能作背景证据，不能拼入最终方法表。
+
 若Gate或Actor I使用multi-edge训练数据，则不得声称single-to-multi零样本泛化。
 
 ## 7. Gate准入

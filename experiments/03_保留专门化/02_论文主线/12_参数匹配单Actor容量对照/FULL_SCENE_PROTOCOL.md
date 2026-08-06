@@ -100,7 +100,25 @@ G11-E逐一交集为0。构建与审计细节见该view的README。
 该120场只用于R2-R4 checkpoint选择。G11-D2和G11-E在大Actor冻结前不可读取或用于
 调参；sealed test只在所有方法冻结后运行一次。
 
-## 5. 预算与报告
+## 5. 最终配对比较契约
+
+R5不是把不同实验的汇总数放到一张表。最终比较必须满足：
+
+1. 5A、epoch-16 always-on、规则Gate、A1、B2、最终Gate、参数匹配单Actor和oracle读取
+   同一个冻结manifest，并使用完全相同的scenario ID及顺序；
+2. 所有方法共享同一组evaluation rollout seed、相同仿真重复次数、物理参数、最大步数、
+   success/collision/timeout定义和仿真启动方式；训练seed与evaluation seed分别报告；
+3. 每个结果逐行保存`scenario_id`和repeat ID。分析前校验manifest SHA-256、结果行数、
+   ID顺序、重复/缺失ID和repeat覆盖；不一致时直接失败，不生成比较指标；
+4. 同场波动通过相同repeat列表、逐场配对统计和至少一次复核运行处理。相同scenario ID但
+   不同评测协议的历史结果不能替代最终复测；
+5. full success使用同场McNemar exact和paired bootstrap，同时报告改善/退化场数；连续
+   指标按同一个`scenario_id + repeat`键配对。
+
+R5执行脚本必须在启动前固定上述manifest哈希和evaluation seed列表，并在完成后生成机器
+可读审计结果。审计未通过的运行不得进入论文主表。
+
+## 6. 预算与报告
 
 - R2逐阶段报告agent samples、env steps、Actor updates和validation次数；
 - R3固定40k pilot；R4在不改变协议的前提下扩展到320k；
@@ -109,7 +127,7 @@ G11-E逐一交集为0。构建与审计细节见该view的README。
   unresolved和timeout全部报告；
 - R5至少3 seed，报告均值、标准差和同场配对检验。
 
-## 6. 公平性解释
+## 7. 公平性解释
 
 该baseline在完整`fixed_v1` train上训练，数据覆盖不窄于当前双Actor组件，并允许使用与
 interaction Actor同级的训练期几何信息。因此它是对单Actor较为有利的对照。若它仍低于

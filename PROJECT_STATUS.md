@@ -6,6 +6,14 @@
 [论文主线协议](experiments/03_保留专门化/02_论文主线/README.md)为准；历史 README
 中的“当前”和“下一步”只代表当时判断。
 
+## 投稿时间
+
+- ICRA 2027论文截止时间为`2026-09-15 23:59 PST`，以
+  [官方Call for Papers](https://2027.ieee-icra.org/contribute/call-for-icra-2027-papers-now-accepting-submissions/)
+  为准；从`2026-08-06`起约有40天。
+- 当前“两周”目标是冻结方法和主要长跑，不是把全部40天都用于试验。之后必须保留统一
+  复测、统计、作图、视频和论文写作时间。
+
 ## 一句话方法
 
 在无通信、局部观测的五车导航中，冻结普通导航 Actor 和条件避障 Actor，由运行时
@@ -115,6 +123,9 @@ Gate
    历史课程审计也已完成：2D/3D2/5A的selected checkpoint没有可靠Actor更新证据，且
    初始基础模型预算未知。R2改为随机加宽Actor先做n1 broad导航，再补固定单车case并按
    n2/n3/n5扩展；当前只授权100k samples的R2-S0。
+9. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
+   scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
+   manifest哈希、缺失/重复/错序ID。不同场景或不同评测协议的历史汇总值不得混入同一表。
 
 ## 问题与主张边界
 
