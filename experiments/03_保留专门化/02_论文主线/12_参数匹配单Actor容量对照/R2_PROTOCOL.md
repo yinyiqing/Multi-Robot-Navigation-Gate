@@ -71,8 +71,9 @@ S1训练前置固定case诊断已经冻结为每case 3次的
 
 S1诊断已经完成，full success为`72/126`，得到`22 pass / 0 borderline / 20 repair`。
 缺口集中在近障恢复、贴墙姿态、离墙推进和反向脱离；结果见
-[S1诊断结果](R2_S1_DIAGNOSTIC_RESULTS.md)。下一步必须先登记repair-only训练manifest与
-分段回归门槛，不能直接按历史stage顺序自动跑满`80k`。
+[S1诊断结果](R2_S1_DIAGNOSTIC_RESULTS.md)。8个几何去重case、首段20k预算和broad回归
+门槛已在[S1补课协议](R2_S1_REPAIR_PROTOCOL.md)冻结，不能直接按历史stage顺序自动跑满
+`80k`。
 
 ## 4. 启停与日志
 

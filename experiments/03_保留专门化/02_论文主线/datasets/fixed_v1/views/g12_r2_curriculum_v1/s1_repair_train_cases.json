@@ -1,0 +1,109 @@
+{
+  "name": "g12_r2_s1_repair_train_cases_v1",
+  "description": "Eight geometry-deduplicated repair cases selected by the frozen G12-R2-S1 diagnostic.",
+  "cases": [
+    {
+      "name": "near_obstacle_recovery",
+      "weight": 3.0,
+      "local_navigation_reward": true,
+      "agents": {
+        "r1": {
+          "start": [-4.0, 0.9],
+          "goal": [-1.0, 0.9],
+          "heading": 0.0
+        }
+      }
+    },
+    {
+      "name": "wall_parallel_north_clear_straight",
+      "weight": 1.0,
+      "local_navigation_reward": true,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-4.0, 0.95],
+          "goal": [-1.0, 0.95],
+          "heading": 0.0
+        }
+      }
+    },
+    {
+      "name": "wall_parallel_north_clear_yaw_in",
+      "weight": 1.0,
+      "local_navigation_reward": true,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-4.0, 0.95],
+          "goal": [-1.0, 0.95],
+          "heading": -0.15
+        }
+      }
+    },
+    {
+      "name": "wall_parallel_north_clear_yaw_out",
+      "weight": 1.0,
+      "local_navigation_reward": true,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-4.0, 0.95],
+          "goal": [-1.0, 0.95],
+          "heading": 0.15
+        }
+      }
+    },
+    {
+      "name": "wall_parallel_north_safe_straight",
+      "weight": 1.0,
+      "local_navigation_reward": true,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-4.0, 1.15],
+          "goal": [-1.0, 1.15],
+          "heading": 0.0
+        }
+      }
+    },
+    {
+      "name": "wall_parallel_north_safe_yaw_in",
+      "weight": 1.0,
+      "local_navigation_reward": true,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-4.0, 1.15],
+          "goal": [-1.0, 1.15],
+          "heading": -0.15
+        }
+      }
+    },
+    {
+      "name": "wall_parallel_north_safe_yaw_out",
+      "weight": 1.0,
+      "local_navigation_reward": true,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-4.0, 1.15],
+          "goal": [-1.0, 1.15],
+          "heading": 0.15
+        }
+      }
+    },
+    {
+      "name": "wall_parallel_reverse_clear",
+      "weight": 3.0,
+      "local_navigation_reward": true,
+      "boxes": [],
+      "agents": {
+        "r1": {
+          "start": [-1.0, 0.95],
+          "goal": [-4.0, 0.95],
+          "heading": 3.14159
+        }
+      }
+    }
+  ]
+}

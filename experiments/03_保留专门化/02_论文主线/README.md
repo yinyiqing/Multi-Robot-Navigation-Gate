@@ -240,7 +240,7 @@ success + collision + unresolved = agents * episodes
    R2 warm start或论文主性能模型。
 7. G12正式大Actor不沿用Gate的0-edge/edge-1训练边界。R2-S0已通过；S1固定困难case诊断
    已完成`126/126`场，full success为`72/126`，其中`22 pass / 0 borderline / 20 repair`。
-   当前先登记repair-only补课manifest、分段预算和broad n1回归门槛，不能直接跑满80k。
+   8-case repair-only文件、首段20k预算和broad n1回归门槛已经冻结，不能直接跑满80k。
    R3/R4再使用完整standard/dense train并重采样强交互子集。具体协议见
    [G12-R2协议](12_参数匹配单Actor容量对照/R2_PROTOCOL.md)和
    [G12完整场景协议](12_参数匹配单Actor容量对照/FULL_SCENE_PROTOCOL.md)。

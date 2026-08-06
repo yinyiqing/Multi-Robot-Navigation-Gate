@@ -130,7 +130,7 @@ Gate
    历史课程审计也已完成：2D/3D2/5A的selected checkpoint没有可靠Actor更新证据，且
    初始基础模型预算未知。R2改为随机加宽Actor先做n1 broad导航，再补固定单车case并按
    n2/n3/n5扩展。R2-S0已经完成并通过；S1困难case诊断已确认20个repair项。下一步先冻结
-   repair-only manifest、分段预算与broad n1回归门槛，再启动S1补课。
+   8-case repair-only文件、首段20k预算与broad n1回归门槛已经冻结；当前执行S1首段补课。
 9. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
    scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
    manifest哈希、缺失/重复/错序ID。不同场景或不同评测协议的历史汇总值不得混入同一表。

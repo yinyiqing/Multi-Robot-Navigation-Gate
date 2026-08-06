@@ -18,6 +18,14 @@ train保留`fixed_v1/standard/train`全部3000场；validation保留冻结的
 | 5 | train | `3000` | `82f990dab54331ef55d3818fbe39b31fe00480dd99696987a5b85c5e2581ac1e` |
 | 5 | validation | `120` | `e33dbfad3d166fa4500b5997902a94c49108c77c646c7a39c26480b5054daef7` |
 
+S1定向补课另使用诊断后冻结的8个几何去重case：
+
+| file | cases | SHA-256 |
+| --- | ---: | --- |
+| `s1_repair_train_cases.json` | `8` | `df5267aac5b671befe1df2c64d82503bda9acd4770b02e774e02717d32a9ace5` |
+
+该文件只用于R2-S1，不能替代n2/n3/n5的完整train，也不是论文validation或test。
+
 派生冲突图只过滤原始五车静态路径图中两端都被保留的边，不重新筛选场景，也不用于R2
 采样。原始五车边数保存在`view.source_five_agent_conflict_edge_count`中，防止把派生n1/n2
 边数误当成来源场景难度。
@@ -35,4 +43,3 @@ train保留`fixed_v1/standard/train`全部3000场；validation保留冻结的
 ```bash
 /usr/bin/python3 scripts/build_g12_r2_curriculum_views.py
 ```
-
