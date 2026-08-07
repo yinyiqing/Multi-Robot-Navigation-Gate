@@ -1,7 +1,7 @@
 # G12 参数匹配单Actor容量对照
 
-状态：`P1/R1 archived / R2-S4 n5 passed / 20k admission failed / 10k fallback registered`。
-日期：`2026-08-07`。
+状态：`P1/R1 archived / R2 10k admission passed / R3 design next`。
+日期：`2026-08-08`。
 
 R2-S0加宽Actor从随机初始化完成100k单车broad训练，五次full success为
 `0.983/1.000/1.000/0.992/1.000`，冻结best位于epoch 2。结果见
@@ -20,9 +20,10 @@ best；完整结果见[R2-S3结果](R2_S3_N3_RESULTS.md)。当前从该best进�
 冻结20k best；完整结果见[R2-S4结果](R2_S4_N5_RESULTS.md)。进入R3前先执行
 [五车底座配对准入](R2_N5_ADMISSION_PROTOCOL.md)。
 
-20k配对准入的full success从5A的`0.5583`提高到`0.6917`，multi-edge从`0.150`提高到
-`0.425`，但timeout为`3/120`，相对5A增加`0.025`并超过`0.020`上限，因此严格判定未
-通过。当前只执行协议登记的10k fallback；完整结果见
+20k配对准入的full success从5A的`0.5583`提高到`0.6917`，但timeout为`3/120`并超过
+`0.020`上限，因此严格判定未通过。唯一预登记的10k fallback以`0.7000` full success、
+`0` timeout和`20.39`平均步数通过全部五项准入，冻结为R2参考并允许进入R3设计。10k与
+20k成功率逐场无显著差异，选择10k依据是约束和效率；完整结果见
 [R2五车准入结果](R2_N5_ADMISSION_RESULTS.md)。
 
 P1在`40,007 agent samples`处按预注册规则早停。函数保持初始化通过，但Actor解冻后的

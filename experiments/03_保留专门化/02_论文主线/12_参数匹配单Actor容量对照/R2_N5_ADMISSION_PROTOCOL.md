@@ -1,6 +1,6 @@
 # G12-R2五车底座配对准入协议
 
-状态：`20k completed and narrowly failed / one 10k fallback authorized`。日期：`2026-08-07`。
+状态：`completed / 20k failed timeout / registered 10k fallback passed`。日期：`2026-08-08`。
 
 ## 目的
 
@@ -47,3 +47,7 @@ S4协议已预先保存10k checkpoint，且训练内评测timeout更低，因此
 fallback：复用已审计的5A逐场结果，按相同manifest、顺序、seed和阈值评测10k。若仍失败，
 R2停止；不得继续选择其他checkpoint或seed。20k完整结果见
 [配对准入结果](R2_N5_ADMISSION_RESULTS.md)。
+
+10k已按上述固定协议完成并通过全部五项准入。它相对5A的full success为
+`0.7000 vs 0.5583`，timeout为`0/120`；因此冻结10k作为R2参考并授权进入R3设计，不再
+评测其他R2 checkpoint或seed。

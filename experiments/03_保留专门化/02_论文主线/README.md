@@ -1,7 +1,7 @@
 # ICRA论文主线：普通导航Actor、条件避障Actor与在线Gate
 
-状态：`route frozen / G11-D2 navigation passed but efficiency failed / G12-R2 10k fallback registered`。
-更新时间：`2026-08-07`。
+状态：`route frozen / G11-D2 navigation passed but efficiency failed / G12-R2 10k admission passed`。
+更新时间：`2026-08-08`。
 
 本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见
 [PROJECT_STATUS](../../../PROJECT_STATUS.md)，历史实验状态见
@@ -243,10 +243,11 @@ success + collision + unresolved = agents * episodes
    但broad n1降至`69/120=0.575`且出现49次timeout，候选按协议拒绝，不进入targeted复测
    或S2。S2从S0 best完成两车完整broad首段，10k/20k full success为`0.9333/0.9250`，
    冻结10k best。S3三车首段的10k/20k full success为`0.8750/0.8833`，冻结20k best；
-   S4五车首段的10k/20k full success为`0.6667/0.6917`，冻结20k best。当前先在同一内部
-   20k配对结果显著超过5A，但因`3/120` timeout相对5A增加`0.025`，超过`0.020`上限而
-   未通过。当前只评测预先保存的10k fallback；通过后R3/R4再使用完整standard/dense
-   train并重采样强交互子集。具体协议见
+   S4五车首段的10k/20k full success为`0.6667/0.6917`。20k配对结果显著超过5A，但因
+   `3/120` timeout相对5A增加`0.025`而未通过；预先登记的唯一10k fallback随后以
+   `0.7000 vs 0.5583` full success、`0` timeout通过全部五项准入。冻结10k作为R2参考，
+   下一步先固定R3数值配置，再在完整standard/dense train上做40k pilot并重采样强交互
+   子集。具体协议见
    [G12-R2协议](12_参数匹配单Actor容量对照/R2_PROTOCOL.md)和
    [G12完整场景协议](12_参数匹配单Actor容量对照/FULL_SCENE_PROTOCOL.md)。
 8. 完成主对照、消融和multi-edge边界评估。G11-E的50场exact-edge-2 pilot与后150场

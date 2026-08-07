@@ -1,7 +1,7 @@
 # G12 R2-R5完整场景单Actor协议
 
-状态：`selection manifest frozen / R2 curriculum and numeric optimizer settings pending preregistration`。
-日期：`2026-08-06`。
+状态：`selection manifest frozen / R2 10k admission passed / R3 numeric settings pending preregistration`。
+日期：`2026-08-08`。
 
 ## 1. “完整场景”的定义
 

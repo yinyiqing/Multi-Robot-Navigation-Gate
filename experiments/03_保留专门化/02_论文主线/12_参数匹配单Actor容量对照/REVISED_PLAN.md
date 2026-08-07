@@ -1,7 +1,7 @@
 # G12-R 公平参数匹配单Actor路线
 
-状态：`route revised / R2-S4 n5 passed / 20k admission failed / 10k fallback registered`。
-日期：`2026-08-07`。
+状态：`route revised / R2 10k admission passed / R3 design next`。
+日期：`2026-08-08`。
 
 ## 1. 研究问题
 
@@ -94,6 +94,9 @@ stage-case项达到repair条件。基础目标推进通过，缺口系统性集�
 [三车协议](R2_S3_N3_PROTOCOL.md)完成首段并冻结20k best。当前按
 [五车协议](R2_S4_N5_PROTOCOL.md)完成论文目标车数首段并冻结20k best；进入R3前按
 [配对准入协议](R2_N5_ADMISSION_PROTOCOL.md)补齐5A同场分层对照。
+
+配对准入已经完成：20k仅因timeout超限而失败，唯一预登记的10k fallback通过全部五项
+准入并冻结为R2参考。下一步是登记R3的数值优化配置和40k pilot，不再扫描R2 checkpoint。
 
 进入R3的最低条件：
 

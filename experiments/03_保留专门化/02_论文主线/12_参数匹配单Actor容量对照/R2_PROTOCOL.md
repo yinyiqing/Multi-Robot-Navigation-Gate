@@ -1,7 +1,7 @@
 # G12-R2加宽单Actor普通导航课程协议
 
-状态：`S0 passed / S1 repair rejected / S2 n2 first 20k authorized`。
-日期：`2026-08-07`。
+状态：`S0-S4 completed / S1 repair rejected / S4 10k admission passed`。
+日期：`2026-08-08`。
 
 ## 1. 固定边界
 
