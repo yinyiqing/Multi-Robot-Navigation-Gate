@@ -2,6 +2,14 @@ import torch
 import torch.nn.functional as F
 
 
+def clip_actor_gradients(parameters, max_norm):
+    if max_norm < 0.0:
+        raise ValueError("Actor gradient norm clip must be non-negative")
+    if max_norm == 0.0:
+        return torch.zeros(())
+    return torch.nn.utils.clip_grad_norm_(list(parameters), max_norm)
+
+
 def approaching_safety_mask(
     critic_states,
     actor_state_dim,

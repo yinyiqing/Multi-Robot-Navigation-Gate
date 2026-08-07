@@ -1,6 +1,6 @@
 # G12 参数匹配单Actor容量对照
 
-状态：`P1/R1 archived / R2 10k admission passed / R3 design next`。
+状态：`P1/R1 archived / R2 10k admission passed / R3 40k registered`。
 日期：`2026-08-08`。
 
 R2-S0加宽Actor从随机初始化完成100k单车broad训练，五次full success为
@@ -25,6 +25,11 @@ best；完整结果见[R2-S3结果](R2_S3_N3_RESULTS.md)。当前从该best进�
 `0` timeout和`20.39`平均步数通过全部五项准入，冻结为R2参考并允许进入R3设计。10k与
 20k成功率逐场无显著差异，选择10k依据是约束和效率；完整结果见
 [R2五车准入结果](R2_N5_ADMISSION_RESULTS.md)。
+
+[R3 40k pilot](R3_PROTOCOL.md)已经冻结：使用完整standard/dense train和strong子集构成
+`standard/strong/dense/strong`四槽循环，只加载R2-10k Actor，fresh geometry Critic在
+21k阈值后才解冻Actor，随后采用归一化Q、safe-state anchor和梯度裁剪。当前不扫描第二组
+配置。
 
 P1在`40,007 agent samples`处按预注册规则早停。函数保持初始化通过，但Actor解冻后的
 full success从`0.717`降至`0.050`并出现动作单侧饱和，因此该运行不能支持“参数匹配

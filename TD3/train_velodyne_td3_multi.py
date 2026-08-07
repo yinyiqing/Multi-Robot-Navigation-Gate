@@ -20,6 +20,7 @@ from actor_models import (
 )
 from actor_objectives import (
     actor_slowdown_safety_loss,
+    clip_actor_gradients,
     conservative_actor_objective,
     reference_acceleration_cap_loss,
     safe_reference_mask,
@@ -346,6 +347,7 @@ class TD3(object):
         residual_hidden_dim=128,
         residual_scale=0.15,
         actor_q_normalization_alpha=0.0,
+        actor_grad_norm_clip=0.0,
         critic_context_mode="legacy",
         actor_hidden_dim_1=800,
         actor_hidden_dim_2=600,
@@ -358,6 +360,7 @@ class TD3(object):
         self.residual_scale = float(residual_scale)
         self.actor_train_mode = (actor_train_mode or "full").strip().lower()
         self.actor_q_normalization_alpha = float(actor_q_normalization_alpha)
+        self.actor_grad_norm_clip = float(actor_grad_norm_clip)
         self.critic_context_mode = normalize_context_mode(critic_context_mode)
         self.actor_hidden_dim_1 = int(actor_hidden_dim_1)
         self.actor_hidden_dim_2 = int(actor_hidden_dim_2)
@@ -366,6 +369,8 @@ class TD3(object):
         )
         if self.actor_q_normalization_alpha < 0.0:
             raise ValueError("actor_q_normalization_alpha must be non-negative")
+        if self.actor_grad_norm_clip < 0.0:
+            raise ValueError("actor_grad_norm_clip must be non-negative")
         self.actor = self._make_actor().to(device)
         self.actor_target = self._make_actor().to(device)
         self.actor_target.load_state_dict(self.actor.state_dict())
@@ -463,6 +468,7 @@ class TD3(object):
         av_actor_loss = 0
         av_actor_anchor_loss = 0
         av_actor_q_scale = 0
+        av_actor_grad_norm = 0
         actor_update_count = 0
         self.last_actor_update_enabled = bool(update_actor)
         for it in range(iterations):
@@ -514,6 +520,12 @@ class TD3(object):
                     )
                     self.actor_optimizer.zero_grad()
                     actor_loss.backward()
+                    av_actor_grad_norm += float(
+                        clip_actor_gradients(
+                            (p for p in self.actor.parameters() if p.requires_grad),
+                            self.actor_grad_norm_clip,
+                        )
+                    )
                     self.actor_optimizer.step()
                     av_actor_loss += actor_loss.item()
                     av_actor_anchor_loss += anchor_loss.item()
@@ -549,6 +561,11 @@ class TD3(object):
         self.writer.add_scalar(
             "Actor Q normalization scale",
             av_actor_q_scale / max(actor_update_count, 1),
+            self.iter_count,
+        )
+        self.writer.add_scalar(
+            "Actor pre-clip gradient norm",
+            av_actor_grad_norm / max(actor_update_count, 1),
             self.iter_count,
         )
 
@@ -598,6 +615,7 @@ class TD3(object):
         av_loss = 0
         av_actor_anchor_loss = 0
         av_actor_q_scale = 0
+        av_actor_grad_norm = 0
         av_actor_angular_anchor_loss = 0
         av_actor_anchor_safe_share = 0
         av_actor_linear_delta = 0
@@ -935,6 +953,12 @@ class TD3(object):
                             )
                         self.actor_optimizer.zero_grad()
                         actor_loss.backward()
+                        av_actor_grad_norm += float(
+                            clip_actor_gradients(
+                                (p for p in self.actor.parameters() if p.requires_grad),
+                                self.actor_grad_norm_clip,
+                            )
+                        )
                         self.actor_optimizer.step()
                         av_actor_anchor_loss += anchor_loss.item()
                         av_actor_anchor_safe_share += anchor_safe_share
@@ -989,6 +1013,11 @@ class TD3(object):
         self.writer.add_scalar(
             "Actor Q normalization scale",
             av_actor_q_scale / max(actor_update_count, 1),
+            self.iter_count,
+        )
+        self.writer.add_scalar(
+            "Actor pre-clip gradient norm",
+            av_actor_grad_norm / max(actor_update_count, 1),
             self.iter_count,
         )
         self.writer.add_scalar(
@@ -1210,6 +1239,7 @@ class TD3(object):
             ),
             "actor_anchor_weight": self.actor_anchor_weight,
             "actor_q_normalization_alpha": self.actor_q_normalization_alpha,
+            "actor_grad_norm_clip": self.actor_grad_norm_clip,
             "critic_context_mode": self.critic_context_mode,
             "actor_hidden_dim_1": self.actor_hidden_dim_1,
             "actor_hidden_dim_2": self.actor_hidden_dim_2,
@@ -1256,6 +1286,9 @@ class TD3(object):
             state.get(
                 "actor_q_normalization_alpha", self.actor_q_normalization_alpha
             )
+        )
+        self.actor_grad_norm_clip = float(
+            state.get("actor_grad_norm_clip", self.actor_grad_norm_clip)
         )
         actor_reference = state.get("actor_reference")
         saved_anchor_weight = float(state.get("actor_anchor_weight", 0.0))
@@ -1347,6 +1380,7 @@ policy_noise = env_float("DRL_MULTI_POLICY_NOISE", 0.2)
 noise_clip = env_float("DRL_MULTI_NOISE_CLIP", 0.5)
 policy_freq = env_int("DRL_MULTI_POLICY_FREQ", 2)
 actor_anchor_weight = env_float("DRL_MULTI_ACTOR_ANCHOR_WEIGHT", 0.0) or 0.0
+actor_grad_norm_clip = env_float("DRL_MULTI_ACTOR_GRAD_NORM_CLIP", 0.0) or 0.0
 actor_anchor_safe_only = env_flag("DRL_MULTI_ACTOR_ANCHOR_SAFE_ONLY", False)
 actor_anchor_safe_distance = env_float(
     "DRL_MULTI_ACTOR_ANCHOR_SAFE_DISTANCE", 2.0
@@ -1560,6 +1594,8 @@ if not -1.0 <= actor_slowdown_max_linear_action <= 1.0:
     raise ValueError("DRL_MULTI_ACTOR_SLOWDOWN_MAX_LINEAR_ACTION must be in [-1, 1]")
 if actor_anchor_safe_distance <= 0.0:
     raise ValueError("DRL_MULTI_ACTOR_ANCHOR_SAFE_DISTANCE must be positive")
+if actor_grad_norm_clip < 0.0:
+    raise ValueError("DRL_MULTI_ACTOR_GRAD_NORM_CLIP must be non-negative")
 if actor_anchor_safe_only and not use_local_critic:
     raise ValueError("Safe-only Actor anchor requires DRL_MULTI_USE_LOCAL_CRITIC=1")
 if actor_anchor_safe_only and actor_anchor_weight <= 0.0:
@@ -1986,6 +2022,7 @@ network = TD3(
     residual_hidden_dim=residual_hidden_dim,
     residual_scale=residual_scale,
     actor_q_normalization_alpha=actor_q_normalization_alpha,
+    actor_grad_norm_clip=actor_grad_norm_clip,
     critic_context_mode=local_critic_context_mode,
     actor_hidden_dim_1=actor_hidden_dim_1,
     actor_hidden_dim_2=actor_hidden_dim_2,
@@ -2243,6 +2280,7 @@ print("Actor anchor weight:", actor_anchor_weight)
 print("Actor anchor safe-only:", actor_anchor_safe_only)
 print("Actor anchor safe distance:", actor_anchor_safe_distance)
 print("Actor Q normalization alpha:", actor_q_normalization_alpha)
+print("Actor gradient norm clip:", actor_grad_norm_clip)
 print("Exploration noise:", expl_noise)
 print("Critic warmup exploration noise:", critic_warmup_expl_noise)
 print("Random linear exploration steps:", random_linear_exploration_steps)

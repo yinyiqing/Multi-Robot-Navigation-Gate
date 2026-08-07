@@ -33,6 +33,7 @@
 | `G12-R2-S4` | `frozen baseline stage` | 五车课程完成；10k通过配对准入并冻结为R2参考 | 最终容量对照已完成 |
 | `G12-R2-N5-admission-20k` | `diagnostic / admission failed` | R2显著改善full和multi-edge，但timeout以1场之差超限 | 大Actor能力失败或可放宽阈值 |
 | `G12-R2-N5-admission-10k` | `frozen evidence / admission passed` | 全五项通过；full `0.7000 vs 0.5583`且无timeout | 最终大Actor或可继续扫描R2 checkpoint |
+| `G12-R3-40k` | `current registered pilot` | 完整五车混合分布、21k Actor解冻阈值和保守更新 | 已获得最终R4容量成绩 |
 
 ## 路线级分类
 
@@ -49,7 +50,7 @@
 | 统一停车/靠右/手工TTC规则 | [`results/04_Gate前置验证`](03_保留专门化/02_论文主线/results/04_Gate前置验证/README.md) | `rejected heuristic` | 可作规则基线，不能替代学习Gate |
 | 第一版学习Gate | [`07_冲突拓扑组合泛化`](03_保留专门化/02_论文主线/07_冲突拓扑组合泛化/README.md) | `frozen baseline / rejected final` | 方向为正但未过统计和oracle恢复准入 |
 | 可部署在线Gate新路线 | [`11_可部署在线Gate研究`](03_保留专门化/02_论文主线/11_可部署在线Gate研究/README.md) | `current / G11-D2 navigation passed, efficiency failed` | B2相对5A导航收益显著，但效率未准入；Actor冻结 |
-| 参数匹配单Actor容量对照 | [`12_参数匹配单Actor容量对照`](03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/README.md) | `R2 10k admission passed / R3 design next` | 五车底座已通过；下一步固定R3 40k配置 |
+| 参数匹配单Actor容量对照 | [`12_参数匹配单Actor容量对照`](03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/README.md) | `R2 passed / R3 40k registered` | 五车底座已通过；当前只执行冻结R3 pilot |
 | 中止和协议错误运行 | [`results/90_中止与无效运行`](03_保留专门化/02_论文主线/results/90_中止与无效运行/README.md) | `invalid` | 不进入论文、趋势判断或模型选择 |
 
 ## 可以复用的基础设施

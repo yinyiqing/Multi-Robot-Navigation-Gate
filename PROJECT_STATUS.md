@@ -119,6 +119,11 @@ Gate
     全部五项准入：full success为`0.7000 vs 0.5583`，collision为`0.1000 vs 0.1900`，
     timeout为`0/120`，总体20场改善、3场退化，`p=0.000488`。10k与20k之间full success
     无显著差异（11场改善、10场退化，`p=1.0`），选择10k的依据是约束和效率，而非峰值扫描。
+23. G12-R3的40k pilot已经预注册：训练清单按`standard/strong/dense/strong`确定性循环，
+    R2-10k只加载Actor并固定为参考；fresh geometry Critic在21k阈值后才解冻Actor，以
+    保护20k评测边界；之后使用
+    `1e-5` Actor学习率、归一化Q、非交互状态`lambda_keep=1.0`和`1.0`梯度裁剪。R3不读取
+    D2、E或sealed test，也不更新5A和epoch-16。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -152,7 +157,8 @@ Gate
    n2/n3/n5扩展。R2-S0已经完成并通过；S1的8-case repair-only首段因broad full success
    降至`0.575`而拒绝。S2至S4已完成两车、三车和五车完整场景首段；S4训练内best为20k，
    但20k配对准入因timeout多1场未通过，唯一10k fallback通过全部五项准入，因此冻结
-   S4 10k作为R2参考并允许设计R3 40k pilot。失败S1不得作为warm start。
+   S4 10k作为R2参考。R3 40k的混合清单、数值配置、21k Actor解冻阈值和停止条件已经
+   冻结，当前执行该pilot。失败S1不得作为warm start。
 9. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
    scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
    manifest哈希、缺失/重复/错序ID。不同场景或不同评测协议的历史汇总值不得混入同一表。

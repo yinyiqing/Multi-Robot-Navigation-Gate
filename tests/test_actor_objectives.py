@@ -10,6 +10,7 @@ sys.path.insert(0, str(ROOT / "TD3"))
 
 from actor_objectives import (
     actor_slowdown_safety_loss,
+    clip_actor_gradients,
     conservative_actor_objective,
     reference_acceleration_cap_loss,
     safe_reference_mask,
@@ -17,6 +18,17 @@ from actor_objectives import (
 
 
 class ActorObjectiveTests(unittest.TestCase):
+    def test_actor_gradient_clip_limits_global_norm(self):
+        parameter = torch.nn.Parameter(torch.tensor([3.0, 4.0]))
+        parameter.grad = torch.tensor([6.0, 8.0])
+        original_norm = clip_actor_gradients([parameter], 1.0)
+        self.assertAlmostEqual(original_norm.item(), 10.0)
+        self.assertAlmostEqual(parameter.grad.norm().item(), 1.0, places=6)
+
+    def test_actor_gradient_clip_rejects_negative_limit(self):
+        with self.assertRaises(ValueError):
+            clip_actor_gradients([], -1.0)
+
     def test_legacy_objective_is_negative_mean_q(self):
         q_values = torch.tensor([[2.0], [4.0]])
         actions = torch.zeros((2, 2))

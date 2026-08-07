@@ -1,6 +1,6 @@
 # ICRA论文主线：普通导航Actor、条件避障Actor与在线Gate
 
-状态：`route frozen / G11-D2 navigation passed but efficiency failed / G12-R2 10k admission passed`。
+状态：`route frozen / G11-D2 navigation passed but efficiency failed / G12-R3 40k registered`。
 更新时间：`2026-08-08`。
 
 本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见
@@ -246,10 +246,12 @@ success + collision + unresolved = agents * episodes
    S4五车首段的10k/20k full success为`0.6667/0.6917`。20k配对结果显著超过5A，但因
    `3/120` timeout相对5A增加`0.025`而未通过；预先登记的唯一10k fallback随后以
    `0.7000 vs 0.5583` full success、`0` timeout通过全部五项准入。冻结10k作为R2参考，
-   下一步先固定R3数值配置，再在完整standard/dense train上做40k pilot并重采样强交互
-   子集。具体协议见
+   R3已经固定四槽训练调度、保护20k评测边界的21k Actor解冻阈值、`lambda_keep=1.0`
+   和40k停止条件，
+   当前在完整standard/dense train上做40k pilot并重采样强交互子集。具体协议见
    [G12-R2协议](12_参数匹配单Actor容量对照/R2_PROTOCOL.md)和
-   [G12完整场景协议](12_参数匹配单Actor容量对照/FULL_SCENE_PROTOCOL.md)。
+   [G12完整场景协议](12_参数匹配单Actor容量对照/FULL_SCENE_PROTOCOL.md)及
+   [G12-R3协议](12_参数匹配单Actor容量对照/R3_PROTOCOL.md)。
 8. 完成主对照、消融和multi-edge边界评估。G11-E的50场exact-edge-2 pilot与后150场
    confirmation已经完成清单冻结和互斥审计，不得并行启动第二套Gazebo。
 9. Gate、参数匹配单Actor和所有阈值冻结后一次性读取sealed test。

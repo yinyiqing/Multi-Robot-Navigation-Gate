@@ -1,6 +1,6 @@
 # G12 R2-R5完整场景单Actor协议
 
-状态：`selection manifest frozen / R2 10k admission passed / R3 numeric settings pending preregistration`。
+状态：`selection manifest frozen / R2 10k admission passed / R3 40k registered`。
 日期：`2026-08-08`。
 
 ## 1. “完整场景”的定义
@@ -68,8 +68,10 @@ L_actor = -normalized_Q(s, pi(s))
 ```
 
 `2.0 m`真值只生成训练期mask，与interaction-epoch16的训练信息边界一致；推理时不存在该
-变量。`lambda_keep`、Q归一化、梯度阈值、学习率和20k warm-up必须在R3启动前写入运行
-manifest。只允许无闭环模型选择的数值smoke，不能扫描validation成功率。
+变量。R3已经冻结`lambda_keep=1.0`、Q归一化alpha `1.0`、Actor梯度范数裁剪`1.0`、
+Actor/Critic学习率`1e-5/8e-5`和21k Actor解冻阈值（20k warm-up加episode guard）。只
+允许无闭环模型选择的数值smoke，不能扫描validation成功率。完整数值见
+[R3协议](R3_PROTOCOL.md)。
 
 ## 4. 内部validation
 
