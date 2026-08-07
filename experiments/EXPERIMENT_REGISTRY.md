@@ -29,7 +29,8 @@
 | `G12-R2-S0` | `frozen baseline stage` | 随机加宽Actor已通过n1 broad 100k阶段 | 参数匹配单Actor已完成或容量不足 |
 | `G12-R2-S1` | `rejected pilot` | repair-only更新使broad full success降至`0.575`，确认窄分布遗忘 | 加宽Actor容量不足或S0无效 |
 | `G12-R2-S2` | `frozen baseline stage` | 两车首段通过，10k best的full success为`0.9333` | 已证明冲突能力提升或已获得五车成绩 |
-| `G12-R2-S3` | `current registered baseline` | 从S2 10k best进入三车完整broad训练，首段2x10k | 当前方法Actor被更新或参数匹配对照已完成 |
+| `G12-R2-S3` | `frozen baseline stage` | 三车首段通过，20k best的full success为`0.8833` | 已获得五车成绩或参数匹配对照已完成 |
+| `G12-R2-S4` | `current registered baseline` | 从S3 20k best进入五车完整broad训练，首段2x10k | 当前方法Actor被更新或最终容量对照 |
 
 ## 路线级分类
 
@@ -46,7 +47,7 @@
 | 统一停车/靠右/手工TTC规则 | [`results/04_Gate前置验证`](03_保留专门化/02_论文主线/results/04_Gate前置验证/README.md) | `rejected heuristic` | 可作规则基线，不能替代学习Gate |
 | 第一版学习Gate | [`07_冲突拓扑组合泛化`](03_保留专门化/02_论文主线/07_冲突拓扑组合泛化/README.md) | `frozen baseline / rejected final` | 方向为正但未过统计和oracle恢复准入 |
 | 可部署在线Gate新路线 | [`11_可部署在线Gate研究`](03_保留专门化/02_论文主线/11_可部署在线Gate研究/README.md) | `current / G11-D2 navigation passed, efficiency failed` | B2相对5A导航收益显著，但效率未准入；Actor冻结 |
-| 参数匹配单Actor容量对照 | [`12_参数匹配单Actor容量对照`](03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/README.md) | `R2-S2 n2 passed / R2-S3 n3 current` | S0保留，repair候选回滚；两车通过后当前训练三车完整broad首段20k |
+| 参数匹配单Actor容量对照 | [`12_参数匹配单Actor容量对照`](03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/README.md) | `R2-S3 n3 passed / R2-S4 n5 current` | S0保留，repair候选回滚；三车通过后当前训练五车完整broad首段20k |
 | 中止和协议错误运行 | [`results/90_中止与无效运行`](03_保留专门化/02_论文主线/results/90_中止与无效运行/README.md) | `invalid` | 不进入论文、趋势判断或模型选择 |
 
 ## 可以复用的基础设施

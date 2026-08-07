@@ -1,6 +1,6 @@
 # G12-R 公平参数匹配单Actor路线
 
-状态：`route revised / R2-S2 n2 passed / S3 n3 registered`。
+状态：`route revised / R2-S3 n3 passed / S4 n5 registered`。
 日期：`2026-08-07`。
 
 ## 1. 研究问题
@@ -90,8 +90,9 @@ stage-case项达到repair条件。基础目标推进通过，缺口系统性集�
 首段repair-only 20k已经完成，但broad n1降至`69/120=0.575`并出现49次timeout，候选
 按预注册门槛拒绝。S0 epoch 2 best仍是唯一回滚点。固定困难case不再阻塞多车课程；S2
 直接从S0 best进入两车完整broad训练，不能从失败S1 checkpoint续训。S2首段配置见
-[S2两车协议](R2_S2_N2_PROTOCOL.md)。S2首段已经通过，冻结10k best；S3按
-[三车协议](R2_S3_N3_PROTOCOL.md)继续扩大车数和冲突密度。
+[S2两车协议](R2_S2_N2_PROTOCOL.md)。S2首段通过并冻结10k best；S3按
+[三车协议](R2_S3_N3_PROTOCOL.md)完成首段并冻结20k best。当前按
+[五车协议](R2_S4_N5_PROTOCOL.md)进入论文目标车数。
 
 进入R3的最低条件：
 

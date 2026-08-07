@@ -1,6 +1,6 @@
 # G12-R2-S3三车Broad首段协议
 
-状态：`frozen / first 20k pilot authorized`。日期：`2026-08-07`。
+状态：`completed / passed / 20k best frozen`。日期：`2026-08-07`。
 
 ## 1. 目标
 
@@ -64,3 +64,5 @@ bash scripts/experiment.sh stop actor-g12-r2-s3-n3
 
 实时日志写入`logs/active/capacity-wide-g12-r2/s3-n3/`。
 
+完成结果见[R2-S3三车结果](R2_S3_N3_RESULTS.md)。日志已归档到
+`logs/archive/training/g12_r2/s3_n3/`，下一阶段见[S4五车协议](R2_S4_N5_PROTOCOL.md)。
