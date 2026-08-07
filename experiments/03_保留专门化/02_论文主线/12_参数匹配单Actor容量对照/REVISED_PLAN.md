@@ -88,8 +88,9 @@ stage-case项达到repair条件。基础目标推进通过，缺口系统性集�
 训练这些缺口，并在每段更新后回测broad n1；该诊断不是大Actor最终容量结果。
 
 首段repair-only 20k已经完成，但broad n1降至`69/120=0.575`并出现49次timeout，候选
-按预注册门槛拒绝。S0 epoch 2 best仍是唯一回滚点；继续S1前必须另行冻结包含原n1 train
-回放、S0行为保持和更短broad检查间隔的新协议，不能从失败checkpoint续训。
+按预注册门槛拒绝。S0 epoch 2 best仍是唯一回滚点。固定困难case不再阻塞多车课程；S2
+直接从S0 best进入两车完整broad训练，不能从失败S1 checkpoint续训。S2首段配置见
+[S2两车协议](R2_S2_N2_PROTOCOL.md)。
 
 进入R3的最低条件：
 

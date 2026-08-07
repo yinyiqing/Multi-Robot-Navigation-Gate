@@ -241,8 +241,9 @@ success + collision + unresolved = agents * episodes
 7. G12正式大Actor不沿用Gate的0-edge/edge-1训练边界。R2-S0已通过；S1固定困难case诊断
    已完成`126/126`场，full success为`72/126`。首段8-case repair-only更新虽正常完成20k，
    但broad n1降至`69/120=0.575`且出现49次timeout，候选按协议拒绝，不进入targeted复测
-   或S2。继续S1前必须先登记原n1 train回放、S0行为保持和更短broad检查的新协议，并从
-   S0 best重新开始。R3/R4再使用完整standard/dense train并重采样强交互子集。具体协议见
+   或S2。该困难case补课不再作为进入多车的硬前置；S2改为从S0 best直接进行两车完整
+   broad训练，首段仅授权20k且每10k评测。R3/R4再使用完整standard/dense train并重采样
+   强交互子集。具体协议见
    [G12-R2协议](12_参数匹配单Actor容量对照/R2_PROTOCOL.md)和
    [G12完整场景协议](12_参数匹配单Actor容量对照/FULL_SCENE_PROTOCOL.md)。
 8. 完成主对照、消融和multi-edge边界评估。G11-E的50场exact-edge-2 pilot与后150场

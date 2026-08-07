@@ -1,6 +1,6 @@
 # G12-R2加宽单Actor普通导航课程协议
 
-状态：`S0 passed / S1 repair pilot rejected / S2-S4 blocked pending revision`。
+状态：`S0 passed / S1 repair rejected / S2 n2 first 20k authorized`。
 日期：`2026-08-07`。
 
 ## 1. 固定边界
@@ -20,7 +20,7 @@
 | --- | ---: | --- | ---: | --- |
 | S0 broad | 1 | standard 3000场完整episode | `100k` | Actor/Critic随机 |
 | S1 repair | 1 | stage1/e/f/g固定case | 最多`80k` | S0完整warm start |
-| S2 broad | 2 | standard 3000场完整episode | `60k` | S1 Actor/Critic完整warm start |
+| S2 broad | 2 | standard 3000场完整episode | `60k` | S0 best Actor/Critic完整warm start |
 | S3 broad | 3 | standard 3000场完整episode | `60k` | S2 Actor/Critic完整warm start |
 | S4 broad | 5 | standard 3000场完整episode | `80k` | S3 Actor/Critic完整warm start |
 
@@ -76,8 +76,9 @@ S1诊断已经完成，full success为`72/126`，得到`22 pass / 0 borderline /
 `80k`。
 
 S1首段repair-only 20k已经完成，但broad n1为`69/120=0.575`且timeout为`49/120`，
-候选已回滚并禁止进入S2。结果与漂移诊断见
-[S1补课结果](R2_S1_REPAIR_RESULTS.md)。当前S2-S4预算仍保留，但启动条件尚未满足。
+候选已回滚。结果与漂移诊断见[S1补课结果](R2_S1_REPAIR_RESULTS.md)。固定困难case不再
+作为进入多车的硬前置；S2从S0 best直接启动，两车首段20k配置与准入见
+[S2两车协议](R2_S2_N2_PROTOCOL.md)。
 
 ## 4. 启停与日志
 
