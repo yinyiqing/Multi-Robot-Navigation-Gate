@@ -19,14 +19,18 @@ Current method:
   Gate     G11-B2                 D2 navigation passed, efficiency failed
 
 Current command:
+  none  G12-R2-S1 repair failed broad admission; no Actor run is authorized
+
+Completed reproduction entrypoints:
   actor-g12-r2-s1-repair  S0 full warm start, 8 repair cases, first 20k pilot
   actor-g12-r2-s1-repair-validation  frozen 120-scene broad admission
 
 G11-C, G11-D2, G12-P1 and G12-R1 are complete. Their start/stop entrypoints are
 retained only for controlled reproduction.
 
-G12-R2-S0 and the S1 diagnostic are complete. The repair pilot is the only current
-Actor-training command. Historical scripts are not current execution instructions.
+G12-R2-S0, the S1 diagnostic and the repair pilot are complete. The repair candidate
+was rejected after broad regression. Historical scripts are not current execution
+instructions.
 EOF
 }
 

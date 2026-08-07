@@ -1,6 +1,6 @@
 # G12-R2-S1定向补课协议
 
-状态：`frozen / first 20k pilot authorized`。日期：`2026-08-06`。
+状态：`completed / broad admission failed / candidate rejected`。日期：`2026-08-07`。
 
 ## 1. 目的与边界
 
@@ -69,3 +69,9 @@ bash scripts/experiment.sh stop actor-g12-r2-s1-repair
 
 日志写入`logs/active/capacity-wide-g12-r2/s1-repair/`，完成后归档到
 `logs/archive/training/g12_r2/s1_repair/`。
+
+## 6. 结果
+
+首段训练完成20,169 samples。固定broad n1评测得到full success `69/120=0.575`、
+collision `2/120`、timeout `49/120`，因此候选按第4节回滚，不运行targeted复测。
+完整记录见[R2_S1_REPAIR_RESULTS](R2_S1_REPAIR_RESULTS.md)。

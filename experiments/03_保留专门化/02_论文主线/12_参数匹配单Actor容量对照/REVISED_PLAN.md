@@ -1,7 +1,7 @@
 # G12-R 公平参数匹配单Actor路线
 
-状态：`route revised / R1 completed / R2-S0 passed / S1 repair required`。
-日期：`2026-08-06`。
+状态：`route revised / R2-S0 passed / S1 repair pilot rejected`。
+日期：`2026-08-07`。
 
 ## 1. 研究问题
 
@@ -86,6 +86,10 @@ S0已经完成：100k内五次单车broad validation full success为
 固定困难case诊断也已完成：`126/126`场full success为`0.5714`，其中`20/42`个
 stage-case项达到repair条件。基础目标推进通过，缺口系统性集中在贴墙与脱离恢复。S1将只
 训练这些缺口，并在每段更新后回测broad n1；该诊断不是大Actor最终容量结果。
+
+首段repair-only 20k已经完成，但broad n1降至`69/120=0.575`并出现49次timeout，候选
+按预注册门槛拒绝。S0 epoch 2 best仍是唯一回滚点；继续S1前必须另行冻结包含原n1 train
+回放、S0行为保持和更短broad检查间隔的新协议，不能从失败checkpoint续训。
 
 进入R3的最低条件：
 

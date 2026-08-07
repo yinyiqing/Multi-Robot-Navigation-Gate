@@ -1,7 +1,7 @@
 # G12-R2加宽单Actor普通导航课程协议
 
-状态：`S0 passed / S1 diagnostic completed and repair required / S2-S4 budgets preregistered`。
-日期：`2026-08-06`。
+状态：`S0 passed / S1 repair pilot rejected / S2-S4 blocked pending revision`。
+日期：`2026-08-07`。
 
 ## 1. 固定边界
 
@@ -74,6 +74,10 @@ S1诊断已经完成，full success为`72/126`，得到`22 pass / 0 borderline /
 [S1诊断结果](R2_S1_DIAGNOSTIC_RESULTS.md)。8个几何去重case、首段20k预算和broad回归
 门槛已在[S1补课协议](R2_S1_REPAIR_PROTOCOL.md)冻结，不能直接按历史stage顺序自动跑满
 `80k`。
+
+S1首段repair-only 20k已经完成，但broad n1为`69/120=0.575`且timeout为`49/120`，
+候选已回滚并禁止进入S2。结果与漂移诊断见
+[S1补课结果](R2_S1_REPAIR_RESULTS.md)。当前S2-S4预算仍保留，但启动条件尚未满足。
 
 ## 4. 启停与日志
 

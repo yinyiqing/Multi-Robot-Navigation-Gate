@@ -1,13 +1,18 @@
 # G12 参数匹配单Actor容量对照
 
-状态：`P1/R1 archived / R2-S0 passed / S1 repair 20k pilot authorized`。
-日期：`2026-08-06`。
+状态：`P1/R1 archived / R2-S0 passed / S1 repair pilot rejected`。
+日期：`2026-08-07`。
 
 R2-S0加宽Actor从随机初始化完成100k单车broad训练，五次full success为
 `0.983/1.000/1.000/0.992/1.000`，冻结best位于epoch 2。结果见
 [R2-S0记录](R2_S0_RESULTS.md)。固定困难case诊断随后得到`22 pass / 0 borderline /
 20 repair`，几何去重后为8个训练case。当前只授权[S1首段20k补课](R2_S1_REPAIR_PROTOCOL.md)，
 并用原120场broad n1约束遗忘，不自动消耗80k上限。
+
+S1首段已完成20,169 samples，但broad n1只有`69/120=0.575` full success并产生49次
+timeout，未通过准入。候选已回滚，不跑targeted、不进入S2、不追加预算。动作与参数诊断
+确认这是8-case全网络更新造成的窄分布遗忘；详见
+[R2-S1补课结果](R2_S1_REPAIR_RESULTS.md)。当前没有获准继续的Actor长跑。
 
 P1在`40,007 agent samples`处按预注册规则早停。函数保持初始化通过，但Actor解冻后的
 full success从`0.717`降至`0.050`并出现动作单侧饱和，因此该运行不能支持“参数匹配

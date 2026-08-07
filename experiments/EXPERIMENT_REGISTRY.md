@@ -1,6 +1,6 @@
 # 实验注册表
 
-更新时间：`2026-08-06`。当前方法以[PROJECT_STATUS](../PROJECT_STATUS.md)和
+更新时间：`2026-08-07`。当前方法以[PROJECT_STATUS](../PROJECT_STATUS.md)和
 [论文主线协议](03_保留专门化/02_论文主线/README.md)为准。
 
 ## 状态定义
@@ -27,7 +27,7 @@
 | `G2-A learned Gate` | `frozen baseline / admission failed` | exact-edge-2有`+0.080`方向性收益 | 最终Gate或统计显著结果 |
 | `deployable interaction Gate` | `current / G11-D2 navigation passed, efficiency failed` | B2在独立200场相对5A导航收益显著，但interaction占比和步数过高 | 已通过最终效率准入或可以读取部署期真值 |
 | `G12-R2-S0` | `frozen baseline stage` | 随机加宽Actor已通过n1 broad 100k阶段 | 参数匹配单Actor已完成或容量不足 |
-| `G12-R2-S1` | `current registered baseline` | 8个诊断确认case的首段20k定向补课 | 当前方法Actor被更新或已获得五车成绩 |
+| `G12-R2-S1` | `rejected pilot` | repair-only更新使broad full success降至`0.575`，确认窄分布遗忘 | 加宽Actor容量不足或S0无效 |
 
 ## 路线级分类
 
@@ -44,7 +44,7 @@
 | 统一停车/靠右/手工TTC规则 | [`results/04_Gate前置验证`](03_保留专门化/02_论文主线/results/04_Gate前置验证/README.md) | `rejected heuristic` | 可作规则基线，不能替代学习Gate |
 | 第一版学习Gate | [`07_冲突拓扑组合泛化`](03_保留专门化/02_论文主线/07_冲突拓扑组合泛化/README.md) | `frozen baseline / rejected final` | 方向为正但未过统计和oracle恢复准入 |
 | 可部署在线Gate新路线 | [`11_可部署在线Gate研究`](03_保留专门化/02_论文主线/11_可部署在线Gate研究/README.md) | `current / G11-D2 navigation passed, efficiency failed` | B2相对5A导航收益显著，但效率未准入；Actor冻结 |
-| 参数匹配单Actor容量对照 | [`12_参数匹配单Actor容量对照`](03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/README.md) | `P1/R1 diagnostic complete / R2-S1 20k authorized` | P1不能归因于参数翻倍；当前仅运行8-case定向补课并受broad回归门槛约束 |
+| 参数匹配单Actor容量对照 | [`12_参数匹配单Actor容量对照`](03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/README.md) | `P1/R1 diagnostic complete / R2-S1 repair rejected` | P1不能归因于参数翻倍；S0保留，8-case repair候选因broad遗忘回滚，继续前需新协议 |
 | 中止和协议错误运行 | [`results/90_中止与无效运行`](03_保留专门化/02_论文主线/results/90_中止与无效运行/README.md) | `invalid` | 不进入论文、趋势判断或模型选择 |
 
 ## 可以复用的基础设施

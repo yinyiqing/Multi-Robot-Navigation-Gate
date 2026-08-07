@@ -1,6 +1,6 @@
 # 当前项目状态
 
-更新时间：`2026-08-06`。
+更新时间：`2026-08-07`。
 
 本文件是进入项目后的第一阅读入口。方法定义、实验准入和数据边界以
 [论文主线协议](experiments/03_保留专门化/02_论文主线/README.md)为准；历史 README
@@ -99,6 +99,10 @@ Gate
     42个stage-case项中`22 pass / 0 borderline / 20 repair`。普通近目标与隔墙导航通过，
     缺口集中在近障恢复、贴墙姿态、离墙推进和反向脱离。该结果授权登记repair-only S1
     补课，但不授权直接跑满80k，也不是论文性能指标。
+18. G12-R2-S1首段20k定向补课已完成，但broad n1仅`69/120=0.575` full success，
+    collision为`2/120`、timeout为`49/120`，未通过预注册回归门槛。候选已拒绝且不得进入
+    targeted复测或S2；结果表明8-case全网络无anchor更新造成严重窄分布遗忘，不否定S0
+    已建立的加宽Actor单车导航能力。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -129,8 +133,9 @@ Gate
    0-edge/edge-1/multi-edge同时平衡，与全部navigation train及G11-C/D2/E逐一互斥。
    历史课程审计也已完成：2D/3D2/5A的selected checkpoint没有可靠Actor更新证据，且
    初始基础模型预算未知。R2改为随机加宽Actor先做n1 broad导航，再补固定单车case并按
-   n2/n3/n5扩展。R2-S0已经完成并通过；S1困难case诊断已确认20个repair项。下一步先冻结
-   8-case repair-only文件、首段20k预算与broad n1回归门槛已经冻结；当前执行S1首段补课。
+   n2/n3/n5扩展。R2-S0已经完成并通过；S1的8-case repair-only首段因broad full success
+   降至`0.575`而拒绝。当前没有获准继续的Actor长跑；若继续S1，必须先冻结包含原n1
+   train回放、行为保持约束和更短broad检查间隔的新协议，并从S0 best重新开始。
 9. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
    scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
    manifest哈希、缺失/重复/错序ID。不同场景或不同评测协议的历史汇总值不得混入同一表。

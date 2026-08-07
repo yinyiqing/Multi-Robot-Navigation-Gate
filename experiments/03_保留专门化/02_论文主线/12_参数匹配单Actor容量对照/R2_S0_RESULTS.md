@@ -1,6 +1,6 @@
 # G12-R2-S0单车Broad结果
 
-状态：`completed / admission passed / S1 targeted evaluation pending`。日期：`2026-08-06`。
+状态：`completed / admission passed / retained rollback point`。日期：`2026-08-07`。
 
 ## 1. 运行身份
 
