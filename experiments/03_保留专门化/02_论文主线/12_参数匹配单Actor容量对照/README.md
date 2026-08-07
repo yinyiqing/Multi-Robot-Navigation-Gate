@@ -1,6 +1,6 @@
 # G12 参数匹配单Actor容量对照
 
-状态：`P1/R1 archived / R2-S3 n3 passed / S4 n5 registered`。
+状态：`P1/R1 archived / R2-S4 n5 passed / paired admission registered`。
 日期：`2026-08-07`。
 
 R2-S0加宽Actor从随机初始化完成100k单车broad训练，五次full success为
@@ -16,7 +16,9 @@ timeout，未通过准入。该失败候选已回滚，不跑targeted、不作�
 `0.9333/0.9250`并冻结10k best。完整结果见[R2-S2结果](R2_S2_N2_RESULTS.md)。随后
 [S3三车首段](R2_S3_N3_PROTOCOL.md)的10k/20k full success为`0.8750/0.8833`，冻结20k
 best；完整结果见[R2-S3结果](R2_S3_N3_RESULTS.md)。当前从该best进入
-[S4五车首段20k](R2_S4_N5_PROTOCOL.md)。
+[S4五车首段20k](R2_S4_N5_PROTOCOL.md)。S4的10k/20k full success为`0.6667/0.6917`，
+冻结20k best；完整结果见[R2-S4结果](R2_S4_N5_RESULTS.md)。进入R3前先执行
+[五车底座配对准入](R2_N5_ADMISSION_PROTOCOL.md)。
 
 P1在`40,007 agent samples`处按预注册规则早停。函数保持初始化通过，但Actor解冻后的
 full success从`0.717`降至`0.050`并出现动作单侧饱和，因此该运行不能支持“参数匹配

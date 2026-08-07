@@ -1,6 +1,6 @@
 # ICRA论文主线：普通导航Actor、条件避障Actor与在线Gate
 
-状态：`route frozen / G11-D2 navigation passed but efficiency failed / G12-R2-S3 n3 passed`。
+状态：`route frozen / G11-D2 navigation passed but efficiency failed / G12-R2-S4 n5 passed`。
 更新时间：`2026-08-07`。
 
 本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见
@@ -243,8 +243,9 @@ success + collision + unresolved = agents * episodes
    但broad n1降至`69/120=0.575`且出现49次timeout，候选按协议拒绝，不进入targeted复测
    或S2。S2从S0 best完成两车完整broad首段，10k/20k full success为`0.9333/0.9250`，
    冻结10k best。S3三车首段的10k/20k full success为`0.8750/0.8833`，冻结20k best；
-   当前从该best进入S4五车完整broad首段。R3/R4再使用完整standard/dense train并重采样
-   强交互子集。具体协议见
+   S4五车首段的10k/20k full success为`0.6667/0.6917`，冻结20k best。当前先在同一内部
+   validation上逐场比较5A与S4，验证0-edge和来源保持；通过后R3/R4再使用完整
+   standard/dense train并重采样强交互子集。具体协议见
    [G12-R2协议](12_参数匹配单Actor容量对照/R2_PROTOCOL.md)和
    [G12完整场景协议](12_参数匹配单Actor容量对照/FULL_SCENE_PROTOCOL.md)。
 8. 完成主对照、消融和multi-edge边界评估。G11-E的50场exact-edge-2 pilot与后150场

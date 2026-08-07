@@ -13,11 +13,13 @@ Usage:
   bash scripts/experiment.sh start actor-g12-r2-s2-n2
   bash scripts/experiment.sh start actor-g12-r2-s3-n3
   bash scripts/experiment.sh start actor-g12-r2-s4-n5
+  bash scripts/experiment.sh start actor-g12-r2-n5-admission
   bash scripts/experiment.sh stop actor-g12-r2-s1-repair
   bash scripts/experiment.sh stop actor-g12-r2-s1-repair-validation
   bash scripts/experiment.sh stop actor-g12-r2-s2-n2
   bash scripts/experiment.sh stop actor-g12-r2-s3-n3
   bash scripts/experiment.sh stop actor-g12-r2-s4-n5
+  bash scripts/experiment.sh stop actor-g12-r2-n5-admission
 
 Current method:
   Actor N  generalist-5a         frozen
@@ -25,7 +27,7 @@ Current method:
   Gate     G11-B2                 D2 navigation passed, efficiency failed
 
 Current command:
-  actor-g12-r2-s4-n5  S3 20k best -> five-robot broad, first 2 x 10k pilot
+  actor-g12-r2-n5-admission  paired 5A vs R2-S4 on frozen 120-scene validation
 
 Completed reproduction entrypoints:
   actor-g12-r2-s1-repair  S0 full warm start, 8 repair cases, first 20k pilot
@@ -34,7 +36,7 @@ Completed reproduction entrypoints:
 G11-C, G11-D2, G12-P1 and G12-R1 are complete. Their start/stop entrypoints are
 retained only for controlled reproduction.
 
-G12-R2-S0 through S3 are complete. The S1 repair candidate was rejected; S3 passed
+G12-R2-S0 through S4 are complete. The S1 repair candidate was rejected; S4 passed
 and froze its 20k best. Historical scripts are not current execution instructions.
 EOF
 }
@@ -72,6 +74,8 @@ show_status() {
         printf '  logs=logs/active/capacity-wide-g12-r2/s3-n3/'
       elif [[ "$(basename "$pid_file")" == ".g12_r2_s4_n5.pid" ]]; then
         printf '  logs=logs/active/capacity-wide-g12-r2/s4-n5/'
+      elif [[ "$(basename "$pid_file")" == ".g12_r2_n5_admission.pid" ]]; then
+        printf '  logs=logs/active/capacity-wide-g12-r2/n5-admission/'
       fi
       printf '\n'
     else
@@ -113,6 +117,7 @@ case "${1:-}" in
       actor-g12-r2-s2-n2) exec bash "$PROJECT_ROOT/scripts/start_training_g12_r2_s2_n2.sh" ;;
       actor-g12-r2-s3-n3) exec bash "$PROJECT_ROOT/scripts/start_training_g12_r2_s3_n3.sh" ;;
       actor-g12-r2-s4-n5) exec bash "$PROJECT_ROOT/scripts/start_training_g12_r2_s4_n5.sh" ;;
+      actor-g12-r2-n5-admission) exec bash "$PROJECT_ROOT/scripts/start_g12_r2_n5_admission.sh" ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;
@@ -131,6 +136,7 @@ case "${1:-}" in
       actor-g12-r2-s2-n2) exec bash "$PROJECT_ROOT/scripts/stop_training_g12_r2_s2_n2.sh" ;;
       actor-g12-r2-s3-n3) exec bash "$PROJECT_ROOT/scripts/stop_training_g12_r2_s3_n3.sh" ;;
       actor-g12-r2-s4-n5) exec bash "$PROJECT_ROOT/scripts/stop_training_g12_r2_s4_n5.sh" ;;
+      actor-g12-r2-n5-admission) exec bash "$PROJECT_ROOT/scripts/stop_g12_r2_n5_admission.sh" ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;

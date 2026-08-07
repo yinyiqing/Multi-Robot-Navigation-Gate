@@ -1,6 +1,6 @@
 # G12-R2-S4五车Broad首段协议
 
-状态：`frozen / first 20k pilot authorized`。日期：`2026-08-07`。
+状态：`completed / passed / 20k best frozen`。日期：`2026-08-07`。
 
 ## 1. 目标
 
@@ -65,3 +65,6 @@ bash scripts/experiment.sh stop actor-g12-r2-s4-n5
 
 实时日志写入`logs/active/capacity-wide-g12-r2/s4-n5/`。
 
+完成结果见[R2-S4五车结果](R2_S4_N5_RESULTS.md)。日志已归档到
+`logs/archive/training/g12_r2/s4_n5/`。进入R3前先执行
+[五车底座配对准入](R2_N5_ADMISSION_PROTOCOL.md)。

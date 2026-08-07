@@ -110,6 +110,10 @@ Gate
 20. G12-R2-S3三车完整broad首段已完成。10k/20k full success为`0.8750/0.8833`，agent
     success为`0.9417/0.9472`，collision均为`0.0528`；20k消除了10k的unresolved和timeout，
     平均步数从`22.05`降至`14.00`，因此冻结20k best并进入五车课程。
+21. G12-R2-S4五车完整broad首段已完成。10k/20k full success为`0.6667/0.6917`，agent
+    success为`0.8867/0.8917`，collision为`0.1117/0.1000`；20k timeout升至`0.0417`且
+    平均步数升至`35.45`，但未触发回滚线，因此冻结20k best。进入R3前先做同场5A配对
+    分层准入，不能从训练汇总直接声称大Actor已通过普通能力保持。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -141,8 +145,8 @@ Gate
    历史课程审计也已完成：2D/3D2/5A的selected checkpoint没有可靠Actor更新证据，且
    初始基础模型预算未知。R2改为随机加宽Actor先做n1 broad导航，再补固定单车case并按
    n2/n3/n5扩展。R2-S0已经完成并通过；S1的8-case repair-only首段因broad full success
-   降至`0.575`而拒绝。S2与S3分别完成两车、三车完整场景首段；当前从S3 20k best完整
-   warm start进入S4五车完整场景首段20k。失败S1不得作为warm start。
+   降至`0.575`而拒绝。S2至S4已完成两车、三车和五车完整场景首段；当前冻结S4 20k
+   best，并在内部validation上运行5A与S4逐场配对准入。失败S1不得作为warm start。
 9. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
    scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
    manifest哈希、缺失/重复/错序ID。不同场景或不同评测协议的历史汇总值不得混入同一表。

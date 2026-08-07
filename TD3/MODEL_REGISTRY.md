@@ -32,6 +32,7 @@
 | `capacity-wide-r2-s1-repair` | `capacity_wide_r2_s1_repair_n1_seed20260813` | rejected pilot | broad full success仅`0.575`且49次timeout；不得作targeted评测或S2 warm start |
 | `capacity-wide-r2-s2-n2` | `capacity_wide_r2_s2_broad_n2_seed20260814_best` | frozen curriculum stage | 两车首段10k best；只授权作S3 warm start，不是五车容量成绩 |
 | `capacity-wide-r2-s3-n3` | `capacity_wide_r2_s3_broad_n3_seed20260815_best` | frozen curriculum stage | 三车首段20k best；只授权作S4 warm start，不是五车容量成绩 |
+| `capacity-wide-r2-s4-n5` | `capacity_wide_r2_s4_broad_n5_seed20260816_best` | frozen R2 candidate | 五车首段20k best；先作5A配对准入，不是最终容量成绩 |
 
 未列出的`TD3/checkpoints/*.pt`默认是历史训练恢复状态，不是当前模型。使用前必须在
 [实验注册表](../experiments/EXPERIMENT_REGISTRY.md)确认其路线状态。
@@ -56,6 +57,12 @@ acbecd846cbae2456e2a493ec545eeaf2718a11aa2cc6fe58c2a9d3af1fbe7ca
 
 55a20491f6f498960d77284e44409c99d7d710bb5a39fb18a212a3d047650d67
   TD3/pytorch_models/capacity_wide_r2_s3_broad_n3_seed20260815_best_critic.pth
+
+67290450484c1fedd493fb029804b914438c5fb46cdb189ba8c642c3d98b2715
+  TD3/pytorch_models/capacity_wide_r2_s4_broad_n5_seed20260816_best_actor.pth
+
+8ff9483045e5945b7b2b84e124a998d9890d441f0ac5028975026d582190f542
+  TD3/pytorch_models/capacity_wide_r2_s4_broad_n5_seed20260816_best_critic.pth
 ```
 
 ## 文件含义
