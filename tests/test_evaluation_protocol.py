@@ -1,3 +1,4 @@
+import os
 import sys
 import tempfile
 import unittest
@@ -7,10 +8,72 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "TD3"))
 
-from evaluation_protocol import build_eval_protocol_id, reconcile_evaluation_state
+from evaluation_protocol import (
+    build_eval_protocol_id,
+    reconcile_evaluation_state,
+    temporary_manifest_scenario,
+)
+
+
+class FakeEnvironment:
+    def __init__(self):
+        self.scenario_mode = "curriculum"
+        self.curriculum_cases = ["train-a", "train-b"]
+        self.curriculum_case_index = 17
+        self.manifest_band_cases = {"deep": ["train-a"]}
+        self.manifest_band_indices = {"deep": 1}
+        self.manifest_band_schedule_index = 3
+        self.current_curriculum_case = "train-b"
+
+    def set_manifest_path(self, path):
+        if self.scenario_mode != "manifest":
+            raise ValueError("set_manifest_path requires scenario_mode=manifest")
+        self.manifest_path = str(path)
+        self.manifest_dataset_id = "validation"
+        self.curriculum_cases = ["eval-a"]
+        self.curriculum_case_index = 0
+        self.manifest_band_cases = {}
+        self.manifest_band_indices = {}
+        self.manifest_band_schedule_index = 0
+        self.current_curriculum_case = None
 
 
 class EvaluationProtocolTests(unittest.TestCase):
+    def test_temporary_manifest_restores_curriculum_state(self):
+        env = FakeEnvironment()
+        previous_sampling = os.environ.pop("DRL_MULTI_MANIFEST_SAMPLING", None)
+        try:
+            with temporary_manifest_scenario(env, "validation.json.gz"):
+                self.assertEqual(env.scenario_mode, "manifest")
+                self.assertEqual(env.curriculum_cases, ["eval-a"])
+                self.assertEqual(os.environ["DRL_MULTI_MANIFEST_SAMPLING"], "cycle")
+
+            self.assertEqual(env.scenario_mode, "curriculum")
+            self.assertEqual(env.curriculum_cases, ["train-a", "train-b"])
+            self.assertEqual(env.curriculum_case_index, 17)
+            self.assertEqual(env.current_curriculum_case, "train-b")
+            self.assertFalse(hasattr(env, "manifest_path"))
+            self.assertNotIn("DRL_MULTI_MANIFEST_SAMPLING", os.environ)
+        finally:
+            if previous_sampling is not None:
+                os.environ["DRL_MULTI_MANIFEST_SAMPLING"] = previous_sampling
+
+    def test_temporary_manifest_restores_state_after_evaluation_error(self):
+        env = FakeEnvironment()
+        os.environ["DRL_MULTI_MANIFEST_SAMPLING"] = "paired_cycle"
+        try:
+            with self.assertRaisesRegex(RuntimeError, "evaluation failed"):
+                with temporary_manifest_scenario(env, "validation.json.gz"):
+                    raise RuntimeError("evaluation failed")
+
+            self.assertEqual(env.scenario_mode, "curriculum")
+            self.assertEqual(env.curriculum_case_index, 17)
+            self.assertEqual(
+                os.environ["DRL_MULTI_MANIFEST_SAMPLING"], "paired_cycle"
+            )
+        finally:
+            os.environ.pop("DRL_MULTI_MANIFEST_SAMPLING", None)
+
     def test_protocol_tracks_manifest_content_and_episode_count(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "validation.json.gz"

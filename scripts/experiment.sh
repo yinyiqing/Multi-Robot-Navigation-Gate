@@ -9,7 +9,9 @@ Usage:
   bash scripts/experiment.sh list
   bash scripts/experiment.sh status
   bash scripts/experiment.sh start actor-g12-r2-s1-repair
+  bash scripts/experiment.sh start actor-g12-r2-s1-repair-validation
   bash scripts/experiment.sh stop actor-g12-r2-s1-repair
+  bash scripts/experiment.sh stop actor-g12-r2-s1-repair-validation
 
 Current method:
   Actor N  generalist-5a         frozen
@@ -18,6 +20,7 @@ Current method:
 
 Current command:
   actor-g12-r2-s1-repair  S0 full warm start, 8 repair cases, first 20k pilot
+  actor-g12-r2-s1-repair-validation  frozen 120-scene broad admission
 
 G11-C, G11-D2, G12-P1 and G12-R1 are complete. Their start/stop entrypoints are
 retained only for controlled reproduction.
@@ -51,6 +54,8 @@ show_status() {
       elif [[ "$(basename "$pid_file")" == ".g12_r2_s1_diagnostic.pid" ]]; then
         printf '  logs=logs/active/capacity-wide-g12-r2/s1-diagnostic/'
       elif [[ "$(basename "$pid_file")" == ".g12_r2_s1_repair.pid" ]]; then
+        printf '  logs=logs/active/capacity-wide-g12-r2/s1-repair/'
+      elif [[ "$(basename "$pid_file")" == ".g12_r2_s1_repair_validation.pid" ]]; then
         printf '  logs=logs/active/capacity-wide-g12-r2/s1-repair/'
       fi
       printf '\n'
@@ -89,6 +94,7 @@ case "${1:-}" in
       actor-g12-r2-s0) exec bash "$PROJECT_ROOT/scripts/start_training_g12_r2_s0.sh" ;;
       actor-g12-r2-s1-diagnostic) exec bash "$PROJECT_ROOT/scripts/start_g12_r2_s1_diagnostic.sh" ;;
       actor-g12-r2-s1-repair) exec bash "$PROJECT_ROOT/scripts/start_training_g12_r2_s1_repair.sh" ;;
+      actor-g12-r2-s1-repair-validation) exec bash "$PROJECT_ROOT/scripts/start_g12_r2_s1_repair_validation.sh" ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;
@@ -103,6 +109,7 @@ case "${1:-}" in
       actor-g12-r2-s0) exec bash "$PROJECT_ROOT/scripts/stop_training_g12_r2_s0.sh" ;;
       actor-g12-r2-s1-diagnostic) exec bash "$PROJECT_ROOT/scripts/stop_g12_r2_s1_diagnostic.sh" ;;
       actor-g12-r2-s1-repair) exec bash "$PROJECT_ROOT/scripts/stop_training_g12_r2_s1_repair.sh" ;;
+      actor-g12-r2-s1-repair-validation) exec bash "$PROJECT_ROOT/scripts/stop_g12_r2_s1_repair_validation.sh" ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;

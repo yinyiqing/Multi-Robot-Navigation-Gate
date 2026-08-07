@@ -26,7 +26,11 @@ from actor_objectives import (
 )
 from critic_models import Critic
 from critic_safety_ranking import approaching_safety_mask, critic_safety_ranking_loss
-from evaluation_protocol import build_eval_protocol_id, reconcile_evaluation_state
+from evaluation_protocol import (
+    build_eval_protocol_id,
+    reconcile_evaluation_state,
+    temporary_manifest_scenario,
+)
 from interaction_oracle import interaction_mask
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
 from neighbor_context import context_feature_dim, normalize_context_mode
@@ -55,33 +59,26 @@ def evaluate(
     oracle_interaction_distance=2.0,
     oracle_context_feature_dim=5,
 ):
-    previous_manifest_path = getattr(env, "manifest_path", None)
-    previous_manifest_sampling = os.environ.get("DRL_MULTI_MANIFEST_SAMPLING")
-    previous_manifest_sampling_state = (
-        env.manifest_sampling_state() if eval_manifest_path else None
+    if eval_manifest_path:
+        with temporary_manifest_scenario(env, eval_manifest_path, sampling="cycle"):
+            return _evaluate_current_manifest(
+                network,
+                env,
+                epoch,
+                eval_episodes,
+                weak_actor=weak_actor,
+                oracle_interaction_distance=oracle_interaction_distance,
+                oracle_context_feature_dim=oracle_context_feature_dim,
+            )
+    return _evaluate_current_manifest(
+        network,
+        env,
+        epoch,
+        eval_episodes,
+        weak_actor=weak_actor,
+        oracle_interaction_distance=oracle_interaction_distance,
+        oracle_context_feature_dim=oracle_context_feature_dim,
     )
-    try:
-        if eval_manifest_path:
-            os.environ["DRL_MULTI_MANIFEST_SAMPLING"] = "cycle"
-            env.set_manifest_path(eval_manifest_path)
-        return _evaluate_current_manifest(
-            network,
-            env,
-            epoch,
-            eval_episodes,
-            weak_actor=weak_actor,
-            oracle_interaction_distance=oracle_interaction_distance,
-            oracle_context_feature_dim=oracle_context_feature_dim,
-        )
-    finally:
-        if eval_manifest_path:
-            if previous_manifest_sampling is None:
-                os.environ.pop("DRL_MULTI_MANIFEST_SAMPLING", None)
-            else:
-                os.environ["DRL_MULTI_MANIFEST_SAMPLING"] = previous_manifest_sampling
-            if previous_manifest_path:
-                env.set_manifest_path(previous_manifest_path)
-                env.restore_manifest_sampling_state(previous_manifest_sampling_state)
 
 
 def _model_action(model, state):
