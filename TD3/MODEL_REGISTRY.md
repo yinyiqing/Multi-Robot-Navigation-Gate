@@ -30,6 +30,7 @@
 | `independent-dense-actor-*` | `independent_dense_actor_*` | rejected family | 不从局部峰值或`best`恢复训练 |
 | `capacity-original-width-r1` | `capacity_original_width_r1_n5_seed20260810` | diagnostic only | 同协议原宽度也退化；不得作R2 warm start或容量成绩 |
 | `capacity-wide-r2-s1-repair` | `capacity_wide_r2_s1_repair_n1_seed20260813` | rejected pilot | broad full success仅`0.575`且49次timeout；不得作targeted评测或S2 warm start |
+| `capacity-wide-r2-s2-n2` | `capacity_wide_r2_s2_broad_n2_seed20260814_best` | frozen curriculum stage | 两车首段10k best；只授权作S3 warm start，不是五车容量成绩 |
 
 未列出的`TD3/checkpoints/*.pt`默认是历史训练恢复状态，不是当前模型。使用前必须在
 [实验注册表](../experiments/EXPERIMENT_REGISTRY.md)确认其路线状态。
@@ -42,6 +43,12 @@ fa28855049b67b3ee44c66d55d4f14441fc7c521e5429862c75b152f7d5cacc5
 
 6ec1942fcd497ab1cc2a85a5aaec8f524395dc21ff21a442dca243a52e917c0b
   TD3/pytorch_models/interaction_focused_actor_from_5a_fullstrong_balanced_formal_s20260726_epoch_016_actor.pth
+
+220698f1e4a918deb88d0b47f8c4f28b2330194401b4b82c80afe92d8f63f465
+  TD3/pytorch_models/capacity_wide_r2_s2_broad_n2_seed20260814_best_actor.pth
+
+acbecd846cbae2456e2a493ec545eeaf2718a11aa2cc6fe58c2a9d3af1fbe7ca
+  TD3/pytorch_models/capacity_wide_r2_s2_broad_n2_seed20260814_best_critic.pth
 ```
 
 ## 文件含义

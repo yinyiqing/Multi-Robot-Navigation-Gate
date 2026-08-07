@@ -103,6 +103,10 @@ Gate
     collision为`2/120`、timeout为`49/120`，未通过预注册回归门槛。候选已拒绝且不得进入
     targeted复测或S2；结果表明8-case全网络无anchor更新造成严重窄分布遗忘，不否定S0
     已建立的加宽Actor单车导航能力。
+19. G12-R2-S2两车完整broad首段已完成。10k/20k固定120场validation的full success分别为
+    `0.9333/0.9250`，collision为`0.0583/0.0667`，均无timeout；冻结10k为best并通过进入
+    三车课程的准入。n2 validation只有`17/120`个派生冲突场景，且无逐场评测记录，因此
+    该结果只证明两车完整导航稳定，不能声称冲突能力提升或相对S0已有训练增益。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -134,8 +138,8 @@ Gate
    历史课程审计也已完成：2D/3D2/5A的selected checkpoint没有可靠Actor更新证据，且
    初始基础模型预算未知。R2改为随机加宽Actor先做n1 broad导航，再补固定单车case并按
    n2/n3/n5扩展。R2-S0已经完成并通过；S1的8-case repair-only首段因broad full success
-   降至`0.575`而拒绝。固定困难case不再作为进入多车的硬前置；当前从S0 best直接启动
-   S2两车完整场景首段20k，每10k回测冻结n2 validation。失败S1不得作为warm start。
+   降至`0.575`而拒绝。S2从S0 best完成两车完整场景首段并冻结10k best；当前从该best
+   完整warm start进入S3三车完整场景首段20k。失败S1不得作为warm start。
 9. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
    scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
    manifest哈希、缺失/重复/错序ID。不同场景或不同评测协议的历史汇总值不得混入同一表。
