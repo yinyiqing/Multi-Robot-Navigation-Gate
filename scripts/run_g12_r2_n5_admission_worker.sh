@@ -12,7 +12,23 @@ LAUNCHFILE="$LOG_DIR/runtime_g12_r2_n5_admission.launch"
 PID_FILE="$PROJECT_ROOT/.g12_r2_n5_admission.pid"
 LOCK_FILE="/tmp/local_critic_multi_robot_training.lock"
 BASE_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best"
-R2_MODEL="capacity_wide_r2_s4_broad_n5_seed20260816_best"
+MODE="${1:-20k}"
+case "$MODE" in
+  20k)
+    R2_MODEL="capacity_wide_r2_s4_broad_n5_seed20260816_best"
+    R2_POLICY=r2
+    SUMMARY_FILE=summary.json
+    ;;
+  10k)
+    R2_MODEL="capacity_wide_r2_s4_broad_n5_seed20260816_epoch_001"
+    R2_POLICY=r2_10k
+    SUMMARY_FILE=summary_10k.json
+    ;;
+  *)
+    echo "Unknown N5 admission mode: $MODE" >&2
+    exit 2
+    ;;
+esac
 ROS_PORT=15251
 GAZEBO_PORT=15351
 EPISODES=120
@@ -178,11 +194,12 @@ run_one() {
 }
 
 run_one 5a "$BASE_MODEL"
-run_one r2 "$R2_MODEL"
+run_one "$R2_POLICY" "$R2_MODEL"
 
 /usr/bin/python3 "$PROJECT_ROOT/scripts/analyze_g12_r2_n5_admission.py" \
   --manifest "$MANIFEST" \
   --results-dir "$RESULTS_DIR" \
-  --output "$RUN_DIR/summary.json" \
-  --seed "$SEED" >"$LOG_DIR/analysis.log" 2>&1
-echo "G12-R2 N5 paired admission complete."
+  --output "$RUN_DIR/$SUMMARY_FILE" \
+  --seed "$SEED" \
+  --candidate-policy "$R2_POLICY" >"$LOG_DIR/analysis_${MODE}.log" 2>&1
+echo "G12-R2 N5 paired admission $MODE complete."

@@ -1,6 +1,6 @@
 # G12-R 公平参数匹配单Actor路线
 
-状态：`route revised / R2-S4 n5 passed / paired admission registered`。
+状态：`route revised / R2-S4 n5 passed / 20k admission failed / 10k fallback registered`。
 日期：`2026-08-07`。
 
 ## 1. 研究问题

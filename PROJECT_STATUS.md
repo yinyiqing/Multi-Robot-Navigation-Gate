@@ -114,6 +114,10 @@ Gate
     success为`0.8867/0.8917`，collision为`0.1117/0.1000`；20k timeout升至`0.0417`且
     平均步数升至`35.45`，但未触发回滚线，因此冻结20k best。进入R3前先做同场5A配对
     分层准入，不能从训练汇总直接声称大Actor已通过普通能力保持。
+22. G12-R2五车20k配对准入中，R2相对5A的full success为`0.6917 vs 0.5583`，多冲突为
+    `0.425 vs 0.150`，总体18场改善、2场退化，`p=0.000402`；但timeout为`3/120`，相对
+    5A增加`0.025`并超过`0.020`上限，故严格判定未通过。当前只登记预先保存的10k作为
+    唯一fallback；若仍失败则R2停止，不再扫描checkpoint或seed。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -146,7 +150,8 @@ Gate
    初始基础模型预算未知。R2改为随机加宽Actor先做n1 broad导航，再补固定单车case并按
    n2/n3/n5扩展。R2-S0已经完成并通过；S1的8-case repair-only首段因broad full success
    降至`0.575`而拒绝。S2至S4已完成两车、三车和五车完整场景首段；当前冻结S4 20k
-   best，并在内部validation上运行5A与S4逐场配对准入。失败S1不得作为warm start。
+   best。20k配对准入因timeout多1场而未通过，当前按原场景、seed和阈值评测唯一10k
+   fallback。失败S1不得作为warm start。
 9. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
    scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
    manifest哈希、缺失/重复/错序ID。不同场景或不同评测协议的历史汇总值不得混入同一表。

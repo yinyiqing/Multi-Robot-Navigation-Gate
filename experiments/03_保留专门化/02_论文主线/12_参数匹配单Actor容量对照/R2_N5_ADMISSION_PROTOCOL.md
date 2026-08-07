@@ -1,6 +1,6 @@
 # G12-R2五车底座配对准入协议
 
-状态：`frozen / paired admission authorized`。日期：`2026-08-07`。
+状态：`20k completed and narrowly failed / one 10k fallback authorized`。日期：`2026-08-07`。
 
 ## 目的
 
@@ -40,3 +40,10 @@ S4 Actor SHA-256: 67290450484c1fedd493fb029804b914438c5fb46cdb189ba8c642c3d98b27
 
 该准入只决定是否允许启动R3，不读取sealed test，也不替代最终多seed统一比较。
 
+## 20k结果后的固定fallback
+
+20k仅因`3/120=0.025` timeout超过`0.020`上限而未通过，其余四项通过。不得事后放宽阈值。
+S4协议已预先保存10k checkpoint，且训练内评测timeout更低，因此只授权一次同协议10k
+fallback：复用已审计的5A逐场结果，按相同manifest、顺序、seed和阈值评测10k。若仍失败，
+R2停止；不得继续选择其他checkpoint或seed。20k完整结果见
+[配对准入结果](R2_N5_ADMISSION_RESULTS.md)。

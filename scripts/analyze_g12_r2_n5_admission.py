@@ -8,9 +8,6 @@ from pathlib import Path
 import numpy as np
 
 
-POLICIES = ("5a", "r2")
-
-
 def aggregate(rows):
     episodes = len(rows)
     if episodes == 0:
@@ -71,7 +68,9 @@ def main():
     parser.add_argument("--results-dir", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--seed", required=True, type=int)
+    parser.add_argument("--candidate-policy", default="r2")
     args = parser.parse_args()
+    policies = ("5a", args.candidate_policy)
 
     with gzip.open(args.manifest, "rt", encoding="utf-8") as handle:
         scenarios = json.load(handle)["scenarios"]
@@ -86,7 +85,7 @@ def main():
     }
 
     runs = {}
-    for policy in POLICIES:
+    for policy in policies:
         path = args.results_dir / f"g12_r2_n5_admission_{policy}_s{args.seed}.npy"
         rows = np.load(path, allow_pickle=True)
         if rows.shape != (len(expected_ids), 17):
@@ -127,7 +126,9 @@ def main():
     }
     pairing = {
         dimension: {
-            name: paired(subset(runs["r2"], ids), subset(runs["5a"], ids))
+            name: paired(
+                subset(runs[args.candidate_policy], ids), subset(runs["5a"], ids)
+            )
             for name, ids in groups.items()
         }
         for dimension, groups in dimensions.items()
@@ -138,23 +139,23 @@ def main():
     pools = metrics["by_pool"]
     checks = {
         "zero_full_success_drop_at_most_0.03": (
-            zero["r2"]["full_success_rate"]
+            zero[args.candidate_policy]["full_success_rate"]
             >= zero["5a"]["full_success_rate"] - 0.03
         ),
         "overall_agent_success_drop_at_most_0.02": (
-            overall["r2"]["agent_success_rate"]
+            overall[args.candidate_policy]["agent_success_rate"]
             >= overall["5a"]["agent_success_rate"] - 0.02
         ),
         "overall_timeout_increase_at_most_0.02": (
-            overall["r2"]["timeout_episode_rate"]
+            overall[args.candidate_policy]["timeout_episode_rate"]
             <= overall["5a"]["timeout_episode_rate"] + 0.02
         ),
         "standard_full_success_drop_at_most_0.05": (
-            pools["standard"]["r2"]["full_success_rate"]
+            pools["standard"][args.candidate_policy]["full_success_rate"]
             >= pools["standard"]["5a"]["full_success_rate"] - 0.05
         ),
         "dense_full_success_drop_at_most_0.05": (
-            pools["dense"]["r2"]["full_success_rate"]
+            pools["dense"][args.candidate_policy]["full_success_rate"]
             >= pools["dense"]["5a"]["full_success_rate"] - 0.05
         ),
     }
@@ -164,7 +165,7 @@ def main():
             "manifest": str(args.manifest),
             "episodes_per_policy": len(expected_ids),
             "seed": args.seed,
-            "policies": list(POLICIES),
+            "policies": list(policies),
         },
         "audit": {
             "manifest_order": "passed",

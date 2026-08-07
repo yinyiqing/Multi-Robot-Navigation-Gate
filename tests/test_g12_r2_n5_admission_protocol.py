@@ -34,7 +34,10 @@ class G12R2N5AdmissionProtocolTests(unittest.TestCase):
         self.assertIn("SEED=20260817", self.worker)
 
     def test_runs_policies_serially_with_matching_protocol(self):
-        self.assertLess(self.worker.index("run_one 5a"), self.worker.index("run_one r2"))
+        self.assertLess(
+            self.worker.index("run_one 5a"),
+            self.worker.index('run_one "$R2_POLICY"'),
+        )
         self.assertIn("DRL_MULTI_MANIFEST_SAMPLING=cycle", self.worker)
         self.assertIn("DRL_MULTI_FIXED_PHYSICS_STEP_SIZE=0.001", self.worker)
         self.assertIn("DRL_MULTI_TEST_TARGET_EPISODES=\"$EPISODES\"", self.worker)
@@ -44,6 +47,15 @@ class G12R2N5AdmissionProtocolTests(unittest.TestCase):
         self.assertIn("verify_partial_result", self.worker)
         self.assertIn("curriculum_case_index", self.worker)
         self.assertIn("seq 1 5", self.worker)
+
+    def test_registers_only_the_saved_10k_fallback(self):
+        self.assertIn("10k)", self.start)
+        self.assertIn("epoch_001_actor.pth", self.start)
+        self.assertIn(
+            "ace910553931873a275d66e3a964fd2b4716d30b6c68c8dcb3e7af96e56783ee",
+            self.start,
+        )
+        self.assertIn("--candidate-policy", self.worker)
 
     def test_mcnemar_exact(self):
         self.assertEqual(self.analyzer.mcnemar_exact(0, 0), 1.0)

@@ -14,6 +14,7 @@ Usage:
   bash scripts/experiment.sh start actor-g12-r2-s3-n3
   bash scripts/experiment.sh start actor-g12-r2-s4-n5
   bash scripts/experiment.sh start actor-g12-r2-n5-admission
+  bash scripts/experiment.sh start actor-g12-r2-n5-admission-10k
   bash scripts/experiment.sh stop actor-g12-r2-s1-repair
   bash scripts/experiment.sh stop actor-g12-r2-s1-repair-validation
   bash scripts/experiment.sh stop actor-g12-r2-s2-n2
@@ -27,7 +28,7 @@ Current method:
   Gate     G11-B2                 D2 navigation passed, efficiency failed
 
 Current command:
-  actor-g12-r2-n5-admission  paired 5A vs R2-S4 on frozen 120-scene validation
+  actor-g12-r2-n5-admission-10k  single registered fallback after 20k timeout miss
 
 Completed reproduction entrypoints:
   actor-g12-r2-s1-repair  S0 full warm start, 8 repair cases, first 20k pilot
@@ -118,6 +119,7 @@ case "${1:-}" in
       actor-g12-r2-s3-n3) exec bash "$PROJECT_ROOT/scripts/start_training_g12_r2_s3_n3.sh" ;;
       actor-g12-r2-s4-n5) exec bash "$PROJECT_ROOT/scripts/start_training_g12_r2_s4_n5.sh" ;;
       actor-g12-r2-n5-admission) exec bash "$PROJECT_ROOT/scripts/start_g12_r2_n5_admission.sh" ;;
+      actor-g12-r2-n5-admission-10k) exec bash "$PROJECT_ROOT/scripts/start_g12_r2_n5_admission.sh" 10k ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;
