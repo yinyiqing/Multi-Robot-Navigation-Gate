@@ -119,11 +119,13 @@ Gate
     全部五项准入：full success为`0.7000 vs 0.5583`，collision为`0.1000 vs 0.1900`，
     timeout为`0/120`，总体20场改善、3场退化，`p=0.000488`。10k与20k之间full success
     无显著差异（11场改善、10场退化，`p=1.0`），选择10k的依据是约束和效率，而非峰值扫描。
-23. G12-R3的40k pilot已经预注册：训练清单按`standard/strong/dense/strong`确定性循环，
+23. G12-R3的40k pilot已经完成但未通过：训练清单按`standard/strong/dense/strong`确定性循环，
     R2-10k只加载Actor并固定为参考；fresh geometry Critic在21k阈值后才解冻Actor，以
     保护20k评测边界；之后使用
-    `1e-5` Actor学习率、归一化Q、非交互状态`lambda_keep=1.0`和`1.0`梯度裁剪。R3不读取
-    D2、E或sealed test，也不更新5A和epoch-16。
+    `1e-5` Actor学习率、归一化Q、非交互状态`lambda_keep=1.0`和`1.0`梯度裁剪。R3-20k
+    Actor冻结时full success为`0.667`，40k解冻更新后降至`0.575`，低于R2-10k参考
+    `0.700`，因此不启动R4；R2-10k继续作为大Actor候选。R3不读取D2、E或sealed test，
+    也不更新5A和epoch-16。完整记录见`12_参数匹配单Actor容量对照/R3_RESULTS.md`。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -144,10 +146,12 @@ Gate
    无场景重叠。若自然泛化不足，可以在读取sealed test前
    书面修订协议、加入navigation-train的multi-edge数据并重训同一个Gate；此时不再
    声称single-to-multi零样本泛化。
-6. G12-P1已停止并降级为训练稳定性诊断。后续容量对照遵循
+6. G12-P1已停止并降级为训练稳定性诊断。G12-R3也已因Actor解冻后退化而停止，不再扩展
+   R4。后续容量对照遵循
    [G12-R公平路线](experiments/03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/REVISED_PLAN.md)：
    先做原宽度控制，再让参数匹配Actor从头完成普通导航课程和完整五车分布联合训练。
-   任何新长跑必须先冻结具体超参数和manifest，不得用D2或sealed test调参。
+   任何新长跑必须先冻结具体超参数和manifest，不得用D2或sealed test调参；当前先用冻结
+   R2-10k进行同场单Actor与B2的比较。
 7. G12-R1已归档到`logs/archive/diagnostic/g12_r1/`，只作机制诊断，其checkpoint不得
    作为R2 warm start或论文主性能模型。
 8. G12完整场景内部validation已经冻结为`g12_full_scene_selection_v1`：120场按来源和
