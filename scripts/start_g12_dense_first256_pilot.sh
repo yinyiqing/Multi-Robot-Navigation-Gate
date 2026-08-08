@@ -3,10 +3,11 @@ set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TD3_DIR="$PROJECT_ROOT/TD3"
-RUN_DIR="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/local_data/dense_first256_pilot"
+RUN_TAG="${G12_DENSE_RUN_TAG:-dense_first256_pilot}"
+RUN_DIR="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/local_data/$RUN_TAG"
 RESULTS_DIR="$RUN_DIR/results"
 CHECKPOINT_DIR="$RUN_DIR/checkpoints"
-LOG_DIR="$PROJECT_ROOT/logs/active/capacity-wide-g12-dense-first256"
+LOG_DIR="$PROJECT_ROOT/logs/active/capacity-wide-g12-$RUN_TAG"
 MANIFEST="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/datasets/fixed_v1/dense/validation.json.gz"
 LAUNCHFILE="multi_robot_scenario_fixed_v1_dense_validation_5d_5.launch"
 BASE_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best"
@@ -14,8 +15,8 @@ INTERACTION_MODEL="interaction_focused_actor_from_5a_fullstrong_balanced_formal_
 R2_MODEL="capacity_wide_r2_s4_broad_n5_seed20260816_epoch_001"
 DETECTOR="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/results/06_Gate开发/D5_G0_robot_detector_v1/local_data/model/pilot_v1/best.pt"
 B2_GATE="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/11_可部署在线Gate研究/G11_B_student_rollout_v1/local_data/training/seed20260804/any/T1/best.pt"
-TARGET_EPISODES=256
-SEED=20260810
+TARGET_EPISODES="${G12_DENSE_TARGET_EPISODES:-256}"
+SEED="${G12_DENSE_SEED:-20260810}"
 
 for required in \
   "$MANIFEST" \
@@ -50,7 +51,7 @@ gazebo_ports=(16101 16102 16103 16104 16105)
 
 for idx in "${!labels[@]}"; do
   label="${labels[$idx]}"
-  pid_file="$PROJECT_ROOT/.g12_dense_first256_${label}.pid"
+  pid_file="$PROJECT_ROOT/.g12_dense_${RUN_TAG}_${label}.pid"
   if [[ -f "$pid_file" ]]; then
     old_pid="$(tr -d '[:space:]' < "$pid_file")"
     if [[ "$old_pid" =~ ^[0-9]+$ ]] && kill -0 "$old_pid" 2>/dev/null; then
@@ -71,8 +72,8 @@ start_one() {
   local label="$1"
   local ros_port="$2"
   local gazebo_port="$3"
-  local run_name="g12_dense256_${label}_r1_s${SEED}"
-  local pid_file="$PROJECT_ROOT/.g12_dense_first256_${label}.pid"
+  local run_name="g12_${RUN_TAG}_${label}_r1_s${SEED}"
+  local pid_file="$PROJECT_ROOT/.g12_dense_${RUN_TAG}_${label}.pid"
   local state_path="$CHECKPOINT_DIR/${run_name}_state.pt"
   local stats_path="$RESULTS_DIR/${run_name}.npy"
   local log_file="$LOG_DIR/${run_name}.log"
@@ -178,5 +179,5 @@ for idx in "${!labels[@]}"; do
   start_one "${labels[$idx]}" "${ros_ports[$idx]}" "${gazebo_ports[$idx]}"
 done
 
-echo "Started dense first-256 pilot with seed $SEED."
+echo "Started dense run $RUN_TAG with seed $SEED."
 echo "All policies use the first $TARGET_EPISODES scenarios from the frozen dense validation manifest."
