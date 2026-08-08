@@ -40,9 +40,13 @@ def parse_args():
 
 def load_stats(path):
     rows = np.load(path, allow_pickle=True)
-    if rows.ndim != 2 or rows.shape[1] != len(COLUMNS):
+    # Newer multi-robot evaluators append deployment diagnostics (for example
+    # action share and gate switches) after the common 13 policy columns.
+    # The comparison only needs the common columns, so keep accepting those
+    # extended result rows while still rejecting truncated or malformed data.
+    if rows.ndim != 2 or rows.shape[1] < len(COLUMNS):
         raise ValueError(
-            f"Unexpected stats shape for {path}: {rows.shape}; expected (N, 13)"
+            f"Unexpected stats shape for {path}: {rows.shape}; expected at least 13 columns"
         )
     scenario_ids = [str(row[COLUMNS["scenario_id"]]) for row in rows]
     if len(scenario_ids) != len(set(scenario_ids)):
