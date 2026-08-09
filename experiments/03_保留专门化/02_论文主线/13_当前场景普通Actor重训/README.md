@@ -34,6 +34,12 @@
 - Actor 更新保护：默认先训练 fresh critic `40k` agent samples，再解冻 Actor；
 - Actor 保守约束：默认 `Q normalization alpha=1.0`、warm-start anchor weight `0.05`、
   Actor gradient clip `1.0`；
+- Critic 稳定性约束：默认 `batch=256`、`min replay=5000`、`discount=0.999`、
+  critic warmup exploration noise `0.08`；
+- 仿真约束：默认固定步进 `DRL_MULTI_FIXED_PHYSICS_STEP_SIZE=0.001`，并要求
+  `/gazebo/step_world` 服务存在；若服务缺失应立即失败，不进入长跑；
+- reward 边界：dynamic/cooperative、safe-recovery、anti-stagnation、wall-clearance、
+  local-navigation、robot-proximity、robot-clearance、yield-priority 均显式关闭；
 - 目标：先跑短 pilot，判断它能否在不引入 gate 的情况下直接超过旧 `5A`。
 
 ## 已发现并修正的问题
@@ -59,6 +65,11 @@
 - `Actor update delay steps: 40000`
 - `Actor anchor weight: 0.05`
 - `Actor Q normalization alpha: 1.0`
+- `Batch size: 256`
+- `Minimum replay size: 5000`
+- `Discount: 0.999`
+- `Fixed physics step size: 0.001`
+- `Robot safe distance: 0.0`
 
 ## 初始判断标准
 
