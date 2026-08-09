@@ -1,54 +1,69 @@
 # 当前场景普通Actor重训
 
-状态：`guarded pilot ready / previous resumed run invalid`。
-更新时间：`2026-08-09`。
+状态：`route revised / N1 original-width broad started`。
+更新时间：`2026-08-10`。
 
-这条线不是旧 `5A` 的继续修补，而是一个新的普通导航 baseline：
-用 `5A` 的上游 warmstart 源模型、完整 `fixed_v1` 场景分布和 fresh local critic，
-重新训练一个仍然只看本车 24 维观测的普通 Actor，检查旧 `5A` 是否主要卡在训练分布
-和 critic 设计，而不是普通导航能力本身。
+这条线不是旧 `5A` 的继续修补，而是为当前双 Actor + Gate 方法重新建立普通导航
+Actor N。已有 R2 结果说明，干净课程和连续 Critic 比直接从五车 fresh Critic 启动更稳；
+因此本路线从单车 broad 重新开始，逐步扩展到五车，并在三车阶段前后再引入 local critic。
 
 ## 研究问题
 
-> 在当前 frozen fixed-v1 全场景分布下，一个保持普通导航角色、但带 fresh local critic
-> 的新 Actor，能否稳定超过旧 `5A`，并且不把自己训成半个 `epoch-16`？
+> 在保持原普通 Actor 参数量和 24 维部署观测的前提下，能否按 R2 证明有效的课程方式
+> 训练出一个强于旧 `5A`、但仍保持普通推进效率的 Actor N？
 
 ## 训练原则
 
-- 训练不是只拿 `0/1` 冲突片段，而是用完整 `fixed_v1` 训练池；
+- 不直接从五车 fresh local critic 启动；先建立单车和少车普通导航底座；
+- 训练不是只拿 `0/1` 冲突片段，而是逐步回到完整 `fixed_v1` 五车训练池；
 - 冲突样本可以被强调，但不能替代完整导航分布；
 - `epoch-16` 继续只负责局部冲突窗口，普通 Actor 仍要学会整段推进、静态障碍和一般交互；
 - Actor 仍只读本车 24 维观测，不引入 gate 标签或 oracle 切换信号。
 
-## 协议
+## 正式路线
 
-- Actor 初始化：`TD3_velodyne_multi_v4_curriculum_stage2_to_3d2_geo_critic_from_3a_guarded_best`
-  的 actor-only warm start；
-- Critic：fresh local critic；
-- Actor 视图：仍只读本车 24 维观测；
-- 训练场景：`fixed_v1/views/g12_r3_mixed_v1/train.json.gz`；
-- 验证场景：`fixed_v1/views/g12_full_scene_selection_v1/validation.json.gz`；
-- 机器人数：5；
-- local critic：开启，使用 `ego_motion` 上下文；
-- resume：默认关闭，若同名 fresh checkpoint 已存在则拒绝启动；
-- Actor 更新保护：默认先训练 fresh critic `40k` agent samples，再解冻 Actor；
-- Actor 保守约束：默认 `Q normalization alpha=1.0`、warm-start anchor weight `0.05`、
-  Actor gradient clip `1.0`；
-- Critic 稳定性约束：默认 `batch=256`、`min replay=5000`、`discount=0.999`、
-  critic warmup exploration noise `0.08`；
-- 仿真约束：默认固定步进 `DRL_MULTI_FIXED_PHYSICS_STEP_SIZE=0.001`，并要求
-  `/gazebo/step_world` 服务存在；若服务缺失应立即失败，不进入长跑；
-- reward 边界：dynamic/cooperative、safe-recovery、anti-stagnation、wall-clearance、
-  local-navigation、robot-proximity、robot-clearance、yield-priority 均显式关闭；
-- 目标：先跑短 pilot，判断它能否在不引入 gate 的情况下直接超过旧 `5A`。
+| stage | agents | 数据 | critic | 初始化 | 预算 |
+| --- | ---: | --- | --- | --- | ---: |
+| N1 | 1 | `g12_r2_curriculum_v1/n1` broad | 原24维Critic | Actor/Critic随机 | `100k` |
+| N2 | 2 | `g12_r2_curriculum_v1/n2` broad | 原24维Critic | N1完整warm start | `60k` |
+| N3 | 3 | `g12_r2_curriculum_v1/n3` broad | local critic候选 | N2完整warm start；若切critic，先登记保护策略 | `60k` |
+| N5 | 5 | `g12_r2_curriculum_v1/n5` broad，随后完整fixed-v1混合 | 与N3兼容 | N3完整warm start | `80k+` |
 
-## 已发现并修正的问题
+N1/N2先不使用local critic，目的是复现 R2 中最稳的基础导航课程，但保持原宽度
+`24 -> 800 -> 600 -> 2`。local critic 不再像旧pilot那样在五车阶段突然 fresh 接入；
+若使用，必须在 N3 登记并保证之后阶段结构兼容。
+
+## N1 登记
+
+- experiment：`current-generalist-r2style-N1`
+- model：`current_generalist_n1_original_broad_s20260810`
+- Actor：`24 -> 800 -> 600 -> 2`
+- 初始化：随机 Actor + 随机原24维 Critic，不加载5A、不resume
+- train：`fixed_v1/views/g12_r2_curriculum_v1/n1/train.json.gz`
+  - SHA-256：`c71e4e87bbc528782cb76dc7df076c493900523bb748b3fb646f3d77fa5f0263`
+- validation：`fixed_v1/views/g12_r2_curriculum_v1/n1/validation.json.gz`
+  - SHA-256：`9ab4c5913f683d01e3ab186ea591d373abe1e835180f4a0bfeb469990269b125`
+- seed：`20260810`
+- budget：`5 x 20k = 100k` agent samples
+- eval：每20k做120场validation
+- 关键超参：`batch=256`、`min replay=5000`、`gamma=0.999`、
+  `actor lr=1e-4`、`critic lr=1e-4`、`policy freq=2`、`tau=0.005`
+- exploration：`0.35 -> 0.08` over 100k，前5000 samples随机线速度探索
+- reward：individual navigation；dynamic/local/wall/safe-recovery/anti-stagnation/
+  robot-proximity/yield-priority均关闭
+- 固定步进：`DRL_MULTI_FIXED_PHYSICS_STEP_SIZE=0.001`，要求`/gazebo/step_world`
+
+通过条件：以120场validation为准，full success至少`0.85`，collision不高于`0.10`，
+timeout不高于`0.10`，且动作无饱和、Q无明显爆炸。若N1连续两个eval恶化或出现动作/Q
+异常，停止诊断，不进入N2。
+
+## 已关闭的旧pilot
 
 `2026-08-09` 的上一轮短跑日志：
 
-`logs/active/current-generalist-fullscene-local-critic/train_current_generalist_from_3d2_source_local_critic_s20260808_20260809_143056.log`
+`logs/archive/aborted/current_generalist_fullscene_local_critic_20260809/train_current_generalist_from_3d2_source_local_critic_s20260808_20260809_143056.log`
 
-该运行不能作为正式 pilot 使用，原因有两点：
+该运行不能作为正式结果使用，原因有两点：
 
 1. 日志显示 `Resumed multi-agent training from checkpoint`、`Resume mode: True`、
    `Starting agent samples: 11021`，说明它误接了旧 checkpoint；
@@ -56,8 +71,18 @@
    `Actor update delay steps: 20000`，fresh critic 尚不稳定时就开始无约束更新 Actor。
 
 这组数只说明“误 resume + fresh critic 无保护 Actor 更新”会快速退化，不能说明单边冲突
-学不会、普通 Actor 路线失败或 local critic 本身无效。启动脚本已改为 guarded 配置，
-下一次启动后必须检查日志头部同时满足：
+学不会、普通 Actor 路线失败或 local critic 本身无效。
+
+`2026-08-09 21:57`启动的五车guarded fresh local critic pilot也已中止并归档，因为它
+仍然是直接五车启动，不符合`2026-08-10`正式课程路线。日志位于：
+
+`logs/archive/aborted/current_generalist_fullscene_local_critic_20260809/`
+
+其停止时约`31.7k` agent samples，Actor尚未解冻，只能作为旧路线中止记录。
+
+## 旧五车guarded配置检查项
+
+旧五车guarded路线若未来用于诊断，启动后必须检查日志头部同时满足：
 
 - `Resume mode: False`
 - `Starting agent samples: 0`
@@ -71,20 +96,21 @@
 - `Fixed physics step size: 0.001`
 - `Robot safe distance: 0.0`
 
-## 初始判断标准
+## 判断标准
 
-1. `g12_full_scene_selection_v1` 的 120 场 validation 若不能稳定超过旧 `5A`，则只作为旧 `5A`
-   偏弱的补充证据；
-2. 若它能接近或超过参数匹配单 Actor，再考虑是否继续扩预算；
-3. 不读取 sealed test；
-4. 重点看 `full success / collision / timeout / 平均步数`，不要只盯单点峰值。
-
-## 预期用法
-
-- 先跑短 pilot，确认 fresh local critic 是否真的补上旧 `5A` 的结构缺口；
-- 若普通 Actor 变得过于保守，再微调训练配比，而不是把训练收缩成 0/1 冲突专训；
-- 这条线不替代当前 `5A + epoch-16 + Gate` 主方法，只是修正旧普通基线。
+1. N1只回答基础导航是否成立，不与五车B2/R2直接比较；
+2. N2/N3只作为进入五车的稳定性门槛；
+3. N5候选必须在同一冻结manifest上与旧5A、B2、oracle和R2-10k比较；
+4. 不读取 sealed test；
+5. 重点看 `full success / collision / timeout / 平均步数`，不要只盯单点峰值。
 
 ## 启动脚本
 
-见 `scripts/start_training_current_generalist_from_5a_local_critic.sh`。
+```bash
+bash scripts/start_training_current_generalist_n1.sh
+bash scripts/stop_training_current_generalist_n1.sh
+```
+
+运行日志统一写入：
+
+`logs/active/current-generalist-r2style/n1/`
