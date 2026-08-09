@@ -6,10 +6,10 @@ TD3_DIR="$PROJECT_ROOT/TD3"
 DATASET_DIR="$PROJECT_ROOT/experiments/03_保留专门化/02_论文主线/datasets/fixed_v1"
 TRAIN_MANIFEST="${DRL_MULTI_TRAIN_MANIFEST:-$DATASET_DIR/views/g12_r3_mixed_v1/train.json.gz}"
 EVAL_MANIFEST="${DRL_MULTI_EVAL_MANIFEST:-$DATASET_DIR/views/g12_full_scene_selection_v1/validation.json.gz}"
-BASE_MODEL="TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best"
-MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-current_generalist_from_5a_local_critic_s20260808}"
-TRAINING_VERSION="${DRL_MULTI_TRAINING_VERSION:-current-generalist-from-5a-local-critic-v1}"
-EXPERIMENT_LABEL="${DRL_MULTI_EXPERIMENT_LABEL:-current-generalist-5a-local-critic}"
+BASE_MODEL="${DRL_MULTI_LOAD_MODEL_NAME:-TD3_velodyne_multi_v4_curriculum_stage2_to_3d2_geo_critic_from_3a_guarded_best}"
+MODEL_NAME="${DRL_MULTI_TRAIN_FILE_NAME:-current_generalist_fullscene_local_critic_guarded_s20260809}"
+TRAINING_VERSION="${DRL_MULTI_TRAINING_VERSION:-current-generalist-fullscene-local-critic-v1}"
+EXPERIMENT_LABEL="${DRL_MULTI_EXPERIMENT_LABEL:-current-generalist-fullscene-local-critic}"
 SAFE_MODEL="${MODEL_NAME//[^A-Za-z0-9_]/_}"
 PID_FILE="${DRL_MULTI_PID_FILE:-$PROJECT_ROOT/.train_${SAFE_MODEL}.pid}"
 LOG_DIR="${DRL_MULTI_LOG_DIR:-$PROJECT_ROOT/logs/active/$EXPERIMENT_LABEL}"
@@ -20,19 +20,40 @@ SEED="${DRL_MULTI_SEED:-20260808}"
 MAX_EPOCHS="${DRL_MULTI_MAX_EPOCHS:-4}"
 EVAL_EPISODES="${DRL_MULTI_EVAL_EPISODES:-120}"
 EVAL_FREQ="${DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES:-20000}"
-ACTOR_UPDATE_DELAY="${DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS:-20000}"
+ACTOR_UPDATE_DELAY="${DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS:-40000}"
+ACTOR_ANCHOR_WEIGHT="${DRL_MULTI_ACTOR_ANCHOR_WEIGHT:-0.05}"
+ACTOR_Q_NORM_ALPHA="${DRL_MULTI_ACTOR_Q_NORMALIZATION_ALPHA:-1.0}"
+ACTOR_GRAD_CLIP="${DRL_MULTI_ACTOR_GRAD_NORM_CLIP:-1.0}"
+RESUME_TRAINING="${DRL_MULTI_RESUME_TRAINING:-0}"
 
 for path in "$TRAIN_MANIFEST" "$EVAL_MANIFEST"; do
   [[ -f "$path" ]] || { echo "Required manifest is missing: $path" >&2; exit 1; }
 done
 [[ -f "$TD3_DIR/pytorch_models/${BASE_MODEL}_actor.pth" ]] || {
-  echo "5A Actor is missing: $TD3_DIR/pytorch_models/${BASE_MODEL}_actor.pth" >&2
+  echo "Warm-start Actor is missing: $TD3_DIR/pytorch_models/${BASE_MODEL}_actor.pth" >&2
   exit 1
 }
 [[ -f "$TD3_DIR/assets/$LAUNCHFILE" ]] || {
   echo "Launch file is missing: $TD3_DIR/assets/$LAUNCHFILE" >&2
   exit 1
 }
+[[ "$RESUME_TRAINING" == 0 || "$RESUME_TRAINING" == 1 ]] || {
+  echo "DRL_MULTI_RESUME_TRAINING must be 0 or 1" >&2
+  exit 2
+}
+[[ "$ACTOR_UPDATE_DELAY" =~ ^[0-9]+$ ]] || {
+  echo "DRL_MULTI_ACTOR_UPDATE_DELAY_STEPS must be a non-negative integer" >&2
+  exit 2
+}
+if [[ "$RESUME_TRAINING" == 0 && -e "$TD3_DIR/checkpoints/${MODEL_NAME}_latest.pt" ]]; then
+  echo "Fresh-run checkpoint already exists: $TD3_DIR/checkpoints/${MODEL_NAME}_latest.pt" >&2
+  echo "Use a new DRL_MULTI_TRAIN_FILE_NAME or set DRL_MULTI_RESUME_TRAINING=1 explicitly." >&2
+  exit 1
+fi
+if [[ "$RESUME_TRAINING" == 1 && ! -e "$TD3_DIR/checkpoints/${MODEL_NAME}_latest.pt" ]]; then
+  echo "Resume checkpoint is missing: $TD3_DIR/checkpoints/${MODEL_NAME}_latest.pt" >&2
+  exit 1
+fi
 
 if [[ -f "$PID_FILE" ]]; then
   old_pid="$(tr -d '[:space:]' < "$PID_FILE")"
@@ -85,6 +106,7 @@ setsid bash -lc "
   export DRL_MULTI_LOAD_ACTOR_ONLY=1
   export DRL_MULTI_REQUIRE_MODEL_LOAD=1
   export DRL_MULTI_LOAD_MODEL_NAME='$BASE_MODEL'
+  export DRL_MULTI_RESUME_TRAINING='$RESUME_TRAINING'
   export DRL_MULTI_MAX_EPOCHS='$MAX_EPOCHS'
   export DRL_MULTI_EVAL_EPISODES='$EVAL_EPISODES'
   export DRL_MULTI_EVAL_FREQ_AGENT_SAMPLES='$EVAL_FREQ'
@@ -102,7 +124,7 @@ setsid bash -lc "
   export DRL_MULTI_LOCAL_CRITIC_CONTEXT_MODE=ego_motion
   export DRL_MULTI_LOCAL_CRITIC_MAX_AGENTS=10
   export DRL_MULTI_ACTIVE_NEIGHBORS_ONLY=1
-  export DRL_MULTI_CRITIC_INTERACTION_FRACTION=0.75
+  export DRL_MULTI_CRITIC_INTERACTION_FRACTION="${DRL_MULTI_CRITIC_INTERACTION_FRACTION:-0.50}"
   export DRL_MULTI_USE_DYNAMIC_REWARD=0
   export DRL_MULTI_USE_DISTANCE_WEIGHTED_REWARD=0
   export DRL_MULTI_USE_LOCAL_NAVIGATION_REWARD=0
@@ -111,8 +133,11 @@ setsid bash -lc "
   export DRL_MULTI_ACTOR_INTERACTION_ONLY=0
   export DRL_MULTI_USE_ACTOR_GRADIENT_GATE=0
   export DRL_MULTI_ACTOR_SAFETY_FOCUSED=0
-  export DRL_MULTI_ACTOR_ANCHOR_WEIGHT=0
-  export DRL_MULTI_ACTOR_Q_NORMALIZATION_ALPHA=0
+  export DRL_MULTI_ACTOR_ANCHOR_WEIGHT='$ACTOR_ANCHOR_WEIGHT'
+  export DRL_MULTI_ACTOR_ANCHOR_SAFE_ONLY=0
+  export DRL_MULTI_ACTOR_ANCHOR_SAFE_DISTANCE=2.0
+  export DRL_MULTI_ACTOR_Q_NORMALIZATION_ALPHA='$ACTOR_Q_NORM_ALPHA'
+  export DRL_MULTI_ACTOR_GRAD_NORM_CLIP='$ACTOR_GRAD_CLIP'
 
   export DRL_MULTI_REWARD_MODE=average
   export DRL_MULTI_EXPL_NOISE=0.025
@@ -131,7 +156,12 @@ echo "Started current generalist retrain."
 echo "PID: $(cat "$PID_FILE")"
 echo "Model: $MODEL_NAME"
 echo "Warm start actor: $BASE_MODEL"
+echo "Resume training: $RESUME_TRAINING"
 echo "Local critic: enabled"
+echo "Actor update delay steps: $ACTOR_UPDATE_DELAY"
+echo "Actor anchor weight: $ACTOR_ANCHOR_WEIGHT"
+echo "Actor Q normalization alpha: $ACTOR_Q_NORM_ALPHA"
+echo "Actor grad norm clip: $ACTOR_GRAD_CLIP"
 echo "Train manifest: $TRAIN_MANIFEST"
 echo "Eval manifest: $EVAL_MANIFEST"
 echo "Max epochs: $MAX_EPOCHS"
