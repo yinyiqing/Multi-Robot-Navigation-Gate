@@ -50,7 +50,8 @@ N1/N2先不使用local critic，目的是复现 R2 中最稳的基础导航课�
   `actor lr=1e-4`、`critic lr=1e-4`、`policy freq=2`、`tau=0.005`
 - exploration：`0.35 -> 0.08` over 100k，前5000 samples随机线速度探索
 - reward：individual navigation；dynamic/local/wall/safe-recovery/anti-stagnation/
-  base-stagnation/robot-proximity/yield-priority均关闭
+  base-stagnation/yield-priority均关闭；robot-proximity权重保持R2-S0的`5.0`，但N1单车
+  无机器人邻居，实际不产生该项奖励
 - 固定步进：disabled，与R2-S0保持一致
 
 通过条件：以120场validation为准，full success至少`0.85`，collision不高于`0.10`，
@@ -94,6 +95,13 @@ timeout不高于`0.10`，且动作无饱和、Q无明显爆炸。若N1连续两�
 
 后续N1正式运行必须对齐R2-S0的seed和physics，使核心差异只剩Actor宽度
 `800x600` vs `1137x855`。
+
+`2026-08-10 00:31`第三次N1 preflight已确认`Seed=20260811`和`Fixed physics=disabled`，
+但日志中`Robot proximity penalty weight=0.0`仍与R2-S0的`5.0`不一致。虽然单车场景无
+机器人邻居，该项理论上不影响reward，但为了日志条件也完全对齐，已在episode 3后停止并
+归档。日志位于：
+
+`logs/archive/aborted/current_generalist_r2style_n1_20260810_proximity_preflight/`
 
 ## 旧五车guarded配置检查项
 
