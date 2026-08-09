@@ -50,7 +50,7 @@ N1/N2先不使用local critic，目的是复现 R2 中最稳的基础导航课�
   `actor lr=1e-4`、`critic lr=1e-4`、`policy freq=2`、`tau=0.005`
 - exploration：`0.35 -> 0.08` over 100k，前5000 samples随机线速度探索
 - reward：individual navigation；dynamic/local/wall/safe-recovery/anti-stagnation/
-  robot-proximity/yield-priority均关闭
+  base-stagnation/robot-proximity/yield-priority均关闭
 - 固定步进：`DRL_MULTI_FIXED_PHYSICS_STEP_SIZE=0.001`，要求`/gazebo/step_world`
 
 通过条件：以120场validation为准，full success至少`0.85`，collision不高于`0.10`，
@@ -79,6 +79,11 @@ timeout不高于`0.10`，且动作无饱和、Q无明显爆炸。若N1连续两�
 `logs/archive/aborted/current_generalist_fullscene_local_critic_20260809/`
 
 其停止时约`31.7k` agent samples，Actor尚未解冻，只能作为旧路线中止记录。
+
+`2026-08-10 00:16`第一次N1启动在日志头部发现`Base stagnation penalty weight=0.03`，
+与R2-S0配置不一致，已在episode 1后立即停止并归档；未产生checkpoint。日志位于：
+
+`logs/archive/aborted/current_generalist_r2style_n1_20260810_preflight/`
 
 ## 旧五车guarded配置检查项
 
