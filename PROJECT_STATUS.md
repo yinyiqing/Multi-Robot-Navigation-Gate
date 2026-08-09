@@ -164,6 +164,9 @@ Gate
    S4 10k作为R2参考。R3 40k的混合清单、数值配置、21k Actor解冻阈值和停止条件已经
    冻结并执行完成，但Actor解冻后退化，R2-10k继续作为候选。当前登记R2-10k与B2的D2
    同场预比较。失败S1不得作为warm start。
+9. 新的普通Actor重训 baseline 已单独立项，目标不是替代当前Gate主线，而是用当前
+   frozen full-scene train 和 fresh local critic 重新检查旧5A是否因训练分布和结构缺口
+   而偏弱；它与当前validation并行，不会中断Gate复测。
 9. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
    scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
    manifest哈希、缺失/重复/错序ID。不同场景或不同评测协议的历史汇总值不得混入同一表。
