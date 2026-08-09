@@ -43,7 +43,7 @@ N1/N2先不使用local critic，目的是复现 R2 中最稳的基础导航课�
   - SHA-256：`c71e4e87bbc528782cb76dc7df076c493900523bb748b3fb646f3d77fa5f0263`
 - validation：`fixed_v1/views/g12_r2_curriculum_v1/n1/validation.json.gz`
   - SHA-256：`9ab4c5913f683d01e3ab186ea591d373abe1e835180f4a0bfeb469990269b125`
-- seed：`20260810`
+- seed：`20260811`
 - budget：`5 x 20k = 100k` agent samples
 - eval：每20k做120场validation
 - 关键超参：`batch=256`、`min replay=5000`、`gamma=0.999`、
@@ -51,7 +51,7 @@ N1/N2先不使用local critic，目的是复现 R2 中最稳的基础导航课�
 - exploration：`0.35 -> 0.08` over 100k，前5000 samples随机线速度探索
 - reward：individual navigation；dynamic/local/wall/safe-recovery/anti-stagnation/
   base-stagnation/robot-proximity/yield-priority均关闭
-- 固定步进：`DRL_MULTI_FIXED_PHYSICS_STEP_SIZE=0.001`，要求`/gazebo/step_world`
+- 固定步进：disabled，与R2-S0保持一致
 
 通过条件：以120场validation为准，full success至少`0.85`，collision不高于`0.10`，
 timeout不高于`0.10`，且动作无饱和、Q无明显爆炸。若N1连续两个eval恶化或出现动作/Q
@@ -84,6 +84,16 @@ timeout不高于`0.10`，且动作无饱和、Q无明显爆炸。若N1连续两�
 与R2-S0配置不一致，已在episode 1后立即停止并归档；未产生checkpoint。日志位于：
 
 `logs/archive/aborted/current_generalist_r2style_n1_20260810_preflight/`
+
+`2026-08-10 00:18`第二次N1启动后，前17个episode为`0/17`，而R2-S0同期前20个episode
+为`6/20`。复核发现除Actor宽度外还存在两个不必要差异：seed为`20260810`而非R2-S0的
+`20260811`，且当前强制`Fixed physics step size=0.001`而R2-S0为disabled。因此该运行
+中止并归档，只保留为启动诊断。日志位于：
+
+`logs/archive/aborted/current_generalist_r2style_n1_20260810_seed_physics_mismatch/`
+
+后续N1正式运行必须对齐R2-S0的seed和physics，使核心差异只剩Actor宽度
+`800x600` vs `1137x855`。
 
 ## 旧五车guarded配置检查项
 
