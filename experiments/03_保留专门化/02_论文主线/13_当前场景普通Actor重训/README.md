@@ -405,6 +405,38 @@ interaction-aware reward大概率会强化安全保守性，不是当前最优�
 - `Fixed physics step size: 0.001`
 - `Robot safe distance: 0.0`
 
+## N5 efficiency repair E1 登记
+
+N5-20k同场配对准入失败的主因不是碰撞，而是timeout和平均步数过高。8个timeout case
+全部无碰撞，主要表现为避让或等待后没有恢复推进。因此E1只做短程效率修复，不引入
+local critic或dynamic reward，不改变普通Actor的输入结构。
+
+- experiment：`current-generalist-r2style-N5-efficiency-E1`
+- model：`current_generalist_n5_efficiency_e1_s20260810`
+- 初始化：从`current_generalist_n5_original_broad_s20260810_best`完整warm start
+  Actor和Critic
+- Actor：`24 -> 800 -> 600 -> 2`
+- train/validation：沿用N5冻结manifest，不更换场景集合
+- seed：`20260818`
+- budget：`2 x 5k = 10k` agent samples
+- eval：每5k做120场validation
+- critic：原24维Critic，`local critic disabled`
+- reward改动：`timeout_reward=-120.0`，开启safe recovery；progress从`20.0`升至
+  `25.0`，forward从`0.5`升至`0.8`，turn penalty从`0.2`降至`0.15`
+- 稳定性保护：`actor lr=2e-5`，`critic lr=6e-5`，Actor延迟`3000` agent samples后更新
+- fixed physics：`0.001`
+
+E1准入不是追求单点最高full success，而是检验N5能否在不牺牲安全的前提下修掉慢和
+timeout：
+
+- timeout必须低于N5同场配对基线`0.067`；
+- collision不应高于`0.10`；
+- full success不应明显低于`0.700`；
+- 平均步数应显著低于N5同场配对基线`46.15`。
+
+若E1 full success提升但timeout或collision越界，不能作为普通Actor N替换候选；若timeout
+下降但full success明显下降，也只能说明奖励过度催促，需要重新调小效率项。
+
 ## 判断标准
 
 1. N1只回答基础导航是否成立，不与五车B2/R2直接比较；
@@ -424,6 +456,8 @@ bash scripts/start_training_current_generalist_n3.sh
 bash scripts/stop_training_current_generalist_n3.sh
 bash scripts/start_training_current_generalist_n5.sh
 bash scripts/stop_training_current_generalist_n5.sh
+bash scripts/start_training_current_generalist_n5_efficiency_e1.sh
+bash scripts/stop_training_current_generalist_n5_efficiency_e1.sh
 ```
 
 运行日志统一写入：

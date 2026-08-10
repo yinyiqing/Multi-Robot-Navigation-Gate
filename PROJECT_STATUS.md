@@ -1,6 +1,6 @@
 # 当前项目状态
 
-更新时间：`2026-08-08`。
+更新时间：`2026-08-10`。
 
 本文件是进入项目后的第一阅读入口。方法定义、实验准入和数据边界以
 [论文主线协议](experiments/03_保留专门化/02_论文主线/README.md)为准；历史 README
@@ -157,6 +157,12 @@ Gate
     在同8场中分别有`4/8`和`5/8` full success。这说明N5的主要问题是避障或等待后缺少
     恢复推进，而不是安全不足；当前不启动local critic分支，若修Actor应登记为
     efficiency repair，但主线优先回到Gate。
+30. N5 efficiency repair E1已经登记但尚未完成：从
+    `current_generalist_n5_original_broad_s20260810_best`完整warm start，保持原宽度
+    Actor和原24维Critic，不启用local critic或dynamic reward，只加入timeout penalty、
+    safe recovery和轻量推进奖励调整。预算为`2 x 5k = 10k` agent samples，每5k做同一
+    N5 validation的120场评估；准入目标是timeout低于N5同场基线`0.067`、collision不高于
+    `0.10`、full success不明显低于`0.700`且平均步数明显低于`46.15`。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -202,6 +208,8 @@ Gate
    N2、N3和N5首段也已经完成并通过；N5同场配对准入因timeout失败，不能直接替换旧5A。
    `epoch-16`已经是使用邻域
    critic和交互reward训练出的避障专家，因此普通Actor N的clean课程继续保持原24维critic。
+   当前登记的N5 efficiency repair E1只处理N5-20k的timeout/效率问题，不改变普通Actor的
+   观测结构，也不把它训练成第二个避障Actor。
 10. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
    scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
    manifest哈希、缺失/重复/错序ID。不同场景或不同评测协议的历史汇总值不得混入同一表。
