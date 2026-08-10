@@ -1,6 +1,6 @@
 # 当前场景普通Actor重训
 
-状态：`route revised / N1-N3 original-width broad passed / N5 registered`。
+状态：`route revised / N1-N5 original-width broad passed first segment / N5 admission pending`。
 更新时间：`2026-08-10`。
 
 这条线不是旧 `5A` 的继续修补，而是为当前双 Actor + Gate 方法重新建立普通导航
@@ -219,6 +219,44 @@ N5 repair，并在保护Actor的前提下讨论是否加入轻量local critic或
 collision不高于`0.22`、timeout不高于`0.10`；若20k相对10k full success下降至少
 `0.10`，或timeout增加至少`0.10`，回滚10k。N5候选通过后，必须在同一冻结manifest上
 与旧5A、B2、oracle和R2-10k做配对比较，不能直接把训练内validation汇总写成最终方法表。
+
+## N5 结果
+
+正式 N5 首段于`2026-08-10`完成`2 x 10k = 20k` agent samples。运行日志已归档到：
+
+`logs/archive/training/current_generalist_r2style/n5/train_current_generalist_n5_original_broad_s20260810_20260810_152554.log`
+
+日志头部确认：
+
+- 从`current_generalist_n3_original_broad_s20260810_best`完整加载Actor和Critic；
+- `Resume mode: False`，`Starting agent samples: 0`；
+- `Actor hidden dimensions: 800x600`；
+- `Local critic enabled: False`，`Distance-weighted reward: False`；
+- `Device: cuda`，五车`r1-r5`。
+
+| checkpoint | samples | agent success | full success | collision | unresolved | timeout | avg steps |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| epoch 1 | 10k | `0.890` | `0.667` | `0.083` | `0.027` | `0.117` | `57.1` |
+| epoch 2 | 20k | `0.920` | `0.717` | `0.062` | `0.018` | `0.092` | `50.6` |
+
+Best checkpoint由训练脚本在epoch 2更新：
+
+- Actor：`TD3/pytorch_models/current_generalist_n5_original_broad_s20260810_best_actor.pth`
+  - SHA-256：`53964e12c2d6c5f0855530f22bdd721170b911640883c7616b14dc21aa12cfeb`
+- Critic：`TD3/pytorch_models/current_generalist_n5_original_broad_s20260810_best_critic.pth`
+  - SHA-256：`5c9d420ac4916d635774eaa9db32fcdbaaa7bf2bd55bf6779393783d571c9173`
+- Full checkpoint：`TD3/checkpoints/current_generalist_n5_original_broad_s20260810_best.pt`
+  - SHA-256：`2f2f3878334ecdd99b709719c466badd2d60eece22905804eadb06cb14dff883`
+
+结论：N5首段通过预登记准入。20k相对10k的full success提高`0.050`、agent success提高
+`0.030`、collision下降`0.021`、timeout下降`0.025`，因此选择epoch 2 best；没有回滚到
+10k。需要注意的是，20k timeout仍为`0.092`、平均步数`50.6`，明显慢于G12-R2-S4大Actor
+10k fallback的`0` timeout和`20.39`平均步数。因此N5 clean只能说已形成可评估的原宽五车
+普通Actor候选，不能直接声称已经优于大Actor或可替换旧5A。
+
+下一步必须做同场配对准入：在同一冻结manifest上评估旧5A、N5-20k、B2/最终Gate候选、
+R2-10k和oracle，并按0-edge、edge-1、multi-edge分层。N5若要替换旧`generalist-5a`，
+至少需要证明普通能力保持、碰撞下降不以系统性timeout为代价。
 
 ## 已关闭的旧pilot
 

@@ -139,6 +139,12 @@ Gate
     timeout为`0.017/0.025`；20k由脚本更新为best并通过准入。该结果说明原宽Actor能稳定
     进入三车broad，且与G12-R2-S3加宽Actor同阶段同级；但timeout/unresolved仍需关注，
     不得单独声称原宽优于加宽或已经解决五车冲突。
+27. 当前普通Actor重训N5五车broad首段已完成20k。10k/20k的full success为
+    `0.667/0.717`，agent success为`0.890/0.920`，collision为`0.083/0.062`，
+    timeout为`0.117/0.092`，平均步数为`57.1/50.6`；20k由脚本更新为best并通过首段
+    准入。该结果说明原宽Actor已形成可评估的五车普通Actor候选，但timeout和效率明显
+    不足，不能直接声称优于G12-R2或可替换旧5A；下一步必须在同一冻结manifest上做5A、
+    N5、B2/最终Gate、R2-10k和oracle的配对分层准入。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -181,8 +187,8 @@ Gate
    `generalist-5a` 的角色重建一个更强的普通Actor N。`2026-08-09`直接五车 fresh local
    critic pilot 已中止归档；正式路线从原宽度随机Actor/Critic的单车 broad N1 开始，
    再按 N2/N3/N5 扩展，local critic 不再在五车阶段突然 fresh 接入。N1已经完成并通过，
-   N2和N3首段也已经完成并通过；N5五车broad首段已经登记，当前从N3 best完整warm start
-   启动20k clean训练。`epoch-16`已经是使用邻域
+   N2、N3和N5首段也已经完成并通过；当前进入N5同场配对准入，而不是继续盲目长跑。
+   `epoch-16`已经是使用邻域
    critic和交互reward训练出的避障专家，因此普通Actor N的clean课程继续保持原24维critic。
 10. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
    scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
