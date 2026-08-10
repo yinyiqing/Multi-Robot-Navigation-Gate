@@ -1,6 +1,6 @@
 # 当前场景普通Actor重训
 
-状态：`route revised / N1 original-width broad started`。
+状态：`route revised / N1 original-width broad passed / N2 pending`。
 更新时间：`2026-08-10`。
 
 这条线不是旧 `5A` 的继续修补，而是为当前双 Actor + Gate 方法重新建立普通导航
@@ -57,6 +57,32 @@ N1/N2先不使用local critic，目的是复现 R2 中最稳的基础导航课�
 通过条件：以120场validation为准，full success至少`0.85`，collision不高于`0.10`，
 timeout不高于`0.10`，且动作无饱和、Q无明显爆炸。若N1连续两个eval恶化或出现动作/Q
 异常，停止诊断，不进入N2。
+
+## N1 结果
+
+正式 N1 于`2026-08-10`完成`5 x 20k = 100k` agent samples。运行日志已归档到：
+
+`logs/archive/training/current_generalist_r2style/n1/train_current_generalist_n1_original_broad_s20260810_20260810_003324.log`
+
+| epoch | samples | full success | collision | timeout | avg steps | avg final distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 20k | `0.975` | `0.025` | `0.000` | `9.1` | `0.240` |
+| 2 | 40k | `1.000` | `0.000` | `0.000` | `9.9` | `0.243` |
+| 3 | 60k | `1.000` | `0.000` | `0.000` | `8.4` | `0.227` |
+| 4 | 80k | `1.000` | `0.000` | `0.000` | `8.1` | `0.218` |
+| 5 | 100k | `1.000` | `0.000` | `0.000` | `8.6` | `0.221` |
+
+Best checkpoint由训练脚本在epoch 3更新：
+
+- Actor：`TD3/pytorch_models/current_generalist_n1_original_broad_s20260810_best_actor.pth`
+  - SHA-256：`bb1fb7b20132c1bccc63f557d27aaaf43b3d3bf8910c2f4116821720b1bf43e2`
+- Critic：`TD3/pytorch_models/current_generalist_n1_original_broad_s20260810_best_critic.pth`
+  - SHA-256：`002c299122020151e4e51dc8d52b5dc5240d70edbdfb62c5a594243ecd06fd50`
+- Full checkpoint：`TD3/checkpoints/current_generalist_n1_original_broad_s20260810_best.pt`
+  - SHA-256：`6ac490aa35d5ba43d1b18b8d6126c0609e81a85f55b153654fcd0191a26bbf3e`
+
+结论：原宽度普通Actor从随机初始化开始可以稳定学会单车broad导航，N1通过进入N2的
+准入。这只回答单车基础导航是否成立，不证明两车、五车或冲突能力。
 
 ## 已关闭的旧pilot
 

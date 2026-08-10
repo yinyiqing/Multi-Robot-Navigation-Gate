@@ -126,6 +126,10 @@ Gate
     Actor冻结时full success为`0.667`，40k解冻更新后降至`0.575`，低于R2-10k参考
     `0.700`，因此不启动R4；R2-10k继续作为大Actor候选。R3不读取D2、E或sealed test，
     也不更新5A和epoch-16。完整记录见`12_参数匹配单Actor容量对照/R3_RESULTS.md`。
+24. 当前普通Actor重训N1已按R2-style单车broad协议完成100k。120场validation的full
+    success为`0.975/1.000/1.000/1.000/1.000`，collision和timeout从epoch 2起均为`0`；
+    best checkpoint由epoch 3更新。该结果证明原宽度Actor能从随机初始化建立单车基础导航，
+    不证明两车、五车或冲突能力；下一步进入N2两车broad。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -167,8 +171,9 @@ Gate
 9. 新的普通Actor重训 baseline 已改为课程式路线，目标不是替代当前Gate主线，而是为
    `generalist-5a` 的角色重建一个更强的普通Actor N。`2026-08-09`直接五车 fresh local
    critic pilot 已中止归档；正式路线从原宽度随机Actor/Critic的单车 broad N1 开始，
-   再按 N2/N3/N5 扩展，local critic 不再在五车阶段突然 fresh 接入。
-9. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
+   再按 N2/N3/N5 扩展，local critic 不再在五车阶段突然 fresh 接入。N1已经完成并通过，
+   当前准备从N1 best warm start启动N2两车broad。
+10. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
    scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
    manifest哈希、缺失/重复/错序ID。不同场景或不同评测协议的历史汇总值不得混入同一表。
 
