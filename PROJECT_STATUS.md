@@ -157,12 +157,12 @@ Gate
     在同8场中分别有`4/8`和`5/8` full success。这说明N5的主要问题是避障或等待后缺少
     恢复推进，而不是安全不足；当前不启动local critic分支，若修Actor应登记为
     efficiency repair，但主线优先回到Gate。
-30. N5 efficiency repair E1已经登记但尚未完成：从
-    `current_generalist_n5_original_broad_s20260810_best`完整warm start，保持原宽度
-    Actor和原24维Critic，不启用local critic或dynamic reward，只加入timeout penalty、
-    safe recovery和轻量推进奖励调整。预算为`2 x 5k = 10k` agent samples，每5k做同一
-    N5 validation的120场评估；准入目标是timeout低于N5同场基线`0.067`、collision不高于
-    `0.10`、full success不明显低于`0.700`且平均步数明显低于`46.15`。
+30. N5 efficiency repair E1已完成但未通过准入：5k/10k的full success为
+    `0.675/0.650`，collision为`0.102/0.123`，timeout均为`0.025`，平均步数为
+    `29.9/27.3`。它证明timeout和效率可以被推进/恢复奖励快速改善，但当前配置过度催促
+    Actor，导致碰撞超过`0.10`上限且full success低于N5同场基线`0.700`；不得用E1
+    latest或epoch2替换N5-20k/旧5A。若继续E2，应从E1 epoch1或N5-20k重新出发并降低
+    推进强度或加入更明确的碰撞保护。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
