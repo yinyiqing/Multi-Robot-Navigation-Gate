@@ -130,6 +130,10 @@ Gate
     success为`0.975/1.000/1.000/1.000/1.000`，collision和timeout从epoch 2起均为`0`；
     best checkpoint由epoch 3更新。该结果证明原宽度Actor能从随机初始化建立单车基础导航，
     不证明两车、五车或冲突能力；下一步进入N2两车broad。
+25. 当前普通Actor重训N2两车broad首段已完成20k。10k/20k的full success均为`0.925`，
+    agent success均为`0.950`，collision均为`0.046`，timeout均为`0.008`；20k平均步数
+    从`13.3`降至`11.9`并由脚本更新为best。N2通过首段准入，说明原宽度Actor能稳定进入
+    两车broad；由于n2 validation冲突场景比例低，不能据此声称冲突能力或五车能力。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -172,7 +176,8 @@ Gate
    `generalist-5a` 的角色重建一个更强的普通Actor N。`2026-08-09`直接五车 fresh local
    critic pilot 已中止归档；正式路线从原宽度随机Actor/Critic的单车 broad N1 开始，
    再按 N2/N3/N5 扩展，local critic 不再在五车阶段突然 fresh 接入。N1已经完成并通过，
-   当前准备从N1 best warm start启动N2两车broad。
+   N2首段也已经完成并通过；当前准备登记N3三车broad，是否在N3引入local critic需先
+   明确保护策略。
 10. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
    scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
    manifest哈希、缺失/重复/错序ID。不同场景或不同评测协议的历史汇总值不得混入同一表。

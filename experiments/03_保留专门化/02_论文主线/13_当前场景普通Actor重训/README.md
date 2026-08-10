@@ -1,6 +1,6 @@
 # 当前场景普通Actor重训
 
-状态：`route revised / N1 original-width broad passed / N2 pending`。
+状态：`route revised / N1 and N2 original-width broad passed / N3 pending`。
 更新时间：`2026-08-10`。
 
 这条线不是旧 `5A` 的继续修补，而是为当前双 Actor + Gate 方法重新建立普通导航
@@ -107,6 +107,31 @@ Best checkpoint由训练脚本在epoch 3更新：
 首段通过条件沿用R2-S2：20k的agent success不低于`0.80`、full success不低于`0.65`，
 collision不高于`0.15`、timeout不高于`0.10`；若20k相对10k full success下降至少
 `0.10`，或timeout增加至少`0.10`，回滚10k。通过后再登记剩余40k，不直接长跑。
+
+## N2 结果
+
+正式 N2 首段于`2026-08-10`完成`2 x 10k = 20k` agent samples。运行日志已归档到：
+
+`logs/archive/training/current_generalist_r2style/n2/train_current_generalist_n2_original_broad_s20260810_20260810_101251.log`
+
+| checkpoint | samples | agent success | full success | collision | unresolved | timeout | avg steps |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| epoch 1 | 10k | `0.950` | `0.925` | `0.046` | `0.004` | `0.008` | `13.3` |
+| epoch 2 | 20k | `0.950` | `0.925` | `0.046` | `0.004` | `0.008` | `11.9` |
+
+Best checkpoint由训练脚本在epoch 2更新：
+
+- Actor：`TD3/pytorch_models/current_generalist_n2_original_broad_s20260810_best_actor.pth`
+  - SHA-256：`55917aea9176fe28a081b43d039f402d0518c6836c194794f4bf3989dd0812bd`
+- Critic：`TD3/pytorch_models/current_generalist_n2_original_broad_s20260810_best_critic.pth`
+  - SHA-256：`e5fbaf2ac7b0fbafabef1f25df38fa75d32d9ffc5c9177d37bb1c4f40fc0d3e5`
+- Full checkpoint：`TD3/checkpoints/current_generalist_n2_original_broad_s20260810_best.pt`
+  - SHA-256：`29b768de697d06d82a86839aa1e2cac90ff20a4cb70fe5d2483d2308b686dfee`
+
+结论：N2首段通过准入。原宽度Actor从N1 best完整warm start后，能稳定进入两车broad
+导航；20k相对10k没有full success退化，平均步数下降。该结果与G12-R2-S2加宽Actor
+同阶段结果接近，但n2 validation只有约`17/120`个派生冲突场景，因此仍只证明两车完整
+broad导航稳定，不证明冲突能力或五车能力。
 
 ## 已关闭的旧pilot
 
