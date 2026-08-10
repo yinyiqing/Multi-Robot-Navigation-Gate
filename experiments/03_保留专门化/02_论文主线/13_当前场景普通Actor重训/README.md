@@ -471,6 +471,40 @@ Best checkpoint由训练脚本在epoch 1更新：
 epoch 1或N5-20k重新出发，降低forward/progress增幅、恢复turn penalty或加入更明确的
 碰撞保护，而不是继续epoch 2。
 
+## N5 efficiency repair E2 登记
+
+E2是E1后的保守修正版。E1证明timeout和平均步数可以快速下降，但同时把collision推过
+`0.10`上限；因此E2从N5-20k best重新出发，不继承E1 epoch2，也不默认继承E1 epoch1的
+冒险动作趋势。
+
+- experiment：`current-generalist-r2style-N5-efficiency-E2`
+- model：`current_generalist_n5_efficiency_e2_s20260810`
+- 初始化：从`current_generalist_n5_original_broad_s20260810_best`完整warm start
+  Actor和Critic
+- Actor：`24 -> 800 -> 600 -> 2`
+- train/validation：沿用N5冻结manifest，不更换场景集合
+- seed：`20260819`
+- budget：`2 x 5k = 10k` agent samples
+- eval：每5k做120场validation
+- critic：原24维Critic，`local critic disabled`
+- reward改动：保留safe recovery，但弱化催促项：
+  `timeout_reward=-80.0`，progress从`20.0`升至`22.0`，forward从`0.5`升至`0.6`，
+  turn penalty恢复为`0.2`，obstacle penalty从`0.5`升至`0.7`；
+  safe recovery idle penalty从E1的`0.20`降至`0.08`，progress bonus从`0.12`降至`0.08`
+- 稳定性保护：保持E1的`actor lr=2e-5`、`critic lr=6e-5`和Actor延迟`3000`
+  agent samples后更新
+- fixed physics：`0.001`
+
+E2准入沿用E1，不因低timeout单独通过：
+
+- timeout必须低于N5同场配对基线`0.067`；
+- collision不应高于`0.10`；
+- full success不应明显低于`0.700`；
+- 平均步数应显著低于N5同场配对基线`46.15`。
+
+若E2相对E1保持低timeout且collision回到`<=0.10`，再考虑同场配对复测；若仍然撞多，
+说明单靠推进/timeout奖励修普通Actor不够，需要转向更明确的安全约束或回到Gate优先。
+
 ## 判断标准
 
 1. N1只回答基础导航是否成立，不与五车B2/R2直接比较；
@@ -492,6 +526,8 @@ bash scripts/start_training_current_generalist_n5.sh
 bash scripts/stop_training_current_generalist_n5.sh
 bash scripts/start_training_current_generalist_n5_efficiency_e1.sh
 bash scripts/stop_training_current_generalist_n5_efficiency_e1.sh
+bash scripts/start_training_current_generalist_n5_efficiency_e2.sh
+bash scripts/stop_training_current_generalist_n5_efficiency_e2.sh
 ```
 
 运行日志统一写入：
