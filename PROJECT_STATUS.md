@@ -152,6 +152,11 @@ Gate
     改善、7场退化，`p=0.00333`，multi-edge为13场改善、1场退化，`p=0.00183`；但
     timeout超过`+0.02`准入上限，因此严格判定未通过，不能直接替换旧5A。N5相对R2-10k
     为13场改善、13场退化，`p=1.0`，full success无差异但效率明显更差。
+29. N5 timeout诊断显示，8个timeout case全部无碰撞，其中7个为`4S/0C/1U`，1个为
+    `3S/0C/2U`；N5在这些case中累计`31`个agent成功、`0`碰撞、`9` unresolved。5A/R2-10k
+    在同8场中分别有`4/8`和`5/8` full success。这说明N5的主要问题是避障或等待后缺少
+    恢复推进，而不是安全不足；当前不启动local critic分支，若修Actor应登记为
+    efficiency repair，但主线优先回到Gate。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。

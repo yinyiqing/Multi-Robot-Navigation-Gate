@@ -306,6 +306,44 @@ R2-10k，平均步数为`46.15` vs `20.39`。因此N5-20k不能直接替换旧`g
 当前主方法中的普通Actor；它可以作为“原宽课程重训确实改善碰撞/复杂拓扑，但带来等待
 和超时”的诊断证据。
 
+## N5 timeout诊断
+
+对N5-20k同场配对结果做逐场复核，8个timeout case的共同特征如下：
+
+- 8/8均没有碰撞；
+- 7/8为`4`个agent成功、`0`个碰撞、`1`个unresolved；
+- 剩余1/8为`3`个agent成功、`0`个碰撞、`2`个unresolved；
+- 5A在这8场中有`4/8` full success，R2-10k有`5/8` full success；
+- N5在这8场中累计`31`个agent成功、`0`个碰撞、`9`个unresolved。
+
+timeout case分布：
+
+| layer | count |
+| --- | ---: |
+| dense | `5` |
+| standard | `3` |
+| 0-edge | `2` |
+| edge-1 | `2` |
+| multi-edge | `4` |
+
+具体case：
+
+| idx | scenario_id | layer | edge count | N5 outcome | 5A | R2-10k |
+| ---: | --- | --- | ---: | --- | --- | --- |
+| 17 | `dense-20260718008953-bfb89e8891bd` | dense multi | 3 | `3S/0C/2U` | fail, `3C` | fail, `2C` |
+| 20 | `standard-20260717006788-679e7ea561c4` | standard zero | 0 | `4S/0C/1U` | full | full |
+| 23 | `standard-20260717006980-d62c7937eb62` | standard zero | 0 | `4S/0C/1U` | full | full |
+| 42 | `dense-20260718009026-2691c66d60ce` | dense multi | 3 | `4S/0C/1U` | full | full |
+| 73 | `dense-20260718009239-ef66bec842b1` | dense edge1 | 1 | `4S/0C/1U` | fail, `2C` | full |
+| 80 | `dense-20260718009333-38e4ac2b5b23` | dense multi | 3 | `4S/0C/1U` | fail, `3C` | fail, `2C` |
+| 87 | `dense-20260718008564-5ea3f677f504` | dense multi | 4 | `4S/0C/1U` | fail, `1C` | fail, `2C` |
+| 105 | `standard-20260717006984-13351d0e9eb0` | standard edge1 | 1 | `4S/0C/1U` | full | full |
+
+结论：N5的失败不是“不会避障”，而是避障/等待之后缺少恢复推进。继续加入local critic或
+interaction-aware reward大概率会强化安全保守性，不是当前最优修复方向。若继续修Actor，
+应该登记为`N5-efficiency-repair`，目标是减少unresolved、timeout和平均步数；但主线更
+合理的下一步仍是回到Gate，用旧5A或R2-10k承担快速普通推进，用epoch-16承担短时避障。
+
 ## 已关闭的旧pilot
 
 `2026-08-09` 的上一轮短跑日志：
