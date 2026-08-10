@@ -1,6 +1,6 @@
 # 当前场景普通Actor重训
 
-状态：`route revised / N1-N5 original-width broad passed first segment / N5 admission pending`。
+状态：`route revised / N1-N5 original-width broad passed first segment / N5 admission failed timeout`。
 更新时间：`2026-08-10`。
 
 这条线不是旧 `5A` 的继续修补，而是为当前双 Actor + Gate 方法重新建立普通导航
@@ -257,6 +257,54 @@ Best checkpoint由训练脚本在epoch 2更新：
 下一步必须做同场配对准入：在同一冻结manifest上评估旧5A、N5-20k、B2/最终Gate候选、
 R2-10k和oracle，并按0-edge、edge-1、multi-edge分层。N5若要替换旧`generalist-5a`，
 至少需要证明普通能力保持、碰撞下降不以系统性timeout为代价。
+
+## N5 同场配对准入
+
+正式 N5-20k admission 于`2026-08-10`完成。该实验复用G12-R2-N5 admission中已经审计
+通过的旧5A和R2-10k逐场结果，只新增运行N5-20k；三者使用完全相同的120场manifest、
+顺序、seed `20260817`、固定物理步长和单Actor执行模式。结果、manifest顺序、缺失与重复
+ID审计均通过。日志已归档到：
+
+`logs/archive/validation/current_generalist_n5_admission/`
+
+逐场结果和summary位于：
+
+`experiments/03_保留专门化/02_论文主线/13_当前场景普通Actor重训/local_data/n5_admission/`
+
+整体结果：
+
+| policy | agent success | full success | collision | unresolved | timeout | avg steps |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 旧5A | `0.810` | `0.558` | `0.190` | `0.000` | `0.000` | `20.08` |
+| R2-10k大Actor | `0.900` | `0.700` | `0.100` | `0.000` | `0.000` | `20.39` |
+| N5-20k原宽Actor | `0.910` | `0.700` | `0.075` | `0.015` | `0.067` | `46.15` |
+
+拓扑分层：
+
+| topology | policy | agent success | full success | collision | timeout | avg steps |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| 0-edge | 旧5A | `0.975` | `0.900` | `0.025` | `0.000` | `21.73` |
+| 0-edge | R2-10k | `0.995` | `0.975` | `0.005` | `0.000` | `17.78` |
+| 0-edge | N5-20k | `0.980` | `0.925` | `0.010` | `0.050` | `33.08` |
+| edge-1 | 旧5A | `0.850` | `0.625` | `0.150` | `0.000` | `22.70` |
+| edge-1 | R2-10k | `0.915` | `0.725` | `0.085` | `0.000` | `18.10` |
+| edge-1 | N5-20k | `0.915` | `0.725` | `0.075` | `0.050` | `33.95` |
+| multi-edge | 旧5A | `0.605` | `0.150` | `0.395` | `0.000` | `15.82` |
+| multi-edge | R2-10k | `0.790` | `0.400` | `0.210` | `0.000` | `25.30` |
+| multi-edge | N5-20k | `0.835` | `0.450` | `0.140` | `0.100` | `71.42` |
+
+配对检验：
+
+- N5-20k vs 旧5A：overall为`24`场改善、`7`场退化、`89`场持平，
+  McNemar exact `p=0.00333`；multi-edge为`13/1`，`p=0.00183`。
+- N5-20k vs R2-10k：overall为`13`场改善、`13`场退化、`94`场持平，
+  McNemar exact `p=1.0`；full success无可分辨差异。
+
+准入结论：N5-20k相对旧5A的成功率和碰撞改善是成立的，但严格准入失败。唯一失败项是
+overall timeout：旧5A为`0/120`，N5-20k为`8/120=0.067`，超过`+0.02`上限。它也明显慢于
+R2-10k，平均步数为`46.15` vs `20.39`。因此N5-20k不能直接替换旧`generalist-5a`作为
+当前主方法中的普通Actor；它可以作为“原宽课程重训确实改善碰撞/复杂拓扑，但带来等待
+和超时”的诊断证据。
 
 ## 已关闭的旧pilot
 

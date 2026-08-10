@@ -145,6 +145,13 @@ Gate
     准入。该结果说明原宽Actor已形成可评估的五车普通Actor候选，但timeout和效率明显
     不足，不能直接声称优于G12-R2或可替换旧5A；下一步必须在同一冻结manifest上做5A、
     N5、B2/最终Gate、R2-10k和oracle的配对分层准入。
+28. 当前普通ActorN5-20k同场配对准入已完成。旧5A/R2-10k/N5-20k在同一120场N5
+    validation上的full success为`0.558/0.700/0.700`，agent success为
+    `0.810/0.900/0.910`，collision为`0.190/0.100/0.075`，timeout为
+    `0.000/0.000/0.067`，平均步数为`20.08/20.39/46.15`。N5相对旧5A overall为24场
+    改善、7场退化，`p=0.00333`，multi-edge为13场改善、1场退化，`p=0.00183`；但
+    timeout超过`+0.02`准入上限，因此严格判定未通过，不能直接替换旧5A。N5相对R2-10k
+    为13场改善、13场退化，`p=1.0`，full success无差异但效率明显更差。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -187,7 +194,7 @@ Gate
    `generalist-5a` 的角色重建一个更强的普通Actor N。`2026-08-09`直接五车 fresh local
    critic pilot 已中止归档；正式路线从原宽度随机Actor/Critic的单车 broad N1 开始，
    再按 N2/N3/N5 扩展，local critic 不再在五车阶段突然 fresh 接入。N1已经完成并通过，
-   N2、N3和N5首段也已经完成并通过；当前进入N5同场配对准入，而不是继续盲目长跑。
+   N2、N3和N5首段也已经完成并通过；N5同场配对准入因timeout失败，不能直接替换旧5A。
    `epoch-16`已经是使用邻域
    critic和交互reward训练出的避障专家，因此普通Actor N的clean课程继续保持原24维critic。
 10. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
