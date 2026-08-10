@@ -84,6 +84,30 @@ Best checkpoint由训练脚本在epoch 3更新：
 结论：原宽度普通Actor从随机初始化开始可以稳定学会单车broad导航，N1通过进入N2的
 准入。这只回答单车基础导航是否成立，不证明两车、五车或冲突能力。
 
+## N2 登记
+
+- experiment：`current-generalist-r2style-N2`
+- model：`current_generalist_n2_original_broad_s20260810`
+- Actor：`24 -> 800 -> 600 -> 2`
+- 初始化：从N1 best完整warm start Actor和Critic，不允许actor-only fallback
+- train：`fixed_v1/views/g12_r2_curriculum_v1/n2/train.json.gz`
+  - SHA-256：`5fbd2df5241076041ea714b59286604915ebf1b13848482f7c34fd10cdc9087b`
+- validation：`fixed_v1/views/g12_r2_curriculum_v1/n2/validation.json.gz`
+  - SHA-256：`955132263cac9496a56eb8bb6f5132ca5ae41e930c926a7a9a13e8797bb903c9`
+- seed：`20260814`
+- 首段budget：`2 x 10k = 20k` agent samples
+- eval：每10k做120场validation
+- critic：原24维Critic，local critic disabled
+- 关键超参：对齐G12-R2-S2，除Actor宽度和N1 warm start外，保持
+  `batch=256`、`min replay=5000`、`gamma=0.999`、`actor/critic lr=8e-5`、
+  `exploration 0.10 -> 0.03`、无随机直行动作、fixed physics `0.001`
+- reward：individual navigation；dynamic/local/wall/safe-recovery/anti-stagnation/
+  yield-priority均关闭；robot-proximity权重`5.0`
+
+首段通过条件沿用R2-S2：20k的agent success不低于`0.80`、full success不低于`0.65`，
+collision不高于`0.15`、timeout不高于`0.10`；若20k相对10k full success下降至少
+`0.10`，或timeout增加至少`0.10`，回滚10k。通过后再登记剩余40k，不直接长跑。
+
 ## 已关闭的旧pilot
 
 `2026-08-09` 的上一轮短跑日志：
@@ -158,8 +182,10 @@ Best checkpoint由训练脚本在epoch 3更新：
 ```bash
 bash scripts/start_training_current_generalist_n1.sh
 bash scripts/stop_training_current_generalist_n1.sh
+bash scripts/start_training_current_generalist_n2.sh
+bash scripts/stop_training_current_generalist_n2.sh
 ```
 
 运行日志统一写入：
 
-`logs/active/current-generalist-r2style/n1/`
+`logs/active/current-generalist-r2style/`
