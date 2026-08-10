@@ -1,11 +1,12 @@
 # 当前场景普通Actor重训
 
-状态：`route revised / N1 and N2 original-width broad passed / N3 pending`。
+状态：`route revised / N1-N3 original-width broad passed / N5 pending`。
 更新时间：`2026-08-10`。
 
 这条线不是旧 `5A` 的继续修补，而是为当前双 Actor + Gate 方法重新建立普通导航
 Actor N。已有 R2 结果说明，干净课程和连续 Critic 比直接从五车 fresh Critic 启动更稳；
-因此本路线从单车 broad 重新开始，逐步扩展到五车，并在三车阶段前后再引入 local critic。
+因此本路线从单车 broad 重新开始，逐步扩展到五车。当前N路线保持普通Actor角色；邻域
+critic和强交互reward主要由条件避障Actor `epoch-16` 承载。
 
 ## 研究问题
 
@@ -26,12 +27,13 @@ Actor N。已有 R2 结果说明，干净课程和连续 Critic 比直接从五�
 | --- | ---: | --- | --- | --- | ---: |
 | N1 | 1 | `g12_r2_curriculum_v1/n1` broad | 原24维Critic | Actor/Critic随机 | `100k` |
 | N2 | 2 | `g12_r2_curriculum_v1/n2` broad | 原24维Critic | N1完整warm start | `60k` |
-| N3 | 3 | `g12_r2_curriculum_v1/n3` broad | local critic候选 | N2完整warm start；若切critic，先登记保护策略 | `60k` |
+| N3 | 3 | `g12_r2_curriculum_v1/n3` broad | 原24维Critic | N2完整warm start | `20k` |
 | N5 | 5 | `g12_r2_curriculum_v1/n5` broad，随后完整fixed-v1混合 | 与N3兼容 | N3完整warm start | `80k+` |
 
 N1/N2先不使用local critic，目的是复现 R2 中最稳的基础导航课程，但保持原宽度
 `24 -> 800 -> 600 -> 2`。local critic 不再像旧pilot那样在五车阶段突然 fresh 接入；
-若使用，必须在 N3 登记并保证之后阶段结构兼容。
+若未来用于普通Actor repair，必须在N5后另行登记并保护Actor；当前不在N3/N5 clean
+课程中加入。
 
 ## N1 登记
 
@@ -155,11 +157,38 @@ broad导航稳定，不证明冲突能力或五车能力。
 
 暂不在N3引入local critic，原因是N1/N2已经显示原宽度课程稳定，N3首段的主要问题是
 能否复现R2-S3的三车扩展；此时加入local critic会同时改变输入结构、critic分布和Actor
-梯度，难以判断性能变化来源。local critic是否进入应在N5或N5后的正式混合阶段另行登记。
+梯度，难以判断性能变化来源。另一个角色边界是：条件避障Actor `epoch-16` 已经使用
+`87`维邻域critic、distance-weighted reward、robot proximity speed penalty和oracle
+交互窗口训练；普通Actor N应优先保持普通推进能力，避免被训练成第二个避障专家。
 
 首段通过条件沿用R2-S3：20k的agent success不低于`0.75`、full success不低于`0.55`，
 collision不高于`0.20`、timeout不高于`0.12`；若20k相对10k full success下降至少
 `0.10`，或timeout增加至少`0.10`，回滚10k。
+
+## N3 结果
+
+正式 N3 首段于`2026-08-10`完成`2 x 10k = 20k` agent samples。运行日志已归档到：
+
+`logs/archive/training/current_generalist_r2style/n3/train_current_generalist_n3_original_broad_s20260810_20260810_131049.log`
+
+| checkpoint | samples | agent success | full success | collision | unresolved | timeout | avg steps |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| epoch 1 | 10k | `0.919` | `0.833` | `0.075` | `0.006` | `0.017` | `19.1` |
+| epoch 2 | 20k | `0.953` | `0.892` | `0.036` | `0.011` | `0.025` | `22.9` |
+
+Best checkpoint由训练脚本在epoch 2更新：
+
+- Actor：`TD3/pytorch_models/current_generalist_n3_original_broad_s20260810_best_actor.pth`
+  - SHA-256：`e35eb07cadff85dc29bf9f470ea7df91e9a5fc34e8bcb99c1bdea2c70b15fdcd`
+- Critic：`TD3/pytorch_models/current_generalist_n3_original_broad_s20260810_best_critic.pth`
+  - SHA-256：`c044abb91d514a552207168c3031f01dcfd2afb3f1d6200599b4e951af19c629`
+- Full checkpoint：`TD3/checkpoints/current_generalist_n3_original_broad_s20260810_best.pt`
+  - SHA-256：`f8f461100e3f94e20771a5cdadf26a003a3e3f617e47356ae3b1048973e73c1a`
+
+结论：N3首段通过准入。20k相对10k的full success和agent success明显提高，collision
+下降，但timeout和unresolved略升；总体仍满足准入。与G12-R2-S3加宽Actor同阶段相比，
+当前原宽N3的20k full success略高（`0.892` vs `0.883`），但timeout/unresolved更高，
+因此只能说三车阶段表现同级且约束仍需关注，不能单独宣称原宽优于加宽。
 
 ## 已关闭的旧pilot
 
