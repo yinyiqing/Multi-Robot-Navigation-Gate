@@ -1,6 +1,6 @@
 # 当前场景普通Actor重训
 
-状态：`route revised / N1-N3 original-width broad passed / N5 pending`。
+状态：`route revised / N1-N3 original-width broad passed / N5 registered`。
 更新时间：`2026-08-10`。
 
 这条线不是旧 `5A` 的继续修补，而是为当前双 Actor + Gate 方法重新建立普通导航
@@ -190,6 +190,36 @@ Best checkpoint由训练脚本在epoch 2更新：
 当前原宽N3的20k full success略高（`0.892` vs `0.883`），但timeout/unresolved更高，
 因此只能说三车阶段表现同级且约束仍需关注，不能单独宣称原宽优于加宽。
 
+## N5 登记
+
+- experiment：`current-generalist-r2style-N5`
+- model：`current_generalist_n5_original_broad_s20260810`
+- Actor：`24 -> 800 -> 600 -> 2`
+- 初始化：从N3 best完整warm start Actor和Critic，不允许actor-only fallback
+- train：`fixed_v1/views/g12_r2_curriculum_v1/n5/train.json.gz`
+  - SHA-256：`82f990dab54331ef55d3818fbe39b31fe00480dd99696987a5b85c5e2581ac1e`
+- validation：`fixed_v1/views/g12_r2_curriculum_v1/n5/validation.json.gz`
+  - SHA-256：`e33dbfad3d166fa4500b5997902a94c49108c77c646c7a39c26480b5054daef7`
+- seed：`20260816`
+- 首段budget：`2 x 10k = 20k` agent samples
+- eval：每10k做120场validation
+- critic：原24维Critic，local critic disabled
+- 关键超参：对齐G12-R2-S4，除Actor宽度和N3 warm start外，保持
+  `batch=256`、`min replay=5000`、`gamma=0.999`、`actor/critic lr=8e-5`、
+  `exploration 0.10 -> 0.03`、无随机直行动作、fixed physics `0.001`
+- reward：individual navigation；dynamic/local/wall/safe-recovery/anti-stagnation/
+  yield-priority均关闭；robot-proximity权重`5.0`
+
+当前不启动 `N3-interaction-aware` 分支。理由是 `epoch-16` 已经是使用邻域critic、
+distance-weighted reward和oracle交互窗口训练出的条件避障Actor；普通Actor N的第一任务
+是保持普通推进、静态障碍和弱交互能力。若N5 clean出现明显碰撞主导失败，再登记
+N5 repair，并在保护Actor的前提下讨论是否加入轻量local critic或交互reward。
+
+首段通过条件沿用R2-S4：20k的agent success不低于`0.75`、full success不低于`0.50`，
+collision不高于`0.22`、timeout不高于`0.10`；若20k相对10k full success下降至少
+`0.10`，或timeout增加至少`0.10`，回滚10k。N5候选通过后，必须在同一冻结manifest上
+与旧5A、B2、oracle和R2-10k做配对比较，不能直接把训练内validation汇总写成最终方法表。
+
 ## 已关闭的旧pilot
 
 `2026-08-09` 的上一轮短跑日志：
@@ -268,6 +298,8 @@ bash scripts/start_training_current_generalist_n2.sh
 bash scripts/stop_training_current_generalist_n2.sh
 bash scripts/start_training_current_generalist_n3.sh
 bash scripts/stop_training_current_generalist_n3.sh
+bash scripts/start_training_current_generalist_n5.sh
+bash scripts/stop_training_current_generalist_n5.sh
 ```
 
 运行日志统一写入：

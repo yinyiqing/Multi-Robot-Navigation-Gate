@@ -181,7 +181,8 @@ Gate
    `generalist-5a` 的角色重建一个更强的普通Actor N。`2026-08-09`直接五车 fresh local
    critic pilot 已中止归档；正式路线从原宽度随机Actor/Critic的单车 broad N1 开始，
    再按 N2/N3/N5 扩展，local critic 不再在五车阶段突然 fresh 接入。N1已经完成并通过，
-   N2和N3首段也已经完成并通过；当前准备登记N5五车broad。`epoch-16`已经是使用邻域
+   N2和N3首段也已经完成并通过；N5五车broad首段已经登记，当前从N3 best完整warm start
+   启动20k clean训练。`epoch-16`已经是使用邻域
    critic和交互reward训练出的避障专家，因此普通Actor N的clean课程继续保持原24维critic。
 10. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
    scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
