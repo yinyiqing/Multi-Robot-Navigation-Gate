@@ -133,6 +133,34 @@ Best checkpoint由训练脚本在epoch 2更新：
 同阶段结果接近，但n2 validation只有约`17/120`个派生冲突场景，因此仍只证明两车完整
 broad导航稳定，不证明冲突能力或五车能力。
 
+## N3 登记
+
+- experiment：`current-generalist-r2style-N3`
+- model：`current_generalist_n3_original_broad_s20260810`
+- Actor：`24 -> 800 -> 600 -> 2`
+- 初始化：从N2 best完整warm start Actor和Critic，不允许actor-only fallback
+- train：`fixed_v1/views/g12_r2_curriculum_v1/n3/train.json.gz`
+  - SHA-256：`b6ff22964a8b1795a783f8af9360c123fae44b4b44a86de63e76a57b4a0b4422`
+- validation：`fixed_v1/views/g12_r2_curriculum_v1/n3/validation.json.gz`
+  - SHA-256：`f4b7d46fc488eb588007aa7ba72791545e750e691399da82c65d5cdf9f5938cc`
+- seed：`20260815`
+- 首段budget：`2 x 10k = 20k` agent samples
+- eval：每10k做120场validation
+- critic：原24维Critic，local critic disabled
+- 关键超参：对齐G12-R2-S3，除Actor宽度和N2 warm start外，保持
+  `batch=256`、`min replay=5000`、`gamma=0.999`、`actor/critic lr=8e-5`、
+  `exploration 0.10 -> 0.03`、无随机直行动作、fixed physics `0.001`
+- reward：individual navigation；dynamic/local/wall/safe-recovery/anti-stagnation/
+  yield-priority均关闭；robot-proximity权重`5.0`
+
+暂不在N3引入local critic，原因是N1/N2已经显示原宽度课程稳定，N3首段的主要问题是
+能否复现R2-S3的三车扩展；此时加入local critic会同时改变输入结构、critic分布和Actor
+梯度，难以判断性能变化来源。local critic是否进入应在N5或N5后的正式混合阶段另行登记。
+
+首段通过条件沿用R2-S3：20k的agent success不低于`0.75`、full success不低于`0.55`，
+collision不高于`0.20`、timeout不高于`0.12`；若20k相对10k full success下降至少
+`0.10`，或timeout增加至少`0.10`，回滚10k。
+
 ## 已关闭的旧pilot
 
 `2026-08-09` 的上一轮短跑日志：
@@ -209,6 +237,8 @@ bash scripts/start_training_current_generalist_n1.sh
 bash scripts/stop_training_current_generalist_n1.sh
 bash scripts/start_training_current_generalist_n2.sh
 bash scripts/stop_training_current_generalist_n2.sh
+bash scripts/start_training_current_generalist_n3.sh
+bash scripts/stop_training_current_generalist_n3.sh
 ```
 
 运行日志统一写入：
