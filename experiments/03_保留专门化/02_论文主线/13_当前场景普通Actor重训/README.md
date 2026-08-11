@@ -505,6 +505,39 @@ E2准入沿用E1，不因低timeout单独通过：
 若E2相对E1保持低timeout且collision回到`<=0.10`，再考虑同场配对复测；若仍然撞多，
 说明单靠推进/timeout奖励修普通Actor不够，需要转向更明确的安全约束或回到Gate优先。
 
+## N5 efficiency repair E2 结果
+
+正式E2于`2026-08-11`完成`2 x 5k = 10k` agent samples。运行日志已归档到：
+
+`logs/archive/training/current_generalist_r2style/n5_efficiency_e2/train_current_generalist_n5_efficiency_e2_s20260810_20260810_222142.log`
+
+日志头部确认：
+
+- 从`current_generalist_n5_original_broad_s20260810_best`完整加载Actor和Critic；
+- `Resume mode: False`，`Starting agent samples: 0`；
+- `Actor hidden dimensions: 800x600`；
+- `Local critic enabled: False`，`Critic state dim: 24`；
+- `Timeout terminal reward: -80.0`，`Safe-recovery reward: True`；
+- `Device: cuda`，fixed physics step size为`0.001`。
+
+| checkpoint | samples | agent success | full success | collision | unresolved | timeout | avg steps |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| epoch 1 | 5k | `0.923` | `0.742` | `0.060` | `0.017` | `0.050` | `40.9` |
+| epoch 2 | 10k | `0.902` | `0.700` | `0.085` | `0.013` | `0.058` | `39.1` |
+
+Best checkpoint由训练脚本在epoch 1更新：
+
+- Actor：`TD3/pytorch_models/current_generalist_n5_efficiency_e2_s20260810_best_actor.pth`
+  - SHA-256：`dbfd69a27aafae5cbb4686018bc074d3684de45ff397f1dffe77f5265138c7d0`
+- Full checkpoint：`TD3/checkpoints/current_generalist_n5_efficiency_e2_s20260810_best.pt`
+  - SHA-256：`140adac7a6bc051fe2cac05bea7120ccfe65a346a91f7001a991a9ee9f23e70a`
+
+结论：E2通过准入。相较N5-20k，它把collision从`0.075`降到`0.060/0.085`，timeout从
+`0.067`降到`0.050/0.058`，平均步数从`46.15`降到`40.9/39.1`；epoch 1 full success
+还提升到`0.742`。epoch 2 full success回到`0.700`，仍满足准入，但不如epoch 1，因此
+best checkpoint保留epoch 1。E2说明普通Actor的效率修复可以成立，且不必依赖local critic；
+后续若要继续优化，应围绕更稳的epoch 1风格做微调，而不是放大推进项。
+
 ## 判断标准
 
 1. N1只回答基础导航是否成立，不与五车B2/R2直接比较；

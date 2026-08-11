@@ -163,11 +163,11 @@ Gate
     Actor，导致碰撞超过`0.10`上限且full success低于N5同场基线`0.700`；不得用E1
     latest或epoch2替换N5-20k/旧5A。若继续E2，应从E1 epoch1或N5-20k重新出发并降低
     推进强度或加入更明确的碰撞保护。
-31. N5 efficiency repair E2已经登记但尚未完成：从N5-20k best重新出发，不继承E1
-    epoch2；保持原宽度Actor、原24维Critic、无local critic和无dynamic reward。相对E1
-    降低timeout/progress/forward/safe-recovery idle强度，恢复turn penalty并轻微提高
-    obstacle penalty。准入仍要求timeout低于`0.067`、collision不高于`0.10`、full success
-    不明显低于`0.700`且平均步数明显低于`46.15`。
+31. N5 efficiency repair E2已完成并通过准入：5k/10k的full success为`0.742/0.700`，
+    collision为`0.060/0.085`，timeout为`0.050/0.058`，平均步数为`40.9/39.1`。相对N5
+    同场基线，它同时降低了collision、timeout和平均步数；epoch 1 best优于epoch 2，因此
+    best checkpoint保留epoch 1。E2说明普通Actor的效率修复可以成立，且不需要引入local
+    critic或dynamic reward。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
