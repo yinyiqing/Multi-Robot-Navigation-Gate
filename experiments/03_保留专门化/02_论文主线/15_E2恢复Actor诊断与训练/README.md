@@ -1,6 +1,6 @@
 # E2恢复Actor诊断与训练
 
-状态：`I-E2 40k pilot completed / multi-edge diagnosis authorized`.
+状态：`I-E2 40k pilot completed / I-E2-M multi-conflict pilot registered`.
 
 本目录记录从新普通 Actor `E2` 出发，重新定义条件避障 Actor 的路线。它不是对当前
 冻结 `5A + epoch-16 + Gate` 主线的静默替换；若后续要进入论文主方法，必须先更新
@@ -271,6 +271,26 @@ simultaneous_conflict_count = 1
 
 这与最终N5 validation按`zero/edge1/multi`划分的multi-edge场景不是同一分布。I-E2
 pilot因此只验证了从E2出发的单冲突恢复能力，不能期待它自然具备多冲突恢复能力。
+
+## I-E2-M 多冲突分布修订 pilot
+
+新清单只来自 navigation-train，并与所有已冻结的非train视图互斥：
+
+```text
+train:        2400场 = edge-1 960 / edge-2 720 / edge-3+ 720
+internal val:  200场 = edge-1 140 / edge-2 30 / edge-3+ 30
+```
+
+训练每10场按 `edge1, edge2, edge1, edge3plus, edge1, edge2, edge1, edge3plus,
+edge2, edge3plus` 交错。清单构建脚本为 `scripts/build_ie2_multi_conflict_views.py`，
+哈希为 train `3c0be8a32513bde471cc5c6731f528397195fdda670be8e3bcf8cc7265ecaba`、
+validation `9f44ee3962edb5f0750b8791cb357d0df09d3161552a94fb183a9b193cb6b5e0`。
+
+相对首版仅修改训练分布和恢复奖励，不修改24维Actor输入、E2 warm start、interaction-only
+更新或87维邻域Critic。首版配置的 `DRL_MULTI_REWARD_MODE=average` 不会调用 interaction
+reward；I-E2-M 改为 `average_plus_interaction`，停滞惩罚为 `0.02`，并启用弱 safe-recovery
+（penalty `0.10`、progress bonus/idle penalty 均为 `0.08`）。预算为两个20k agent
+samples，Actor在21k后解冻，完成后自动在冻结N5 120场上做 matched 复测。
 
 ### 行为诊断
 

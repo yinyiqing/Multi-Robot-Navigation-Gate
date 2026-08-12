@@ -82,8 +82,8 @@ def main():
     expected_ids = [str(item["scenario_id"]) for item in scenarios]
     metadata = {
         str(item["scenario_id"]): {
-            "pool": str(item["view"]["capacity_pool"]),
-            "topology": str(item["view"]["capacity_topology"]),
+            "pool": str(item["view"].get("capacity_pool", item["view"].get("ie2_pool", "unknown"))),
+            "topology": str(item["view"].get("capacity_topology", item["view"].get("ie2_topology", "unknown"))),
         }
         for item in scenarios
     }
@@ -102,7 +102,7 @@ def main():
         },
         "by_topology": {
             name: {key for key, value in metadata.items() if value["topology"] == name}
-            for name in ("zero", "edge1", "multi")
+            for name in ("zero", "edge1", "edge2", "edge3plus", "multi")
         },
     }
     metrics = {

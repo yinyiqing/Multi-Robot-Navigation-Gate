@@ -243,11 +243,16 @@ Gate
 10. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
    scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
     manifest哈希、缺失/重复/错序ID。不同场景或不同评测协议的历史汇总值不得混入同一表。
-11. 当前唯一授权的新Actor实验是
+11. 当前已完成的首个新Actor实验是
     [E2恢复Actor诊断与训练](experiments/03_保留专门化/02_论文主线/15_E2恢复Actor诊断与训练/README.md)
-    中的40k `I-E2` pilot，该pilot已经按固定顺序完成。当前下一步是比较I-E2与旧epoch-16
-    在multi-edge改善/退化case中的接管轨迹、动作和冲突退出行为；诊断完成前不得延长预算，
-    也不得修订最终冻结组件。
+    中的40k `I-E2` pilot，该pilot已经按固定顺序完成并诊断。当前唯一授权的新Actor实验是
+    已登记的 `I-E2-M` 多冲突分布修订短跑；它不修改冻结的5A/epoch-16主线，完成前不得
+    启动Gate训练。
+
+12. `I-E2-M` 使用独立的2400场navigation-train清单和200场内部validation，显式覆盖
+    edge-1/edge-2/edge-3+，并已通过重复、泄漏和哈希审计。训练脚本会先做同seed E2控制，
+    再做2x20k Actor pilot，最后在冻结N5 120场上做matched复测；实时日志统一写入
+    `logs/active/e2-ie2-multi-conflict-pipeline/`。
 
 ## 问题与主张边界
 
