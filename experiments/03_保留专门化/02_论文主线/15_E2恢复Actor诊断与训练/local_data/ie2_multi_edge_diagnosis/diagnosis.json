@@ -1,0 +1,254 @@
+{
+  "audit": {
+    "manifest_scenarios": 120,
+    "old_trajectory_scenarios": 120,
+    "new_trajectory_scenarios": 120,
+    "status": "passed"
+  },
+  "behavior_by_topology": {
+    "all": {
+      "old_epoch16": {
+        "episodes": 120,
+        "interaction_agent_frames": 2023,
+        "interaction_share": 0.19090308577899406,
+        "segments_per_episode": 1.2333333333333334,
+        "high_speed_close_rate": 0.010874938210578349,
+        "negative_progress_rate": 0.4888779041028176,
+        "stagnant_rate": 0.9125061789421651,
+        "multi_local_rate": 0.09342560553633218,
+        "mean_linear": 0.04174464977060013,
+        "mean_abs_angular": 0.9068442077375488,
+        "mean_progress": 0.002239090695188459,
+        "mean_nearest": 1.338089998923081,
+        "mean_local_degree": 0.6569451309935739
+      },
+      "ie2": {
+        "episodes": 120,
+        "interaction_agent_frames": 2157,
+        "interaction_share": 0.19353970390309555,
+        "segments_per_episode": 1.3583333333333334,
+        "high_speed_close_rate": 0.010662957811775614,
+        "negative_progress_rate": 0.4710245711636532,
+        "stagnant_rate": 0.9072786277236903,
+        "multi_local_rate": 0.19146963375057952,
+        "mean_linear": 0.06304920717661938,
+        "mean_abs_angular": 0.7736360899739256,
+        "mean_progress": 8.128612567770385e-05,
+        "mean_nearest": 0.9594455896125798,
+        "mean_local_degree": 0.5957348168752897
+      }
+    },
+    "zero": {
+      "old_epoch16": {
+        "episodes": 40,
+        "interaction_agent_frames": 49,
+        "interaction_share": 0.018940858136838035,
+        "segments_per_episode": 0.175,
+        "high_speed_close_rate": 0.0,
+        "negative_progress_rate": 0.5102040816326531,
+        "stagnant_rate": 0.7755102040816326,
+        "multi_local_rate": 0.0,
+        "mean_linear": 0.18969431435879397,
+        "mean_abs_angular": 0.9714380195554422,
+        "mean_progress": 0.012396027417323905,
+        "mean_nearest": 3.1328660914102953,
+        "mean_local_degree": 0.24489795918367346
+      },
+      "ie2": {
+        "episodes": 40,
+        "interaction_agent_frames": 23,
+        "interaction_share": 0.009094503756425464,
+        "segments_per_episode": 0.125,
+        "high_speed_close_rate": 0.0,
+        "negative_progress_rate": 0.391304347826087,
+        "stagnant_rate": 0.6521739130434783,
+        "multi_local_rate": 0.0,
+        "mean_linear": 0.32591635750039766,
+        "mean_abs_angular": 0.790167619028817,
+        "mean_progress": -0.013944692999713704,
+        "mean_nearest": 3.771603867094688,
+        "mean_local_degree": 0.043478260869565216
+      }
+    },
+    "edge1": {
+      "old_epoch16": {
+        "episodes": 40,
+        "interaction_agent_frames": 264,
+        "interaction_share": 0.0874751491053678,
+        "segments_per_episode": 0.6,
+        "high_speed_close_rate": 0.011363636363636364,
+        "negative_progress_rate": 0.4659090909090909,
+        "stagnant_rate": 0.8484848484848485,
+        "multi_local_rate": 0.01893939393939394,
+        "mean_linear": 0.06341316534036939,
+        "mean_abs_angular": 0.908721732264949,
+        "mean_progress": 0.0015997328646630729,
+        "mean_nearest": 0.9114020328666456,
+        "mean_local_degree": 0.696969696969697
+      },
+      "ie2": {
+        "episodes": 40,
+        "interaction_agent_frames": 175,
+        "interaction_share": 0.052316890881913304,
+        "segments_per_episode": 0.55,
+        "high_speed_close_rate": 0.022857142857142857,
+        "negative_progress_rate": 0.4685714285714286,
+        "stagnant_rate": 0.7428571428571429,
+        "multi_local_rate": 0.17714285714285713,
+        "mean_linear": 0.3287495569139719,
+        "mean_abs_angular": 0.927017348749297,
+        "mean_progress": -0.0008560023842619944,
+        "mean_nearest": 1.0720400959753082,
+        "mean_local_degree": 0.56
+      }
+    },
+    "multi": {
+      "old_epoch16": {
+        "episodes": 40,
+        "interaction_agent_frames": 1710,
+        "interaction_share": 0.3425480769230769,
+        "segments_per_episode": 2.925,
+        "high_speed_close_rate": 0.011111111111111112,
+        "negative_progress_rate": 0.49181286549707603,
+        "stagnant_rate": 0.9263157894736842,
+        "multi_local_rate": 0.10760233918128655,
+        "mean_linear": 0.03415984177338341,
+        "mean_abs_angular": 0.9047034105128059,
+        "mean_progress": 0.002046751845992006,
+        "mean_nearest": 1.3535881751412835,
+        "mean_local_degree": 0.6625730994152047
+      },
+      "ie2": {
+        "episodes": 40,
+        "interaction_agent_frames": 1959,
+        "interaction_share": 0.3716562322140011,
+        "segments_per_episode": 3.4,
+        "high_speed_close_rate": 0.009698825931597753,
+        "negative_progress_rate": 0.4721796835119959,
+        "stagnant_rate": 0.9249617151607963,
+        "multi_local_rate": 0.19499744767738642,
+        "mean_linear": 0.036227611637321994,
+        "mean_abs_angular": 0.7597402525803817,
+        "mean_progress": 0.00032968990777236924,
+        "mean_nearest": 0.9262961785743817,
+        "mean_local_degree": 0.6054109239407861
+      }
+    }
+  },
+  "behavior_by_outcome_relation": {
+    "tied": {
+      "count": 99,
+      "by_topology": {
+        "zero": 37,
+        "edge1": 33,
+        "multi": 29
+      },
+      "old_epoch16": {
+        "episodes": 99,
+        "interaction_agent_frames": 1388,
+        "interaction_share": 0.16513979773944082,
+        "segments_per_episode": 0.98989898989899,
+        "high_speed_close_rate": 0.010086455331412104,
+        "negative_progress_rate": 0.4920749279538905,
+        "stagnant_rate": 0.9229106628242075,
+        "multi_local_rate": 0.10230547550432277,
+        "mean_linear": 0.034761098326218744,
+        "mean_abs_angular": 0.90634723115338,
+        "mean_progress": 0.0016473573777137935,
+        "mean_nearest": 1.2237740239847703,
+        "mean_local_degree": 0.7118155619596542
+      },
+      "ie2": {
+        "episodes": 99,
+        "interaction_agent_frames": 1510,
+        "interaction_share": 0.16681396376491384,
+        "segments_per_episode": 1.202020202020202,
+        "high_speed_close_rate": 0.012582781456953643,
+        "negative_progress_rate": 0.47880794701986756,
+        "stagnant_rate": 0.9026490066225166,
+        "multi_local_rate": 0.24701986754966887,
+        "mean_linear": 0.0742155477043784,
+        "mean_abs_angular": 0.7675610781575951,
+        "mean_progress": -0.00029140661491745,
+        "mean_nearest": 0.9729840738610346,
+        "mean_local_degree": 0.7649006622516556
+      }
+    },
+    "ie2_degraded": {
+      "count": 13,
+      "by_topology": {
+        "zero": 2,
+        "edge1": 2,
+        "multi": 9
+      },
+      "old_epoch16": {
+        "episodes": 13,
+        "interaction_agent_frames": 182,
+        "interaction_share": 0.14421553090332806,
+        "segments_per_episode": 1.6923076923076923,
+        "high_speed_close_rate": 0.038461538461538464,
+        "negative_progress_rate": 0.3791208791208791,
+        "stagnant_rate": 0.7747252747252747,
+        "multi_local_rate": 0.24725274725274726,
+        "mean_linear": 0.14665437708122675,
+        "mean_abs_angular": 0.9192380868333423,
+        "mean_progress": 0.010886935476242317,
+        "mean_nearest": 1.1790769992417471,
+        "mean_local_degree": 1.021978021978022
+      },
+      "ie2": {
+        "episodes": 13,
+        "interaction_agent_frames": 584,
+        "interaction_share": 0.39620081411126185,
+        "segments_per_episode": 2.769230769230769,
+        "high_speed_close_rate": 0.00684931506849315,
+        "negative_progress_rate": 0.4623287671232877,
+        "stagnant_rate": 0.928082191780822,
+        "multi_local_rate": 0.032534246575342464,
+        "mean_linear": 0.014828049236500305,
+        "mean_abs_angular": 0.7758896840999002,
+        "mean_progress": 0.0008985551777021459,
+        "mean_nearest": 0.8774757150557224,
+        "mean_local_degree": 0.11986301369863013
+      }
+    },
+    "ie2_improved": {
+      "count": 8,
+      "by_topology": {
+        "zero": 1,
+        "edge1": 5,
+        "multi": 2
+      },
+      "old_epoch16": {
+        "episodes": 8,
+        "interaction_agent_frames": 453,
+        "interaction_share": 0.4870967741935484,
+        "segments_per_episode": 3.5,
+        "high_speed_close_rate": 0.002207505518763797,
+        "negative_progress_rate": 0.5231788079470199,
+        "stagnant_rate": 0.9359823399558499,
+        "multi_local_rate": 0.004415011037527594,
+        "mean_linear": 0.02099321276015267,
+        "mean_abs_angular": 0.9033875134845509,
+        "mean_progress": 0.0005777619854821306,
+        "mean_nearest": 1.6829264840403477,
+        "mean_local_degree": 0.34216335540838855
+      },
+      "ie2": {
+        "episodes": 8,
+        "interaction_agent_frames": 63,
+        "interaction_share": 0.10177705977382875,
+        "segments_per_episode": 1.0,
+        "high_speed_close_rate": 0.0,
+        "negative_progress_rate": 0.36507936507936506,
+        "stagnant_rate": 0.8253968253968254,
+        "multi_local_rate": 0.3333333333333333,
+        "mean_linear": 0.24241400146413417,
+        "mean_abs_angular": 0.898353056213449,
+        "mean_progress": 0.0014381259973667217,
+        "mean_local_degree": 0.9523809523809522,
+        "mean_nearest": 1.0687090594731314
+      }
+    }
+  }
+}

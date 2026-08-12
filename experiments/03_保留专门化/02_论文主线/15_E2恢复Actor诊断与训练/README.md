@@ -245,3 +245,48 @@ epoch-16的调用比例近似，因此差距不能归因于recovery规则调用�
 3. 比较接管时长、线速度、角速度、最近机器人距离、进度和collision前窗口；
 4. 判断缺口来自训练分布、Actor更新量，还是动态reward造成多车交互中的错误推进；
 5. 诊断完成后再登记唯一下一实验，不直接追加40k。
+
+## 诊断结果：I-E2的multi-edge缺口
+
+离线脚本与输出位于：
+
+```text
+analyze_ie2_multi_edge.py
+local_data/ie2_multi_edge_diagnosis/diagnosis.json
+local_data/ie2_multi_edge_diagnosis/paired_cases.csv
+```
+
+审计通过：两份JSONL轨迹均覆盖同一120个scenario ID，顺序和结果数组一致。
+
+### 训练分布审计
+
+`strong_interaction_curriculum_v1/full_train.json.gz`的`2560/2560`场景，以及其
+`validation.json.gz`的`140/140`场景，manifest指标均为：
+
+```text
+conflict_edge_count = 1
+max_conflict_degree = 1
+simultaneous_conflict_count = 1
+```
+
+这与最终N5 validation按`zero/edge1/multi`划分的multi-edge场景不是同一分布。I-E2
+pilot因此只验证了从E2出发的单冲突恢复能力，不能期待它自然具备多冲突恢复能力。
+
+### 行为诊断
+
+在13个“I-E2退化、旧epoch-16成功”的配对case中，I-E2的交互动作占比为`0.396`，
+平均交互线速度为`0.0148`，停滞帧比例为`0.928`，多邻居局部帧比例为`0.0325`；
+旧epoch-16分别为`0.144/0.1467/0.775/0.2473`。I-E2并非主要因为高速推进而碰撞，
+而是更频繁接管、更近距离地持续等待，导致多车互锁后的恢复推进失败。
+
+9个multi-edge退化case中，7个是碰撞、1个是timeout/unresolved，且冲突边数为2至4。
+相对地，I-E2改善的8个case中有5个来自edge-1，只有2个来自multi-edge。这与训练分布
+审计完全一致：当前I-E2已经是有单冲突收益的Actor，但不是多冲突恢复Actor。
+
+### 当前结论与下一步
+
+当前不延长原40k，也不启动Gate。下一步应登记一个新的、仍从E2 warm start的I-E2修订
+pilot：训练清单必须显式加入multi-edge，并保留足够的zero/edge1回归样本；同时保留
+interaction-only更新、邻域Critic和动态reward，先用短预算确认是否减少停滞和timeout，
+再决定是否扩大训练。multi-edge训练分布的加入会取消“single-to-multi零样本泛化”的表述，
+但它符合论文主线“普通Actor + 条件恢复Actor”的模型血缘要求。
