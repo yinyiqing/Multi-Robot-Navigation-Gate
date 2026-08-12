@@ -22,6 +22,19 @@ def load_run(path, expected_ids):
 
 def aggregate(rows):
     episodes = len(rows)
+    if episodes == 0:
+        return {
+            "episodes": 0,
+            "agent_success_rate": None,
+            "collision_rate": None,
+            "unresolved_rate": None,
+            "full_success_rate": None,
+            "timeout_episode_rate": None,
+            "mean_episode_steps": None,
+            "mean_final_distance": None,
+            "interaction_action_share": None,
+            "interaction_episode_rate": None,
+        }
     successes = sum(int(row[6]) for row in rows)
     collisions = sum(int(row[7]) for row in rows)
     unresolved = sum(int(row[10]) for row in rows)
