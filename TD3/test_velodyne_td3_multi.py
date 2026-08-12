@@ -161,6 +161,140 @@ class CaseOracleSwitcher(object):
         return action, mode, None, None
 
 
+class RecoveryOracleSwitcher(object):
+    def __init__(
+        self,
+        standard_policy,
+        dense_policy,
+        candidate_distance,
+        release_distance,
+        progress_threshold,
+        progress_window,
+        distance_delta_threshold,
+        goal_distance,
+        minimum_hold_steps,
+        maximum_hold_steps,
+    ):
+        self.standard_policy = standard_policy
+        self.dense_policy = dense_policy
+        self.candidate_distance = float(candidate_distance)
+        self.release_distance = max(float(release_distance), self.candidate_distance)
+        self.progress_threshold = float(progress_threshold)
+        self.progress_window = max(int(progress_window), 1)
+        self.distance_delta_threshold = float(distance_delta_threshold)
+        self.goal_distance = float(goal_distance)
+        self.minimum_hold_steps = max(int(minimum_hold_steps), 0)
+        self.maximum_hold_steps = max(int(maximum_hold_steps), 0)
+        self.current_mode = {}
+        self.hold_steps = {}
+        self.progress_history = {}
+        self.distance_history = {}
+
+    def reset(self, agent_names):
+        self.current_mode = {name: "standard" for name in agent_names}
+        self.hold_steps = {name: 0 for name in agent_names}
+        self.progress_history = {name: [] for name in agent_names}
+        self.distance_history = {name: [] for name in agent_names}
+
+    def _nearest_active_visible_neighbor_distance(self, env, name):
+        active_names = {
+            other_name
+            for other_name, info in env.last_step_info["agents"].items()
+            if other_name != name
+            and not bool(info["target"])
+            and not bool(info["collision"])
+        }
+        visible_neighbors = [
+            other_name
+            for other_name in env._compute_visible_neighbors(name)
+            if other_name in active_names
+        ]
+        if not visible_neighbors:
+            return None, 0
+        origin = env.robot_positions[name]
+        distances = [
+            float(np.linalg.norm(env.robot_positions[other_name] - origin))
+            for other_name in visible_neighbors
+        ]
+        return min(distances), len(visible_neighbors)
+
+    def _update_history(self, name, info):
+        progress = float(info.get("progress") or 0.0)
+        distance = info.get("distance")
+        if distance is not None:
+            distance = float(distance)
+        progress_values = self.progress_history.setdefault(name, [])
+        distance_values = self.distance_history.setdefault(name, [])
+        progress_values.append(progress)
+        if distance is not None:
+            distance_values.append(distance)
+        if len(progress_values) > self.progress_window:
+            del progress_values[0 : len(progress_values) - self.progress_window]
+        if len(distance_values) > self.progress_window + 1:
+            del distance_values[0 : len(distance_values) - self.progress_window - 1]
+        return progress_values, distance_values, distance
+
+    def choose_action(self, env, name, state):
+        info = env.last_step_info["agents"].get(name, {})
+        progress_values, distance_values, distance = self._update_history(name, info)
+        nearest_distance, visible_count = self._nearest_active_visible_neighbor_distance(
+            env, name
+        )
+        mode = self.current_mode.get(name, "standard")
+        hold_steps = self.hold_steps.get(name, 0)
+
+        near_candidate = (
+            nearest_distance is not None
+            and nearest_distance <= self.candidate_distance
+            and visible_count > 0
+        )
+        released = nearest_distance is None or nearest_distance >= self.release_distance
+        near_goal = distance is not None and distance <= self.goal_distance
+        mean_progress = (
+            float(np.mean(progress_values)) if progress_values else 0.0
+        )
+        has_progress_window = len(progress_values) >= self.progress_window
+        low_progress = (
+            has_progress_window and mean_progress <= self.progress_threshold
+        )
+        distance_stagnant = False
+        if len(distance_values) >= self.progress_window + 1:
+            distance_delta = distance_values[0] - distance_values[-1]
+            distance_stagnant = distance_delta <= self.distance_delta_threshold
+        stagnating = low_progress or distance_stagnant
+
+        should_switch_recovery = near_candidate and stagnating and not near_goal
+        should_switch_standard = released or near_goal or not stagnating
+
+        if mode == "standard" and should_switch_recovery:
+            mode = "dense"
+            hold_steps = 0
+        elif mode == "dense":
+            hold_steps += 1
+            if self.maximum_hold_steps and hold_steps >= self.maximum_hold_steps:
+                mode = "standard"
+                hold_steps = 0
+            elif hold_steps >= self.minimum_hold_steps and should_switch_standard:
+                mode = "standard"
+                hold_steps = 0
+
+        self.current_mode[name] = mode
+        self.hold_steps[name] = hold_steps
+        policy = self.dense_policy if mode == "dense" else self.standard_policy
+        action = policy.get_action(np.array(state))
+        diagnostics = {
+            "nearest_distance": nearest_distance,
+            "visible_count": visible_count,
+            "mean_progress": mean_progress,
+            "low_progress": low_progress,
+            "distance_stagnant": distance_stagnant,
+            "near_candidate": near_candidate,
+            "near_goal": near_goal,
+            "hold_steps": hold_steps,
+        }
+        return action, mode, None, diagnostics
+
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -231,12 +365,14 @@ if actor_selection_mode not in (
     "hard_switch",
     "case_oracle",
     "interaction_oracle",
+    "recovery_oracle",
     "learned_gate",
     "min_lidar_gate",
 ):
     raise ValueError(
         "DRL_MULTI_ACTOR_SELECTION_MODE must be one of: single, hard_switch, "
-        "case_oracle, interaction_oracle, learned_gate, min_lidar_gate"
+        "case_oracle, interaction_oracle, recovery_oracle, learned_gate, "
+        "min_lidar_gate"
     )
 if actor_selection_mode != "single" and not dual_actor_enabled:
     raise ValueError(
@@ -281,6 +417,30 @@ interaction_oracle_distance = env_float(
 )
 if interaction_oracle_distance <= 0.0:
     raise ValueError("DRL_MULTI_ORACLE_INTERACTION_DISTANCE must be positive")
+recovery_oracle_candidate_distance = env_float(
+    "DRL_MULTI_RECOVERY_ORACLE_CANDIDATE_DISTANCE", 2.0
+)
+recovery_oracle_release_distance = env_float(
+    "DRL_MULTI_RECOVERY_ORACLE_RELEASE_DISTANCE", 2.4
+)
+recovery_oracle_progress_threshold = env_float(
+    "DRL_MULTI_RECOVERY_ORACLE_PROGRESS_THRESHOLD", 0.003
+)
+recovery_oracle_progress_window = env_int(
+    "DRL_MULTI_RECOVERY_ORACLE_PROGRESS_WINDOW", 5
+)
+recovery_oracle_distance_delta_threshold = env_float(
+    "DRL_MULTI_RECOVERY_ORACLE_DISTANCE_DELTA_THRESHOLD", 0.02
+)
+recovery_oracle_goal_distance = env_float(
+    "DRL_MULTI_RECOVERY_ORACLE_GOAL_DISTANCE", 0.45
+)
+recovery_oracle_minimum_hold_steps = env_int(
+    "DRL_MULTI_RECOVERY_ORACLE_MINIMUM_HOLD_STEPS", 3
+)
+recovery_oracle_maximum_hold_steps = env_int(
+    "DRL_MULTI_RECOVERY_ORACLE_MAXIMUM_HOLD_STEPS", 20
+)
 case_oracle_map_path = env_json_path("DRL_MULTI_CASE_ORACLE_MAP")
 rule_oracle_mode = os.environ.get("DRL_MULTI_RULE_ORACLE_MODE", "").strip().lower()
 if rule_oracle_mode not in ("", "conflict_pair_yield", "right_hand_pass"):
@@ -519,7 +679,8 @@ env = MultiAgentGazeboEnv(
     robot_safe_distance=0.0,
     weak_coupling_layout=True,
     scenario_mode=scenario_mode,
-    active_neighbors_only=actor_selection_mode == "interaction_oracle",
+    active_neighbors_only=actor_selection_mode
+    in ("interaction_oracle", "recovery_oracle"),
     fixed_physics_step_size=fixed_physics_step_size,
 )
 time.sleep(5)
@@ -584,6 +745,19 @@ if dual_actor_enabled:
             minimum_hold_steps=gate_minimum_hold_steps,
             max_candidates=gate_max_candidates,
             evaluation_stride=gate_evaluation_stride,
+        )
+    elif actor_selection_mode == "recovery_oracle":
+        dense_policy_controller = RecoveryOracleSwitcher(
+            standard_policy=network,
+            dense_policy=dense_network,
+            candidate_distance=recovery_oracle_candidate_distance,
+            release_distance=recovery_oracle_release_distance,
+            progress_threshold=recovery_oracle_progress_threshold,
+            progress_window=recovery_oracle_progress_window,
+            distance_delta_threshold=recovery_oracle_distance_delta_threshold,
+            goal_distance=recovery_oracle_goal_distance,
+            minimum_hold_steps=recovery_oracle_minimum_hold_steps,
+            maximum_hold_steps=recovery_oracle_maximum_hold_steps,
         )
     elif actor_selection_mode == "min_lidar_gate":
         dense_policy_controller = MinLidarActorSwitcher(
@@ -678,6 +852,24 @@ if dual_actor_enabled:
         print("Case oracle map:", case_oracle_map_path)
     elif actor_selection_mode == "interaction_oracle":
         print("Oracle interaction distance:", interaction_oracle_distance)
+    elif actor_selection_mode == "recovery_oracle":
+        print("Recovery oracle candidate distance:", recovery_oracle_candidate_distance)
+        print("Recovery oracle release distance:", recovery_oracle_release_distance)
+        print("Recovery oracle progress threshold:", recovery_oracle_progress_threshold)
+        print("Recovery oracle progress window:", recovery_oracle_progress_window)
+        print(
+            "Recovery oracle distance delta threshold:",
+            recovery_oracle_distance_delta_threshold,
+        )
+        print("Recovery oracle goal distance:", recovery_oracle_goal_distance)
+        print(
+            "Recovery oracle minimum hold steps:",
+            recovery_oracle_minimum_hold_steps,
+        )
+        print(
+            "Recovery oracle maximum hold steps:",
+            recovery_oracle_maximum_hold_steps,
+        )
     elif actor_selection_mode == "learned_gate":
         print("Gate checkpoint:", gate_checkpoint_path)
         print("Gate model id:", dense_policy_controller.model_id)
@@ -808,6 +1000,7 @@ while True:
     )
     step_actor_modes = {}
     step_gate_probabilities = {}
+    step_gate_diagnostics = {}
     if perception_recorder is not None:
         perception_recorder.record_frame(
             env.raw_lidar_points,
@@ -867,9 +1060,11 @@ while True:
                 )
                 step_gate_probabilities[agent_names[idx]] = gate_probability
             else:
-                action, mode, _, _ = dense_policy_controller.choose_action(
+                action, mode, _, gate_diagnostics = dense_policy_controller.choose_action(
                     env, agent_names[idx], state
                 )
+                if gate_diagnostics:
+                    step_gate_diagnostics[agent_names[idx]] = gate_diagnostics
             step_actor_modes[agent_names[idx]] = mode
             if mode == "dense":
                 episode_dense_action_steps[idx] += 1
@@ -903,6 +1098,7 @@ while True:
             "actions": [[float(value) for value in action] for action in env_actions],
             "actor_modes": step_actor_modes or None,
             "gate_probabilities": step_gate_probabilities or None,
+            "gate_diagnostics": step_gate_diagnostics or None,
             "positions": {
                 name: [float(value) for value in env.robot_positions[name]]
                 for name in agent_names
@@ -912,7 +1108,28 @@ while True:
                     "target": bool(targets[idx]),
                     "collision": bool(collisions[idx]),
                     "distance": float(step_agents[name]["distance"]),
+                    "progress": float(step_agents[name]["progress"]),
                     "min_laser": float(step_agents[name]["min_laser"]),
+                    "nearest_robot_distance": (
+                        float(step_agents[name]["nearest_robot_distance"])
+                        if step_agents[name]["nearest_robot_distance"] is not None
+                        else None
+                    ),
+                    "active_visible_neighbor_count": int(
+                        step_agents[name]["active_visible_neighbor_count"]
+                    ),
+                    "nearest_active_visible_neighbor_distance": (
+                        float(
+                            step_agents[name][
+                                "nearest_active_visible_neighbor_distance"
+                            ]
+                        )
+                        if step_agents[name][
+                            "nearest_active_visible_neighbor_distance"
+                        ]
+                        is not None
+                        else None
+                    ),
                 }
                 for idx, name in enumerate(agent_names)
             },

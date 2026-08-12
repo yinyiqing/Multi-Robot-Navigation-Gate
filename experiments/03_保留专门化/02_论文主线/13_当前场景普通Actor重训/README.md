@@ -218,7 +218,7 @@ N5 repair，并在保护Actor的前提下讨论是否加入轻量local critic或
 首段通过条件沿用R2-S4：20k的agent success不低于`0.75`、full success不低于`0.50`，
 collision不高于`0.22`、timeout不高于`0.10`；若20k相对10k full success下降至少
 `0.10`，或timeout增加至少`0.10`，回滚10k。N5候选通过后，必须在同一冻结manifest上
-与旧5A、B2、oracle和R2-10k做配对比较，不能直接把训练内validation汇总写成最终方法表。
+与旧5A、R2-10k和旧N5-20k做配对比较，不能直接把训练内validation汇总写成最终方法表。
 
 ## N5 结果
 
@@ -254,9 +254,9 @@ Best checkpoint由训练脚本在epoch 2更新：
 10k fallback的`0` timeout和`20.39`平均步数。因此N5 clean只能说已形成可评估的原宽五车
 普通Actor候选，不能直接声称已经优于大Actor或可替换旧5A。
 
-下一步必须做同场配对准入：在同一冻结manifest上评估旧5A、N5-20k、B2/最终Gate候选、
-R2-10k和oracle，并按0-edge、edge-1、multi-edge分层。N5若要替换旧`generalist-5a`，
-至少需要证明普通能力保持、碰撞下降不以系统性timeout为代价。
+下一步必须做同场配对准入：在同一冻结manifest上评估旧5A、旧N5-20k、R2-10k和E2，
+并按0-edge、edge-1、multi-edge分层。N5若要替换旧`generalist-5a`，至少需要证明普通
+能力保持、碰撞下降不以系统性timeout为代价。
 
 ## N5 同场配对准入
 
@@ -532,17 +532,44 @@ Best checkpoint由训练脚本在epoch 1更新：
 - Full checkpoint：`TD3/checkpoints/current_generalist_n5_efficiency_e2_s20260810_best.pt`
   - SHA-256：`140adac7a6bc051fe2cac05bea7120ccfe65a346a91f7001a991a9ee9f23e70a`
 
-结论：E2通过准入。相较N5-20k，它把collision从`0.075`降到`0.060/0.085`，timeout从
-`0.067`降到`0.050/0.058`，平均步数从`46.15`降到`40.9/39.1`；epoch 1 full success
-还提升到`0.742`。epoch 2 full success回到`0.700`，仍满足准入，但不如epoch 1，因此
-best checkpoint保留epoch 1。E2说明普通Actor的效率修复可以成立，且不必依赖local critic；
-后续若要继续优化，应围绕更稳的epoch 1风格做微调，而不是放大推进项。
+结论：E2在训练内通过自身基线，但这只说明效率修复方向成立，不等于已经替换旧5A。
+epoch 1 full success最高，因此 best checkpoint保留epoch 1；但同场最终判定要看下面的
+120场配对结果，不能只看训练内5k/10k。
+
+## N5 efficiency repair E2 同场准入
+
+E2用同一份`n5/validation.json.gz`冻结manifest和旧5A、R2-10k、旧N5-20k逐场对齐评测。
+正式120场结果如下：
+
+| policy | agent success | collision | unresolved | full success | timeout | avg steps |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 5A | `0.8100` | `0.1900` | `0` | `0.5583` | `0` | `20.08` |
+| R2-10k | `0.9000` | `0.1000` | `0` | `0.7000` | `0` | `20.39` |
+| N5-20k | `0.9100` | `0.0750` | `0.0150` | `0.7000` | `0.0667` | `46.15` |
+| E2 | `0.9267` | `0.0567` | `0.0167` | `0.7500` | `0.0667` | `49.28` |
+
+E2相对5A显著提高full success，并降低collision，但timeout仍为`0.0667`，
+没有满足`+0.02`的冻结上限；相对旧N5-20k，它主要提升了full success和collision，
+但timeout没有改善，平均步数还更高。结论是：E2是当前更强的普通Actor候选，但还不是
+可直接替换旧5A的最终普通Actor。
+
+配对结果见：
+`logs/archive/training/current_generalist_r2style/n5_efficiency_e2_admission/analysis.log`
+和
+`experiments/03_保留专门化/02_论文主线/13_当前场景普通Actor重训/local_data/n5_efficiency_e2_admission/summary.json`。
+
+## E2 + epoch16 oracle
+
+在同一份冻结manifest上再把交互窗口替换成`epoch-16`真值oracle后，结果没有比E2更好：
+overall full success从`0.7500`降到`0.7250`，collision从`0.0567`升到`0.0800`，
+平均步数从`49.28`升到`50.56`，timeout仍为`0.0667`。这说明当前问题不在于“只要把
+避障Actor塞进来就会自动更优”，而在于普通Actor本身的恢复与推进边界仍然是瓶颈。
 
 ## 判断标准
 
 1. N1只回答基础导航是否成立，不与五车B2/R2直接比较；
 2. N2/N3只作为进入五车的稳定性门槛；
-3. N5候选必须在同一冻结manifest上与旧5A、B2、oracle和R2-10k比较；
+3. N5候选必须在同一冻结manifest上与旧5A、R2-10k和旧N5-20k比较；
 4. 不读取 sealed test；
 5. 重点看 `full success / collision / timeout / 平均步数`，不要只盯单点峰值。
 

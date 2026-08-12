@@ -1,11 +1,32 @@
 # ICRA论文主线：普通导航Actor、条件避障Actor与在线Gate
 
-状态：`route frozen / G11-D2 navigation passed but efficiency failed / G12-R3 failed after Actor unlock`。
-更新时间：`2026-08-08`。
+状态：`legacy route frozen / E2 + I-E2 40k pilot completed / diagnosis only`。
+更新时间：`2026-08-12`。
 
 本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见
 [PROJECT_STATUS](../../../PROJECT_STATUS.md)，历史实验状态见
 [实验注册表](../../EXPERIMENT_REGISTRY.md)。
+
+## 2026-08-12候选支线授权
+
+旧`5A + epoch-16`继续冻结为fallback和论文基线，不覆盖其artifact。为消除最终方法中
+“普通Actor来自E2、避障Actor却基于5A训练”的模型血缘不一致，当前显式授权一个最小
+`E2 + I-E2`候选pilot：
+
+1. 在N5冻结validation上补跑seed `20260818`的E2-only matched control；
+2. 从E2 Actor warm start新的`I-E2`，窗口外由冻结E2执行，2米交互窗口内由I-E2执行；
+3. I-E2训练侧使用87维邻域Critic、动态距离加权reward和interaction-only更新，部署
+   Actor仍为24维；前21k agent samples冻结Actor；
+4. pilot预算固定`2 x 20k`，不得自动延长到旧epoch-16的320k；
+5. 训练后在同seed、同120场manifest上运行`E2 + I-E2 recovery-oracle`。
+
+该pilot只是候选方法准入，不表示E2或I-E2已替换当前冻结组件。完整协议与日志入口见
+[E2恢复Actor诊断与训练](15_E2恢复Actor诊断与训练/README.md)。
+
+该pilot现已完成。matched E2、E2+旧epoch-16 recovery、E2+I-E2 recovery的full
+success分别为`0.6583/0.7750/0.7333`。I-E2相对E2有正收益，但配对检验`p=0.1360`，
+且multi-edge full success为`0.425`，低于旧epoch-16的`0.600`。因此I-E2尚未替换冻结
+interaction Actor；当前只授权同场轨迹和动作诊断，不授权直接延长训练或启动新Gate。
 
 ## 1. 当前方法
 

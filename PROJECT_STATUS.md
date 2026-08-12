@@ -1,6 +1,6 @@
 # 当前项目状态
 
-更新时间：`2026-08-10`。
+更新时间：`2026-08-12`。
 
 本文件是进入项目后的第一阅读入口。方法定义、实验准入和数据边界以
 [论文主线协议](experiments/03_保留专门化/02_论文主线/README.md)为准；历史 README
@@ -163,11 +163,30 @@ Gate
     Actor，导致碰撞超过`0.10`上限且full success低于N5同场基线`0.700`；不得用E1
     latest或epoch2替换N5-20k/旧5A。若继续E2，应从E1 epoch1或N5-20k重新出发并降低
     推进强度或加入更明确的碰撞保护。
-31. N5 efficiency repair E2已完成并通过准入：5k/10k的full success为`0.742/0.700`，
-    collision为`0.060/0.085`，timeout为`0.050/0.058`，平均步数为`40.9/39.1`。相对N5
-    同场基线，它同时降低了collision、timeout和平均步数；epoch 1 best优于epoch 2，因此
-    best checkpoint保留epoch 1。E2说明普通Actor的效率修复可以成立，且不需要引入local
-    critic或dynamic reward。
+31. N5 efficiency repair E2已经完成同场120场配对准入。相对旧5A，E2的full success为
+    `0.7500 vs 0.5583`、collision为`0.0567 vs 0.1900`，但timeout仍为`0.0667`，
+    超过冻结上限`+0.02`，因此严格判定未通过，不能直接替换旧5A。相对旧N5-20k，E2
+    只是在full success和collision上更好，timeout没有改善，平均步数还更高。
+    训练内的epoch 1 best仍保留，但它只能算更强的普通Actor候选，不是最终普通Actor。
+32. 同场把E2的交互窗口替换为epoch-16真值oracle后，overall full success从`0.7500`
+    降到`0.7250`，collision从`0.0567`升到`0.0800`，平均步数从`49.28`升到`50.56`，
+    timeout仍为`0.0667`。这说明当前瓶颈仍在普通Actor的恢复推进，不是“把避障Actor接
+    上去就能把E2抬过去”。
+33. E2 recovery-oracle诊断已完成120场：full success为`0.7750`，collision为`0.0550`，
+    timeout为`0.0500`，平均步数为`41.98`；旧2米oracle分别为`0.7250/0.0800/0.0667/50.56`。
+    recovery规则把epoch-16加权动作占比从`44.6%`降到`19.1%`，收益集中在dense和
+    multi-edge。但E2基线来自seed `20260817`，该诊断来自`20260818`，因此`0.775 vs
+    0.750`还不是严格同随机重复的因果提升。
+34. `2026-08-12`协议显式授权E2候选支线的最小Actor pilot：先补同seed E2-only控制，
+    再从E2 warm start训练40k的条件交互Actor `I-E2`。该授权不改变旧5A+epoch-16冻结
+    fallback，也不授权直接跑满320k；I-E2只在2米交互窗口执行和更新，训练侧使用87维
+    邻域Critic和动态reward，Actor保持24维部署输入，21k前冻结Actor校准fresh Critic。
+35. I-E2 40k pilot和同seed 120场复测已经完成。E2、E2+旧epoch-16 recovery、
+    E2+I-E2 recovery的full success分别为`0.6583/0.7750/0.7333`，collision为
+    `0.090/0.055/0.070`，timeout为`0.100/0.050/0.075`。I-E2相对E2为19场改善、
+    10场退化，`p=0.1360`，说明训练有效但尚未通过显著性准入；它在edge-1达到`0.850`，
+    但multi-edge只有`0.425`，低于旧epoch-16的`0.600`。当前只授权逐case轨迹与动作诊断，
+    不授权直接延长I-E2训练或开始新Gate训练。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -176,7 +195,7 @@ Gate
 
 当前主线仍是可部署Gate；参数匹配单Actor只作论文公平对照：
 
-1. 冻结5A和epoch-16，不再更新两个Actor。
+1. 旧5A和epoch-16继续冻结为fallback和论文基线；不得覆盖或继续更新。
 2. Gate使用本机激光雷达、导航状态及必要的短时历史，不能读取其他机器人里程计、
    场景类别或冲突图。
 3. `2.0 m` oracle用于监督、诊断和上界；最终Gate需要判断何时调用避障Actor更有利，
@@ -217,7 +236,12 @@ Gate
    观测结构，也不把它训练成第二个避障Actor。
 10. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
    scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
-   manifest哈希、缺失/重复/错序ID。不同场景或不同评测协议的历史汇总值不得混入同一表。
+    manifest哈希、缺失/重复/错序ID。不同场景或不同评测协议的历史汇总值不得混入同一表。
+11. 当前唯一授权的新Actor实验是
+    [E2恢复Actor诊断与训练](experiments/03_保留专门化/02_论文主线/15_E2恢复Actor诊断与训练/README.md)
+    中的40k `I-E2` pilot，该pilot已经按固定顺序完成。当前下一步是比较I-E2与旧epoch-16
+    在multi-edge改善/退化case中的接管轨迹、动作和冲突退出行为；诊断完成前不得延长预算，
+    也不得修订最终冻结组件。
 
 ## 问题与主张边界
 
