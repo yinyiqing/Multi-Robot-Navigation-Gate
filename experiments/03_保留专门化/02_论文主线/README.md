@@ -1,6 +1,6 @@
 # ICRA论文主线：普通导航Actor、条件避障Actor与在线Gate
 
-状态：`legacy route frozen / E2 + I-E2 40k pilot completed / diagnosis only`。
+状态：`legacy route frozen / I-E2-M multi-conflict pilot running`。
 更新时间：`2026-08-12`。
 
 本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见
@@ -27,6 +27,20 @@
 success分别为`0.6583/0.7750/0.7333`。I-E2相对E2有正收益，但配对检验`p=0.1360`，
 且multi-edge full success为`0.425`，低于旧epoch-16的`0.600`。因此I-E2尚未替换冻结
 interaction Actor；当前只授权同场轨迹和动作诊断，不授权直接延长训练或启动新Gate。
+
+### I-E2-M多冲突修订pilot（当前执行）
+
+为回应上一版只覆盖单冲突边、在multi-edge上停滞的问题，已书面修订Actor I的训练分布，
+但不改变论文主方法的两个Actor加在线Gate结构。I-E2-M从冻结E2 Actor warm start，使用
+只来自navigation-train且与冻结非train视图互斥的2400场训练清单：edge-1/edge-2/edge-3+
+分别为`960/720/720`；内部validation为`140/30/30`。清单哈希和逐项排除记录见
+`datasets/fixed_v1/views/ie2_multi_conflict_v1/`。
+
+相对首版，I-E2-M保留24维部署Actor、87维训练侧邻域Critic、interaction-only更新和E2
+窗口外执行；修正 `average` 模式未实际调用 interaction stagnation reward 的配置问题，
+改为 `average_plus_interaction`，并加入弱 safe-recovery奖励。预算固定为2x20k，Actor
+在21k后解冻。完成后只在冻结N5 120场上做matched复测，不读取sealed test，不启动Gate；
+该修订取消single-to-multi零样本泛化主张。
 
 ## 1. 当前方法
 
