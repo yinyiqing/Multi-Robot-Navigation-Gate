@@ -1,6 +1,6 @@
 # E2恢复Actor诊断与训练
 
-状态：`I-E2 and I-E2-M completed / both rejected`.
+状态：`I-E2, I-E2-M and I-E2-F4 completed / all rejected`.
 
 本目录记录从新普通 Actor `E2` 出发，重新定义条件避障 Actor 的路线。它不是对当前
 冻结 `5A + epoch-16 + Gate` 主线的静默替换；若后续要进入论文主方法，必须先更新
@@ -317,3 +317,18 @@ multi-edge为`0.450/0.600/0.400`。实际训练episode中edge-1/edge-2/edge-3+�
 
 若未来重启E2配套Actor，必须先定义approach、avoidance、stalled recovery和release四阶段
 训练单元，并用离线或短窗反事实准入过滤候选；不得直接启动第三个40k pilot。
+
+## I-E2-F4 四阶段pilot最终结论
+
+F4按登记协议完成40k，但仍未通过。Actor冻结的epoch 1与21k后更新的epoch 2在同一200场
+internal validation上的full success为`0.630/0.605`，collision为`0.094/0.099`，
+timeout为`0.090/0.100`，平均步数为`54.64/66.10`。Actor梯度门持续通过，说明不是更新
+被阻塞；扩大到完整2米交互窗口并增强恢复奖励后，更新反而同时损害成功率、安全和效率。
+
+训练器保留的`best`属于Actor冻结阶段，不是训练出的F4专家；因此没有继续用它做N5末段
+复测。F4被拒绝，不追加预算，不进入Gate。完整记录见
+[I-E2-F4结果](I_E2_F4_RESULTS.md)。
+
+训练前完成的同seed matched控制显示，E2与`E2 + old epoch-16 recovery`的full success为
+`0.6917/0.7750`，后者15场改善、5场退化，exact `p=0.04139`。旧epoch-16虽与E2血缘
+不同，仍是当前唯一在matched闭环中证明有收益的条件恢复Actor。

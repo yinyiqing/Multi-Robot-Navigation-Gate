@@ -1,0 +1,290 @@
+{
+  "protocol": {
+    "experiment": "e2-ie2-matched-overnight-pipeline",
+    "manifest": "/home/jiutian/Local-Critic-Multi-Robot-Navigation-gate/experiments/03_保留专门化/02_论文主线/datasets/fixed_v1/views/g12_r2_curriculum_v1/n5/validation.json.gz",
+    "seed": 20260818,
+    "policies": [
+      "e2_matched",
+      "e2_old_epoch16_recovery"
+    ]
+  },
+  "audit": {
+    "manifest_order": "passed",
+    "duplicate_ids": 0,
+    "missing_ids": 0
+  },
+  "metrics": {
+    "overall": {
+      "all": {
+        "e2_matched": {
+          "episodes": 120,
+          "agent_success_rate": 0.8983333333333333,
+          "collision_rate": 0.08166666666666667,
+          "unresolved_rate": 0.02,
+          "full_success_rate": 0.6916666666666667,
+          "timeout_episode_rate": 0.09166666666666666,
+          "mean_episode_steps": 52.45,
+          "mean_final_distance": 0.32658886080256444,
+          "interaction_action_share": 0.0,
+          "interaction_episode_rate": 0.0
+        },
+        "e2_old_epoch16_recovery": {
+          "episodes": 120,
+          "agent_success_rate": 0.935,
+          "collision_rate": 0.055,
+          "unresolved_rate": 0.01,
+          "full_success_rate": 0.775,
+          "timeout_episode_rate": 0.05,
+          "mean_episode_steps": 41.983333333333334,
+          "mean_final_distance": 0.28987397613918964,
+          "interaction_action_share": 0.19090308577899406,
+          "interaction_episode_rate": 0.38333333333333336
+        }
+      }
+    },
+    "by_pool": {
+      "standard": {
+        "e2_matched": {
+          "episodes": 60,
+          "agent_success_rate": 0.9566666666666667,
+          "collision_rate": 0.03333333333333333,
+          "unresolved_rate": 0.01,
+          "full_success_rate": 0.8166666666666667,
+          "timeout_episode_rate": 0.05,
+          "mean_episode_steps": 37.833333333333336,
+          "mean_final_distance": 0.2816940492357051,
+          "interaction_action_share": 0.0,
+          "interaction_episode_rate": 0.0
+        },
+        "e2_old_epoch16_recovery": {
+          "episodes": 60,
+          "agent_success_rate": 0.9733333333333334,
+          "collision_rate": 0.016666666666666666,
+          "unresolved_rate": 0.01,
+          "full_success_rate": 0.8666666666666667,
+          "timeout_episode_rate": 0.05,
+          "mean_episode_steps": 37.2,
+          "mean_final_distance": 0.25911107965428753,
+          "interaction_action_share": 0.026496974754850824,
+          "interaction_episode_rate": 0.23333333333333334
+        }
+      },
+      "dense": {
+        "e2_matched": {
+          "episodes": 60,
+          "agent_success_rate": 0.84,
+          "collision_rate": 0.13,
+          "unresolved_rate": 0.03,
+          "full_success_rate": 0.5666666666666667,
+          "timeout_episode_rate": 0.13333333333333333,
+          "mean_episode_steps": 67.06666666666666,
+          "mean_final_distance": 0.37148367236942387,
+          "interaction_action_share": 0.0,
+          "interaction_episode_rate": 0.0
+        },
+        "e2_old_epoch16_recovery": {
+          "episodes": 60,
+          "agent_success_rate": 0.8966666666666666,
+          "collision_rate": 0.09333333333333334,
+          "unresolved_rate": 0.01,
+          "full_success_rate": 0.6833333333333333,
+          "timeout_episode_rate": 0.05,
+          "mean_episode_steps": 46.766666666666666,
+          "mean_final_distance": 0.32063687262409174,
+          "interaction_action_share": 0.326671261199173,
+          "interaction_episode_rate": 0.5333333333333333
+        }
+      }
+    },
+    "by_topology": {
+      "zero": {
+        "e2_matched": {
+          "episodes": 40,
+          "agent_success_rate": 0.985,
+          "collision_rate": 0.01,
+          "unresolved_rate": 0.005,
+          "full_success_rate": 0.95,
+          "timeout_episode_rate": 0.025,
+          "mean_episode_steps": 25.0,
+          "mean_final_distance": 0.25610277407695514,
+          "interaction_action_share": 0.0,
+          "interaction_episode_rate": 0.0
+        },
+        "e2_old_epoch16_recovery": {
+          "episodes": 40,
+          "agent_success_rate": 0.99,
+          "collision_rate": 0.005,
+          "unresolved_rate": 0.005,
+          "full_success_rate": 0.95,
+          "timeout_episode_rate": 0.025,
+          "mean_episode_steps": 27.675,
+          "mean_final_distance": 0.23936130864895094,
+          "interaction_action_share": 0.018940858136838035,
+          "interaction_episode_rate": 0.175
+        }
+      },
+      "edge1": {
+        "e2_matched": {
+          "episodes": 40,
+          "agent_success_rate": 0.93,
+          "collision_rate": 0.065,
+          "unresolved_rate": 0.005,
+          "full_success_rate": 0.7,
+          "timeout_episode_rate": 0.025,
+          "mean_episode_steps": 34.55,
+          "mean_final_distance": 0.2937290975155021,
+          "interaction_action_share": 0.0,
+          "interaction_episode_rate": 0.0
+        },
+        "e2_old_epoch16_recovery": {
+          "episodes": 40,
+          "agent_success_rate": 0.945,
+          "collision_rate": 0.05,
+          "unresolved_rate": 0.005,
+          "full_success_rate": 0.775,
+          "timeout_episode_rate": 0.025,
+          "mean_episode_steps": 32.375,
+          "mean_final_distance": 0.2827490000754641,
+          "interaction_action_share": 0.0874751491053678,
+          "interaction_episode_rate": 0.35
+        }
+      },
+      "edge2": {
+        "e2_matched": {
+          "episodes": 0,
+          "agent_success_rate": null,
+          "collision_rate": null,
+          "unresolved_rate": null,
+          "full_success_rate": null,
+          "timeout_episode_rate": null,
+          "mean_episode_steps": null,
+          "mean_final_distance": null,
+          "interaction_action_share": null,
+          "interaction_episode_rate": null
+        },
+        "e2_old_epoch16_recovery": {
+          "episodes": 0,
+          "agent_success_rate": null,
+          "collision_rate": null,
+          "unresolved_rate": null,
+          "full_success_rate": null,
+          "timeout_episode_rate": null,
+          "mean_episode_steps": null,
+          "mean_final_distance": null,
+          "interaction_action_share": null,
+          "interaction_episode_rate": null
+        }
+      },
+      "edge3plus": {
+        "e2_matched": {
+          "episodes": 0,
+          "agent_success_rate": null,
+          "collision_rate": null,
+          "unresolved_rate": null,
+          "full_success_rate": null,
+          "timeout_episode_rate": null,
+          "mean_episode_steps": null,
+          "mean_final_distance": null,
+          "interaction_action_share": null,
+          "interaction_episode_rate": null
+        },
+        "e2_old_epoch16_recovery": {
+          "episodes": 0,
+          "agent_success_rate": null,
+          "collision_rate": null,
+          "unresolved_rate": null,
+          "full_success_rate": null,
+          "timeout_episode_rate": null,
+          "mean_episode_steps": null,
+          "mean_final_distance": null,
+          "interaction_action_share": null,
+          "interaction_episode_rate": null
+        }
+      },
+      "multi": {
+        "e2_matched": {
+          "episodes": 40,
+          "agent_success_rate": 0.78,
+          "collision_rate": 0.17,
+          "unresolved_rate": 0.05,
+          "full_success_rate": 0.425,
+          "timeout_episode_rate": 0.225,
+          "mean_episode_steps": 97.8,
+          "mean_final_distance": 0.4299347108152361,
+          "interaction_action_share": 0.0,
+          "interaction_episode_rate": 0.0
+        },
+        "e2_old_epoch16_recovery": {
+          "episodes": 40,
+          "agent_success_rate": 0.87,
+          "collision_rate": 0.11,
+          "unresolved_rate": 0.02,
+          "full_success_rate": 0.6,
+          "timeout_episode_rate": 0.1,
+          "mean_episode_steps": 65.9,
+          "mean_final_distance": 0.34751161969315375,
+          "interaction_action_share": 0.3425480769230769,
+          "interaction_episode_rate": 0.625
+        }
+      }
+    }
+  },
+  "paired": {
+    "e2_old_epoch16_recovery_vs_e2_matched": {
+      "overall": {
+        "all": {
+          "full_success_improved": 15,
+          "full_success_degraded": 5,
+          "full_success_tied": 100,
+          "mcnemar_exact_p": 0.04138946533203125
+        }
+      },
+      "by_pool": {
+        "standard": {
+          "full_success_improved": 5,
+          "full_success_degraded": 2,
+          "full_success_tied": 53,
+          "mcnemar_exact_p": 0.453125
+        },
+        "dense": {
+          "full_success_improved": 10,
+          "full_success_degraded": 3,
+          "full_success_tied": 47,
+          "mcnemar_exact_p": 0.09228515625
+        }
+      },
+      "by_topology": {
+        "zero": {
+          "full_success_improved": 1,
+          "full_success_degraded": 1,
+          "full_success_tied": 38,
+          "mcnemar_exact_p": 1.0
+        },
+        "edge1": {
+          "full_success_improved": 4,
+          "full_success_degraded": 1,
+          "full_success_tied": 35,
+          "mcnemar_exact_p": 0.375
+        },
+        "edge2": {
+          "full_success_improved": 0,
+          "full_success_degraded": 0,
+          "full_success_tied": 0,
+          "mcnemar_exact_p": 1.0
+        },
+        "edge3plus": {
+          "full_success_improved": 0,
+          "full_success_degraded": 0,
+          "full_success_tied": 0,
+          "mcnemar_exact_p": 1.0
+        },
+        "multi": {
+          "full_success_improved": 10,
+          "full_success_degraded": 3,
+          "full_success_tied": 27,
+          "mcnemar_exact_p": 0.09228515625
+        }
+      }
+    }
+  }
+}

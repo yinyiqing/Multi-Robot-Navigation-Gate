@@ -1,6 +1,6 @@
 # I-E2-F4 四阶段恢复 Actor Pilot
 
-状态：`registered / short pilot only`。日期：`2026-08-13`。
+状态：`completed / rejected`。日期：`2026-08-13`。
 
 ## 目的
 
@@ -50,3 +50,11 @@ I-E2-F4 只有同时满足以下条件才进入 Gate 数据采集：
 5. 训练后离线动作审计显示它形成了恢复推进，而不是只改变角速度。
 
 若不满足，停止该分支，不训练 Gate，也不追加 40k。
+
+## 执行结果
+
+F4已在`40,046` agent samples正常结束。Actor冻结的epoch 1与解冻更新后的epoch 2在同一
+200场internal validation上的full success分别为`0.630/0.605`，collision为
+`0.094/0.099`，timeout为`0.090/0.100`，平均步数为`54.64/66.10`。Actor更新后全面
+退化，故按协议拒绝，不追加预算，不进入Gate数据采集。训练器保存的`best`来自Actor冻结
+阶段，不能称为训练出的F4避障Actor。完整记录见[I-E2-F4结果](I_E2_F4_RESULTS.md)。

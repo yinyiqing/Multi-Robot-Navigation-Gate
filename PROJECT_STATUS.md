@@ -201,6 +201,13 @@ Gate
     linear仅`0.0543`，接近E2的`0.0489`，而旧epoch-16为`0.1571`；根因是Actor梯度只
     覆盖1m内仍闭合的risk状态，排除了停滞恢复和release阶段。不得追加40k；完整诊断见
     `15_E2恢复Actor诊断与训练/I_E2_M_DIAGNOSIS.md`。
+38. I-E2-F4四阶段pilot已完成并拒绝。Actor冻结的20k与21k后更新的40k在同一200场
+    internal validation上的full success为`0.630/0.605`，collision为`0.094/0.099`，
+    timeout为`0.090/0.100`，平均步数为`54.64/66.10`。Actor梯度门持续通过，所以失败
+    不是更新未发生；完整2米窗口更新与更强恢复奖励反而使成功、安全和效率同时退化。
+    自动保存的`best`来自Actor冻结阶段，不是训练出的避障Actor；不追加预算，不做基于
+    F4的Gate。训练前同seed matched控制显示E2+旧epoch-16 recovery相对E2 full success
+    为`0.7750 vs 0.6917`，15场改善、5场退化，exact `p=0.04139`。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -251,18 +258,17 @@ Gate
 10. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
    scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
     manifest哈希、缺失/重复/错序ID。不同场景或不同评测协议的历史汇总值不得混入同一表。
-11. 当前两个E2配套Actor pilot均已完成。首版I-E2因单冲突训练分布导致multi-edge不足；
+11. 当前三个E2配套Actor pilot均已完成并拒绝。首版I-E2因单冲突训练分布导致multi-edge不足；
     I-E2-M修复了数据覆盖，但训练目标仍只覆盖逼近风险状态，没有学到停滞恢复和交还。
-    两者均不得替换旧epoch-16；当前不授权继续Actor长跑或启动新的Gate训练。历史协议位于
+    I-E2-F4进一步覆盖完整交互窗口和四阶段恢复信号，但Actor更新后全面退化。三者均不得
+    替换旧epoch-16；当前不授权继续Actor长跑或启动基于新Actor的Gate训练。历史协议位于
     [E2恢复Actor诊断与训练](experiments/03_保留专门化/02_论文主线/15_E2恢复Actor诊断与训练/README.md)
     。
 
-12. 若继续E2配套Actor，必须先登记包含approach/avoidance/stalled recovery/release四阶段
-    的新训练单元，并用离线或短窗反事实准入证明Actor不再只是E2附近的动作漂移。预算必须
-    同时登记场景覆盖率，不能只按agent samples。未完成该协议前不得启动第三个40k pilot。
-13. `I-E2-F4`已登记为唯一新的短期Actor pilot：从E2 warm start，使用multi-edge清单，
-    关闭closing-risk二次筛选，开启近车safe-recovery信号，预算固定为2x20k。它尚未通过
-    准入，不得据此启动Gate；完整协议见`15_E2恢复Actor诊断与训练/I_E2_F4_PROTOCOL.md`。
+12. 不再沿用当前TD3目标做第五次E2配套Actor权重微调。若未来重启，必须先提出与F4有
+    本质区别的训练形式，并在离线或短窗反事实上证明有效后重新书面修订协议。
+13. `I-E2-F4`已归档为失败诊断；完整结果见
+    `15_E2恢复Actor诊断与训练/I_E2_F4_RESULTS.md`。
 
 ## 问题与主张边界
 

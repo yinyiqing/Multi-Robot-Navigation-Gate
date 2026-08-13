@@ -1,6 +1,6 @@
 # ICRA论文主线：普通导航Actor、条件避障Actor与在线Gate
 
-状态：`legacy route frozen / I-E2-M rejected after diagnosis`。
+状态：`legacy route frozen / all E2 interaction-Actor pilots rejected`。
 更新时间：`2026-08-13`。
 
 本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见
@@ -47,6 +47,18 @@ success为`0.7417/0.7750/0.6833`，multi-edge为`0.450/0.600/0.400`。诊断确�
 执行了edge-1/edge-2/edge-3+，但Actor梯度只覆盖1m内仍在闭合的risk状态，没有覆盖停滞
 恢复与release；40k也只经历了422/2400个训练场景。当前拒绝I-E2-M且不追加预算，完整
 证据见[I-E2-M诊断](15_E2恢复Actor诊断与训练/I_E2_M_DIAGNOSIS.md)。
+
+### I-E2-F4四阶段pilot（已拒绝）
+
+F4关闭了closing-risk二次筛选，让整个2米交互窗口参与Actor更新，并启用近车恢复奖励；
+训练分布继续覆盖multi-edge。Actor冻结的epoch 1与解冻后的epoch 2在同一200场internal
+validation上的full success为`0.630/0.605`，collision为`0.094/0.099`，timeout为
+`0.090/0.100`，平均步数为`54.64/66.10`。更新后所有主要指标均退化，因此拒绝F4，
+不追加训练，不用于Gate。训练器的`best`来自冻结阶段，不是训练成功的避障Actor。
+
+训练前的同seed matched控制中，E2与`E2 + old epoch-16 recovery`的full success为
+`0.6917/0.7750`，15场改善、5场退化，exact `p=0.04139`。完整记录见
+[I-E2-F4结果](15_E2恢复Actor诊断与训练/I_E2_F4_RESULTS.md)。
 
 ## 1. 当前方法
 
@@ -292,9 +304,9 @@ success + collision + unresolved = agents * episodes
    [G12-R2协议](12_参数匹配单Actor容量对照/R2_PROTOCOL.md)和
    [G12完整场景协议](12_参数匹配单Actor容量对照/FULL_SCENE_PROTOCOL.md)及
    [G12-R3协议](12_参数匹配单Actor容量对照/R3_PROTOCOL.md)。
-8. I-E2和I-E2-M均已拒绝。旧epoch-16继续作为fallback；不追加Actor训练，不扫描
-   reward权重，也不立即启动新Gate。若继续E2配套Actor，必须先登记同时覆盖
-   approach、avoidance、stalled recovery和release的训练单元，并通过离线或短窗反事实准入。
+8. I-E2、I-E2-M和I-E2-F4均已拒绝。旧epoch-16继续作为fallback；不追加Actor训练，
+   不扫描reward权重，也不启动基于F4的新Gate。F4已经覆盖四阶段窗口但更新后全面退化，
+   后续不得以同一TD3目标继续做第五次权重微调。
 9. 完成主对照、消融和multi-edge边界评估。G11-E的50场exact-edge-2 pilot与后150场
    confirmation已经完成清单冻结和互斥审计，不得并行启动第二套Gazebo。
 10. Gate、参数匹配单Actor和所有阈值冻结后一次性读取sealed test。
