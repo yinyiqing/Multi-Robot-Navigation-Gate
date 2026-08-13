@@ -29,4 +29,5 @@ bash scripts/stop_training_current_generalist_from_e2_local_critic.sh
 - local critic：开启
 - train/eval manifest：沿用原 local-critic 模板
 
-所有结果会落到独立的 `local_data/` 和 `logs/active/current-generalist-from-e2-local-critic/`。
+结果位于独立的`local_data/`，运行日志已归档到
+`logs/archive/diagnostic/current_generalist_from_e2_local_critic_20260811/`。

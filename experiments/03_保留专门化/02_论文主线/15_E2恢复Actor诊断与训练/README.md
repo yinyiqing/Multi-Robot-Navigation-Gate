@@ -141,10 +141,10 @@ release_to_N = released OR near_goal OR no_longer_stagnating
 scripts/start_e2_recovery_oracle_epoch16_pilot.sh
 ```
 
-运行日志：
+归档日志：
 
 ```text
-logs/active/current-generalist-r2style/e2-recovery-oracle-epoch16-pilot/
+logs/archive/validation/e2_recovery_oracle_epoch16/
 ```
 
 结果与逐步轨迹：
