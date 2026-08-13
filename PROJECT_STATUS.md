@@ -260,6 +260,9 @@ Gate
 12. 若继续E2配套Actor，必须先登记包含approach/avoidance/stalled recovery/release四阶段
     的新训练单元，并用离线或短窗反事实准入证明Actor不再只是E2附近的动作漂移。预算必须
     同时登记场景覆盖率，不能只按agent samples。未完成该协议前不得启动第三个40k pilot。
+13. `I-E2-F4`已登记为唯一新的短期Actor pilot：从E2 warm start，使用multi-edge清单，
+    关闭closing-risk二次筛选，开启近车safe-recovery信号，预算固定为2x20k。它尚未通过
+    准入，不得据此启动Gate；完整协议见`15_E2恢复Actor诊断与训练/I_E2_F4_PROTOCOL.md`。
 
 ## 问题与主张边界
 
