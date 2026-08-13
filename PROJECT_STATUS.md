@@ -216,7 +216,9 @@ Gate
 
 当前主线仍是可部署Gate；参数匹配单Actor只作论文公平对照：
 
-1. 旧5A和epoch-16继续冻结为fallback和论文基线；不得覆盖或继续更新。
+1. 主线回到旧5A与避障Actor（历史checkpoint名为epoch-16）。两个原artifact继续冻结为
+   fallback和论文基线，不得覆盖。由于避障Actor在原16轮预算边界达到明显新高，已书面
+   授权从完整checkpoint独立续训epoch 17-20；新分支不得静默替换原避障Actor。
 2. Gate使用本机激光雷达、导航状态及必要的短时历史，不能读取其他机器人里程计、
    场景类别或冲突图。
 3. `2.0 m` oracle用于监督、诊断和上界；最终Gate需要判断何时调用避障Actor更有利，
@@ -281,7 +283,8 @@ Gate
 
 - standard/dense两个完整场景专家；
 - 独立Dense完整Actor及继续扫描reward/Critic；
-- epoch-16整网全程续训；
+- epoch-16无边界整网续训；当前唯一例外是已登记的避障Actor epoch 17-20固定续训，
+  该分支不得覆盖原artifact或自动进入epoch 21；
 - `5D + 零初始化Residual`；
 - `5A + epoch-16动作差`的24维单帧Residual；
 - controlled-ego、pair Actor和复杂Critic支线；

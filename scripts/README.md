@@ -10,9 +10,12 @@ bash scripts/experiment.sh list
 bash scripts/experiment.sh status
 ```
 
-G11-B1/B2、G11-C、G11-D2和G12-P1/R1均已完成。当前没有已注册的新长跑命令；
-G12-R2启动前必须先构建完整场景selection manifest、审计与G11-C/D2/E互斥，并冻结
-从单车到五车的课程预算。
+G11-B1/B2、G11-C、G11-D2和G12-P1/R1均已完成。当前已登记的长跑入口是避障Actor
+epoch 17-20固定续训：
+
+```bash
+bash scripts/start_avoidance_actor_e17_e20.sh
+```
 
 以下旧命令只保留用于受控复现，不是当前执行顺序：
 
@@ -24,16 +27,16 @@ bash scripts/experiment.sh start gate-g11-d2-admission
 bash scripts/experiment.sh queue actor-g12-capacity-pilot
 ```
 
-5A、epoch-16和当前Gate均冻结。G12-P1/R1只作训练稳定性诊断，checkpoint不得作为R2
-warm start。后续Actor训练授权只覆盖尚待注册的G12-R2完整课程；它不更新当前Actor，
-也不恢复历史Actor路线。Gate协议见
+5A和原epoch-16 artifact均冻结且不得覆盖。当前唯一主方法Actor训练授权，是从
+epoch-16完整checkpoint独立续训epoch 17-20；候选通过matched复测前不替换原模型。
+G12-P1/R1只作训练稳定性诊断，checkpoint不得作为其他路线warm start。Gate协议见
 [`G11_B_student_rollout_v1`](../experiments/03_保留专门化/02_论文主线/11_可部署在线Gate研究/G11_B_student_rollout_v1/README.md)，
 容量对照见[`G12`](../experiments/03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/README.md)。
 
 ## 当前模型ID
 
 - `generalist-5a`：冻结普通导航Actor；
-- `interaction-epoch16`：冻结条件避障Actor；
+- `interaction-epoch16`：冻结避障Actor fallback；独立epoch 17-20续训分支正在登记执行；
 - `learned-gate-g2a`：历史未过准入Gate基线；
 - `deployable-interaction-gate`：G11-B2聚合Gate在G11-D2通过导航准入，但效率准入失败。
 
@@ -52,7 +55,8 @@ warm start。后续Actor训练授权只覆盖尚待注册的G12-R2完整课程�
 - `start_training_independent_dense_actor_*`；
 - `start_training_dense_simple_td3_hparam_*`；
 - `start_training_full_actor_edge1_from_5a.sh`；
-- epoch-16整网续训、Residual、pair和controlled-ego相关历史入口；
+- epoch-16无边界续训、Residual、pair和controlled-ego相关历史入口；当前仅允许已登记的
+  epoch 17-20固定续训入口；
 - 旧stage课程训练入口。
 
 历史脚本运行前必须先在[实验注册表](../experiments/EXPERIMENT_REGISTRY.md)确认状态，并

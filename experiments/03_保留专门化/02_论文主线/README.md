@@ -7,6 +7,14 @@
 [PROJECT_STATUS](../../../PROJECT_STATUS.md)，历史实验状态见
 [实验注册表](../../EXPERIMENT_REGISTRY.md)。
 
+## 2026-08-13避障Actor续训授权
+
+主线恢复为`5A + 避障Actor + 可部署Gate`。以后统一称`interaction-epoch16`为
+“避障Actor”；epoch-16只保留为artifact标识。原避障Actor在16轮预算边界达到明显新高，
+因此授权从其完整320k checkpoint原样恢复，只追加epoch 17-20共80k。原checkpoint不覆盖，
+新分支训练内部胜出后仍须做独立matched复测才能替换。协议见
+[避障Actor续训](16_避障Actor续训/README.md)。
+
 ## 2026-08-12候选支线授权
 
 旧`5A + epoch-16`继续冻结为fallback和论文基线，不覆盖其artifact。为消除最终方法中
@@ -103,10 +111,14 @@ Gate成立的必要条件是两个Actor存在不同优势区。如果Actor I在�
 
 ## 3. Actor训练契约
 
-当前方法中的5A和epoch-16继续冻结。唯一例外是
-[G12参数匹配单Actor容量对照](12_参数匹配单Actor容量对照/README.md)：它训练一个不进入
-主方法的加宽单Actor baseline，用于排除双Actor收益只是参数量翻倍。该授权不允许更新
-5A、epoch-16，也不恢复任何历史Actor路线。
+当前方法中的5A和原epoch-16 artifact继续冻结，不得覆盖。当前有两个书面例外：
+
+- [避障Actor续训](16_避障Actor续训/README.md)从epoch-16完整checkpoint分叉，只追加
+  epoch 17-20；新分支通过独立matched复测前不得替换原避障Actor；
+- [G12参数匹配单Actor容量对照](12_参数匹配单Actor容量对照/README.md)训练一个不进入
+  主方法的加宽单Actor baseline，用于排除双Actor收益只是参数量翻倍。
+
+以上授权不允许更新或覆盖5A、原epoch-16，也不恢复其他历史Actor路线。
 
 ### Actor N：generalist-5a
 
@@ -266,7 +278,7 @@ success + collision + unresolved = agents * episodes
 
 - standard/dense两个完整场景专家；
 - 独立Dense完整Actor及继续扫描reward/Critic；
-- epoch-16整网全程续训；
+- epoch-16无边界整网续训；当前只允许已登记的epoch 17-20固定续训；
 - 24维单帧Residual融合；
 - controlled-ego、pair Actor及复杂Critic支线；
 - corrected edge-1完整Actor继续训练。
@@ -304,9 +316,9 @@ success + collision + unresolved = agents * episodes
    [G12-R2协议](12_参数匹配单Actor容量对照/R2_PROTOCOL.md)和
    [G12完整场景协议](12_参数匹配单Actor容量对照/FULL_SCENE_PROTOCOL.md)及
    [G12-R3协议](12_参数匹配单Actor容量对照/R3_PROTOCOL.md)。
-8. I-E2、I-E2-M和I-E2-F4均已拒绝。旧epoch-16继续作为fallback；不追加Actor训练，
-   不扫描reward权重，也不启动基于F4的新Gate。F4已经覆盖四阶段窗口但更新后全面退化，
-   后续不得以同一TD3目标继续做第五次权重微调。
+8. I-E2、I-E2-M和I-E2-F4均已拒绝。旧epoch-16继续作为fallback；不追加这些E2配套
+   Actor的训练，不扫描reward权重，也不启动基于F4的新Gate。当前唯一避障Actor训练是
+   从原epoch-16完整状态固定续训epoch 17-20；F4不得作为其warm start或配置来源。
 9. 完成主对照、消融和multi-edge边界评估。G11-E的50场exact-edge-2 pilot与后150场
    confirmation已经完成清单冻结和互斥审计，不得并行启动第二套Gazebo。
 10. Gate、参数匹配单Actor和所有阈值冻结后一次性读取sealed test。
