@@ -23,6 +23,8 @@ N5 manifest 上比较完整闭环：`E2 + I-E2-F4` 是否超过 `R2-10k`，同�
 
 - E2 warm start；Actor 部署输入保持 24 维。
 - 训练清单：`ie2_multi_conflict_v1`，保留 edge-1/2/3+。
+- 采样使用冻结清单的普通 `cycle`；该清单不包含旧 `balanced_cycle` 要求的
+  `view.interaction_band` 字段。
 - Critic 使用 87 维 ego-motion 邻域上下文；动态 reward 保留。
 - 只在 interaction window 收集和更新，但窗口内不再做 closing-risk 二次筛选，覆盖四阶段：
   `approach -> avoidance -> stalled recovery -> release`。
