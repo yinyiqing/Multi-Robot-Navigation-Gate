@@ -1,6 +1,6 @@
 # 当前项目状态
 
-更新时间：`2026-08-12`。
+更新时间：`2026-08-13`。
 
 本文件是进入项目后的第一阅读入口。方法定义、实验准入和数据边界以
 [论文主线协议](experiments/03_保留专门化/02_论文主线/README.md)为准；历史 README
@@ -193,6 +193,14 @@ Gate
     `0.396`，交互平均线速度为`0.015`、停滞帧比例为`0.928`；旧epoch-16对应为
     `0.144/0.147/0.775`。当前判定为训练分布缺少multi-edge且恢复推进不足，不是简单的
     训练时长不足；不得直接追加40k，下一实验必须先登记multi-edge训练分布修订。
+37. I-E2-M多冲突pilot及matched复测已经完成但未通过。E2、E2+旧epoch-16 recovery、
+    E2+I-E2-M的full success为`0.7417/0.7750/0.6833`；multi-edge为
+    `0.450/0.600/0.400`。实际训练覆盖edge-1/edge-2/edge-3+为`169/127/126`个episode，
+    所以失败不是缺少multi-edge执行。20k冻结Actor到40k解冻Actor的内部full success只从
+    `0.610`到`0.615`，timeout从`0.095`升到`0.135`。同观测动作审计显示I-E2-M mean
+    linear仅`0.0543`，接近E2的`0.0489`，而旧epoch-16为`0.1571`；根因是Actor梯度只
+    覆盖1m内仍闭合的risk状态，排除了停滞恢复和release阶段。不得追加40k；完整诊断见
+    `15_E2恢复Actor诊断与训练/I_E2_M_DIAGNOSIS.md`。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -243,16 +251,15 @@ Gate
 10. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
    scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
     manifest哈希、缺失/重复/错序ID。不同场景或不同评测协议的历史汇总值不得混入同一表。
-11. 当前已完成的首个新Actor实验是
+11. 当前两个E2配套Actor pilot均已完成。首版I-E2因单冲突训练分布导致multi-edge不足；
+    I-E2-M修复了数据覆盖，但训练目标仍只覆盖逼近风险状态，没有学到停滞恢复和交还。
+    两者均不得替换旧epoch-16；当前不授权继续Actor长跑或启动新的Gate训练。历史协议位于
     [E2恢复Actor诊断与训练](experiments/03_保留专门化/02_论文主线/15_E2恢复Actor诊断与训练/README.md)
-    中的40k `I-E2` pilot，该pilot已经按固定顺序完成并诊断。当前唯一授权的新Actor实验是
-    已登记的 `I-E2-M` 多冲突分布修订短跑；它不修改冻结的5A/epoch-16主线，完成前不得
-    启动Gate训练。
+    。
 
-12. `I-E2-M` 使用独立的2400场navigation-train清单和200场内部validation，显式覆盖
-    edge-1/edge-2/edge-3+，并已通过重复、泄漏和哈希审计。训练脚本会先做同seed E2控制，
-    再做2x20k Actor pilot，最后在冻结N5 120场上做matched复测；实时日志统一写入
-    `logs/active/e2-ie2-multi-conflict-pipeline/`。
+12. 若继续E2配套Actor，必须先登记包含approach/avoidance/stalled recovery/release四阶段
+    的新训练单元，并用离线或短窗反事实准入证明Actor不再只是E2附近的动作漂移。预算必须
+    同时登记场景覆盖率，不能只按agent samples。未完成该协议前不得启动第三个40k pilot。
 
 ## 问题与主张边界
 

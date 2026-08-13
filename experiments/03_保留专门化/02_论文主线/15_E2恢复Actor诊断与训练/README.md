@@ -1,6 +1,6 @@
 # E2恢复Actor诊断与训练
 
-状态：`I-E2 40k pilot completed / I-E2-M multi-conflict pilot registered`.
+状态：`I-E2 and I-E2-M completed / both rejected`.
 
 本目录记录从新普通 Actor `E2` 出发，重新定义条件避障 Actor 的路线。它不是对当前
 冻结 `5A + epoch-16 + Gate` 主线的静默替换；若后续要进入论文主方法，必须先更新
@@ -303,10 +303,17 @@ samples，Actor在21k后解冻，完成后自动在冻结N5 120场上做 matched
 相对地，I-E2改善的8个case中有5个来自edge-1，只有2个来自multi-edge。这与训练分布
 审计完全一致：当前I-E2已经是有单冲突收益的Actor，但不是多冲突恢复Actor。
 
-### 当前结论与下一步
+### I-E2-M最终结论
 
-当前不延长原40k，也不启动Gate。下一步应登记一个新的、仍从E2 warm start的I-E2修订
-pilot：训练清单必须显式加入multi-edge，并保留足够的zero/edge1回归样本；同时保留
-interaction-only更新、邻域Critic和动态reward，先用短预算确认是否减少停滞和timeout，
-再决定是否扩大训练。multi-edge训练分布的加入会取消“single-to-multi零样本泛化”的表述，
-但它符合论文主线“普通Actor + 条件恢复Actor”的模型血缘要求。
+I-E2-M已按上述multi-edge清单完成40k训练和matched 120场复测，不再是待执行项。
+E2、E2+旧epoch-16 recovery、E2+I-E2-M的full success为`0.7417/0.7750/0.6833`，
+multi-edge为`0.450/0.600/0.400`。实际训练episode中edge-1/edge-2/edge-3+为
+`169/127/126`，所以失败不是“multi-edge清单没有跑到”。
+
+根因是训练单元与恢复任务错位：Actor梯度只覆盖1米内仍在闭合的risk状态，排除了
+避让后停滞、分离、恢复推进和release。I-E2-M主要改变了角速度，没有形成旧epoch-16
+那样的恢复动作。因此拒绝I-E2-M，不追加40k，不扫描reward权重，也不启动新Gate。
+完整证据见[I-E2-M诊断](I_E2_M_DIAGNOSIS.md)。
+
+若未来重启E2配套Actor，必须先定义approach、avoidance、stalled recovery和release四阶段
+训练单元，并用离线或短窗反事实准入过滤候选；不得直接启动第三个40k pilot。

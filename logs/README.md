@@ -15,6 +15,7 @@
 - `archive/diagnostic/g11_a0/`：G11-A0已有数据时序表示诊断日志。
 - `archive/diagnostic/g11_a1/`：G11-A1 smoke、正式采集、审计和五seed离线训练日志。
 - `archive/diagnostic/g11_b/`：G11-B在线时序Gate、student-rollout smoke与正式采集日志。
+- `archive/diagnostic/e2_ie2_multi_conflict/`：I-E2-M多冲突Actor训练、matched复测与诊断日志。
 - `archive/rejected/g11_a1_duplicate_training/`：并发污染的主seed训练日志，不进入结果。
 - `archive/rejected/g11_a1_launcher_artifacts/`：旧外层启动器残留日志，不进入结果。
 

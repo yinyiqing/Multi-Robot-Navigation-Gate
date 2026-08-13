@@ -1,7 +1,7 @@
 # ICRA论文主线：普通导航Actor、条件避障Actor与在线Gate
 
-状态：`legacy route frozen / I-E2-M multi-conflict pilot running`。
-更新时间：`2026-08-12`。
+状态：`legacy route frozen / I-E2-M rejected after diagnosis`。
+更新时间：`2026-08-13`。
 
 本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见
 [PROJECT_STATUS](../../../PROJECT_STATUS.md)，历史实验状态见
@@ -28,7 +28,7 @@ success分别为`0.6583/0.7750/0.7333`。I-E2相对E2有正收益，但配对检
 且multi-edge full success为`0.425`，低于旧epoch-16的`0.600`。因此I-E2尚未替换冻结
 interaction Actor；当前只授权同场轨迹和动作诊断，不授权直接延长训练或启动新Gate。
 
-### I-E2-M多冲突修订pilot（当前执行）
+### I-E2-M多冲突修订pilot（已拒绝）
 
 为回应上一版只覆盖单冲突边、在multi-edge上停滞的问题，已书面修订Actor I的训练分布，
 但不改变论文主方法的两个Actor加在线Gate结构。I-E2-M从冻结E2 Actor warm start，使用
@@ -41,6 +41,12 @@ interaction Actor；当前只授权同场轨迹和动作诊断，不授权直接
 改为 `average_plus_interaction`，并加入弱 safe-recovery奖励。预算固定为2x20k，Actor
 在21k后解冻。完成后只在冻结N5 120场上做matched复测，不读取sealed test，不启动Gate；
 该修订取消single-to-multi零样本泛化主张。
+
+I-E2-M现已完成但未通过。matched E2、旧epoch-16 recovery、I-E2-M recovery的full
+success为`0.7417/0.7750/0.6833`，multi-edge为`0.450/0.600/0.400`。诊断确认训练确实
+执行了edge-1/edge-2/edge-3+，但Actor梯度只覆盖1m内仍在闭合的risk状态，没有覆盖停滞
+恢复与release；40k也只经历了422/2400个训练场景。当前拒绝I-E2-M且不追加预算，完整
+证据见[I-E2-M诊断](15_E2恢复Actor诊断与训练/I_E2_M_DIAGNOSIS.md)。
 
 ## 1. 当前方法
 
@@ -281,14 +287,16 @@ success + collision + unresolved = agents * episodes
    S4五车首段的10k/20k full success为`0.6667/0.6917`。20k配对结果显著超过5A，但因
    `3/120` timeout相对5A增加`0.025`而未通过；预先登记的唯一10k fallback随后以
    `0.7000 vs 0.5583` full success、`0` timeout通过全部五项准入。冻结10k作为R2参考，
-   R3已经固定四槽训练调度、保护20k评测边界的21k Actor解冻阈值、`lambda_keep=1.0`
-   和40k停止条件，
-   当前在完整standard/dense train上做40k pilot并重采样强交互子集。具体协议见
+   R3已经按固定四槽训练调度完成40k pilot，但Actor解冻后full success从
+   `0.667`降至`0.575`，因此已停止且不启动R4。具体协议见
    [G12-R2协议](12_参数匹配单Actor容量对照/R2_PROTOCOL.md)和
    [G12完整场景协议](12_参数匹配单Actor容量对照/FULL_SCENE_PROTOCOL.md)及
    [G12-R3协议](12_参数匹配单Actor容量对照/R3_PROTOCOL.md)。
-8. 完成主对照、消融和multi-edge边界评估。G11-E的50场exact-edge-2 pilot与后150场
+8. I-E2和I-E2-M均已拒绝。旧epoch-16继续作为fallback；不追加Actor训练，不扫描
+   reward权重，也不立即启动新Gate。若继续E2配套Actor，必须先登记同时覆盖
+   approach、avoidance、stalled recovery和release的训练单元，并通过离线或短窗反事实准入。
+9. 完成主对照、消融和multi-edge边界评估。G11-E的50场exact-edge-2 pilot与后150场
    confirmation已经完成清单冻结和互斥审计，不得并行启动第二套Gazebo。
-9. Gate、参数匹配单Actor和所有阈值冻结后一次性读取sealed test。
+10. Gate、参数匹配单Actor和所有阈值冻结后一次性读取sealed test。
 
 任何新长跑必须先在本文件登记实验ID、数据split、模型哈希、seed、准入和停止条件。
