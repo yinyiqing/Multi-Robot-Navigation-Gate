@@ -35,6 +35,8 @@
 - `archive/rejected/g11_a1_launcher_artifacts/`：旧外层启动器残留日志，不进入结果。
 - `archive/rejected/avoidance_actor_matched_admission_cleanup_bug_20260814/`：配对准入首轮
   worker未先停止`roslaunch`造成的候选Actor启动失败日志；没有episode或结果数组。
+- `archive/rejected/g11_f_epoch17_gate_smoke_nounset_20260814/`：首次epoch-17 Gate smoke
+  在加载ROS环境前启用`nounset`而退出；未启动Gazebo且没有生成shard。
 
 整理日期：2026-08-14。避障Actor epoch 17-20续训和独立matched admission均已完成并
 归档，`logs/active/`中不保留该实验的文件。

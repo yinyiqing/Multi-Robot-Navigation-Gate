@@ -73,7 +73,7 @@ STATE_PATH="$RUNTIME_DIR/checkpoints/${RUN_ID}_state.pt"
 STATS_PATH="$RUNTIME_DIR/results/${RUN_ID}.npy"
 
 setsid bash -lc "
-  set -euo pipefail
+  set -eo pipefail
   cleanup() {
     pgid=\"\$(ps -o pgid= -p \$\$ | tr -d ' ')\"
     ps -eo pid=,pgid= | awk -v pgid=\"\$pgid\" -v self=\"\$\$\" \\
@@ -86,6 +86,7 @@ setsid bash -lc "
   source /opt/ros/noetic/setup.bash
   source '$ROOT/env.python.sh'
   source '$ROOT/catkin_ws/devel_isolated/setup.bash'
+  set -u
   export CUDA_VISIBLE_DEVICES=''
   export ROS_HOSTNAME=localhost ROS_MASTER_URI=http://localhost:$ROS_PORT ROS_PORT_SIM=$ROS_PORT
   export GAZEBO_MASTER_URI=http://localhost:$GAZEBO_PORT
