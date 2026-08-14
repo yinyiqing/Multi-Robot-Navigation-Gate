@@ -253,9 +253,10 @@ Gate
 47. G12-R2B已完成30k。10k/20k/30k internal validation的full success为
     `0.533/0.508/0.042`，collision为`0.195/0.200/0.418`，timeout为`0/0/0.150`。
     10k仍与扩宽前3D2函数等价；约10k Actor更新后的30k明显坍塌。因此R2B没有形成可用
-    的稳定大Actor，只证明5A recipe不适合稳定训练扩宽Actor。项目接受退化作为对照
-    结果，因此冻结真正经过Actor更新的R2B-30k作为流程/预算匹配大Actor baseline；
-    不使用冻结期自动best。正式数值须在G11-F-C同一manifest上补评后确定。
+    的稳定大Actor，只证明5A recipe不适合稳定训练扩宽Actor。按5A相同的validation
+    模型选择逻辑，自动best一直停在epoch 1；其张量与epoch 1逐元素相同。因此冻结
+    R2B-best作为流程/预算匹配的训练流程输出baseline，同时明确披露它未实际使用
+    新增容量。正式数值须在G11-F-C同一manifest上补评后确定。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -284,8 +285,8 @@ Gate
    [G12-R公平路线](experiments/03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/REVISED_PLAN.md)：
    先做原宽度控制，再让参数匹配Actor从头完成普通导航课程和完整五车分布联合训练。
    任何新长跑必须先冻结具体超参数和manifest，不得用D2或sealed test调参。R2因
-   额外课程和预算不匹配已降级为cross-protocol诊断；流程匹配的R2B-30k即使
-   退化也保留为公平大Actor对照，当前补做G11-F-C同场评测。
+   额外课程和预算不匹配已降级为cross-protocol诊断；流程匹配的R2B按自动
+   validation best选择epoch 1，当前补做R2B-best的G11-F-C同场评测。
 7. G12-R1已归档到`logs/archive/diagnostic/g12_r1/`，只作机制诊断，其checkpoint不得
    作为R2 warm start或论文主性能模型。
 8. G12完整场景内部validation已经冻结为`g12_full_scene_selection_v1`：120场按来源和

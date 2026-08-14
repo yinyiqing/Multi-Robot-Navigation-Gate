@@ -4,10 +4,10 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TD3_DIR="$ROOT/TD3"
 RUN_DIR="$ROOT/experiments/03_保留专门化/02_论文主线/11_可部署在线Gate研究/G11_F_epoch17_gate_v1/local_data/pilot"
-LOG_DIR="$ROOT/logs/active/g11_f_epoch17_gate_r2b30k_pilot"
+LOG_DIR="$ROOT/logs/active/g11_f_epoch17_gate_r2b_best_pilot"
 MANIFEST="$ROOT/experiments/03_保留专门化/02_论文主线/datasets/fixed_v1/views/g11_c_pilot_v1/validation.json.gz"
-R2B_MODEL="capacity_wide_r2b_5a_recipe_n5_seed20260823_epoch_003"
-PID_FILE="$ROOT/.g11_f_epoch17_r2b30k_pilot.pid"
+R2B_MODEL="capacity_wide_r2b_5a_recipe_n5_seed20260823_best"
+PID_FILE="$ROOT/.g11_f_epoch17_r2b_best_pilot.pid"
 ROS_PORT=16823
 GAZEBO_PORT=16923
 
@@ -60,7 +60,7 @@ PY
 }
 
 run_one() {
-  local repeat="$1" seed="$2" run="g11_f_c_r2b30k_r${1}_s${2}"
+  local repeat="$1" seed="$2" run="g11_f_c_r2bbest_r${1}_s${2}"
   local stats="$RUN_DIR/results/${run}.npy" state="$RUN_DIR/checkpoints/${run}_state.pt"
   local attempt log status
   if [[ -f "$stats" ]] && verify_result "$stats" 2>/dev/null; then echo "Skipping $run"; return; fi
@@ -83,4 +83,4 @@ run_one() {
 
 run_one 1 20260805
 run_one 2 20260806
-/usr/bin/python3 "$ROOT/scripts/analyze_g11_f_epoch17_r2b30k_pilot.py" >"$LOG_DIR/analysis.log" 2>&1
+/usr/bin/python3 "$ROOT/scripts/analyze_g11_f_epoch17_r2b_best_pilot.py" >"$LOG_DIR/analysis.log" 2>&1

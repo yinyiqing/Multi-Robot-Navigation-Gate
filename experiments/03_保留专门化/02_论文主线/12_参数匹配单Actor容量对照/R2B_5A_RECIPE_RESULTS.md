@@ -1,6 +1,6 @@
 # G12-R2B 5A流程参数匹配Actor结果
 
-状态：`completed / 30k frozen as fair degraded baseline`。日期：`2026-08-14`。
+状态：`completed / validation best frozen at epoch 1`。日期：`2026-08-14`。
 
 ## 结果
 
@@ -26,8 +26,9 @@ R2B没有形成稳定的已训练大Actor。自动best位于Actor冻结阶段，
 的优化现象，并说明“严格复制5A最后一段训练”不适合训练加宽Actor。
 
 R2B internal validation与F-A1的G11-F-C pilot不是同一manifest，因此不能把`0.533`与
-`0.710`写成正式同场比较。项目接受退化作为对照结果，因此冻结真正更新过的epoch 3
-作为R2B-30k公平容量baseline，并追加G11-F-C同场闭环评测。R2-10k继续只作
+`0.710`写成正式同场比较。按5A相同的validation模型选择逻辑，自动best一直停在
+epoch 1，且其张量与epoch 1逐元素相同。因此冻结R2B-best作为流程/预算匹配的训练
+流程输出baseline，并追加G11-F-C同场闭环评测。R2-10k继续只作
 cross-protocol诊断，不进入公平容量baseline排名。
 
 本实验只说明5A recipe的优化稳定性不足，不说明大Actor容量不足，也不支持双Actor+Gate

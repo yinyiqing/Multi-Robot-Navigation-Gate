@@ -12,9 +12,9 @@ ROOT = Path(__file__).resolve().parents[1]
 RUN_DIR = ROOT / "experiments/03_保留专门化/02_论文主线/11_可部署在线Gate研究/G11_F_epoch17_gate_v1"
 MANIFEST = ROOT / "experiments/03_保留专门化/02_论文主线/datasets/fixed_v1/views/g11_c_pilot_v1/validation.json.gz"
 RESULT_DIR = RUN_DIR / "local_data/pilot/results"
-ACTIVE_LOG_DIR = ROOT / "logs/active/g11_f_epoch17_gate_r2b30k_pilot"
-ARCHIVE_LOG_DIR = ROOT / "logs/archive/validation/g11_f_epoch17_gate_r2b30k_pilot"
-POLICIES = ("5a", "a1", "b2", "r2b30k")
+ACTIVE_LOG_DIR = ROOT / "logs/active/g11_f_epoch17_gate_r2b_best_pilot"
+ARCHIVE_LOG_DIR = ROOT / "logs/archive/validation/g11_f_epoch17_gate_r2b_best_pilot"
+POLICIES = ("5a", "a1", "b2", "r2bbest")
 REPEATS = {1: 20260805, 2: 20260806}
 
 
@@ -60,8 +60,8 @@ def paired(candidate, baseline):
 
 
 def result_name(policy, repeat, seed):
-    if policy == "r2b30k":
-        return f"g11_f_c_r2b30k_r{repeat}_s{seed}.npy"
+    if policy == "r2bbest":
+        return f"g11_f_c_r2bbest_r{repeat}_s{seed}.npy"
     return f"g11_f_c_{policy}_r{repeat}_s{seed}.npy"
 
 
@@ -86,12 +86,12 @@ def main():
     }
     summary = {
         "protocol": {
-            "experiment_id": "G11-F-C-R2B30K",
+            "experiment_id": "G11-F-C-R2B-BEST",
             "manifest": str(MANIFEST.relative_to(ROOT)),
             "episodes_per_run": 50,
             "repeats": REPEATS,
-            "r2b_actor": "capacity_wide_r2b_5a_recipe_n5_seed20260823_epoch_003",
-            "r2b_actor_sha256": "2722574e531080d9ce4f2448687270354a8baea0563c12c78e9711a8da4f62f2",
+            "r2b_actor": "capacity_wide_r2b_5a_recipe_n5_seed20260823_best",
+            "r2b_actor_sha256": "da28dd5820d09845eea07cb68da45a7afd262fe56e8a71f80bf6b5781551523a",
             "sealed_test_read": False,
         },
         "per_repeat": {
@@ -102,8 +102,8 @@ def main():
         "paired": {
             "a1_vs_5a": paired(combined["a1"], combined["5a"]),
             "b2_vs_a1": paired(combined["b2"], combined["a1"]),
-            "a1_vs_r2b30k": paired(combined["a1"], combined["r2b30k"]),
-            "r2b30k_vs_5a": paired(combined["r2b30k"], combined["5a"]),
+            "a1_vs_r2bbest": paired(combined["a1"], combined["r2bbest"]),
+            "r2bbest_vs_5a": paired(combined["r2bbest"], combined["5a"]),
         },
         "strata": {},
     }
@@ -112,7 +112,7 @@ def main():
         summary["strata"][name] = {
             policy: aggregate(combined[policy][mask]) for policy in POLICIES
         }
-    output = RUN_DIR / "local_data/pilot/summary_with_r2b30k.json"
+    output = RUN_DIR / "local_data/pilot/summary_with_r2bbest.json"
     output.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False, indent=2))
 

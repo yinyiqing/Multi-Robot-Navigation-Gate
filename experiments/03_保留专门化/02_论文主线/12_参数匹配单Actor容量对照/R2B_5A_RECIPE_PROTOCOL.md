@@ -1,6 +1,6 @@
 # G12-R2B：按5A流程重训参数匹配大Actor
 
-状态：`completed / 30k frozen as fair degraded baseline`。登记日期：`2026-08-14`。
+状态：`completed / validation best frozen at epoch 1`。登记日期：`2026-08-14`。
 
 ## 目的
 
@@ -68,6 +68,7 @@ R2B不修改冻结的5A、epoch-17、F-A1或现有R2 artifact。
 
 10k/20k/30k的full success为`0.533/0.508/0.042`，collision为
 `0.195/0.200/0.418`，timeout为`0/0/0.150`。10k候选仍与扩宽前3D2函数等价；30k在
-约10k Actor更新后明显坍塌。项目接受退化作为对照结果，因此冻结R2B-30k作为流程/
-预算匹配大Actor baseline，不使用冻结期自动best。当前追加G11-F-C同场评测。完整分析见
+约10k Actor更新后明显坍塌。按5A相同的validation模型选择逻辑，自动best一直停在epoch 1；
+其张量与epoch 1逐元素相同。因此冻结R2B-best作为流程/预算匹配的训练流程输冫aseline，
+并追加G11-F-C同场评测。完整分析见
 [R2B结果](R2B_5A_RECIPE_RESULTS.md)。

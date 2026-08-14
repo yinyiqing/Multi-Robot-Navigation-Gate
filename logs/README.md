@@ -23,6 +23,10 @@
   R2-10k参数匹配大Actor补充pilot日志。
 - `archive/training/capacity_wide_g12_r2b_5a_recipe/`：按历史5A流程训练参数匹配加宽
   Actor的日志；该实验在Actor解冻后坍塌，不覆盖现有R2。
+- `active/g11_f_epoch17_gate_r2b_best_pilot/`：R2B自动validation best在G11-F-C
+  同场manifest上的补充评测日志，完成后自动归档。
+- `archive/validation/g11_f_epoch17_gate_r2b30k_aborted_wrong_checkpoint/`：误用epoch 3
+  final的已中止评测；不进入正式比较。
 - `archive/diagnostic/e2_ie2_multi_conflict/`：I-E2-M多冲突Actor训练、matched复测与诊断日志。
 - `archive/validation/e2_recovery_oracle_epoch16/`：E2 recovery-oracle 120场完整评测日志。
 - `archive/validation/g12_dense_full1000_partial_20260811/`：未完成的dense 1000场并行评测；
