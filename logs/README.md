@@ -26,7 +26,9 @@
 - `archive/validation/g11_f_epoch17_gate_r2b_best_pilot/`：R2B自动validation best在
   G11-F-C同场manifest上完成的`100`场补充评测日志。
 - `active/g17-full-scene-comparison/`：5A、R2B-best和F-A1在包含0/1/multi-edge的
-  120个冻结完整场景、两个repeat上的统一对比实时日志。
+  120个冻结完整场景、两个repeat上的统一对比实时日志；同一repeat内三种
+  方法使用独立ROS/Gazebo端口并行。
+- `archive/aborted/g17_full_scene_comparison_sequential/`：并行版切换前的未完成顺序运行，不进入正式结果。
 - `archive/validation/g11_f_epoch17_gate_r2b30k_aborted_wrong_checkpoint/`：误用epoch 3
   final的已中止评测；不进入正式比较。
 - `archive/diagnostic/e2_ie2_multi_conflict/`：I-E2-M多冲突Actor训练、matched复测与诊断日志。
