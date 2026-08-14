@@ -1,6 +1,6 @@
 # 避障Actor epoch 17-20续训
 
-状态：`completed / epoch 17 candidate pending matched admission`。日期：`2026-08-14`。
+状态：`completed / epoch 17 rejected by matched admission`。日期：`2026-08-14`。
 
 ## 目的
 
@@ -78,12 +78,12 @@ epoch 17是唯一超过原epoch 16 full success的续训点，并降低collision
 
 自动best为epoch 17，Actor SHA-256：
 `149c2e42848ecc9bc478cbed7fd89b9062936dbd5c669b55e6964441685155a5`。它仍只是internal
-validation候选，下一步必须按本文预注册方式与原epoch 16做独立、同场matched admission；
-在该复测完成前，当前避障Actor仍为原epoch 16。
+validation候选，随后按本文预注册方式与原epoch 16完成独立、同场matched admission。
+该候选未通过效率准入，当前避障Actor仍为原epoch 16。
 
 ## 独立matched admission
 
-状态：`running / old epoch 16 seed 20260814 complete`。
+状态：`completed / epoch 17 rejected`。
 
 - manifest：`g12_full_scene_selection_v1/validation.json.gz`，120场，SHA-256
   `52435d6c5bdf9914e7212dd29cb4bfec074257f72d85f0d71741deee7c63b635`；
@@ -117,3 +117,22 @@ bash scripts/start_avoidance_actor_matched_admission.sh
 `logs/archive/rejected/avoidance_actor_matched_admission_cleanup_bug_20260814/`。worker已
 改为先按本次动态launchfile终止`roslaunch`，再清理专用端口；恢复运行必须跳过已审计的
 原epoch 16结果，从候选epoch 17的第1场重新开始。
+
+修复后四组共`480/480`场完成，manifest顺序、唯一性和终止统计均通过审计。两个seed合并
+结果如下：
+
+| 避障Actor | full success | agent success | collision | unresolved | timeout | 平均步数 | 避障占比 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 原epoch 16 | `0.6333` | `0.8875` | `0.1075` | `0.0050` | `0.0125` | `32.32` | `58.23%` |
+| 候选epoch 17 | `0.6875` | `0.8983` | `0.0967` | `0.0050` | `0.0125` | `37.46` | `59.69%` |
+
+epoch 17逐场改善`40`场、退化`27`场、持平`173`场，McNemar exact `p=0.1421`。按拓扑
+看，0-edge/edge-1/multi-edge的full-success增量分别为`+0.0125/+0.1375/+0.0125`；
+收益主要来自edge-1，multi-edge几乎没有改善。两个seed的full-success增量分别为`+0.1000`
+和`+0.0083`，说明收益存在重复间波动。
+
+候选通过成功率、改善/退化数、collision、timeout和拓扑退化五项检查，但平均步数为原
+epoch 16的`1.159x`，超过预注册的`1.10x`上限，因此整体准入失败。epoch 17不得替换原
+epoch 16，不追加Actor训练；当前避障Actor继续冻结为原epoch 16。结构化结果位于
+`local_data/matched_admission/summary.json`，有效日志已归档到
+`logs/archive/validation/avoidance_actor_matched_admission/`。

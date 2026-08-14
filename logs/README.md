@@ -26,15 +26,16 @@
 - `archive/diagnostic/current_generalist_from_e2_local_critic_20260811/`：E2全场local-Critic
   四轮已完成但被拒绝的诊断日志。
 - `archive/training/avoidance_actor_e17_e20/`：原避障Actor完整状态续训epoch 17-20日志；
-  epoch 17为待matched admission候选，18-20拒绝。
+  epoch 17在matched admission中因效率超限拒绝，18-20在internal validation后拒绝。
+- `archive/validation/avoidance_actor_matched_admission/`：原epoch 16与候选epoch 17在两个
+  seed、同一120场manifest上的`480/480`场配对准入日志；epoch 17未通过效率门槛。
 - `archive/rejected/g11_a1_duplicate_training/`：并发污染的主seed训练日志，不进入结果。
 - `archive/rejected/g11_a1_launcher_artifacts/`：旧外层启动器残留日志，不进入结果。
 - `archive/rejected/avoidance_actor_matched_admission_cleanup_bug_20260814/`：配对准入首轮
   worker未先停止`roslaunch`造成的候选Actor启动失败日志；没有episode或结果数组。
 
-整理日期：2026-08-14。避障Actor epoch 17-20续训已经完成并归档；独立matched
-admission正在`logs/active/avoidance-actor-matched-admission/`运行，已完成的首组日志会与
-后续有效运行一起在整套准入完成后归档。
+整理日期：2026-08-14。避障Actor epoch 17-20续训和独立matched admission均已完成并
+归档，`logs/active/`中不保留该实验的文件。
 
 ## 使用规则
 

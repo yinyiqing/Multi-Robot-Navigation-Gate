@@ -1,6 +1,6 @@
 # 当前项目状态
 
-更新时间：`2026-08-13`。
+更新时间：`2026-08-14`。
 
 本文件是进入项目后的第一阅读入口。方法定义、实验准入和数据边界以
 [论文主线协议](experiments/03_保留专门化/02_论文主线/README.md)为准；历史 README
@@ -213,6 +213,12 @@ Gate
     timeout从`0.0143`升到`0.0357`、平均步数从`54.5`升到`57.9`。后续epoch的避障Actor
     占比和平均步数最高升至`69.6%/87.2`，确认继续更新出现过度保守趋势。停止于epoch 20，
     不进入epoch 21；原epoch 16继续冻结，epoch 17只授权独立matched admission。
+40. epoch 16与epoch 17的独立matched admission已完成`480/480`场并通过数据审计。
+    合并两个seed后，epoch 17相对epoch 16的full success为`0.6875 vs 0.6333`、collision
+    为`0.0967 vs 0.1075`、timeout均为`0.0125`，但平均步数为`37.46 vs 32.32`，达到
+    `1.159x`并超过预注册的`1.10x`上限。逐场为40改善、27退化，exact `p=0.1421`；收益
+    主要来自edge-1，multi-edge仅增加`0.0125`。因此epoch 17准入失败，原epoch 16继续
+    作为冻结避障Actor，不再追加Actor训练。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -221,9 +227,9 @@ Gate
 
 当前主线仍是可部署Gate；参数匹配单Actor只作论文公平对照：
 
-1. 主线回到旧5A与避障Actor（历史checkpoint名为epoch-16）。固定续训epoch 17-20已经
-   完成并停止；epoch 17是唯一新候选，但效率约束尚未确认。原epoch 16继续作为当前
-   fallback和论文基线；下一步只做二者的独立matched admission，不继续Actor训练。
+1. 主线使用旧5A与冻结避障Actor（历史checkpoint名为epoch-16）。epoch 17-20续训及
+   独立matched admission均已完成；epoch 17因平均步数超过`1.10x`效率上限而拒绝。
+   原epoch 16继续作为当前避障Actor和论文基线，不再继续Actor训练。
 2. Gate使用本机激光雷达、导航状态及必要的短时历史，不能读取其他机器人里程计、
    场景类别或冲突图。
 3. `2.0 m` oracle用于监督、诊断和上界；最终Gate需要判断何时调用避障Actor更有利，
