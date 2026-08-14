@@ -238,9 +238,12 @@ Gate
     退化，exact `p=0.6636`，且成功率低3个百分点、timeout和步数更高；因此拒绝F-B2，
     冻结F-A1作为当前Gate候选。F-A1与R2-10k大Actor尚未在同一manifest上比较，历史
     R2/B2数字不得替代该实验。
-45. G11-F-C已登记R2-10k同场补充pilot：冻结并复用原300场结果，只在相同50场manifest、
-    两个repeat seed和仿真参数下新增R2-10k的100场。该pilot用于回答F-A1是否优于参数
-    匹配单Actor；不重复运行5A/F-A1/F-B2，也不读取sealed test。
+45. G11-F-C的R2-10k同场补充pilot已完成`100/100`场。5A/F-A1/F-B2/R2-10k的full
+    success为`0.640/0.710/0.680/0.760`，collision为`0.104/0.088/0.080/0.060`，timeout
+    为`0/0/0.030/0.030`，平均步数为`21.91/33.41/44.87/28.44`。F-A1相对R2-10k为
+    9场改善、14场退化，exact `p=0.4049`；差异未显著，但当前点估计不支持Gate方法优于
+    参数匹配单Actor。下一最小判别是同场补epoch-17的2米oracle，先确认Actor互补上界
+    是否超过R2-10k，再决定是否继续修Gate。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。

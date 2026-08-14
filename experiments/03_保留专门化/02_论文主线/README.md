@@ -38,6 +38,12 @@ G11-F-C的`300/300`场闭环pilot中，5A/F-A1/F-B2的full success为
 9改善、12退化，因此当前冻结F-A1，F-B2作为DAgger消融。当前F-A1仍需与参数匹配
 R2-10k大Actor在同一冻结manifest上比较，历史旧B2/R2结果不能直接代替。
 
+同场R2-10k补充pilot随后完成。R2-10k的full success为`0.760`，高于F-A1的`0.710`；
+collision为`0.060 vs 0.088`，平均步数为`28.44 vs 33.41`，但timeout为`0.030 vs 0`。
+F-A1相对R2-10k为9场改善、14场退化，exact `p=0.4049`。当前小样本差异未显著，但
+点估计不支持F-A1优于参数匹配单Actor。下一步先在同一pilot manifest补epoch-17的2米
+oracle上界；只有oracle明确超过R2-10k，才有依据把剩余差距归因于Gate。
+
 ## 2026-08-12候选支线授权
 
 旧`5A + epoch-16`继续冻结为fallback和论文基线，不覆盖其artifact。为消除最终方法中
