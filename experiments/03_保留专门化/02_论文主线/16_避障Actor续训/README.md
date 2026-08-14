@@ -1,6 +1,6 @@
 # 避障Actor epoch 17-20续训
 
-状态：`registered / running pending`。日期：`2026-08-13`。
+状态：`completed / epoch 17 candidate pending matched admission`。日期：`2026-08-14`。
 
 ## 目的
 
@@ -55,8 +55,28 @@ full success严格超过`0.7071`，且collision、timeout和平均步数没有�
 bash scripts/start_avoidance_actor_e17_e20.sh
 ```
 
-实时日志统一写入：
+完成后的归档日志：
 
 ```text
-logs/active/avoidance-actor-e17-e20/
+logs/archive/training/avoidance_actor_e17_e20/
 ```
+
+## 训练结果
+
+| epoch | full success | agent success | collision | unresolved | timeout | 平均步数 | 避障Actor占比 |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 16（原模型） | `0.7071` | `0.9171` | `0.0786` | `0.0043` | `0.0143` | `54.5` | `53.2%` |
+| 17 | **`0.7429`** | **`0.9214`** | `0.0657` | `0.0129` | `0.0357` | `57.9` | `56.3%` |
+| 18 | `0.6500` | `0.9071` | `0.0757` | `0.0171` | `0.0429` | `64.1` | `61.7%` |
+| 19 | `0.6857` | `0.9143` | `0.0671` | `0.0186` | `0.0500` | `73.6` | `63.4%` |
+| 20 | `0.7071` | `0.9186` | **`0.0557`** | `0.0257` | `0.0643` | `87.2` | `69.6%` |
+
+epoch 17是唯一超过原epoch 16 full success的续训点，并降低collision，但timeout增加
+`0.0214`、平均步数增加`3.4`，所以只保留为候选。epoch 18-20没有延续成功率收益，且
+避障Actor占比、unresolved、timeout和平均步数总体持续上升，表明继续TD3更新逐渐把策略
+推向过度保守。epoch 18-20拒绝，不进入matched复测；不继续epoch 21。
+
+自动best为epoch 17，Actor SHA-256：
+`149c2e42848ecc9bc478cbed7fd89b9062936dbd5c669b55e6964441685155a5`。它仍只是internal
+validation候选，下一步必须按本文预注册方式与原epoch 16做独立、同场matched admission；
+在该复测完成前，当前避障Actor仍为原epoch 16。

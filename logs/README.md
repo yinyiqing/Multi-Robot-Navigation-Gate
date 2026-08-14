@@ -25,10 +25,13 @@
   中止运行。
 - `archive/diagnostic/current_generalist_from_e2_local_critic_20260811/`：E2全场local-Critic
   四轮已完成但被拒绝的诊断日志。
+- `archive/training/avoidance_actor_e17_e20/`：原避障Actor完整状态续训epoch 17-20日志；
+  epoch 17为待matched admission候选，18-20拒绝。
 - `archive/rejected/g11_a1_duplicate_training/`：并发污染的主seed训练日志，不进入结果。
 - `archive/rejected/g11_a1_launcher_artifacts/`：旧外层启动器残留日志，不进入结果。
 
-整理日期：2026-08-13。当前`logs/active/`只保留仍在运行的避障Actor epoch 17-20续训。
+整理日期：2026-08-14。避障Actor epoch 17-20续训已经完成并归档，当前`logs/active/`
+为空。
 
 ## 使用规则
 

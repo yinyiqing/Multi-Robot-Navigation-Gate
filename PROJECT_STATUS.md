@@ -208,6 +208,11 @@ Gate
     自动保存的`best`来自Actor冻结阶段，不是训练出的避障Actor；不追加预算，不做基于
     F4的Gate。训练前同seed matched控制显示E2+旧epoch-16 recovery相对E2 full success
     为`0.7750 vs 0.6917`，15场改善、5场退化，exact `p=0.04139`。
+39. 避障Actor epoch 17-20固定续训已完成。epoch 16/17/18/19/20的internal validation
+    full success为`0.7071/0.7429/0.6500/0.6857/0.7071`；epoch 17为唯一新候选，但其
+    timeout从`0.0143`升到`0.0357`、平均步数从`54.5`升到`57.9`。后续epoch的避障Actor
+    占比和平均步数最高升至`69.6%/87.2`，确认继续更新出现过度保守趋势。停止于epoch 20，
+    不进入epoch 21；原epoch 16继续冻结，epoch 17只授权独立matched admission。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -216,9 +221,9 @@ Gate
 
 当前主线仍是可部署Gate；参数匹配单Actor只作论文公平对照：
 
-1. 主线回到旧5A与避障Actor（历史checkpoint名为epoch-16）。两个原artifact继续冻结为
-   fallback和论文基线，不得覆盖。由于避障Actor在原16轮预算边界达到明显新高，已书面
-   授权从完整checkpoint独立续训epoch 17-20；新分支不得静默替换原避障Actor。
+1. 主线回到旧5A与避障Actor（历史checkpoint名为epoch-16）。固定续训epoch 17-20已经
+   完成并停止；epoch 17是唯一新候选，但效率约束尚未确认。原epoch 16继续作为当前
+   fallback和论文基线；下一步只做二者的独立matched admission，不继续Actor训练。
 2. Gate使用本机激光雷达、导航状态及必要的短时历史，不能读取其他机器人里程计、
    场景类别或冲突图。
 3. `2.0 m` oracle用于监督、诊断和上界；最终Gate需要判断何时调用避障Actor更有利，

@@ -15,6 +15,11 @@
 新分支训练内部胜出后仍须做独立matched复测才能替换。协议见
 [避障Actor续训](16_避障Actor续训/README.md)。
 
+该续训已于`2026-08-14`完成并在epoch 20停止。epoch 17的internal validation full
+success为`0.7429`，高于原epoch 16的`0.7071`，但timeout为`0.0357 vs 0.0143`；
+epoch 18-20没有形成更高成功率，并呈现避障占比、timeout和步数增加的过度保守趋势。
+因此原epoch 16仍是当前避障Actor，epoch 17只作为独立matched admission候选。
+
 ## 2026-08-12候选支线授权
 
 旧`5A + epoch-16`继续冻结为fallback和论文基线，不覆盖其artifact。为消除最终方法中
