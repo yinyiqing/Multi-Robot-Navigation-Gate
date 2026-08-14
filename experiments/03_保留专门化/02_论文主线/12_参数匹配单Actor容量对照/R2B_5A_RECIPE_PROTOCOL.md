@@ -1,6 +1,6 @@
 # G12-R2B：按5A流程重训参数匹配大Actor
 
-状态：`registered / not yet admitted`。登记日期：`2026-08-14`。
+状态：`completed / updated Actor rejected`。登记日期：`2026-08-14`。
 
 ## 目的
 
@@ -58,8 +58,16 @@ bash scripts/start_training_g12_r2b_5a_recipe.sh
 ```
 
 - 模型：`capacity_wide_r2b_5a_recipe_n5_seed20260823`；
-- 实时日志：`logs/active/capacity-wide-g12-r2b-5a-recipe/`；
+- 完整日志：`logs/archive/training/capacity_wide_g12_r2b_5a_recipe/`；
 - 初始审计：本实验目录`local_data/r2b_5a_recipe/initialization_audit.json`；
 - 预计耗时约3小时；只运行一个seed，先完成最小准入，不自动扩展多seed。
 
 R2B不修改冻结的5A、epoch-17、F-A1或现有R2 artifact。
+
+## 完成结果
+
+10k/20k/30k的full success为`0.533/0.508/0.042`，collision为
+`0.195/0.200/0.418`，timeout为`0/0/0.150`。10k候选仍与扩宽前3D2函数等价；30k在
+约10k Actor更新后明显坍塌。因此没有形成已训练的参数匹配大Actor，自动best不得作为容量
+baseline，不追加G11-F-C评测。完整分析见
+[R2B结果](R2B_5A_RECIPE_RESULTS.md)。

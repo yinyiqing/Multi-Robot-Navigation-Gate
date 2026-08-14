@@ -248,6 +248,11 @@ Gate
     函数保持扩宽，复制5A的五车standard、individual reward、fresh 24维Critic、20k
     Actor冻结、学习率和30k总预算。R2B只作新增公平性对照，不能覆盖或隐藏更强的R2，
     也不能以“必须低于Gate”为模型选择目标。
+47. G12-R2B已完成30k。10k/20k/30k internal validation的full success为
+    `0.533/0.508/0.042`，collision为`0.195/0.200/0.418`，timeout为`0/0/0.150`。
+    10k仍与扩宽前3D2函数等价；约10k Actor更新后的30k明显坍塌。因此R2B没有形成可用
+    的已训练大Actor，只证明5A recipe不适合稳定训练扩宽Actor；不能替换R2，也不支持
+    Gate优于容量baseline的结论。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
