@@ -1,6 +1,6 @@
 # G12-R2B 5A流程参数匹配Actor结果
 
-状态：`completed / updated Actor rejected`。日期：`2026-08-14`。
+状态：`completed / 30k frozen as fair degraded baseline`。日期：`2026-08-14`。
 
 ## 结果
 
@@ -21,14 +21,14 @@ L1也为`0`，所以它只是函数等价的扩宽3D2，不是训练出的参数
 
 ## 结论
 
-R2B没有形成可准入的已训练大Actor。自动best位于Actor冻结阶段，不能拿它作为
+R2B没有形成稳定的已训练大Actor。自动best位于Actor冻结阶段，不能拿它作为
 已训练容量baseline；解冻后候选先小幅退化，随后严重坍塌。这复现了历史5A在Actor解冻后退化
 的优化现象，并说明“严格复制5A最后一段训练”不适合训练加宽Actor。
 
 R2B internal validation与F-A1的G11-F-C pilot不是同一manifest，因此不能把`0.533`与
-`0.710`写成正式同场比较。考虑到epoch 1没有使用新增容量、epoch 3已经明确坍塌，当前不
-追加G11-F-C闭环评测。R2-10k同场结果保留为cross-protocol诊断；因额外课程和预算不匹配，
-它不进入公平容量baseline排名。当前没有训练成功且流程/预算匹配的大Actor baseline。
+`0.710`写成正式同场比较。项目接受退化作为对照结果，因此冻结真正更新过的epoch 3
+作为R2B-30k公平容量baseline，并追加G11-F-C同场闭环评测。R2-10k继续只作
+cross-protocol诊断，不进入公平容量baseline排名。
 
 本实验只说明5A recipe的优化稳定性不足，不说明大Actor容量不足，也不支持双Actor+Gate
 优于参数匹配单Actor。

@@ -1,6 +1,6 @@
 # G12 参数匹配单Actor容量对照
 
-状态：`P1/R1 archived / R2 cross-protocol only / R3 failed / R2B matched-recipe failed`。
+状态：`P1/R1 archived / R2 cross-protocol only / R2B-30k frozen fair baseline`。
 日期：`2026-08-08`。
 
 `2026-08-14`新增[R2B 5A流程对照](R2B_5A_RECIPE_PROTOCOL.md)：从历史5A同一个3D2
@@ -10,8 +10,9 @@ R2-10k的`0.760` full success保留为历史cross-protocol结果，但因额外�
 不匹配，不进入论文公平容量baseline排名。
 
 R2B现已完成。10k/20k/30k internal full success为`0.533/0.508/0.042`；10k仍是函数
-等价的扩宽3D2，30k在约10k Actor更新后坍塌。它没有形成可用的已训练大Actor，只作为
-5A recipe优化不稳定的诊断证据。当前尚无有效的流程/预算匹配大Actor baseline。
+等价的扩宽3D2，30k在约10k Actor更新后坍塌。项目接受退化作为对照结果，因此冻结
+真正经过Actor更新的R2B-30k作为流程/预算匹配大Actor baseline，不使用冻结期自动best。
+该对照证明同流程训练的加宽Actor优化不稳定，不证明大Actor容量不足。
 完整结果见[R2B结果](R2B_5A_RECIPE_RESULTS.md)。
 
 R2-S0加宽Actor从随机初始化完成100k单车broad训练，五次full success为

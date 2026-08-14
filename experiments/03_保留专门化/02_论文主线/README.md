@@ -155,8 +155,9 @@ Gate成立的必要条件是两个Actor存在不同优势区。如果Actor I在�
 24维Critic、20k Actor冻结和30k总预算；完整协议见
 [R2B 5A流程对照](12_参数匹配单Actor容量对照/R2B_5A_RECIPE_PROTOCOL.md)。该实验不得
 以训练出更差结果为目标，也不得读取G11-F-C或sealed test选择checkpoint。R2B已完成：
-Actor解冻后从`0.508` full success降至`0.042`，没有形成可用的已训练baseline。当前因此
-没有一个训练成功且流程/预算匹配的大Actor对照；这不能被表述为Gate已证明优于容量对照。
+Actor解冻后从`0.508` full success降至`0.042`，训练明显退化。项目接受该退化作为
+对照结果，因此冻结真正经过Actor更新的R2B-30k作为流程/预算匹配大Actor baseline，
+不使用冻结期自动best。论文必须同时报告其训练坍塌，不得表述为容量不足。
 
 ### Actor N：generalist-5a
 
