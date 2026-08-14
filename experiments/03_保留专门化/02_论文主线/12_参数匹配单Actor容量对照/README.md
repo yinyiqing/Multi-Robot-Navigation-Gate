@@ -1,16 +1,18 @@
 # G12 参数匹配单Actor容量对照
 
-状态：`P1/R1 archived / R2 10k frozen / R3 failed / R2B 5A-recipe failed after unlock`。
+状态：`P1/R1 archived / R2 cross-protocol only / R3 failed / R2B matched-recipe failed`。
 日期：`2026-08-08`。
 
 `2026-08-14`新增[R2B 5A流程对照](R2B_5A_RECIPE_PROTOCOL.md)：从历史5A同一个3D2
 Actor做函数保持扩宽，复制5A的五车standard、individual reward、fresh 24维Critic、
-`20k` Actor冻结和`30k`总预算。R2B只补充“相同训练流程下参数翻倍”的对照，不覆盖或
-隐藏已经在同场pilot达到`0.760` full success的R2-10k。
+`20k` Actor冻结和`30k`总预算。R2B回答“相同训练流程下参数翻倍”的对照问题。
+R2-10k的`0.760` full success保留为历史cross-protocol结果，但因额外课程与预算
+不匹配，不进入论文公平容量baseline排名。
 
 R2B现已完成。10k/20k/30k internal full success为`0.533/0.508/0.042`；10k仍是函数
 等价的扩宽3D2，30k在约10k Actor更新后坍塌。它没有形成可用的已训练大Actor，只作为
-5A recipe优化不稳定的诊断证据。完整结果见[R2B结果](R2B_5A_RECIPE_RESULTS.md)。
+5A recipe优化不稳定的诊断证据。当前尚无有效的流程/预算匹配大Actor baseline。
+完整结果见[R2B结果](R2B_5A_RECIPE_RESULTS.md)。
 
 R2-S0加宽Actor从随机初始化完成100k单车broad训练，五次full success为
 `0.983/1.000/1.000/0.992/1.000`，冻结best位于epoch 2。结果见

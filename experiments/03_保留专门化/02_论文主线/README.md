@@ -35,14 +35,14 @@ checkpoint只作历史证据，不进入最终方法。
 
 G11-F-C的`300/300`场闭环pilot中，5A/F-A1/F-B2的full success为
 `0.640/0.710/0.680`。F-B2碰撞略低但timeout和平均步数明显更高，且相对F-A1逐场为
-9改善、12退化，因此当前冻结F-A1，F-B2作为DAgger消融。当前F-A1仍需与参数匹配
-R2-10k大Actor在同一冻结manifest上比较，历史旧B2/R2结果不能直接代替。
+9改善、12退化，因此当前冻结F-A1，F-B2作为DAgger消融。
 
 同场R2-10k补充pilot随后完成。R2-10k的full success为`0.760`，高于F-A1的`0.710`；
 collision为`0.060 vs 0.088`，平均步数为`28.44 vs 33.41`，但timeout为`0.030 vs 0`。
 F-A1相对R2-10k为9场改善、14场退化，exact `p=0.4049`。当前小样本差异未显著，但
-点估计不支持F-A1优于参数匹配单Actor。下一步先在同一pilot manifest补epoch-17的2米
-oracle上界；只有oracle明确超过R2-10k，才有依据把剩余差距归因于Gate。
+差异未显著。但R2-10k经过了从随机初始化开始的`n1 -> n2 -> n3 -> n5`额外课程，
+与5A/双Actor的训练流程和预算不匹配。因此这组数据只作cross-protocol诊断并在
+补充材料披露，不进入论文公平容量baseline排名，也不用于决定Gate取舍。
 
 ## 2026-08-12候选支线授权
 
@@ -154,7 +154,9 @@ Gate成立的必要条件是两个Actor存在不同优势区。如果Actor I在�
 加宽Actor。它从3D2 Actor函数保持扩宽，使用五车standard、individual reward、fresh
 24维Critic、20k Actor冻结和30k总预算；完整协议见
 [R2B 5A流程对照](12_参数匹配单Actor容量对照/R2B_5A_RECIPE_PROTOCOL.md)。该实验不得
-覆盖现有R2，不得以训练出更差结果为目标，也不得读取G11-F-C或sealed test选择checkpoint。
+以训练出更差结果为目标，也不得读取G11-F-C或sealed test选择checkpoint。R2B已完成：
+Actor解冻后从`0.508` full success降至`0.042`，没有形成可用的已训练baseline。当前因此
+没有一个训练成功且流程/预算匹配的大Actor对照；这不能被表述为Gate已证明优于容量对照。
 
 ### Actor N：generalist-5a
 

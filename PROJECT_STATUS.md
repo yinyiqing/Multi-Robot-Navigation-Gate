@@ -124,7 +124,8 @@ Gate
     保护20k评测边界；之后使用
     `1e-5` Actor学习率、归一化Q、非交互状态`lambda_keep=1.0`和`1.0`梯度裁剪。R3-20k
     Actor冻结时full success为`0.667`，40k解冻更新后降至`0.575`，低于R2-10k参考
-    `0.700`，因此不启动R4；R2-10k继续作为大Actor候选。R3不读取D2、E或sealed test，
+    `0.700`，因此不启动R4。当时冻结R2-10k作为大Actor候选；后续公平性复审因其
+    额外课程和预算不匹配，已将它降级为cross-protocol诊断。R3不读取D2、E或sealed test，
     也不更新5A和epoch-16。完整记录见`12_参数匹配单Actor容量对照/R3_RESULTS.md`。
 24. 当前普通Actor重训N1已按R2-style单车broad协议完成100k。120场validation的full
     success为`0.975/1.000/1.000/1.000/1.000`，collision和timeout从epoch 2起均为`0`；
@@ -241,18 +242,19 @@ Gate
 45. G11-F-C的R2-10k同场补充pilot已完成`100/100`场。5A/F-A1/F-B2/R2-10k的full
     success为`0.640/0.710/0.680/0.760`，collision为`0.104/0.088/0.080/0.060`，timeout
     为`0/0/0.030/0.030`，平均步数为`21.91/33.41/44.87/28.44`。F-A1相对R2-10k为
-    9场改善、14场退化，exact `p=0.4049`；差异未显著，但当前点估计不支持Gate方法优于
-    参数匹配单Actor。下一最小判别是同场补epoch-17的2米oracle，先确认Actor互补上界
-    是否超过R2-10k，再决定是否继续修Gate。
+    9场改善、14场退化，exact `p=0.4049`。但R2-10k使用了从随机初始化开始的
+    `n1 -> n2 -> n3 -> n5`额外课程，与5A/双Actor的训练流程和预算不匹配。因此该结果
+    降级为历史cross-protocol诊断，保留披露但不进入论文公平容量baseline排名，也不再
+    用它决定Gate是否继续。
 46. 为控制R2与历史5A训练血缘不同这一因素，已登记G12-R2B参数匹配Actor：从3D2 Actor
     函数保持扩宽，复制5A的五车standard、individual reward、fresh 24维Critic、20k
-    Actor冻结、学习率和30k总预算。R2B只作新增公平性对照，不能覆盖或隐藏更强的R2，
-    也不能以“必须低于Gate”为模型选择目标。
+    Actor冻结、学习率和30k总预算。R2B是当前的流程匹配公平性对照；R2的数据保留
+    为历史诊断，但不能替代R2B进入正式比较。R2B也不能以“必须低于Gate”为选择目标。
 47. G12-R2B已完成30k。10k/20k/30k internal validation的full success为
     `0.533/0.508/0.042`，collision为`0.195/0.200/0.418`，timeout为`0/0/0.150`。
     10k仍与扩宽前3D2函数等价；约10k Actor更新后的30k明显坍塌。因此R2B没有形成可用
-    的已训练大Actor，只证明5A recipe不适合稳定训练扩宽Actor；不能替换R2，也不支持
-    Gate优于容量baseline的结论。
+    的已训练大Actor，只证明5A recipe不适合稳定训练扩宽Actor。当前没有一个
+    训练成功且流程/预算匹配的大Actor baseline；这不等于Gate已证明优于容量baseline。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -280,8 +282,8 @@ Gate
    R4。后续容量对照遵循
    [G12-R公平路线](experiments/03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/REVISED_PLAN.md)：
    先做原宽度控制，再让参数匹配Actor从头完成普通导航课程和完整五车分布联合训练。
-   任何新长跑必须先冻结具体超参数和manifest，不得用D2或sealed test调参；当前先用冻结
-   R2-10k进行同场单Actor与B2的比较。
+   任何新长跑必须先冻结具体超参数和manifest，不得用D2或sealed test调参。R2因
+   额外课程和预算不匹配已降级为cross-protocol诊断；流程匹配的R2B已训练失败。
 7. G12-R1已归档到`logs/archive/diagnostic/g12_r1/`，只作机制诊断，其checkpoint不得
    作为R2 warm start或论文主性能模型。
 8. G12完整场景内部validation已经冻结为`g12_full_scene_selection_v1`：120场按来源和
@@ -292,8 +294,8 @@ Gate
    降至`0.575`而拒绝。S2至S4已完成两车、三车和五车完整场景首段；S4训练内best为20k，
    但20k配对准入因timeout多1场未通过，唯一10k fallback通过全部五项准入，因此冻结
    S4 10k作为R2参考。R3 40k的混合清单、数值配置、21k Actor解冻阈值和停止条件已经
-   冻结并执行完成，但Actor解冻后退化，R2-10k继续作为候选。当前登记R2-10k与B2的D2
-   同场预比较。失败S1不得作为warm start。
+   冻结并执行完成，但Actor解冻后退化。R2-10k与B2的同场数据仅保留为历史
+   cross-protocol诊断，不再作为候选容量baseline。失败S1不得作为warm start。
 9. 新的普通Actor重训 baseline 已改为课程式路线，目标不是替代当前Gate主线，而是为
    `generalist-5a` 的角色重建一个更强的普通Actor N。`2026-08-09`直接五车 fresh local
    critic pilot 已中止归档；正式路线从原宽度随机Actor/Critic的单车 broad N1 开始，

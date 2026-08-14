@@ -21,14 +21,14 @@ L1也为`0`，所以它只是函数等价的扩宽3D2，不是训练出的参数
 
 ## 结论
 
-R2B没有形成可准入的已训练大Actor。自动best位于Actor冻结阶段，不能拿它替代R2作为
-容量baseline；解冻后候选先小幅退化，随后严重坍塌。这复现了历史5A在Actor解冻后退化
+R2B没有形成可准入的已训练大Actor。自动best位于Actor冻结阶段，不能拿它作为
+已训练容量baseline；解冻后候选先小幅退化，随后严重坍塌。这复现了历史5A在Actor解冻后退化
 的优化现象，并说明“严格复制5A最后一段训练”不适合训练加宽Actor。
 
 R2B internal validation与F-A1的G11-F-C pilot不是同一manifest，因此不能把`0.533`与
 `0.710`写成正式同场比较。考虑到epoch 1没有使用新增容量、epoch 3已经明确坍塌，当前不
-追加G11-F-C闭环评测。已完成的R2-10k同场结果继续作为最强参数匹配baseline，不得被R2B
-替换或隐藏。
+追加G11-F-C闭环评测。R2-10k同场结果保留为cross-protocol诊断；因额外课程和预算不匹配，
+它不进入公平容量baseline排名。当前没有训练成功且流程/预算匹配的大Actor baseline。
 
 本实验只说明5A recipe的优化稳定性不足，不说明大Actor容量不足，也不支持双Actor+Gate
 优于参数匹配单Actor。

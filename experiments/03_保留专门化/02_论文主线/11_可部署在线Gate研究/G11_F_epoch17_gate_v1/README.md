@@ -158,7 +158,7 @@ F-A1是否优于同参数量单Actor，不替代后续完整冻结manifest的最
 | R2-10k | **`0.760`** | **`0.934`** | **`0.060`** | `0.030` | **`28.44`** |
 
 F-A1相对R2-10k为9场改善、14场退化、77场持平，McNemar exact `p=0.4049`。小样本
-差异未显著，但当前点估计不支持F-A1优于参数匹配单Actor：R2-10k的full success高
+差异未显著；就这一次cross-protocol诊断的点估计而言，R2-10k的full success高
 `0.05`、collision低`0.028`且平均步数少`4.97`，只有timeout高`0.03`。
 
 分层上，F-A1/R2-10k在dense edge-1的full success为`0.423/0.500`，standard edge-1为
@@ -167,10 +167,10 @@ F-A1相对R2-10k为9场改善、14场退化、77场持平，McNemar exact `p=0.4
 `10.58/14.46`。因此当前Gate存在广泛调用避障Actor和效率代价，但仅凭本pilot还不能
 断言误切换是成功率差距的唯一原因。
 
-下一最小判别实验是在同一manifest和两个repeat上只补epoch-17的2米真值oracle。若oracle
-仍不高于R2-10k，则当前两个冻结Actor的互补上界不足，继续调Gate不能解决容量对照；若
-oracle明确高于R2-10k，则差距才可归因于可部署Gate，之后在独立内部validation上修正
-Gate的进入/退出策略。该oracle仍是不可部署上界，不是方法结果。
+后续公平性复审确认：R2-10k额外使用了从随机初始化开始的`n1 -> n2 -> n3 -> n5`
+课程，与5A/双Actor的训练流程和预算不匹配。因此本节数值保留为历史诊断，不再用于
+论文公平容量baseline排名或Gate取舍。流程匹配的R2B后续在Actor解冻后训练坍塌，当前
+没有一个训练成功且流程/预算匹配的大Actor baseline。
 
 ## 后续固定顺序
 
