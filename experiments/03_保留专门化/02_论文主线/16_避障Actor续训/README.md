@@ -80,3 +80,33 @@ epoch 17是唯一超过原epoch 16 full success的续训点，并降低collision
 `149c2e42848ecc9bc478cbed7fd89b9062936dbd5c669b55e6964441685155a5`。它仍只是internal
 validation候选，下一步必须按本文预注册方式与原epoch 16做独立、同场matched admission；
 在该复测完成前，当前避障Actor仍为原epoch 16。
+
+## 独立matched admission
+
+状态：`registered / pending`。
+
+- manifest：`g12_full_scene_selection_v1/validation.json.gz`，120场，SHA-256
+  `52435d6c5bdf9914e7212dd29cb4bfec074257f72d85f0d71741deee7c63b635`；
+- 该集合与navigation train、G11-C/D2/E互斥，且没有用于选择epoch 17；
+- 0-edge、edge-1、multi-edge各40场，standard/dense各60场；
+- policy：`5A + 原epoch 16`与`5A + 候选epoch 17`，均使用相同2米真值oracle；
+- seed：`20260814`、`20260815`，每个seed内共享场景ID、顺序、物理步进与终止条件；
+- 总预算：`2 policies x 2 seeds x 120 = 480` episodes；顺序执行，禁止并发Gazebo；
+- 该oracle只用于两个避障Actor的准入，不是可部署Gate结果。
+
+候选epoch 17只有同时满足以下条件才替换原epoch 16：
+
+1. 两个seed合并后full success严格更高，且逐场改善数大于退化数；
+2. collision不高于原epoch 16；
+3. timeout增加不超过`0.02`；
+4. 平均步数不超过原epoch 16的`1.10x`；
+5. 0-edge、edge-1或multi-edge中不得出现超过`0.05`的full-success退化。
+
+启动入口：
+
+```bash
+bash scripts/start_avoidance_actor_matched_admission.sh
+```
+
+运行日志写入`logs/active/avoidance-actor-matched-admission/`，成功完成后自动归档到
+`logs/archive/validation/avoidance_actor_matched_admission/`。
