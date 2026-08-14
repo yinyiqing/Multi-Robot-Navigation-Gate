@@ -83,7 +83,7 @@ validation候选，下一步必须按本文预注册方式与原epoch 16做独�
 
 ## 独立matched admission
 
-状态：`registered / pending`。
+状态：`running / old epoch 16 seed 20260814 complete`。
 
 - manifest：`g12_full_scene_selection_v1/validation.json.gz`，120场，SHA-256
   `52435d6c5bdf9914e7212dd29cb4bfec074257f72d85f0d71741deee7c63b635`；
@@ -110,3 +110,10 @@ bash scripts/start_avoidance_actor_matched_admission.sh
 
 运行日志写入`logs/active/avoidance-actor-matched-admission/`，成功完成后自动归档到
 `logs/archive/validation/avoidance_actor_matched_admission/`。
+
+首轮执行中，原epoch 16的seed `20260814`已完成120场并通过结果审计。随后旧worker只按
+端口终止Gazebo，没有先终止仍会respawn Gazebo的`roslaunch`，导致候选epoch 17的三次
+启动均在episode 1前发生fixed-step传感器超时。三次启动不产生结果数组，全部作废并归档到
+`logs/archive/rejected/avoidance_actor_matched_admission_cleanup_bug_20260814/`。worker已
+改为先按本次动态launchfile终止`roslaunch`，再清理专用端口；恢复运行必须跳过已审计的
+原epoch 16结果，从候选epoch 17的第1场重新开始。

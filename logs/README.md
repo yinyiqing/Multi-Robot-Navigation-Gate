@@ -29,9 +29,12 @@
   epoch 17为待matched admission候选，18-20拒绝。
 - `archive/rejected/g11_a1_duplicate_training/`：并发污染的主seed训练日志，不进入结果。
 - `archive/rejected/g11_a1_launcher_artifacts/`：旧外层启动器残留日志，不进入结果。
+- `archive/rejected/avoidance_actor_matched_admission_cleanup_bug_20260814/`：配对准入首轮
+  worker未先停止`roslaunch`造成的候选Actor启动失败日志；没有episode或结果数组。
 
-整理日期：2026-08-14。避障Actor epoch 17-20续训已经完成并归档，当前`logs/active/`
-为空。
+整理日期：2026-08-14。避障Actor epoch 17-20续训已经完成并归档；独立matched
+admission正在`logs/active/avoidance-actor-matched-admission/`运行，已完成的首组日志会与
+后续有效运行一起在整套准入完成后归档。
 
 ## 使用规则
 

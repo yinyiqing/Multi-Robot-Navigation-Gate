@@ -22,8 +22,22 @@ EPISODES=120
 SEEDS=(20260814 20260815)
 
 stop_runtime() {
+  local launch_pids
+  launch_pids="$(
+    ps -eo pid=,args= | awk -v launch="$LAUNCHFILE" \
+      'index($0, "roslaunch") && index($0, launch) { print $1 }'
+  )"
+  if [[ -n "$launch_pids" ]]; then
+    xargs -r kill -TERM 2>/dev/null <<<"$launch_pids" || true
+    sleep 3
+  fi
   fuser -k -TERM "${ROS_PORT}/tcp" "${GAZEBO_PORT}/tcp" >/dev/null 2>&1 || true
   sleep 3
+  launch_pids="$(
+    ps -eo pid=,args= | awk -v launch="$LAUNCHFILE" \
+      'index($0, "roslaunch") && index($0, launch) { print $1 }'
+  )"
+  [[ -z "$launch_pids" ]] || xargs -r kill -KILL 2>/dev/null <<<"$launch_pids" || true
   fuser -k -KILL "${ROS_PORT}/tcp" "${GAZEBO_PORT}/tcp" >/dev/null 2>&1 || true
 }
 
