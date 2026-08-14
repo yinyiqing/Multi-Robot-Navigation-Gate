@@ -1,6 +1,6 @@
 # G11-F epoch-17可部署Gate
 
-状态：`640-scene student rollout audited / aggregated training runnable`。登记日期：`2026-08-14`。
+状态：`aggregated Gate trained / fixed closed-loop pilot required`。登记日期：`2026-08-14`。
 
 ## 目的
 
@@ -78,6 +78,44 @@ Gate帧、218个候选、37个oracle正帧，场景ID、时序、有限值和嵌
 `0.0691`、timeout `0.0172`、平均步数`53.20`、避障Actor占比`0.5164`、平均切换
 `8.575`。这些是Gate训练场景上的行为诊断，不是validation或论文方法成绩。数据审计
 通过，授权与原A1的5A轨迹按`source + scenario_id`等权聚合训练新Gate。
+
+## F-B2：聚合Gate
+
+原A1的`28,082`帧5A轨迹与新student的`43,827`帧按`source + scenario_id`等权聚合，
+使用相同8帧GRU、主seed和40 epoch训练。最佳点为epoch 2、阈值`0.43`，通过冻结S0的
+overall/weak FPR上限。相对新F-A1的内部validation差值为：
+
+| 指标 | F-B2 - F-A1 |
+| --- | ---: |
+| F1 | `-0.00729` |
+| AP | `-0.00292` |
+| 区间IoU | `-0.01106` |
+| FPR | `+0.00927` |
+| weak FPR | `+0.01070` |
+| switches | `-6` |
+
+F-B2仍满足S0 FPR约束，但没有在5A访问分布上超过F-A1。这与旧B2的离线现象一致，不能
+仅凭分类指标判定DAgger无效；下一步固定比较`5A/F-A1/F-B2`的50场、两个重复闭环pilot。
+F-B2 checkpoint SHA-256为
+`c83a5778d1810213e21af77f681fa9ea30018a9a9d7e75e742ff319d3de58042`，summary SHA-256为
+`7259f1a3703738989324c1cc2c80c6d63e31c1916e732ccba4147827c24d6a7e`。
+
+## F-C：固定闭环pilot
+
+使用旧G11-C已经冻结的50场内部pilot manifest，SHA-256
+`1bf044cb5ff9d7d80c14d860d1108481af1d422cf403b26869f8b963012f0e91`。它不属于sealed
+test；只用于决定聚合Gate是否替代F-A1，不能作为最终论文性能表。
+
+- 策略：5A、F-A1、F-B2；
+- repeat 1/2 seed：`20260805/20260806`；
+- 每个策略每个repeat 50场，共300 episodes，CPU串行；
+- F-A1 on/off为`0.29/0.19`，F-B2为`0.43/0.33`，hold 3、stride 2；
+- 两个Actor、detector、Gate checkpoint和场景顺序全部冻结。
+
+主选择指标为两个repeat合并后的full success。F-B2只有在full success高于F-A1且逐场
+改善多于退化时才替代F-A1，同时collision和timeout相对F-A1均不得增加超过`0.02`。
+若full success持平，则依次按更低collision、更低timeout、更少平均步数选择。平均步数、
+避障Actor占比与切换次数全部报告，但不以事后阈值改变主选择结果。
 
 ## 后续固定顺序
 

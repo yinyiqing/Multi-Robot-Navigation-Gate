@@ -228,6 +228,10 @@ Gate
     `5037144924ceb5e433a5e02a17cdffa5a4338f016f08208dc7a64854548887e8`。采集训练集
     full success为`0.7422`，只作行为诊断。下一步是聚合原5A shard与新student shard
     训练G11-F-B2，不得混入旧epoch-16 student数据。
+43. G11-F-B2聚合Gate已完成。它通过冻结S0的FPR上限，但相对新F-A1在同一内部
+    validation上的F1/AP/区间IoU分别为`-0.00729/-0.00292/-0.01106`，切换少6次。
+    该离线现象不能决定闭环优劣；下一步只做固定50场、两个重复的`5A/F-A1/F-B2`
+    闭环pilot，再决定最终Gate候选。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
