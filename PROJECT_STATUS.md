@@ -244,6 +244,10 @@ Gate
     9场改善、14场退化，exact `p=0.4049`；差异未显著，但当前点估计不支持Gate方法优于
     参数匹配单Actor。下一最小判别是同场补epoch-17的2米oracle，先确认Actor互补上界
     是否超过R2-10k，再决定是否继续修Gate。
+46. 为控制R2与历史5A训练血缘不同这一因素，已登记G12-R2B参数匹配Actor：从3D2 Actor
+    函数保持扩宽，复制5A的五车standard、individual reward、fresh 24维Critic、20k
+    Actor冻结、学习率和30k总预算。R2B只作新增公平性对照，不能覆盖或隐藏更强的R2，
+    也不能以“必须低于Gate”为模型选择目标。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。

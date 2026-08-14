@@ -150,6 +150,12 @@ Gate成立的必要条件是两个Actor存在不同优势区。如果Actor I在�
 
 以上授权不允许更新或覆盖5A、原epoch-16，也不恢复其他历史Actor路线。
 
+`2026-08-14`新增一个不进入主方法的容量baseline授权：G12-R2B按历史5A流程训练参数匹配
+加宽Actor。它从3D2 Actor函数保持扩宽，使用五车standard、individual reward、fresh
+24维Critic、20k Actor冻结和30k总预算；完整协议见
+[R2B 5A流程对照](12_参数匹配单Actor容量对照/R2B_5A_RECIPE_PROTOCOL.md)。该实验不得
+覆盖现有R2，不得以训练出更差结果为目标，也不得读取G11-F-C或sealed test选择checkpoint。
+
 ### Actor N：generalist-5a
 
 - 五车共享Actor；

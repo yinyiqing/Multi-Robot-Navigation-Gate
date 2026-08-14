@@ -21,6 +21,8 @@
   闭环选择pilot日志；F-A1被选中，F-B2因成功率和效率代价未被选中。
 - `archive/validation/g11_f_epoch17_gate_r2_pilot/`：相同F-C manifest和两个repeat上的
   R2-10k参数匹配大Actor补充pilot日志。
+- `active/capacity-wide-g12-r2b-5a-recipe/`：按历史5A流程训练参数匹配加宽Actor的实时
+  日志；该实验不覆盖现有R2。
 - `archive/diagnostic/e2_ie2_multi_conflict/`：I-E2-M多冲突Actor训练、matched复测与诊断日志。
 - `archive/validation/e2_recovery_oracle_epoch16/`：E2 recovery-oracle 120场完整评测日志。
 - `archive/validation/g12_dense_full1000_partial_20260811/`：未完成的dense 1000场并行评测；
