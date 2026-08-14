@@ -34,6 +34,7 @@ catkin_ws/src/multi_robot_scenario/launch/pioneer3dx_multi_*_standard.rviz
 .g12_capacity_*.pid
 .g12_dense_*.pid
 .g12_r2_*.pid
+.g12_r2b_*.pid
 .e2_ie2_multi_conflict_pipeline.pid
 .avoidance_actor_e17_e20.pid
 .avoidance_actor_matched_admission.pid
