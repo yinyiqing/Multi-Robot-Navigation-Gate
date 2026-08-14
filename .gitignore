@@ -64,6 +64,7 @@ experiments/03_保留专门化/02_论文主线/07_冲突拓扑组合泛化/local
 experiments/03_保留专门化/02_论文主线/09_单冲突Residual组合主线/**/local_data/
 experiments/03_保留专门化/02_论文主线/11_可部署在线Gate研究/**/local_data/
 experiments/03_保留专门化/02_论文主线/16_避障Actor续训/local_data/
+experiments/03_保留专门化/02_论文主线/17_完整场景统一对比/local_data/
 
 # Local-only experiment checkpoints; GitHub rejects large .pt artifacts.
 experiments/03_保留专门化/02_论文主线/results/**/checkpoints/
