@@ -1,6 +1,6 @@
 # G11-F epoch-17可部署Gate
 
-状态：`F-A1 passed / student smoke runnable`。登记日期：`2026-08-14`。
+状态：`F-A1 and student smoke passed / 640-scene rollout authorized`。登记日期：`2026-08-14`。
 
 ## 目的
 
@@ -54,6 +54,13 @@ F-A1已完成，耗时`40.12 s`，最佳T1为epoch 2、阈值`0.29`。同一内�
 event recall提高`0.00394`，全部离线门槛通过，因此授权1场student smoke。checkpoint
 SHA-256为`b28e81d341c145d6fa8c881dd98c7ece5285231e7d080b3f71afcd2dfe3a0beb`；summary
 SHA-256为`0c2391bd736806feb814edf8e4b638f53114dd96d570cc5c5a79265f8ff00ff4`。
+
+epoch-17 student smoke已完成manifest首场。运行确认加载正确Actor和Gate，结果为`5/5`
+成功、0碰撞、0 timeout、37环境步，避障Actor占比`0.696`、切换7次。唯一shard包含47个
+Gate帧、218个候选、37个oracle正帧，场景ID、时序、有限值和嵌入run metadata全部通过
+审计，dataset SHA-256为
+`bf620b41a7c805fb9cfa4eefb1ce6e8546b69ce166f0c6a8e3340de1ab223e60`。因此授权同一冻结
+协议运行640场navigation-train student rollout。
 
 ## 后续固定顺序
 
