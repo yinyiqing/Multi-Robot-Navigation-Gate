@@ -16,6 +16,7 @@
 - `archive/diagnostic/g11_a0/`：G11-A0已有数据时序表示诊断日志。
 - `archive/diagnostic/g11_a1/`：G11-A1 smoke、正式采集、审计和五seed离线训练日志。
 - `archive/diagnostic/g11_b/`：G11-B在线时序Gate、student-rollout smoke与正式采集日志。
+- `archive/diagnostic/g11_f_epoch17_gate/`：epoch-17 Gate的离线A1重建及后续诊断日志。
 - `archive/diagnostic/e2_ie2_multi_conflict/`：I-E2-M多冲突Actor训练、matched复测与诊断日志。
 - `archive/validation/e2_recovery_oracle_epoch16/`：E2 recovery-oracle 120场完整评测日志。
 - `archive/validation/g12_dense_full1000_partial_20260811/`：未完成的dense 1000场并行评测；

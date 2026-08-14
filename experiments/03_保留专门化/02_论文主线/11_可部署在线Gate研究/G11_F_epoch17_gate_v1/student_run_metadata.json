@@ -1,0 +1,19 @@
+{
+  "experiment_id": "G11-F-B1",
+  "policy": "student",
+  "split": "train",
+  "manifest_sha256": "a97534ed22d1b4b12951cd42b80d515037774830f38cb432926c0e9f50379026",
+  "standard_actor_sha256": "fa28855049b67b3ee44c66d55d4f14441fc7c521e5429862c75b152f7d5cacc5",
+  "interaction_actor_sha256": "149c2e42848ecc9bc478cbed7fd89b9062936dbd5c669b55e6964441685155a5",
+  "detector_sha256": "0b914c0d090bbaba0a2be63c0d75d88580bf4d71778a7f1749c63989e3dbbd56",
+  "gate_sha256": "b28e81d341c145d6fa8c881dd98c7ece5285231e7d080b3f71afcd2dfe3a0beb",
+  "gate_model_id": "T1",
+  "sequence_length": 8,
+  "frame_stride": 2,
+  "gate_evaluation_stride": 2,
+  "switch_on_threshold": 0.29,
+  "switch_off_threshold": 0.19,
+  "minimum_hold_gate_frames": 3,
+  "oracle_interaction_distance": 2.0,
+  "sealed_test_read": false
+}

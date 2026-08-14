@@ -1,6 +1,6 @@
 # G11-F epoch-17可部署Gate
 
-状态：`A1 offline rebuild registered`。登记日期：`2026-08-14`。
+状态：`F-A1 passed / student smoke runnable`。登记日期：`2026-08-14`。
 
 ## 目的
 
@@ -39,6 +39,21 @@ bash scripts/run_g11_f_epoch17_a1_training.sh
 
 只有T1满足旧A1的离线准入方向，才允许做1场student-rollout smoke。smoke通过后才启动
 640场新student采集；旧epoch-16 B1 shard不得混入当前聚合训练。
+
+F-A1已完成，耗时`40.12 s`，最佳T1为epoch 2、阈值`0.29`。同一内部validation上：
+
+| 指标 | S0 | epoch-17 T1 | 差值 |
+| --- | ---: | ---: | ---: |
+| F1 | `0.83784` | `0.85549` | `+0.01764` |
+| AP | `0.92242` | `0.93072` | `+0.00830` |
+| FPR | `0.26842` | `0.25329` | `-0.01513` |
+| weak FPR | `0.30481` | `0.29091` | `-0.01390` |
+| 区间IoU | `0.72094` | `0.74747` | `+0.02653` |
+| switches | `1109` | `876` | `-233` |
+
+event recall提高`0.00394`，全部离线门槛通过，因此授权1场student smoke。checkpoint
+SHA-256为`b28e81d341c145d6fa8c881dd98c7ece5285231e7d080b3f71afcd2dfe3a0beb`；summary
+SHA-256为`0c2391bd736806feb814edf8e4b638f53114dd96d570cc5c5a79265f8ff00ff4`。
 
 ## 后续固定顺序
 

@@ -32,23 +32,26 @@ RUN_METADATA = ROUTE / "student_run_metadata.json"
 def parse_args():
     parser = argparse.ArgumentParser(description="Audit G11-B student shards.")
     parser.add_argument("--profile", choices=("smoke", "train"), required=True)
+    parser.add_argument("--route", type=Path, default=ROUTE)
+    parser.add_argument("--manifest", type=Path, default=MANIFEST)
+    parser.add_argument("--run-metadata", type=Path, default=RUN_METADATA)
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
-    with gzip.open(MANIFEST, "rt", encoding="utf-8") as handle:
+    with gzip.open(args.manifest, "rt", encoding="utf-8") as handle:
         manifest_items = json.load(handle)["scenarios"]
-    expected_metadata = json.loads(RUN_METADATA.read_text(encoding="utf-8"))
+    expected_metadata = json.loads(args.run_metadata.read_text(encoding="utf-8"))
     expected_metadata_json = json.dumps(
         expected_metadata, sort_keys=True, separators=(",", ":")
     )
     expected_items = manifest_items[:1] if args.profile == "smoke" else manifest_items
     expected = {item["scenario_id"]: item for item in expected_items}
     shard_dir = (
-        ROUTE / "local_data/smoke/student_shards"
+        args.route / "local_data/smoke/student_shards"
         if args.profile == "smoke"
-        else ROUTE / "local_data/student_shards/train"
+        else args.route / "local_data/student_shards/train"
     )
     paths = sorted(shard_dir.glob("*.npz"))
     files = {path.stem: path for path in paths}
@@ -86,14 +89,14 @@ def main():
 
     result = {
         "profile": args.profile,
-        "manifest": str(MANIFEST),
+        "manifest": str(args.manifest),
         "shard_dir": str(shard_dir),
         "shards": len(paths),
         "dataset_sha256": digest.hexdigest(),
         "totals": dict(totals),
         "strata": {key: dict(value) for key, value in sorted(strata.items())},
     }
-    output = ROUTE / "local_data" / ("%s_audit.json" % args.profile)
+    output = args.route / "local_data" / ("%s_audit.json" % args.profile)
     output.write_text(
         json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
