@@ -23,7 +23,7 @@ Gate 根据本机传感器在两者之间逐机器人、逐时刻切换。
 Actor N = generalist-5a
   普通推进、目标导航、墙和箱子避障
 
-Actor I = interaction-epoch16
+Actor I = avoidance-epoch17
   局部机器人冲突中的减速、避让和脱困
 
 Gate
@@ -43,9 +43,9 @@ Gate
 | ID | artifact | SHA-256 | 状态 |
 | --- | --- | --- | --- |
 | `generalist-5a` | `TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best_actor.pth` | `fa28855049b67b3ee44c66d55d4f14441fc7c521e5429862c75b152f7d5cacc5` | 普通导航 Actor |
-| `interaction-epoch16` | `interaction_focused_actor_from_5a_fullstrong_balanced_formal_s20260726_epoch_016_actor.pth` | `6ec1942fcd497ab1cc2a85a5aaec8f524395dc21ff21a442dca243a52e917c0b` | 条件避障 Actor |
+| `avoidance-epoch17` | `avoidance_actor_from_5a_balanced_continue_e20_s20260813_best_actor.pth` | `149c2e42848ecc9bc478cbed7fd89b9062936dbd5c669b55e6964441685155a5` | 条件避障 Actor |
 
-两者的部署 Actor 输入均为本车24维观测。`interaction-epoch16`训练时使用了仿真真值
+两者的部署 Actor 输入均为本车24维观测。`avoidance-epoch17`训练时使用了仿真真值
 进行状态分工，但真值距离没有进入 Actor 输入。
 
 ## 已确认事实
@@ -217,8 +217,12 @@ Gate
     合并两个seed后，epoch 17相对epoch 16的full success为`0.6875 vs 0.6333`、collision
     为`0.0967 vs 0.1075`、timeout均为`0.0125`，但平均步数为`37.46 vs 32.32`，达到
     `1.159x`并超过预注册的`1.10x`上限。逐场为40改善、27退化，exact `p=0.1421`；收益
-    主要来自edge-1，multi-edge仅增加`0.0125`。因此epoch 17准入失败，原epoch 16继续
-    作为冻结避障Actor，不再追加Actor训练。
+    主要来自edge-1，multi-edge仅增加`0.0125`。它未通过原预注册的效率硬门槛。
+41. 在读取sealed test前，项目于`2026-08-14`修订避障Actor选择规则：full success为
+    主选择指标，collision和timeout为安全约束，平均步数作为必须报告的效率代价而非单独
+    否决项。依据internal与独立matched validation方向一致，冻结epoch 17进入最终Gate
+    重训；epoch 16保留为消融对照。该修订和epoch 17的`1.159x`步数代价必须完整披露，
+    不得表述为通过原效率准入。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -227,15 +231,16 @@ Gate
 
 当前主线仍是可部署Gate；参数匹配单Actor只作论文公平对照：
 
-1. 主线使用旧5A与冻结避障Actor（历史checkpoint名为epoch-16）。epoch 17-20续训及
-   独立matched admission均已完成；epoch 17因平均步数超过`1.10x`效率上限而拒绝。
-   原epoch 16继续作为当前避障Actor和论文基线，不再继续Actor训练。
+1. 主线冻结旧5A与epoch-17避障Actor。epoch 17未通过原`1.10x`效率硬门槛，但在读取
+   sealed test前按修订后的“full success主指标、collision/timeout安全约束、步数报告
+   代价”规则入选；epoch 16保留为消融对照，不再继续Actor训练。
 2. Gate使用本机激光雷达、导航状态及必要的短时历史，不能读取其他机器人里程计、
    场景类别或冲突图。
 3. `2.0 m` oracle用于监督、诊断和上界；最终Gate需要判断何时调用避障Actor更有利，
    不能把“附近有障碍物”直接等同于“附近有机器人”。
-4. G11-D2已经归档：B2导航收益成立，但效率准入失败；A1与B2尚无显著差异，不能把
-   student-rollout聚合写成已证明的闭环增益。
+4. 旧epoch-16的G11-D2已经归档：B2导航收益成立但效率准入失败，只作历史证据。当前
+   G11-F必须用epoch-17动作特征离线重建A1，并重新采集student rollout后训练新Gate；
+   不得直接把旧B2 checkpoint作为最终方法。
 5. 下一项Gate实验是multi-edge边界评估。G11-E已经冻结50场
    exact-edge-2 pilot与后150场confirmation，二者与当前Gate训练、G11-C和G11-D2均
    无场景重叠。若自然泛化不足，可以在读取sealed test前

@@ -133,7 +133,13 @@ def parse_args():
         default=route / "local_data/seed20260727",
     )
     parser.add_argument(
-        "--experiment-id", choices=["G11-A0", "G11-A1"], default="G11-A0"
+        "--experiment-id",
+        choices=["G11-A0", "G11-A1", "G11-F-A1"],
+        default="G11-A0",
+    )
+    parser.add_argument(
+        "--expected-interaction-actor-sha256",
+        default=EXPECTED_INTERACTION_ACTOR_SHA256,
     )
     parser.add_argument("--train-manifest", type=Path)
     parser.add_argument("--validation-manifest", type=Path)
@@ -687,7 +693,8 @@ def main():
         raise ValueError("requested device is unavailable: %s" % args.device)
     if args.epochs < 1 or args.sequence_length < 2 or args.max_tracks < 1:
         raise ValueError("training dimensions must be positive")
-    if args.experiment_id == "G11-A1":
+    a1_protocol = args.experiment_id in ("G11-A1", "G11-F-A1")
+    if a1_protocol:
         if args.labels != ["any"] or set(args.models) != {"S0", "T1"}:
             raise ValueError("G11-A1 requires --labels any --models S0 T1")
         if args.threshold_policy != "match-s0-fpr":
@@ -700,7 +707,7 @@ def main():
         args.standard_actor, EXPECTED_STANDARD_ACTOR_SHA256
     )
     interaction_hash = verify_frozen_actor(
-        args.interaction_actor, EXPECTED_INTERACTION_ACTOR_SHA256
+        args.interaction_actor, args.expected_interaction_actor_sha256
     )
     detector_hash = verify_frozen_actor(
         args.detector_checkpoint, EXPECTED_DETECTOR_SHA256
@@ -723,7 +730,7 @@ def main():
         standard_actor,
         interaction_actor,
         args,
-        "train" if args.experiment_id == "G11-A1" else None,
+        "train" if a1_protocol else None,
     )
     validation_dataset = build_dataset(
         list_shards(args.validation_dir),
@@ -731,10 +738,10 @@ def main():
         standard_actor,
         interaction_actor,
         args,
-        "validation" if args.experiment_id == "G11-A1" else None,
+        "validation" if a1_protocol else None,
     )
     manifest_records = {}
-    if args.experiment_id == "G11-A1":
+    if a1_protocol:
         manifest_ids = {}
         for split, path in (
             ("train", args.train_manifest),

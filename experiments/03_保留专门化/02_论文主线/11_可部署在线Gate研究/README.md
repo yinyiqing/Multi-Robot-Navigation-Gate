@@ -1,16 +1,20 @@
 # 可部署在线 Gate 研究
 
-状态：`G11-D1 passed / G11-D2 runnable`。更新日期：`2026-08-05`。
+状态：`legacy epoch-16 Gate archived / G11-F epoch-17 rebuild active`。更新日期：`2026-08-14`。
 
 本目录只研究两个冻结 Actor 之间的在线切换：
 
 - Actor N：`generalist-5a`，负责普通导航；
-- Actor I：`interaction-epoch16`，负责局部机器人交互；
+- Actor I：`avoidance-epoch17`，负责局部机器人交互；
 - Gate：逐机器人、逐时刻选择 Actor，并负责进入和退出交互模式。
 
 两个 Actor 不再更新。Gate 部署时只能读取本机传感器、本机导航状态、两个 Actor
 对同一观测给出的候选动作以及本机短时历史。其他机器人真值、场景标签和冲突图只能
 在训练期生成监督或训练 Critic，不能进入部署 Gate。
+
+旧G11-A1/B2/D2均使用epoch-16，只作结构、训练流程和历史消融证据。当前G11-F复用
+A1保存的5A轨迹与24维状态，离线重算epoch-17候选动作并重训时序Gate；随后必须重新
+采集epoch-17 student rollout，旧B1 shard和B2 checkpoint不得直接进入最终方法。
 
 ## 研究主张边界
 

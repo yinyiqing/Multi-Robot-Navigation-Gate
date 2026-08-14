@@ -9,8 +9,8 @@
 
 ## 2026-08-13避障Actor续训授权
 
-主线恢复为`5A + 避障Actor + 可部署Gate`。以后统一称`interaction-epoch16`为
-“避障Actor”；epoch-16只保留为artifact标识。原避障Actor在16轮预算边界达到明显新高，
+主线恢复为`5A + 避障Actor + 可部署Gate`。epoch-16是原避障Actor，epoch-17是当前冻结
+避障Actor；数字只用于标识artifact。原避障Actor在16轮预算边界达到明显新高，
 因此授权从其完整320k checkpoint原样恢复，只追加epoch 17-20共80k。原checkpoint不覆盖，
 新分支训练内部胜出后仍须做独立matched复测才能替换。协议见
 [避障Actor续训](16_避障Actor续训/README.md)。
@@ -21,7 +21,13 @@ epoch 18-20没有形成更高成功率，并呈现避障占比、timeout和步�
 独立matched admission随后完成`480/480`场。epoch 17相对epoch 16的full success为
 `0.6875 vs 0.6333`、collision为`0.0967 vs 0.1075`，但平均步数为`37.46 vs 32.32`
 （`1.159x`），超过预注册的`1.10x`效率上限；逐场exact `p=0.1421`，multi-edge收益也
-只有`+0.0125`。因此epoch 17准入失败，原epoch 16继续作为冻结避障Actor，不再追加训练。
+只有`+0.0125`。因此epoch 17没有通过原预注册的`1.10x`效率硬门槛。
+
+在读取sealed test前，项目于`2026-08-14`显式修订模型选择目标：full success作为主指标，
+collision与timeout作为安全约束，平均步数改为必须报告的效率代价。epoch 17在internal和
+独立matched validation上full success方向一致，且matched collision下降、timeout不变，
+因此冻结为当前避障Actor；epoch 16保留为消融对照。论文和实验记录必须披露该规则修订、
+`p=0.1421`及`1.159x`步数代价，不能声称epoch 17通过了原效率准入。
 
 ## 2026-08-12候选支线授权
 
@@ -80,7 +86,7 @@ validation上的full success为`0.630/0.605`，collision为`0.094/0.099`，timeo
 
 ```text
 Actor N：冻结5A，负责普通导航、目标推进和静态障碍
-Actor I：冻结epoch-16，负责短时局部机器人冲突
+Actor I：冻结epoch-17，负责短时局部机器人冲突
 Gate：运行时逐机器人、逐时刻选择Actor，并负责进入与退出避障状态
 ```
 
@@ -119,7 +125,8 @@ Gate成立的必要条件是两个Actor存在不同优势区。如果Actor I在�
 
 ## 3. Actor训练契约
 
-当前方法中的5A和原epoch-16 artifact继续冻结，不得覆盖。当前有两个书面例外：
+当前方法中的5A和epoch-17 artifact继续冻结，不得覆盖。epoch-16作为消融对照保留。
+当前不再授权Actor训练；以下条目记录已经结束的书面例外：
 
 - [避障Actor续训](16_避障Actor续训/README.md)从epoch-16完整checkpoint分叉，只追加
   epoch 17-20；新分支通过独立matched复测前不得替换原避障Actor；
@@ -134,9 +141,9 @@ Gate成立的必要条件是两个Actor存在不同优势区。如果Actor I在�
 - 负责目标推进、墙和箱子避障以及普通状态；
 - 当前冻结，不再微调。
 
-### Actor I：interaction-epoch16
+### Actor I：avoidance-epoch17
 
-- 从5A初始化；
+- 从5A初始化，并从原epoch-16完整训练状态续训一轮；
 - 在强交互五车训练集中采用逐机器人、逐时刻oracle分工；
 - 最近活动机器人真值中心距离`<=2.0 m`时，由Actor I执行并进入其更新范围；
 - 其他状态始终由冻结5A执行；

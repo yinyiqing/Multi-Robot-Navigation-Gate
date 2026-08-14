@@ -1,6 +1,6 @@
 # 避障Actor epoch 17-20续训
 
-状态：`completed / epoch 17 rejected by matched admission`。日期：`2026-08-14`。
+状态：`completed / epoch 17 selected under revised primary-metric rule`。日期：`2026-08-14`。
 
 ## 目的
 
@@ -79,11 +79,12 @@ epoch 17是唯一超过原epoch 16 full success的续训点，并降低collision
 自动best为epoch 17，Actor SHA-256：
 `149c2e42848ecc9bc478cbed7fd89b9062936dbd5c669b55e6964441685155a5`。它仍只是internal
 validation候选，随后按本文预注册方式与原epoch 16完成独立、同场matched admission。
-该候选未通过效率准入，当前避障Actor仍为原epoch 16。
+该候选未通过原效率准入；项目随后在读取sealed test前修订选择规则，并冻结epoch 17进入
+Gate重训。原epoch 16保留为消融对照。
 
 ## 独立matched admission
 
-状态：`completed / epoch 17 rejected`。
+状态：`completed / original efficiency admission failed`。
 
 - manifest：`g12_full_scene_selection_v1/validation.json.gz`，120场，SHA-256
   `52435d6c5bdf9914e7212dd29cb4bfec074257f72d85f0d71741deee7c63b635`；
@@ -133,6 +134,18 @@ epoch 17逐场改善`40`场、退化`27`场、持平`173`场，McNemar exact `p=
 
 候选通过成功率、改善/退化数、collision、timeout和拓扑退化五项检查，但平均步数为原
 epoch 16的`1.159x`，超过预注册的`1.10x`上限，因此整体准入失败。epoch 17不得替换原
-epoch 16，不追加Actor训练；当前避障Actor继续冻结为原epoch 16。结构化结果位于
+epoch 16。该句是原效率协议的判定；后续选择规则修订见下一节。结构化结果位于
 `local_data/matched_admission/summary.json`，有效日志已归档到
 `logs/archive/validation/avoidance_actor_matched_admission/`。
+
+## 选择规则修订
+
+用户于`2026-08-14`确认最终Actor选择以full success为主。由于避障Actor只由Gate条件
+调用，collision和timeout继续作为安全约束，平均步数改为必须报告的效率代价，不再单独
+否决候选。该修订发生在读取sealed test前，但发生在matched validation结果已知后，必须
+透明记录，不能改写为epoch 17通过了原预注册准入。
+
+按修订规则，epoch 17在internal与独立matched validation上full success均高于epoch 16，
+matched collision更低且timeout相同，因此冻结epoch 17作为当前避障Actor。其步数
+`1.159x`、逐场`p=0.1421`和multi-edge收益有限仍是最终论文必须报告的限制。epoch 16
+保留为消融对照，不再继续任何Actor训练。
