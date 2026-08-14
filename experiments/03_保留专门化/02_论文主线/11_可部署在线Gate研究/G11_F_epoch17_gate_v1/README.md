@@ -173,6 +173,23 @@ F-A1相对R2-10k为9场改善、14场退化、77场持平，McNemar exact `p=0.4
 validation模型选择逻辑，冻结自动R2B-best（epoch 1）作为流程/预算匹配的训练流程
 输出baseline。该对照必须同时报告：best未使用新增容量，后续Actor更新坍塌。
 
+### R2B-best同场补充pilot
+
+R2B-best在相同50场manifest、repeat seed `20260805/20260806`上完成`100/100`场。
+场景顺序、结果形状和终止计数已通过分析器审计。
+
+| 策略 | Full success | Agent success | Collision | Timeout | 平均步数 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 5A | `0.640` | `0.896` | `0.104` | `0` | `21.91` |
+| R2B-best | `0.680` | `0.894` | `0.106` | `0` | **`19.41`** |
+| F-A1 | **`0.710`** | **`0.912`** | **`0.088`** | `0` | `33.41` |
+
+R2B-best相对5A为10场改善、6场退化、84场持平，exact `p=0.4545`。F-A1相对
+R2B-best为12场改善、9场退化、79场持平，exact `p=0.6636`。点估计满足
+`5A < R2B-best < F-A1`，但相邻差异都未显著。分层上，F-A1的主要优势位于
+dense edge-1（`0.423 vs 0.346`）；R2B-best的增益主要来臺standard zero（`1.000 vs
+0.885`）。完整汇总为`local_data/pilot/summary_with_r2bbest.json`。
+
 ## 后续固定顺序
 
 1. F-A1离线重建；

@@ -31,5 +31,19 @@ epoch 1，且其张量与epoch 1逐元素相同。因此冻结R2B-best作为流�
 流程输出baseline，并追加G11-F-C同场闭环评测。R2-10k继续只作
 cross-protocol诊断，不进入公平容量baseline排名。
 
+## G11-F-C同场结果
+
+R2B-best在与5A、F-A1相同的50场manifest和两个repeat上完成`100/100`场：
+
+| 策略 | Agent success | Full success | Collision | Timeout | 平均步数 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 5A | `0.896` | `0.640` | `0.104` | `0` | `21.91` |
+| R2B-best | `0.894` | `0.680` | `0.106` | `0` | `19.41` |
+| F-A1 | `0.912` | `0.710` | `0.088` | `0` | `33.41` |
+
+R2B-best相对5A为10改善/6退化，exact `p=0.4545`；F-A1相对R2B-best为
+12改善/9退化，exact `p=0.6636`。点估计满足`5A < R2B-best < F-A1`，但两个
+相邻差异都未显著。这一pilot支持继续保留参数对照，不足以独立支持论文主结论。
+
 本实验只说明5A recipe的优化稳定性不足，不说明大Actor容量不足，也不支持双Actor+Gate
 优于参数匹配单Actor。

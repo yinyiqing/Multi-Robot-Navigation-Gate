@@ -15,6 +15,10 @@ best一直停在epoch 1。因此冻结R2B-best作为流程/预算匹配的训练
 它未实际使用新增容量，这一限制和后续坍塌必须披露。该对照不证明大Actor容量不足。
 完整结果见[R2B结果](R2B_5A_RECIPE_RESULTS.md)。
 
+R2B-best的G11-F-C同场`100`场补评已完成。5A/R2B-best/F-A1的full success为
+`0.640/0.680/0.710`，点估计顺序符合预期；但R2B-best vs 5A与F-A1 vs
+R2B-best的exact `p`分别为`0.4545/0.6636`，尚不支持显著性结论。
+
 R2-S0加宽Actor从随机初始化完成100k单车broad训练，五次full success为
 `0.983/1.000/1.000/0.992/1.000`，冻结best位于epoch 2。结果见
 [R2-S0记录](R2_S0_RESULTS.md)。固定困难case诊断随后得到`22 pass / 0 borderline /

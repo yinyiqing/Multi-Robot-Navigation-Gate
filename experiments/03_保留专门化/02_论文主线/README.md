@@ -160,6 +160,11 @@ Actor解冻后从`0.508` full success降至`0.042`，训练明显退化。按5A�
 训练流程输出baseline。论文必须同时报告：best未实际使用新增容量，后续Actor更新坍塌；
 不得表述为容量不足。
 
+R2B-best的G11-F-C同场`100`场补评已完成。5A/R2B-best/F-A1的full success为
+`0.640/0.680/0.710`，collision为`0.104/0.106/0.088`，timeout均为`0`，平均步数
+为`21.91/19.41/33.41`。点估计满足`5A < R2B-best < F-A1`，但两个相邻差异的
+McNemar exact检验均未显著（`p=0.4545/0.6636`），因此只能作pilot趋势而非最终结论。
+
 ### Actor N：generalist-5a
 
 - 五车共享Actor；
