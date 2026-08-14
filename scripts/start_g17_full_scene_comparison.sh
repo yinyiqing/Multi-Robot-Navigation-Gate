@@ -35,14 +35,14 @@ pgrep -af '^python3(\.8)? -u (train|test)_velodyne_td3_multi.py($| )' >/dev/null
 [[ ! -e "$ROOT/logs/archive/validation/g17_full_scene_comparison" ]] || {
   echo "G17 archive already exists" >&2; exit 1
 }
-for port in 17023 17123 17223 17323 17423 17523; do
+for port in 17023 17123; do
   ss -ltnH | awk '{print $4}' | grep -Eq ":${port}$" && { echo "Port $port in use" >&2; exit 1; }
 done
 
 mkdir -p "$LOG_DIR" "$RUN_DIR/local_data"
 /usr/bin/python3 "$ROOT/scripts/generate_multi_robot_launch.py" --num-agents 5 \
   --output "$LOG_DIR/runtime_g17_full_scene.launch"
-setsid bash "$ROOT/scripts/run_g17_full_scene_comparison_parallel_worker.sh" >>"$LOG_DIR/runner.log" 2>&1 < /dev/null &
+setsid bash "$ROOT/scripts/run_g17_full_scene_comparison_worker.sh" >>"$LOG_DIR/runner.log" 2>&1 < /dev/null &
 echo $! >"$PID_FILE"
 echo "G17 full-scene comparison started"
 echo "PID: $(cat "$PID_FILE")"
