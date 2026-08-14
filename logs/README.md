@@ -18,7 +18,9 @@
 - `archive/diagnostic/g11_b/`：G11-B在线时序Gate、student-rollout smoke与正式采集日志。
 - `archive/diagnostic/g11_f_epoch17_gate/`：epoch-17 Gate的离线A1重建及后续诊断日志。
 - `archive/validation/g11_f_epoch17_gate_pilot/`：epoch-17 F-A1/F-B2固定50场、两个重复的
-  闭环选择pilot日志。
+  闭环选择pilot日志；F-A1被选中，F-B2因成功率和效率代价未被选中。
+- `active/g11_f_epoch17_gate_r2_pilot/`：在相同F-C manifest和两个repeat上补跑R2-10k
+  参数匹配大Actor的实时日志；完成后归档到`archive/validation/`同名目录。
 - `archive/diagnostic/e2_ie2_multi_conflict/`：I-E2-M多冲突Actor训练、matched复测与诊断日志。
 - `archive/validation/e2_recovery_oracle_epoch16/`：E2 recovery-oracle 120场完整评测日志。
 - `archive/validation/g12_dense_full1000_partial_20260811/`：未完成的dense 1000场并行评测；

@@ -232,6 +232,15 @@ Gate
     validation上的F1/AP/区间IoU分别为`-0.00729/-0.00292/-0.01106`，切换少6次。
     该离线现象不能决定闭环优劣；下一步只做固定50场、两个重复的`5A/F-A1/F-B2`
     闭环pilot，再决定最终Gate候选。
+44. G11-F-C固定闭环pilot已完成`300/300`场。5A/F-A1/F-B2合并full success分别为
+    `0.640/0.710/0.680`，collision分别为`0.104/0.088/0.080`，timeout分别为
+    `0/0/0.030`，平均步数分别为`21.91/33.41/44.87`。F-B2相对F-A1为9场改善、12场
+    退化，exact `p=0.6636`，且成功率低3个百分点、timeout和步数更高；因此拒绝F-B2，
+    冻结F-A1作为当前Gate候选。F-A1与R2-10k大Actor尚未在同一manifest上比较，历史
+    R2/B2数字不得替代该实验。
+45. G11-F-C已登记R2-10k同场补充pilot：冻结并复用原300场结果，只在相同50场manifest、
+    两个repeat seed和仿真参数下新增R2-10k的100场。该pilot用于回答F-A1是否优于参数
+    匹配单Actor；不重复运行5A/F-A1/F-B2，也不读取sealed test。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -248,8 +257,8 @@ Gate
 3. `2.0 m` oracle用于监督、诊断和上界；最终Gate需要判断何时调用避障Actor更有利，
    不能把“附近有障碍物”直接等同于“附近有机器人”。
 4. 旧epoch-16的G11-D2已经归档：B2导航收益成立但效率准入失败，只作历史证据。当前
-   G11-F的epoch-17 A1重建和640场student rollout已经完成；当前聚合原5A shard与新
-   student shard训练新Gate，不得直接把旧B2 checkpoint作为最终方法。
+   G11-F已完成epoch-17 A1重建、student rollout和闭环pilot，F-A1冻结为Gate候选；
+   F-B2只作DAgger消融，不得直接进入最终方法。
 5. 下一项Gate实验是multi-edge边界评估。G11-E已经冻结50场
    exact-edge-2 pilot与后150场confirmation，二者与当前Gate训练、G11-C和G11-D2均
    无场景重叠。若自然泛化不足，可以在读取sealed test前

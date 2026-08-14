@@ -33,6 +33,11 @@ G11-F随后完成epoch-17动作特征下的A1离线重建和`640/640`场student 
 当前只聚合原5A轨迹与新epoch-17 student轨迹训练Gate；旧epoch-16 B1 shard和B2
 checkpoint只作历史证据，不进入最终方法。
 
+G11-F-C的`300/300`场闭环pilot中，5A/F-A1/F-B2的full success为
+`0.640/0.710/0.680`。F-B2碰撞略低但timeout和平均步数明显更高，且相对F-A1逐场为
+9改善、12退化，因此当前冻结F-A1，F-B2作为DAgger消融。当前F-A1仍需与参数匹配
+R2-10k大Actor在同一冻结manifest上比较，历史旧B2/R2结果不能直接代替。
+
 ## 2026-08-12候选支线授权
 
 旧`5A + epoch-16`继续冻结为fallback和论文基线，不覆盖其artifact。为消除最终方法中

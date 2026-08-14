@@ -1,6 +1,6 @@
 # G11-F epoch-17可部署Gate
 
-状态：`aggregated Gate trained / fixed closed-loop pilot required`。登记日期：`2026-08-14`。
+状态：`F-A1 selected / F-B2 rejected by closed-loop pilot`。登记日期：`2026-08-14`。
 
 ## 目的
 
@@ -116,6 +116,37 @@ test；只用于决定聚合Gate是否替代F-A1，不能作为最终论文性�
 改善多于退化时才替代F-A1，同时collision和timeout相对F-A1均不得增加超过`0.02`。
 若full success持平，则依次按更低collision、更低timeout、更少平均步数选择。平均步数、
 避障Actor占比与切换次数全部报告，但不以事后阈值改变主选择结果。
+
+F-C已完成`300/300`场并通过结果审计。两个repeat合并结果如下：
+
+| 策略 | Full success | Agent success | Collision | Timeout | 平均步数 | 避障占比 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 5A | `0.640` | `0.896` | `0.104` | `0.000` | `21.91` | `0.000` |
+| F-A1 | **`0.710`** | `0.912` | `0.088` | `0.000` | `33.41` | `0.547` |
+| F-B2 | `0.680` | `0.914` | **`0.080`** | `0.030` | `44.87` | `0.595` |
+
+F-A1相对5A为15场改善、8场退化，F-B2相对5A为16场改善、12场退化；F-B2相对F-A1
+为9场改善、12场退化，McNemar exact `p=0.6636`。F-B2的collision比F-A1低`0.008`，
+但timeout高`0.030`、平均步数高`11.46`，且full success低`0.030`，因此按预注册规则
+拒绝F-B2，冻结F-A1作为当前Gate候选。F-B2保留为DAgger消融，不再继续聚合训练。
+
+当前F-A1尚未与R2-10k参数匹配大Actor在同一manifest上比较；历史R2/B2结果使用旧
+epoch-16和不同manifest，只作背景证据。最终统一方法表前必须补做同场F-A1、F-B2、
+R2-10k、5A和oracle比较。
+
+### R2-10k同场补充pilot
+
+原F-C的5A/F-A1/F-B2共300场结果保持冻结，不重复运行。当前只在相同50场manifest、
+相同repeat seed `20260805/20260806`和相同仿真参数下补跑R2-10k，共100 episodes。
+R2-10k使用参数匹配加宽Actor
+`capacity_wide_r2_s4_broad_n5_seed20260816_epoch_001`，Actor SHA-256为
+`ace910553931873a275d66e3a964fd2b4716d30b6c68c8dcb3e7af96e56783ee`。该补充pilot只回答
+F-A1是否优于同参数量单Actor，不替代后续完整冻结manifest的最终方法表。
+
+入口为`scripts/start_g11_f_epoch17_r2_pilot.sh`；实时日志写入
+`logs/active/g11_f_epoch17_gate_r2_pilot/`，成功后归档到
+`logs/archive/validation/g11_f_epoch17_gate_r2_pilot/`，四方法汇总写入
+`local_data/pilot/summary_with_r2.json`。
 
 ## 后续固定顺序
 

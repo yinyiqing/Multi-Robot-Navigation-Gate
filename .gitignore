@@ -28,6 +28,7 @@ catkin_ws/src/multi_robot_scenario/launch/pioneer3dx_multi_*_standard.rviz
 .g11_b_student_*.pid
 .g11_f_epoch17_student_*.pid
 .g11_f_epoch17_pilot.pid
+.g11_f_epoch17_r2_pilot.pid
 .g11_c_pilot.pid
 .g11_d2_admission.pid
 .g12_capacity_*.pid
