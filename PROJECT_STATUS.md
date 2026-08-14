@@ -223,6 +223,11 @@ Gate
     否决项。依据internal与独立matched validation方向一致，冻结epoch 17进入最终Gate
     重训；epoch 16保留为消融对照。该修订和epoch 17的`1.159x`步数代价必须完整披露，
     不得表述为通过原效率准入。
+42. G11-F已用epoch-17动作特征离线重建A1 Gate并通过全部离线门槛；随后完成并审计
+    `640/640`场epoch-17 student rollout，共`43,827`个Gate帧，dataset SHA-256为
+    `5037144924ceb5e433a5e02a17cdffa5a4338f016f08208dc7a64854548887e8`。采集训练集
+    full success为`0.7422`，只作行为诊断。下一步是聚合原5A shard与新student shard
+    训练G11-F-B2，不得混入旧epoch-16 student数据。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -239,8 +244,8 @@ Gate
 3. `2.0 m` oracle用于监督、诊断和上界；最终Gate需要判断何时调用避障Actor更有利，
    不能把“附近有障碍物”直接等同于“附近有机器人”。
 4. 旧epoch-16的G11-D2已经归档：B2导航收益成立但效率准入失败，只作历史证据。当前
-   G11-F必须用epoch-17动作特征离线重建A1，并重新采集student rollout后训练新Gate；
-   不得直接把旧B2 checkpoint作为最终方法。
+   G11-F的epoch-17 A1重建和640场student rollout已经完成；当前聚合原5A shard与新
+   student shard训练新Gate，不得直接把旧B2 checkpoint作为最终方法。
 5. 下一项Gate实验是multi-edge边界评估。G11-E已经冻结50场
    exact-edge-2 pilot与后150场confirmation，二者与当前Gate训练、G11-C和G11-D2均
    无场景重叠。若自然泛化不足，可以在读取sealed test前

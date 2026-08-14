@@ -1,6 +1,6 @@
 # G11-F epoch-17可部署Gate
 
-状态：`F-A1 and student smoke passed / 640-scene rollout authorized`。登记日期：`2026-08-14`。
+状态：`640-scene student rollout audited / aggregated training runnable`。登记日期：`2026-08-14`。
 
 ## 目的
 
@@ -61,6 +61,23 @@ Gate帧、218个候选、37个oracle正帧，场景ID、时序、有限值和嵌
 审计，dataset SHA-256为
 `bf620b41a7c805fb9cfa4eefb1ce6e8546b69ce166f0c6a8e3340de1ab223e60`。因此授权同一冻结
 协议运行640场navigation-train student rollout。
+
+正式student rollout已完成`640/640`场。第640场及最后shard写入后，ROS/Gazebo退出阶段
+出现segmentation fault；全量审计确认场景无缺失、额外或重复，帧/候选形状、有限值、
+时序、oracle标签和内嵌冻结元数据全部有效，因此退出错误不影响数据。
+
+| 数据审计 | 数值 |
+| --- | ---: |
+| shards | `640` |
+| Gate frames | `43,827` |
+| candidates | `153,213` |
+| oracle positive frames | `26,224` |
+| dataset SHA-256 | `5037144924ceb5e433a5e02a17cdffa5a4338f016f08208dc7a64854548887e8` |
+
+采集轨迹的训练集运行诊断为full success `0.7422`、agent success `0.9275`、collision
+`0.0691`、timeout `0.0172`、平均步数`53.20`、避障Actor占比`0.5164`、平均切换
+`8.575`。这些是Gate训练场景上的行为诊断，不是validation或论文方法成绩。数据审计
+通过，授权与原A1的5A轨迹按`source + scenario_id`等权聚合训练新Gate。
 
 ## 后续固定顺序
 

@@ -59,6 +59,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Train the source-balanced G11-B2 aggregated temporal Gate."
     )
+    parser.add_argument("--experiment-id", default="G11-B2")
     parser.add_argument(
         "--a1-train-dir", type=Path, default=A1_ROUTE / "local_data/shards/train"
     )
@@ -104,6 +105,10 @@ def parse_args():
         ),
     )
     parser.add_argument(
+        "--expected-interaction-actor-sha256",
+        default=EXPECTED_INTERACTION_ACTOR_SHA256,
+    )
+    parser.add_argument(
         "--a1-main-summary", type=Path, default=A1_MAIN_DIR / "summary.json"
     )
     parser.add_argument(
@@ -111,6 +116,15 @@ def parse_args():
     )
     parser.add_argument(
         "--student-audit", type=Path, default=B_ROUTE / "local_data/train_audit.json"
+    )
+    parser.add_argument(
+        "--expected-a1-summary-sha256", default=A1_MAIN_SUMMARY_SHA256
+    )
+    parser.add_argument(
+        "--expected-a1-checkpoint-sha256", default=A1_MAIN_T1_SHA256
+    )
+    parser.add_argument(
+        "--expected-student-dataset-sha256", default=G11_B_STUDENT_DATASET_SHA256
     )
     parser.add_argument(
         "--output-dir",
@@ -247,7 +261,6 @@ def evaluate_temporal_checkpoint(path, dataset, raw_features, args):
 def main():
     args = parse_args()
     args.output_dir = args.output_dir.resolve()
-    args.experiment_id = "G11-B2"
     args.threshold_policy = "match-s0-fpr"
     args.labels = ["any"]
     if args.device != "cpu" and not torch.cuda.is_available():
@@ -265,14 +278,15 @@ def main():
     validation_ids = manifest_ids(args.validation_manifest, "validation")
     if train_ids & validation_ids:
         raise ValueError("G11-B2 train/validation manifests overlap")
-    if sha256_file(args.a1_main_summary) != A1_MAIN_SUMMARY_SHA256:
+    if sha256_file(args.a1_main_summary) != args.expected_a1_summary_sha256:
         raise ValueError("frozen A1 main summary hash mismatch")
-    if sha256_file(args.a1_main_checkpoint) != A1_MAIN_T1_SHA256:
+    if sha256_file(args.a1_main_checkpoint) != args.expected_a1_checkpoint_sha256:
         raise ValueError("frozen A1 main T1 hash mismatch")
     student_audit = json.loads(args.student_audit.read_text(encoding="utf-8"))
     if (
         student_audit.get("shards") != 640
-        or student_audit.get("dataset_sha256") != G11_B_STUDENT_DATASET_SHA256
+        or student_audit.get("dataset_sha256")
+        != args.expected_student_dataset_sha256
     ):
         raise ValueError("G11-B student audit does not match the frozen dataset")
 
@@ -281,7 +295,7 @@ def main():
             args.standard_actor, EXPECTED_STANDARD_ACTOR_SHA256
         ),
         "interaction_actor": verify_frozen_actor(
-            args.interaction_actor, EXPECTED_INTERACTION_ACTOR_SHA256
+            args.interaction_actor, args.expected_interaction_actor_sha256
         ),
         "detector": verify_frozen_actor(
             args.detector_checkpoint, EXPECTED_DETECTOR_SHA256
@@ -345,7 +359,7 @@ def main():
         "student": {
             "scenarios": len(set(student_train.scenarios.tolist())),
             "frames": len(student_train.base_features),
-            "dataset_sha256": G11_B_STUDENT_DATASET_SHA256,
+            "dataset_sha256": args.expected_student_dataset_sha256,
         },
     }
     args.checkpoint_metadata = {
@@ -354,7 +368,7 @@ def main():
         "sources": source_counts,
         "train_manifest_sha256": manifest_hashes["train"],
         "validation_manifest_sha256": manifest_hashes["validation"],
-        "a1_reference_checkpoint_sha256": A1_MAIN_T1_SHA256,
+        "a1_reference_checkpoint_sha256": args.expected_a1_checkpoint_sha256,
     }
     args.output_dir.mkdir(parents=True, exist_ok=True)
     result = train_candidate(
@@ -377,7 +391,7 @@ def main():
     candidate = result["validation"]
     summary = {
         "protocol": {
-            "experiment_id": "G11-B2",
+            "experiment_id": args.experiment_id,
             "sealed_test_read": False,
             "device": args.device,
             "seed": args.seed,
@@ -389,8 +403,8 @@ def main():
             "actor_comparison_dim": ACTOR_COMPARISON_DIM,
             "frozen_hashes": frozen_hashes,
             "manifest_hashes": manifest_hashes,
-            "a1_main_summary_sha256": A1_MAIN_SUMMARY_SHA256,
-            "a1_main_checkpoint_sha256": A1_MAIN_T1_SHA256,
+            "a1_main_summary_sha256": args.expected_a1_summary_sha256,
+            "a1_main_checkpoint_sha256": args.expected_a1_checkpoint_sha256,
             "fpr_caps": fpr_caps,
         },
         "sources": source_counts,
