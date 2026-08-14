@@ -165,6 +165,11 @@ R2B-best的G11-F-C同场`100`场补评已完成。5A/R2B-best/F-A1的full succes
 为`21.91/19.41/33.41`。点估计满足`5A < R2B-best < F-A1`，但两个相邻差异的
 McNemar exact检验均未显著（`p=0.4545/0.6636`），因此只能作pilot趋势而非最终结论。
 
+G11-F-C只包含50个0/1冲突独立场景，不能作完整五车结论。当前已登记
+[G17完整场景统一对比](17_完整场景统一对比/README.md)：在120个与训练及旧pilot互斥的
+冻结场景上，统一运行5A、R2B-best和F-A1。该集合包含standard/dense各60以及
+zero/edge-1/multi-edge各40，两个repeat共`720 episodes`，不读取sealed test。
+
 ### Actor N：generalist-5a
 
 - 五车共享Actor；
@@ -365,7 +370,8 @@ success + collision + unresolved = agents * episodes
 8. I-E2、I-E2-M和I-E2-F4均已拒绝。旧epoch-16继续作为fallback；不追加这些E2配套
    Actor的训练，不扫描reward权重，也不启动基于F4的新Gate。当前唯一避障Actor训练是
    从原epoch-16完整状态固定续训epoch 17-20；F4不得作为其warm start或配置来源。
-9. 完成主对照、消融和multi-edge边界评估。G11-E的50场exact-edge-2 pilot与后150场
+9. 先完成G17三方完整场景统一对比，再完成消融和multi-edge边界评估。G11-E的50场
+   exact-edge-2 pilot与后150场
    confirmation已经完成清单冻结和互斥审计，不得并行启动第二套Gazebo。
 10. Gate、参数匹配单Actor和所有阈值冻结后一次性读取sealed test。
 

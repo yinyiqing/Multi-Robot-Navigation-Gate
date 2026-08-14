@@ -262,6 +262,10 @@ Gate
     平均步数为`21.91/19.41/33.41`。点估计满足`5A < R2B-best < F-A1`；R2B-best
     相对5A为10改善/6退化（`p=0.4545`），F-A1相对R2B-best为12改善/9退化
     （`p=0.6636`），两个差异都未显著。
+49. G11-F-C只有50个0/1冲突独立场景，不能作为完整五车结论。已登记G17统一
+    完整场景对比：在冻结`g12_full_scene_selection_v1`上运行5A/R2B-best/F-A1，
+    120个独立场景包含standard/dense各60和zero/edge-1/multi-edge各40，两个repeat共
+    `720 episodes`。本实验不读取sealed test。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
