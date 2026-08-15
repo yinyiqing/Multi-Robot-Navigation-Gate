@@ -1,6 +1,7 @@
 # G17 完整场景统一对比
 
-状态：`registered / running`。登记日期：`2026-08-14`。
+状态：`complete / sequentially audited`。
+登记日期：`2026-08-14`。
 
 ## 目的
 
@@ -42,7 +43,50 @@ repeat 2: F-A1 -> R2B-best -> 5A
 F-A1固定使用`on=0.29/off=0.19`、minimum hold `3`、stride `2`。不读取本实验结果
 修改模型或阈值。本实验不读取sealed test。
 
-## 报告
+## 结果
+
+六个正式结果数组均为`(120, 17)`，场景ID顺序与冻结manifest完全一致，每组终止计数
+均为`600`。seed `20260824`的5A和R2B-best已使用单Gazebo顺序复测；此前并行Gazebo
+恢复结果已隔离，不进入正式汇总。两个repeat合并结果如下：
+
+| 方法 | full success | agent success | collision | timeout | 平均步数 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 5A | `0.5000` | `0.8075` | `0.1925` | `0` | `21.63` |
+| R2B-best | `0.5292` | `0.8092` | `0.1908` | `0` | `19.55` |
+| F-A1 | **`0.5958`** | **`0.8517`** | **`0.1483`** | `0` | `31.61` |
+
+两个repeat中F-A1的full success均为最高：seed `20260824`上
+`5A/R2B-best/F-A1 = 0.4917/0.5167/0.5750`，seed `20260825`上为
+`0.5083/0.5417/0.6167`。合并配对结果：
+
+- F-A1相对5A：42场改善、19场退化、179场持平，McNemar exact `p=0.00444`；
+- F-A1相对R2B-best：35场改善、19场退化、186场持平，`p=0.04022`；
+- R2B-best相对5A：22场改善、15场退化、203场持平，`p=0.32401`。
+
+按冲突边数聚合：
+
+| 分层 | episodes | 5A full | R2B-best full | F-A1 full |
+| --- | ---: | ---: | ---: | ---: |
+| zero | `80` | `0.8625` | `0.8500` | **`0.9500`** |
+| edge-1 | `80` | `0.4625` | `0.5875` | **`0.6000`** |
+| multi-edge | `80` | `0.1750` | `0.1500` | **`0.2375`** |
+
+F-A1在multi-edge相对5A为13场改善、8场退化（`p=0.38331`），相对R2B-best为
+13场改善、6场退化（`p=0.16707`）。因此完整场景结果支持可部署Gate相对两个公平
+baseline的总体导航收益，也显示收益在multi-edge方向最大；单独层级样本仍小，不能把
+multi-edge结果写成显著。F-A1平均步数比5A高`46.2%`，interaction Actor平均
+占比为`0.5524`、每场平均切换`7.73`次，效率代价必须与成功率收益同时报告。
+
+R2B-best相对5A为`+0.0292`，但配对检验不显著，没有形成可靠容量收益。该baseline的自动best
+仍未使用新增容量，后续Actor更新坍塌，因此只能称为“5A流程和预算匹配的训练流程输出”，
+不能称为训练充分的大Actor。
+
+## 产物
+
+结构化汇总：`local_data/summary.json`。正式日志归档：
+`logs/archive/validation/g17_full_scene_comparison/`。
+
+## 报告协议
 
 报告overall以及`standard/dense x zero/edge-1/multi-edge`六个层的full success、agent
 success、collision、timeout和平均步数。对full success执行逐场配对McNemar exact检验。
@@ -53,5 +97,5 @@ success、collision、timeout和平均步数。对full success执行逐场配对
 bash scripts/start_g17_full_scene_comparison.sh
 ```
 
-实时日志：`logs/active/g17-full-scene-comparison/`。完成后自动归档到
+运行时日志原位于`logs/active/g17-full-scene-comparison/`；本次完成后已归档到
 `logs/archive/validation/g17_full_scene_comparison/`。

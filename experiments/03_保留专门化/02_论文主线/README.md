@@ -165,10 +165,13 @@ R2B-best的G11-F-C同场`100`场补评已完成。5A/R2B-best/F-A1的full succes
 为`21.91/19.41/33.41`。点估计满足`5A < R2B-best < F-A1`，但两个相邻差异的
 McNemar exact检验均未显著（`p=0.4545/0.6636`），因此只能作pilot趋势而非最终结论。
 
-G11-F-C只包含50个0/1冲突独立场景，不能作完整五车结论。当前已登记
-[G17完整场景统一对比](17_完整场景统一对比/README.md)：在120个与训练及旧pilot互斥的
-冻结场景上，统一运行5A、R2B-best和F-A1。该集合包含standard/dense各60以及
-zero/edge-1/multi-edge各40，两个repeat共`720 episodes`，不读取sealed test。
+G11-F-C只包含50个0/1冲突独立场景，不能作完整五车结论。
+[G17完整场景统一对比](17_完整场景统一对比/README.md)及顺序复测已完成：在
+120个与训练及旧pilot互斥的冻结场景上运行两个repeat。5A/R2B-best/F-A1合并full success为
+`0.5000/0.5292/0.5958`，collision为`0.1925/0.1908/0.1483`，timeout均为`0`。
+F-A1相对两者的配对检验分别为`p=0.00444/0.04022`，但平均步数为`31.61`，相比5A的
+`21.63`增加`46.2%`。multi-edge full success为`0.1750/0.1500/0.2375`；相对5A的
+分层检验`p=0.3833`，只支持正向趋势。R2B-best相对5A的`p=0.3240`，未形成显著容量收益。
 
 ### Actor N：generalist-5a
 
@@ -370,7 +373,8 @@ success + collision + unresolved = agents * episodes
 8. I-E2、I-E2-M和I-E2-F4均已拒绝。旧epoch-16继续作为fallback；不追加这些E2配套
    Actor的训练，不扫描reward权重，也不启动基于F4的新Gate。当前唯一避障Actor训练是
    从原epoch-16完整状态固定续训epoch 17-20；F4不得作为其warm start或配置来源。
-9. 先完成G17三方完整场景统一对比，再完成消融和multi-edge边界评估。G11-E的50场
+9. G17三方完整场景统一对比及seed `20260824`两个baseline的顺序复测已经完成；当前
+   运行dense256压力集容量baseline和Gate消融。G11-E的50场
    exact-edge-2 pilot与后150场
    confirmation已经完成清单冻结和互斥审计，不得并行启动第二套Gazebo。
 10. Gate、参数匹配单Actor和所有阈值冻结后一次性读取sealed test。

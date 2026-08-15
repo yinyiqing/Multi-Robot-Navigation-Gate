@@ -25,9 +25,10 @@
   Actor的日志；该实验在Actor解冻后坍塌，不覆盖现有R2。
 - `archive/validation/g11_f_epoch17_gate_r2b_best_pilot/`：R2B自动validation best在
   G11-F-C同场manifest上完成的`100`场补充评测日志。
-- `active/g17-full-scene-comparison/`：5A、R2B-best和F-A1在包含0/1/multi-edge的
-  120个冻结完整场景、两个repeat上的统一对比实时日志；使用单个
-  Gazebo顺序运行，避免并行仿真导致物理进程崩溃。
+- `archive/validation/g17_full_scene_comparison/`：G17 seed `20260824`的5A与R2B-best
+  单Gazebo顺序复测正式日志；与另四组结果共同生成最终汇总。
+- `archive/validation/g17_full_scene_comparison_provisional_recovered_parallel/`：首次provisional
+  汇总所用的已完成顺序日志，以及不进入最终表的并行恢复证据。
 - `archive/aborted/g17_full_scene_comparison_sequential/`：并行版切换前的未完成顺序运行，不进入正式结果。
 - `archive/aborted/g17_full_scene_comparison_parallel/`：三个Gazebo并行时的崩溃和重试证据，不进入正式结果。
 - `archive/validation/g11_f_epoch17_gate_r2b30k_aborted_wrong_checkpoint/`：误用epoch 3
@@ -53,8 +54,8 @@
 - `archive/rejected/g11_f_epoch17_gate_smoke_nounset_20260814/`：首次epoch-17 Gate smoke
   在加载ROS环境前启用`nounset`而退出；未启动Gazebo且没有生成shard。
 
-整理日期：2026-08-14。避障Actor epoch 17-20续训和独立matched admission均已完成并
-归档，`logs/active/`中不保留该实验的文件。
+整理日期：2026-08-15。G17顺序复测已经完成；G18 dense256压力集对比正在单Gazebo
+队列运行。避障Actor epoch 17-20续训和独立matched admission均已完成并归档。
 
 ## 使用规则
 

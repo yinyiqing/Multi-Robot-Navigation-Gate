@@ -1,6 +1,6 @@
 # 当前项目状态
 
-更新时间：`2026-08-14`。
+更新时间：`2026-08-15`。
 
 本文件是进入项目后的第一阅读入口。方法定义、实验准入和数据边界以
 [论文主线协议](experiments/03_保留专门化/02_论文主线/README.md)为准；历史 README
@@ -266,6 +266,15 @@ Gate
     完整场景对比：在冻结`g12_full_scene_selection_v1`上运行5A/R2B-best/F-A1，
     120个独立场景包含standard/dense各60和zero/edge-1/multi-edge各40，两个repeat共
     `720 episodes`。本实验不读取sealed test。
+50. G17完整场景统一对比及顺序复测已完成。合并240场/方法后，
+    5A/R2B-best/F-A1的full success为`0.5000/0.5292/0.5958`，collision为
+    `0.1925/0.1908/0.1483`，timeout均为`0`，平均步数为`21.63/19.55/31.61`。
+    F-A1相对5A为42场改善、19场退化（McNemar exact `p=0.00444`），相对R2B-best为
+    35场改善、19场退化（`p=0.04022`）；两个repeat方向一致。multi-edge full success
+    为`0.1750/0.1500/0.2375`，但F-A1相对5A的该层检验仅为`p=0.3833`。当前证据支持
+    F-A1在完整validation上优于两个公平baseline，但平均步数相对5A增加`46.2%`，必须
+    报告效率代价。R2B-best相对5A的`p=0.3240`，且best未使用新增容量，不能表述为训练
+    充分的大Actor。seed `20260824`的两个baseline已用单Gazebo顺序复测替换并行恢复结果。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -284,7 +293,8 @@ Gate
 4. 旧epoch-16的G11-D2已经归档：B2导航收益成立但效率准入失败，只作历史证据。当前
    G11-F已完成epoch-17 A1重建、student rollout和闭环pilot，F-A1冻结为Gate候选；
    F-B2只作DAgger消融，不得直接进入最终方法。
-5. 下一项Gate实验是multi-edge边界评估。G11-E已经冻结50场
+5. G17已经完成完整场景和multi-edge分层评估；下一项是冻结Actor/Gate下的消融与
+   更大样本multi-edge边界确认。G11-E已经冻结50场
    exact-edge-2 pilot与后150场confirmation，二者与当前Gate训练、G11-C和G11-D2均
    无场景重叠。若自然泛化不足，可以在读取sealed test前
    书面修订协议、加入navigation-train的multi-edge数据并重训同一个Gate；此时不再
