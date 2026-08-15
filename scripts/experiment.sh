@@ -16,6 +16,7 @@ Usage:
   bash scripts/experiment.sh start actor-g12-r2-n5-admission
   bash scripts/experiment.sh start actor-g12-r2-n5-admission-10k
   bash scripts/experiment.sh start actor-g12-r3-40k
+  bash scripts/experiment.sh start actor-g12-r2c-corrected
   bash scripts/experiment.sh stop actor-g12-r2-s1-repair
   bash scripts/experiment.sh stop actor-g12-r2-s1-repair-validation
   bash scripts/experiment.sh stop actor-g12-r2-s2-n2
@@ -23,6 +24,7 @@ Usage:
   bash scripts/experiment.sh stop actor-g12-r2-s4-n5
   bash scripts/experiment.sh stop actor-g12-r2-n5-admission
   bash scripts/experiment.sh stop actor-g12-r3-40k
+  bash scripts/experiment.sh stop actor-g12-r2c-corrected
 
 Current method:
   Actor N  generalist-5a         frozen
@@ -126,6 +128,7 @@ case "${1:-}" in
       actor-g12-r2-n5-admission) exec bash "$PROJECT_ROOT/scripts/start_g12_r2_n5_admission.sh" ;;
       actor-g12-r2-n5-admission-10k) exec bash "$PROJECT_ROOT/scripts/start_g12_r2_n5_admission.sh" 10k ;;
       actor-g12-r3-40k) exec bash "$PROJECT_ROOT/scripts/start_training_g12_r3_40k.sh" ;;
+      actor-g12-r2c-corrected) exec bash "$PROJECT_ROOT/scripts/start_training_g12_r2c_corrected_continuation.sh" ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;
@@ -146,6 +149,7 @@ case "${1:-}" in
       actor-g12-r2-s4-n5) exec bash "$PROJECT_ROOT/scripts/stop_training_g12_r2_s4_n5.sh" ;;
       actor-g12-r2-n5-admission) exec bash "$PROJECT_ROOT/scripts/stop_g12_r2_n5_admission.sh" ;;
       actor-g12-r3-40k) exec bash "$PROJECT_ROOT/scripts/stop_training_g12_r3_40k.sh" ;;
+      actor-g12-r2c-corrected) exec bash "$PROJECT_ROOT/scripts/stop_training_g12_r2c_corrected_continuation.sh" ;;
       *) usage >&2; exit 2 ;;
     esac
     ;;
