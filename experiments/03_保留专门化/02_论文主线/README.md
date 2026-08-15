@@ -181,6 +181,13 @@ dense场景上完成。5A/R2B-best/F-A1/F-B2的full success为
 2m真值规则为`0.5078`并显著高于F-A1，说明Gate仍有未恢复的切换收益；该规则不可部署，
 也不是严格性能上界。
 
+R2B在G17/G18上只能作为历史5A流程的输出对照，因为其best位于Actor有效更新前。
+为补齐“真正训练过的同参数量单Actor”，当前显式授权
+[G19-R2C公平容量对照](19_R2C公平容量对照/README.md)：从同一5A函数分别训练原宽控制
+和参数匹配加宽Actor，使用相同完整五车混合数据、60k预算、动态reward和邻域Critic。
+原宽控制必须先通过Actor解冻后的稳定闸门，才自动启动加宽Actor。该实验只训练baseline，
+不修改冻结的5A、epoch17、F-A1/F-B2或任何Gate阈值。
+
 ### Actor N：generalist-5a
 
 - 五车共享Actor；
@@ -381,10 +388,11 @@ success + collision + unresolved = agents * episodes
 8. I-E2、I-E2-M和I-E2-F4均已拒绝。旧epoch-16继续作为fallback；不追加这些E2配套
    Actor的训练，不扫描reward权重，也不启动基于F4的新Gate。当前唯一避障Actor训练是
    从原epoch-16完整状态固定续训epoch 17-20；F4不得作为其warm start或配置来源。
-9. G17三方完整场景统一对比及G18 dense256压力集容量baseline/Gate消融已经完成；
-   当前冻结F-A1为主Gate，F-B2为DAgger消融。G11-E的50场
+9. G17三方完整场景统一对比及G18 dense256压力集Gate消融已经完成；当前冻结F-A1为
+   主Gate，F-B2为DAgger消融，并按预注册稳定闸门顺序运行G19-R2C原宽/加宽容量pilot。
+   G11-E的50场
    exact-edge-2 pilot与后150场
    confirmation已经完成清单冻结和互斥审计，不得并行启动第二套Gazebo。
-10. Gate、参数匹配单Actor和所有阈值冻结后一次性读取sealed test。
+10. G19-R2C结束、Gate与参数匹配单Actor均冻结后，才一次性读取sealed test。
 
 任何新长跑必须先在本文件登记实验ID、数据split、模型哈希、seed、准入和停止条件。

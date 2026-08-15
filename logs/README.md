@@ -33,6 +33,8 @@
   顺序复测日志。
 - `archive/validation/g18_dense256_gate_suite/`：5A、epoch17+F-A1、F-B2、old B2和2m
   真值规则在同一dense256协议上的正式顺序评测与汇总日志。
+- `active/g19-r2c-paired-pilot/`：R2C原宽控制通过稳定闸门后才继续加宽Actor的单Gazebo
+  顺序训练实时日志；完成后归档到`archive/training/g19_r2c_paired_pilot/`。
 - `archive/aborted/g17_full_scene_comparison_sequential/`：并行版切换前的未完成顺序运行，不进入正式结果。
 - `archive/aborted/g17_full_scene_comparison_parallel/`：三个Gazebo并行时的崩溃和重试证据，不进入正式结果。
 - `archive/validation/g11_f_epoch17_gate_r2b30k_aborted_wrong_checkpoint/`：误用epoch 3

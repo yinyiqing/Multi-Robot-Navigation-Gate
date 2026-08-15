@@ -283,6 +283,12 @@ Gate
     `p=0.8126`且平均步数升至`40.44`，因此F-A1继续作为主Gate，F-B2只作DAgger消融。
     2m真值规则仍显著高于F-A1（`p=0.00404`），当前缺口在可部署Gate而不是Actor重训。
     历史R2-10k同场为`0.5273`，但训练课程和预算不匹配，只能作cross-protocol诊断。
+52. `2026-08-15`登记G19-R2C公平容量对照。R2B虽匹配历史5A流程，但best位于Actor
+    更新前，不能作为训练成功的容量baseline。R2C只训练论文对照，不修改主方法：原宽
+    和`1,003,127`参数加宽Actor均从同一5A函数出发，在同一完整五车混合清单、seed、
+    60k预算、动态reward和87维邻域Critic下成对运行。Critic先校准40k，Actor以`2e-6`
+    学习率在最后约20k更新。原宽控制未通过预注册稳定闸门时自动阻止加宽长跑；加宽Actor
+    必须实际更新且稳定，才可作为容量候选。协议见`19_R2C公平容量对照/README.md`。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -301,8 +307,8 @@ Gate
 4. 旧epoch-16的G11-D2已经归档：B2导航收益成立但效率准入失败，只作历史证据。当前
    G11-F已完成epoch-17 A1重建、student rollout和闭环pilot，F-A1冻结为Gate候选；
    F-B2只作DAgger消融，不得直接进入最终方法。
-5. G17和G18已经完成完整场景、dense256扩大样本及Gate消融；下一项是在读取sealed test
-   前冻结最终报告协议，并决定是否补充Gate阈值无关指标或少量seed复核。G11-E已经冻结50场
+5. G17和G18已经完成完整场景、dense256扩大样本及Gate消融；当前先完成G19-R2C有效
+   容量baseline，再在读取sealed test前冻结最终报告协议。G11-E已经冻结50场
    exact-edge-2 pilot与后150场confirmation，二者与当前Gate训练、G11-C和G11-D2均
    无场景重叠。若自然泛化不足，可以在读取sealed test前
    书面修订协议、加入navigation-train的multi-edge数据并重训同一个Gate；此时不再
@@ -349,6 +355,8 @@ Gate
     本质区别的训练形式，并在离线或短窗反事实上证明有效后重新书面修订协议。
 13. `I-E2-F4`已归档为失败诊断；完整结果见
     `15_E2恢复Actor诊断与训练/I_E2_F4_RESULTS.md`。
+14. G19-R2C是明确登记的论文容量baseline例外，不授权修改5A、epoch17或Gate，也不恢复
+    任何已拒绝Actor路线。它完成或被稳定闸门拒绝后，才决定是否追加容量训练预算。
 
 ## 问题与主张边界
 
