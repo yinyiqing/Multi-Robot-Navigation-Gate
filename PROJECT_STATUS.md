@@ -275,6 +275,14 @@ Gate
     F-A1在完整validation上优于两个公平baseline，但平均步数相对5A增加`46.2%`，必须
     报告效率代价。R2B-best相对5A的`p=0.3240`，且best未使用新增容量，不能表述为训练
     充分的大Actor。seed `20260824`的两个baseline已用单Gazebo顺序复测替换并行恢复结果。
+51. G18 dense256当前套件已完成并审计。5A/R2B-best/F-A1/F-B2/old B2/2m真值规则的
+    full success为`0.2695/0.2656/0.4023/0.4141/0.4141/0.5078`，collision为
+    `0.3000/0.3031/0.2227/0.2141/0.2156/0.1594`。F-A1相对5A和R2B-best的逐场检验
+    分别为`p=4.45e-5/2.17e-5`，确认可部署Gate在多冲突压力集上的收益；平均步数
+    `32.94 vs 17.46/19.80`，效率代价明显。F-B2相对F-A1仅`+0.0117` full success，
+    `p=0.8126`且平均步数升至`40.44`，因此F-A1继续作为主Gate，F-B2只作DAgger消融。
+    2m真值规则仍显著高于F-A1（`p=0.00404`），当前缺口在可部署Gate而不是Actor重训。
+    历史R2-10k同场为`0.5273`，但训练课程和预算不匹配，只能作cross-protocol诊断。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
@@ -293,8 +301,8 @@ Gate
 4. 旧epoch-16的G11-D2已经归档：B2导航收益成立但效率准入失败，只作历史证据。当前
    G11-F已完成epoch-17 A1重建、student rollout和闭环pilot，F-A1冻结为Gate候选；
    F-B2只作DAgger消融，不得直接进入最终方法。
-5. G17已经完成完整场景和multi-edge分层评估；下一项是冻结Actor/Gate下的消融与
-   更大样本multi-edge边界确认。G11-E已经冻结50场
+5. G17和G18已经完成完整场景、dense256扩大样本及Gate消融；下一项是在读取sealed test
+   前冻结最终报告协议，并决定是否补充Gate阈值无关指标或少量seed复核。G11-E已经冻结50场
    exact-edge-2 pilot与后150场confirmation，二者与当前Gate训练、G11-C和G11-D2均
    无场景重叠。若自然泛化不足，可以在读取sealed test前
    书面修订协议、加入navigation-train的multi-edge数据并重训同一个Gate；此时不再

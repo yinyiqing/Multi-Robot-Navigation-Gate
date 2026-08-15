@@ -173,6 +173,14 @@ F-A1相对两者的配对检验分别为`p=0.00444/0.04022`，但平均步数为
 `21.63`增加`46.2%`。multi-edge full success为`0.1750/0.1500/0.2375`；相对5A的
 分层检验`p=0.3833`，只支持正向趋势。R2B-best相对5A的`p=0.3240`，未形成显著容量收益。
 
+[G18 dense256当前方法复测](18_dense256当前方法复测/README.md)随后在历史同场前256个
+dense场景上完成。5A/R2B-best/F-A1/F-B2的full success为
+`0.2695/0.2656/0.4023/0.4141`；F-A1相对两个公平baseline均显著
+（`p=4.45e-5/2.17e-5`），collision也从5A的`0.3000`降至`0.2227`。F-B2相对F-A1
+不显著（`p=0.8126`）且平均步数从`32.94`升至`40.44`，因此F-A1继续作为主Gate。
+2m真值规则为`0.5078`并显著高于F-A1，说明Gate仍有未恢复的切换收益；该规则不可部署，
+也不是严格性能上界。
+
 ### Actor N：generalist-5a
 
 - 五车共享Actor；
@@ -373,8 +381,8 @@ success + collision + unresolved = agents * episodes
 8. I-E2、I-E2-M和I-E2-F4均已拒绝。旧epoch-16继续作为fallback；不追加这些E2配套
    Actor的训练，不扫描reward权重，也不启动基于F4的新Gate。当前唯一避障Actor训练是
    从原epoch-16完整状态固定续训epoch 17-20；F4不得作为其warm start或配置来源。
-9. G17三方完整场景统一对比及seed `20260824`两个baseline的顺序复测已经完成；当前
-   运行dense256压力集容量baseline和Gate消融。G11-E的50场
+9. G17三方完整场景统一对比及G18 dense256压力集容量baseline/Gate消融已经完成；
+   当前冻结F-A1为主Gate，F-B2为DAgger消融。G11-E的50场
    exact-edge-2 pilot与后150场
    confirmation已经完成清单冻结和互斥审计，不得并行启动第二套Gazebo。
 10. Gate、参数匹配单Actor和所有阈值冻结后一次性读取sealed test。

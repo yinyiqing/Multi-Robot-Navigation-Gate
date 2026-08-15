@@ -29,6 +29,10 @@
   单Gazebo顺序复测正式日志；与另四组结果共同生成最终汇总。
 - `archive/validation/g17_full_scene_comparison_provisional_recovered_parallel/`：首次provisional
   汇总所用的已完成顺序日志，以及不进入最终表的并行恢复证据。
+- `archive/validation/g18_dense256_r2b/`：R2B-best在dense validation前256场上的正式
+  顺序复测日志。
+- `archive/validation/g18_dense256_gate_suite/`：5A、epoch17+F-A1、F-B2、old B2和2m
+  真值规则在同一dense256协议上的正式顺序评测与汇总日志。
 - `archive/aborted/g17_full_scene_comparison_sequential/`：并行版切换前的未完成顺序运行，不进入正式结果。
 - `archive/aborted/g17_full_scene_comparison_parallel/`：三个Gazebo并行时的崩溃和重试证据，不进入正式结果。
 - `archive/validation/g11_f_epoch17_gate_r2b30k_aborted_wrong_checkpoint/`：误用epoch 3
@@ -54,8 +58,9 @@
 - `archive/rejected/g11_f_epoch17_gate_smoke_nounset_20260814/`：首次epoch-17 Gate smoke
   在加载ROS环境前启用`nounset`而退出；未启动Gazebo且没有生成shard。
 
-整理日期：2026-08-15。G17顺序复测已经完成；G18 dense256压力集对比正在单Gazebo
-队列运行。避障Actor epoch 17-20续训和独立matched admission均已完成并归档。
+整理日期：2026-08-15。G17顺序复测和G18 dense256压力集对比均已完成并归档；
+`logs/active/`中不保留这些实验。避障Actor epoch 17-20续训和独立matched admission
+均已完成并归档。
 
 ## 使用规则
 
