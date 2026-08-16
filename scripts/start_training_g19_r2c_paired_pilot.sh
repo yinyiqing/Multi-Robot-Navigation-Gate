@@ -86,8 +86,8 @@ mkdir -p "$LOG_DIR" "$RUN_DIR"
   python3 "$ROOT/scripts/audit_g12_r2b_5a_recipe.py" \
     --source-actor "$SOURCE_ACTOR" --output "$RUN_DIR/initialization_audit.json"
 )
-setsid env G19_RESUME_ORIGINAL="$RESUME_ORIGINAL" \
-  bash "$ROOT/scripts/run_training_g19_r2c_paired_pilot_worker.sh" \
+G19_RESUME_ORIGINAL="$RESUME_ORIGINAL" \
+  setsid bash "$ROOT/scripts/run_training_g19_r2c_paired_pilot_worker.sh" \
   >>"$LOG_DIR/runner.log" 2>&1 < /dev/null &
 echo $! >"$PID_FILE"
 echo "Started G19-R2C paired stability pilot"
