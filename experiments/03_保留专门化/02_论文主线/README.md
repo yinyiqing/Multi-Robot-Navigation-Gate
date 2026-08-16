@@ -182,11 +182,10 @@ dense场景上完成。5A/R2B-best/F-A1/F-B2的full success为
 也不是严格性能上界。
 
 R2B在G17/G18上只能作为历史5A流程的输出对照，因为其best位于Actor有效更新前。
-为补齐“真正训练过的同参数量单Actor”，当前显式授权
-[G19-R2C公平容量对照](19_R2C公平容量对照/README.md)：从同一5A函数分别训练原宽控制
-和参数匹配加宽Actor，使用相同完整五车混合数据、60k预算、动态reward和邻域Critic。
-原宽控制必须先通过Actor解冻后的稳定闸门，才自动启动加宽Actor。该实验只训练baseline，
-不修改冻结的5A、epoch17、F-A1/F-B2或任何Gate阈值。
+后续登记的G19-R2C从训练完成的5A函数出发，违背“大Actor在进入5A阶段前完成扩宽”的
+公平性要求，已在Actor解冻前停止并删除。唯一历史记录见
+[G19错误起点](results/90_中止与无效运行/G19_R2C错误起点/README.md)。当前容量对照只
+允许保持R2B血缘：从共同3D2起点函数保持扩宽，在完整5A五车阶段全程使用加宽Actor。
 
 ### Actor N：generalist-5a
 
