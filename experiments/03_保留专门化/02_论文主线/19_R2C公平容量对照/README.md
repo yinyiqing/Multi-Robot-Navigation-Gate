@@ -1,7 +1,7 @@
 # G19-R2C 公平容量对照
 
-状态：`resumed / paired stability pilot`。登记日期：`2026-08-15`，断点恢复登记日期：
-`2026-08-16`。
+状态：`stopped / superseded by pre-5A-start fairness requirement`。登记日期：
+`2026-08-15`，断点恢复及停止日期：`2026-08-16`。
 
 首轮原宽控制因外部终止停在`33,430/60,000` agent samples，Actor仍处于冻结阶段。审计
 确认`latest`完整保存replay、Critic优化器、场景采样状态和validation历史，Actor优化器
@@ -9,6 +9,11 @@
 `3520feda0d552ca6a04bee8082c9fea47e99d3c0c1f5ec3b5a50976022efaa73`的该断点，并保持
 原超参数、manifest、seed、41k解冻边界和60k预算不变。原宽稳定闸门通过后才自动启动
 加宽Actor；结果无论是否超过F-A1均如实报告，不以目标成绩区间选择模型。
+
+恢复后在约`34.3k`、Actor仍冻结时主动停止。原因不是性能结果，而是公平性问题重新核对：
+当前对照要求加宽Actor从5A之前的共同3D2起点进入五车训练阶段，不能从已经完成的5A函数
+再扩宽。G19从5A开始只适合回答“5A后续稳定微调”的问题，不再作为当前容量对照。该次
+恢复没有启动wide分支，也没有发生原宽Actor更新；后续不得从本目录的checkpoint继续。
 
 ## 目的
 
