@@ -1,10 +1,27 @@
 # 当前项目状态
 
-更新时间：`2026-08-15`。
+更新时间：`2026-08-17`。
 
 本文件是进入项目后的第一阅读入口。方法定义、实验准入和数据边界以
 [论文主线协议](experiments/03_保留专门化/02_论文主线/README.md)为准；历史 README
 中的“当前”和“下一步”只代表当时判断。
+
+## 2026-08-17 主线裁决
+
+旧`5A + avoidance-epoch17 + F-A1`能够显著改善旧5A，但新课程训练出的原宽N5在同一
+120个场景、不同评测seed上得到更高点估计。由于旧5A与N5训练充分程度不同，当前暂停
+“双Actor优于训练充分单Actor”的性能结论，不再追加5A、R2D或Gate调参。
+
+唯一当前实验为[G20同场主线裁决](experiments/03_保留专门化/02_论文主线/20_夜间最终统一评测/README.md)：
+在同一冻结manifest和两个相同seed上顺序运行`N5-only / R2-10k / F-A1 /
+N5+epoch17 recovery-oracle`。前3项裁决训练充分单Actor与旧双Actor的真实排序；最后一项
+只判断N5与冻结交互Actor之间是否仍有可路由的互补上界。
+
+- 不训练或修改任何Actor；暂停的R2D正式关闭。
+- 若recovery-oracle不能超过N5，停止双Actor性能主线，不训练新Gate。
+- 若recovery-oracle超过N5且改善来自edge-1或multi-edge而非评测噪声，下一步唯一允许
+  的训练是N5专用可部署时序Router；旧F-A1只作历史对照。
+- 本裁决不读取sealed test，不根据结果修改场景、seed、阈值或Actor checkpoint。
 
 ## 投稿时间
 

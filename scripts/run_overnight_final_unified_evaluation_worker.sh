@@ -19,23 +19,32 @@ GAZEBO_PORT=17723
 FIVE_A="TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best"
 EPOCH17="avoidance_actor_from_5a_balanced_continue_e20_s20260813_best"
 R2="capacity_wide_r2_s4_broad_n5_seed20260816_epoch_001"
+N5="current_generalist_n5_original_broad_s20260810_best"
 DETECTOR="$BASE/results/06_Gate开发/D5_G0_robot_detector_v1/local_data/model/pilot_v1/best.pt"
 F_A1="$BASE/11_可部署在线Gate研究/G11_F_epoch17_gate_v1/local_data/a1_training/seed20260804/any/T1/best.pt"
 F_B2="$BASE/11_可部署在线Gate研究/G11_F_epoch17_gate_v1/local_data/aggregated_training/seed20260804/any/T1/best.pt"
 
-[[ -f "$MANIFEST" && -f "$ROOT/TD3/pytorch_models/${FIVE_A}_actor.pth" && \
-   -f "$ROOT/TD3/pytorch_models/${EPOCH17}_actor.pth" && \
-   -f "$ROOT/TD3/pytorch_models/${R2}_actor.pth" && \
-   -f "$DETECTOR" && -f "$F_A1" && -f "$F_B2" ]] || {
-  echo "Required frozen evaluation artifact is missing" >&2
-  exit 1
+verify_sha() {
+  local path="$1" expected="$2"
+  [[ -f "$path" ]] || { echo "Missing frozen input: $path" >&2; exit 1; }
+  [[ "$(sha256sum "$path" | awk '{print $1}')" == "$expected" ]] || {
+    echo "SHA-256 mismatch: $path" >&2
+    exit 1
+  }
 }
 
-while [[ -f "$ROOT/.g12_r2c_corrected.pid" ]] || \
-      pgrep -af 'python3 -u train_velodyne_td3_multi.py' >/dev/null; do
-  echo "Waiting for R2C training to finish..."
-  sleep 30
-done
+verify_sha "$MANIFEST" "52435d6c5bdf9914e7212dd29cb4bfec074257f72d85f0d71741deee7c63b635"
+verify_sha "$ROOT/TD3/pytorch_models/${FIVE_A}_actor.pth" "fa28855049b67b3ee44c66d55d4f14441fc7c521e5429862c75b152f7d5cacc5"
+verify_sha "$ROOT/TD3/pytorch_models/${EPOCH17}_actor.pth" "149c2e42848ecc9bc478cbed7fd89b9062936dbd5c669b55e6964441685155a5"
+verify_sha "$ROOT/TD3/pytorch_models/${R2}_actor.pth" "ace910553931873a275d66e3a964fd2b4716d30b6c68c8dcb3e7af96e56783ee"
+verify_sha "$ROOT/TD3/pytorch_models/${N5}_actor.pth" "53964e12c2d6c5f0855530f22bdd721170b911640883c7616b14dc21aa12cfeb"
+verify_sha "$DETECTOR" "0b914c0d090bbaba0a2be63c0d75d88580bf4d71778a7f1749c63989e3dbbd56"
+verify_sha "$F_A1" "b28e81d341c145d6fa8c881dd98c7ece5285231e7d080b3f71afcd2dfe3a0beb"
+
+pgrep -af '^python3(\.8)? -u train_velodyne_td3_multi.py($| )' >/dev/null && {
+  echo "Another multi-robot Actor run is active" >&2
+  exit 1
+}
 
 mkdir -p "$RESULT_DIR" "$STATE_DIR"
 /usr/bin/python3 "$ROOT/scripts/generate_multi_robot_launch.py" --num-agents 5 --output "$LAUNCHFILE"
@@ -100,16 +109,27 @@ run_one() {
   unset DRL_MULTI_DENSE_ACTOR_FILE DRL_MULTI_GATE_DETECTOR_CHECKPOINT DRL_MULTI_GATE_CHECKPOINT
   unset DRL_MULTI_GATE_SWITCH_ON_THRESHOLD DRL_MULTI_GATE_SWITCH_OFF_THRESHOLD
   unset DRL_MULTI_GATE_MINIMUM_HOLD_STEPS DRL_MULTI_GATE_EVALUATION_STRIDE
+  unset DRL_MULTI_RECOVERY_ORACLE_CANDIDATE_DISTANCE DRL_MULTI_RECOVERY_ORACLE_RELEASE_DISTANCE
+  unset DRL_MULTI_RECOVERY_ORACLE_PROGRESS_THRESHOLD DRL_MULTI_RECOVERY_ORACLE_PROGRESS_WINDOW
+  unset DRL_MULTI_RECOVERY_ORACLE_DISTANCE_DELTA_THRESHOLD DRL_MULTI_RECOVERY_ORACLE_GOAL_DISTANCE
+  unset DRL_MULTI_RECOVERY_ORACLE_MINIMUM_HOLD_STEPS DRL_MULTI_RECOVERY_ORACLE_MAXIMUM_HOLD_STEPS
   case "$policy" in
     5a) export DRL_MULTI_STANDARD_ACTOR_FILE="$FIVE_A" DRL_MULTI_ACTOR_SELECTION_MODE=single ;;
     epoch17) export DRL_MULTI_STANDARD_ACTOR_FILE="$EPOCH17" DRL_MULTI_ACTOR_SELECTION_MODE=single ;;
     r2) export DRL_MULTI_STANDARD_ACTOR_FILE="$R2" DRL_MULTI_ACTOR_SELECTION_MODE=single ;;
+    n5) export DRL_MULTI_STANDARD_ACTOR_FILE="$N5" DRL_MULTI_ACTOR_SELECTION_MODE=single ;;
     f_a1) export DRL_MULTI_STANDARD_ACTOR_FILE="$FIVE_A" DRL_MULTI_DENSE_ACTOR_FILE="$EPOCH17"
       export DRL_MULTI_ACTOR_SELECTION_MODE=learned_gate DRL_MULTI_GATE_DETECTOR_CHECKPOINT="$DETECTOR" DRL_MULTI_GATE_CHECKPOINT="$F_A1"
       export DRL_MULTI_GATE_SWITCH_ON_THRESHOLD=0.29 DRL_MULTI_GATE_SWITCH_OFF_THRESHOLD=0.19 DRL_MULTI_GATE_MINIMUM_HOLD_STEPS=3 DRL_MULTI_GATE_EVALUATION_STRIDE=2 ;;
     f_b2) export DRL_MULTI_STANDARD_ACTOR_FILE="$FIVE_A" DRL_MULTI_DENSE_ACTOR_FILE="$EPOCH17"
       export DRL_MULTI_ACTOR_SELECTION_MODE=learned_gate DRL_MULTI_GATE_DETECTOR_CHECKPOINT="$DETECTOR" DRL_MULTI_GATE_CHECKPOINT="$F_B2"
       export DRL_MULTI_GATE_SWITCH_ON_THRESHOLD=0.43 DRL_MULTI_GATE_SWITCH_OFF_THRESHOLD=0.33 DRL_MULTI_GATE_MINIMUM_HOLD_STEPS=3 DRL_MULTI_GATE_EVALUATION_STRIDE=2 ;;
+    n5_recovery) export DRL_MULTI_STANDARD_ACTOR_FILE="$N5" DRL_MULTI_DENSE_ACTOR_FILE="$EPOCH17"
+      export DRL_MULTI_ACTOR_SELECTION_MODE=recovery_oracle DRL_MULTI_DENSE_ACTOR_MODE=full
+      export DRL_MULTI_RECOVERY_ORACLE_CANDIDATE_DISTANCE=2.0 DRL_MULTI_RECOVERY_ORACLE_RELEASE_DISTANCE=2.4
+      export DRL_MULTI_RECOVERY_ORACLE_PROGRESS_THRESHOLD=0.003 DRL_MULTI_RECOVERY_ORACLE_PROGRESS_WINDOW=5
+      export DRL_MULTI_RECOVERY_ORACLE_DISTANCE_DELTA_THRESHOLD=0.02 DRL_MULTI_RECOVERY_ORACLE_GOAL_DISTANCE=0.45
+      export DRL_MULTI_RECOVERY_ORACLE_MINIMUM_HOLD_STEPS=3 DRL_MULTI_RECOVERY_ORACLE_MAXIMUM_HOLD_STEPS=20 ;;
     *) echo "Unknown policy: $policy" >&2; return 2 ;;
   esac
   for attempt in 1 2 3; do
@@ -130,28 +150,32 @@ run_one() {
   return 1
 }
 
-for seed in 20260830 20260831; do
-  run_one 5a "$seed"
-  run_one epoch17 "$seed"
-  run_one r2 "$seed"
-  run_one f_a1 "$seed"
-  run_one f_b2 "$seed"
-done
+run_one n5 20260830
+run_one r2 20260830
+run_one f_a1 20260830
+run_one n5_recovery 20260830
+
+run_one n5_recovery 20260831
+run_one f_a1 20260831
+run_one r2 20260831
+run_one n5 20260831
 
 set +e
-for candidate in epoch17 r2 f_a1 f_b2; do
+for candidate in r2 f_a1 n5_recovery; do
   /usr/bin/python3 "$ROOT/scripts/compare_actor_validation.py" \
-    "$RESULT_DIR/g20_5a_s20260830.npy" "$RESULT_DIR/g20_${candidate}_s20260830.npy" \
-    --baseline-label 5A --candidate-label "$candidate" --manifest "$MANIFEST" \
-    --output "$RESULT_DIR/compare_5a_${candidate}_s20260830.json" \
+    "$RESULT_DIR/g20_n5_s20260830.npy" "$RESULT_DIR/g20_${candidate}_s20260830.npy" \
+    --baseline-label N5 --candidate-label "$candidate" --manifest "$MANIFEST" \
+    --output "$RESULT_DIR/compare_n5_${candidate}_s20260830.json" \
     >>"$LOG_DIR/analysis.log" 2>&1
   /usr/bin/python3 "$ROOT/scripts/compare_actor_validation.py" \
-    "$RESULT_DIR/g20_5a_s20260831.npy" "$RESULT_DIR/g20_${candidate}_s20260831.npy" \
-    --baseline-label 5A --candidate-label "$candidate" --manifest "$MANIFEST" \
-    --output "$RESULT_DIR/compare_5a_${candidate}_s20260831.json" \
+    "$RESULT_DIR/g20_n5_s20260831.npy" "$RESULT_DIR/g20_${candidate}_s20260831.npy" \
+    --baseline-label N5 --candidate-label "$candidate" --manifest "$MANIFEST" \
+    --output "$RESULT_DIR/compare_n5_${candidate}_s20260831.json" \
     >>"$LOG_DIR/analysis.log" 2>&1
 done
 set -e
+/usr/bin/python3 "$ROOT/scripts/analyze_g20_mainline_adjudication.py" \
+  >"$LOG_DIR/combined_analysis.log" 2>&1
 [[ ! -e "$ARCHIVE_DIR" ]] || { echo "Archive exists: $ARCHIVE_DIR" >&2; exit 1; }
 mkdir -p "$(dirname "$ARCHIVE_DIR")"
 mv "$LOG_DIR" "$ARCHIVE_DIR"

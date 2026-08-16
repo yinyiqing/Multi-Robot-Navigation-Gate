@@ -7,6 +7,20 @@
 [PROJECT_STATUS](../../../PROJECT_STATUS.md)，历史实验状态见
 [实验注册表](../../EXPERIMENT_REGISTRY.md)。
 
+## 2026-08-17 唯一当前路线
+
+旧F-A1已经证明路由能够改善旧5A，但N5结果暴露了旧5A训练不足这一混杂因素。因此旧
+`5A + epoch17 + F-A1`不再直接承担“优于训练充分单Actor”的结论，所有Actor训练和Gate
+调参暂停。
+
+当前只执行[20_夜间最终统一评测](20_夜间最终统一评测/README.md)：在同一120场
+manifest、相同顺序和相同两个seed上比较`N5-only / R2-10k / F-A1`，并增加
+`N5 + epoch17 recovery-oracle`检查冻结策略库是否仍存在可利用的互补空间。
+
+该实验之后不再回看单个历史峰值决定路线：oracle无正收益则停止双Actor性能主线；oracle
+有稳定正收益则只训练N5专用时序Router。不得恢复R2D，不得继续调Actor，不得用不同seed
+或不同冲突比例拼接主表。
+
 ## 2026-08-13避障Actor续训授权
 
 主线恢复为`5A + 避障Actor + 可部署Gate`。epoch-16是原避障Actor，epoch-17是当前冻结
