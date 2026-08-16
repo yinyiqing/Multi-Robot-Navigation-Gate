@@ -287,6 +287,10 @@ Gate
     “5A后续微调稳定性”，不满足“大Actor在进入5A阶段前已经扩宽”的公平性要求。停止时
     原宽控制约`34.3k` samples且Actor仍冻结，加宽分支未启动；没有可进入论文表格的结果。
     唯一记录见`results/90_中止与无效运行/G19_R2C错误起点/README.md`。
+53. `2026-08-16`登记R2D作为唯一正确血缘的容量稳定续训：从R2B-10k完整checkpoint
+    （3D2前置扩宽、Actor尚未更新）继续，保持五车standard、individual reward、24维
+    Critic和30k总预算。20k前Actor冻结；20k至30k只增加Q尺度归一化、权重1.0的全状态
+    行为锚定和1.0梯度裁剪。30k是唯一更新候选；失败后不得追加预算或扫描anchor。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。

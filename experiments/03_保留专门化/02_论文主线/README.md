@@ -150,6 +150,12 @@ Gate成立的必要条件是两个Actor存在不同优势区。如果Actor I在�
 
 以上授权不允许更新或覆盖5A、原epoch-16，也不恢复其他历史Actor路线。
 
+`2026-08-16`新增唯一容量稳定续训例外
+[R2D](21_R2D_3D2前置扩宽稳定续训/README.md)：从R2B的10k完整checkpoint继续。该Actor
+在5A阶段前由3D2函数保持扩宽，尚未发生Actor更新；R2D先补足20k Critic校准，再用Q尺度
+归一化、固定行为锚定和梯度裁剪进行唯一10k Actor更新。总预算止于30k，不扫描anchor、
+不追加预算，也不以低于F-A1为目标。
+
 `2026-08-14`新增一个不进入主方法的容量baseline授权：G12-R2B按历史5A流程训练参数匹配
 加宽Actor。它从3D2 Actor函数保持扩宽，使用五车standard、individual reward、fresh
 24维Critic、20k Actor冻结和30k总预算；完整协议见
