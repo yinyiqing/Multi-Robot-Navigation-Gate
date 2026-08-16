@@ -11,6 +11,7 @@ RUN_DIR="$BASE/19_R2C公平容量对照/local_data"
 LOG_DIR="$ROOT/logs/active/g19-r2c-paired-pilot"
 PID_FILE="$ROOT/.g19_r2c_paired_pilot.pid"
 LOCK_FILE=/tmp/local_critic_multi_robot_training.lock
+RESUME_ORIGINAL="${G19_RESUME_ORIGINAL:-0}"
 
 verify_sha() {
   local path="$1" expected="$2"
@@ -25,7 +26,7 @@ verify_sha "$SOURCE_ACTOR" fa28855049b67b3ee44c66d55d4f14441fc7c521e5429862c75b1
 
 if [[ "${DRL_MULTI_DRY_RUN:-0}" == 1 ]]; then
   echo "G19-R2C dry run passed"
-  echo "Order: original 60k -> stability gate -> wide 60k"
+  echo "Order: original 60k -> stability gate -> wide 60k | resume_original=$RESUME_ORIGINAL"
   exit 0
 fi
 if [[ -f "$PID_FILE" ]]; then
@@ -35,13 +36,29 @@ if [[ -f "$PID_FILE" ]]; then
   }
   unlink "$PID_FILE"
 fi
-for model in capacity_original_g19_r2c_n5_seed20260826 capacity_wide_g19_r2c_n5_seed20260826; do
+if [[ "$RESUME_ORIGINAL" == 1 ]]; then
+  ORIGINAL_LATEST="$TD3_DIR/checkpoints/capacity_original_g19_r2c_n5_seed20260826_latest.pt"
+  verify_sha "$ORIGINAL_LATEST" 3520feda0d552ca6a04bee8082c9fea47e99d3c0c1f5ec3b5a50976022efaa73
+  (
+    set +u
+    source "$ROOT/env.python.sh" >/dev/null
+    set -u
+    python3 "$ROOT/scripts/audit_g19_r2c_resume.py" --checkpoint "$ORIGINAL_LATEST"
+  )
   for suffix in latest best; do
-    [[ ! -e "$TD3_DIR/checkpoints/${model}_${suffix}.pt" ]] || {
-      echo "G19-R2C artifact already exists: ${model}_${suffix}.pt" >&2; exit 1
+    [[ ! -e "$TD3_DIR/checkpoints/capacity_wide_g19_r2c_n5_seed20260826_${suffix}.pt" ]] || {
+      echo "G19-R2C wide artifact already exists: ${suffix}.pt" >&2; exit 1
     }
   done
-done
+else
+  for model in capacity_original_g19_r2c_n5_seed20260826 capacity_wide_g19_r2c_n5_seed20260826; do
+    for suffix in latest best; do
+      [[ ! -e "$TD3_DIR/checkpoints/${model}_${suffix}.pt" ]] || {
+        echo "G19-R2C artifact already exists: ${model}_${suffix}.pt" >&2; exit 1
+      }
+    done
+  done
+fi
 [[ ! -e "$ROOT/logs/archive/training/g19_r2c_paired_pilot" ]] || {
   echo "G19-R2C archive already exists" >&2; exit 1
 }
@@ -69,11 +86,12 @@ mkdir -p "$LOG_DIR" "$RUN_DIR"
   python3 "$ROOT/scripts/audit_g12_r2b_5a_recipe.py" \
     --source-actor "$SOURCE_ACTOR" --output "$RUN_DIR/initialization_audit.json"
 )
-setsid bash "$ROOT/scripts/run_training_g19_r2c_paired_pilot_worker.sh" \
+setsid env G19_RESUME_ORIGINAL="$RESUME_ORIGINAL" \
+  bash "$ROOT/scripts/run_training_g19_r2c_paired_pilot_worker.sh" \
   >>"$LOG_DIR/runner.log" 2>&1 < /dev/null &
 echo $! >"$PID_FILE"
 echo "Started G19-R2C paired stability pilot"
 echo "PID: $(cat "$PID_FILE")"
 echo "GPU: 0 (free=${gpu_free_mib}MiB util=${gpu_util}%)"
-echo "Order: original 60k -> gate -> wide 60k"
+echo "Order: original 60k -> gate -> wide 60k | resume_original=$RESUME_ORIGINAL"
 echo "Log: $LOG_DIR/runner.log"

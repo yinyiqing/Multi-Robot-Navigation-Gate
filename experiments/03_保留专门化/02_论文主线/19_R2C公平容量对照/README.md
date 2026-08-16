@@ -1,6 +1,14 @@
 # G19-R2C 公平容量对照
 
-状态：`registered / paired stability pilot`。登记日期：`2026-08-15`。
+状态：`resumed / paired stability pilot`。登记日期：`2026-08-15`，断点恢复登记日期：
+`2026-08-16`。
+
+首轮原宽控制因外部终止停在`33,430/60,000` agent samples，Actor仍处于冻结阶段。审计
+确认`latest`完整保存replay、Critic优化器、场景采样状态和validation历史，Actor优化器
+状态为空。恢复运行只接受SHA-256
+`3520feda0d552ca6a04bee8082c9fea47e99d3c0c1f5ec3b5a50976022efaa73`的该断点，并保持
+原超参数、manifest、seed、41k解冻边界和60k预算不变。原宽稳定闸门通过后才自动启动
+加宽Actor；结果无论是否超过F-A1均如实报告，不以目标成绩区间选择模型。
 
 ## 目的
 
@@ -70,6 +78,9 @@ reward使用`average`、self weight `0.8`和距离加权；邻域Critic使用ego
 
 ```bash
 bash scripts/start_training_g19_r2c_paired_pilot.sh
+
+# 仅用于已审计的33,430样本断点
+G19_RESUME_ORIGINAL=1 bash scripts/start_training_g19_r2c_paired_pilot.sh
 ```
 
 实时日志：`logs/active/g19-r2c-paired-pilot/`。成功完成后归档到

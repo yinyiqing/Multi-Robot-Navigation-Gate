@@ -48,7 +48,7 @@ export DRL_MULTI_TRAIN_LAUNCHFILE="$LAUNCHFILE"
 export DRL_MULTI_SCENARIO=manifest DRL_MULTI_MANIFEST_PATH="$TRAIN_MANIFEST"
 export DRL_MULTI_EVAL_MANIFEST_PATH="$EVAL_MANIFEST" DRL_MULTI_MANIFEST_SAMPLING=cycle
 export DRL_MULTI_LOAD_MODEL=1 DRL_MULTI_LOAD_ACTOR_ONLY=1 DRL_MULTI_REQUIRE_MODEL_LOAD=1
-export DRL_MULTI_LOAD_MODEL_NAME="$SOURCE_MODEL" DRL_MULTI_RESUME_TRAINING=0
+export DRL_MULTI_LOAD_MODEL_NAME="$SOURCE_MODEL"
 export DRL_MULTI_ACTOR_TRAIN_MODE=full
 
 export DRL_MULTI_USE_LOCAL_CRITIC=1 DRL_MULTI_LOCAL_CRITIC_GEOMETRY_ONLY=0
@@ -87,25 +87,30 @@ export DRL_MULTI_EARLY_STOP_PATIENCE=0
 export DRL_MULTI_FIXED_PHYSICS_STEP_SIZE=0.001 DRL_MULTI_REQUIRE_FIXED_STEP_SERVICE=1
 
 run_one() {
-  local kind="$1" hidden1="$2" hidden2="$3" expansion="$4"
+  local kind="$1" hidden1="$2" hidden2="$3" expansion="$4" resume="$5"
   local model="capacity_${kind}_g19_r2c_n5_seed20260826"
   local log="$LOG_DIR/train_${model}.log"
   export DRL_MULTI_TRAIN_FILE_NAME="$model"
   export DRL_MULTI_TRAINING_VERSION="g19-r2c-${kind}-paired-stability-v1"
   export DRL_MULTI_ACTOR_HIDDEN_DIM_1="$hidden1" DRL_MULTI_ACTOR_HIDDEN_DIM_2="$hidden2"
   export DRL_MULTI_ALLOW_ACTOR_WARMSTART_EXPANSION="$expansion"
+  export DRL_MULTI_RESUME_TRAINING="$resume"
   echo "Starting G19-R2C $kind"
-  echo "Model: $model | Actor: 24-$hidden1-$hidden2-2 | budget: 60k"
-  (cd "$TD3_DIR" && python3 -u train_velodyne_td3_multi.py) >"$log" 2>&1
+  echo "Model: $model | Actor: 24-$hidden1-$hidden2-2 | budget: 60k | resume=$resume"
+  if [[ "$resume" == 1 ]]; then
+    (cd "$TD3_DIR" && python3 -u train_velodyne_td3_multi.py) >>"$log" 2>&1
+  else
+    (cd "$TD3_DIR" && python3 -u train_velodyne_td3_multi.py) >"$log" 2>&1
+  fi
   stop_runtime
   echo "Completed G19-R2C $kind"
 }
 
 mkdir -p "$LOG_DIR"
-run_one original 800 600 0
+run_one original 800 600 0 "${G19_RESUME_ORIGINAL:-0}"
 python3 "$ROOT/scripts/analyze_g19_r2c_paired_pilot.py" --require-control-pass \
   >"$LOG_DIR/original_gate.json"
-run_one wide 1137 855 1
+run_one wide 1137 855 1 0
 python3 "$ROOT/scripts/analyze_g19_r2c_paired_pilot.py" >"$LOG_DIR/summary.json"
 [[ ! -e "$ARCHIVE_DIR" ]] || { echo "Archive already exists: $ARCHIVE_DIR" >&2; exit 1; }
 mkdir -p "$(dirname "$ARCHIVE_DIR")"
