@@ -86,7 +86,9 @@ PY
 }
 
 run_one() {
-  local policy="$1" seed="$2" run="g20_${policy}_s${seed}"
+  local policy="$1"
+  local seed="$2"
+  local run="g20_${policy}_s${seed}"
   local result="$RESULT_DIR/${run}.npy" state="$STATE_DIR/${run}_state.pt"
   local attempt log status
   if [[ -f "$result" ]] && verify_result "$result" 2>/dev/null; then
