@@ -1,6 +1,6 @@
 # G25 最终闭环消融与 Sealed 评测预注册
 
-状态：`方案冻结，尚未启动`
+状态：`方案冻结，validation 控制消融执行中`
 登记日期：`2026-08-17`，统计细节修订：`2026-08-18`
 
 ## 1. 目的与边界
@@ -50,6 +50,21 @@ V4/V5 使用与 B2 相同的原始 shard、student shard、场景权重、类别
 checkpoint 选择规则；只改变表中指定因素。V4 仍使用同一 GRU cell 和输出头，但训练与推理时
 序列长度固定为1、每个Gate帧重置hidden，以隔离“Router显式8帧历史”因素。G1已有的短窗
 跟踪特征仍保留，因此该消融必须称为 `no Router history`，不能称整个系统完全无时序。
+
+### 3.1 已复用证据与 2026-08-18 队列
+
+V1 `epoch16 always-on` 已在完全相同的 Dense256 validation 协议下完成，因此不重复运行：
+
+- 结果：`full success=0.3281`、`agent success=0.745`、`collision=0.151`、
+  `unresolved=0.104`、`timeout=0.406`、`raw mean steps=154.09`；
+- seed：`20260810`，结果形状：`(256, 17)`，场景为冻结 manifest 原始前 256 个且顺序一致；
+- 结果 SHA-256：`296897f0d22f1bd0cb961a36f8ed47d82ec0dbea6882293ce35238b4e101299b`；
+- 原始文件：`12_参数匹配单Actor容量对照/local_data/dense_first256_pilot/results/g12_dense256_epoch16_r1_s20260810.npy`。
+
+当晚只串行补跑 V2 和 V6，共 `512 episodes`。V2 固定使用 G11-D2 已登记的
+`2.0/2.2 m + hold 3`，不在 Dense256 上调参；V6 保持 B2 checkpoint 与 stride 2 不变，唯一
+变化为 on/off 均设为 `0.43` 且 hold 设为 0。V3 尚无冻结的 TTC 规则实现，V4/V5 需要严格重训
+Router，均不在当晚仓促启动；sealed test 在全部前置项和 dry-run 完成前不得读取或运行。
 
 ## 4. 部署成本审计
 
