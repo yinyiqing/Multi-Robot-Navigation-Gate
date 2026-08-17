@@ -6,6 +6,23 @@
 [论文主线协议](experiments/03_保留专门化/02_论文主线/README.md)为准；历史 README
 中的“当前”和“下一步”只代表当时判断。
 
+## 2026-08-17 V10 审查后证据边界与最终评测
+
+V10 当前定位收窄为部署约束下的系统组合贡献，不声称提出新的 Gate/路由算法。Dense256 和
+G17 均参与过开发或模型选择，现有显著性只属于 validation evidence。投稿确认性结论必须来自
+方法和统计方案冻结后的一次性 sealed test。
+
+感知与 Router 采用两阶段特权监督，论文必须完整披露：G0 detector 训练时使用 Gazebo 中其他
+机器人真值位置生成候选身份与中心偏移标签；随后 Router 使用最近机器人真值距离生成 2 m
+二值交互标签。部署时两类真值均移除。G0 没有通过硬分类准入，只作为形状软分数和候选证据，
+不得描述成可靠机器人检测器。
+
+最终补充工作已预注册在
+[G25最终闭环消融与Sealed评测](experiments/03_保留专门化/02_论文主线/25_最终消融与Sealed评测/README.md)：
+先在 validation 上补 single-frame、no-action-difference、no-hysteresis/hold、epoch16
+always-on、min-LiDAR/TTC 规则及部署成本，再冻结协议一次性运行多个 repeat seed 的 dense
+sealed test。当前仍禁止训练 Actor；本次只修改论文和实验方案，尚未启动 G25。
+
 ## 2026-08-17 Dense主任务最终冻结
 
 论文主方法冻结为`5A + avoidance-epoch16 + B2`。Dense256是预先明确的主要任务分布，
@@ -113,9 +130,10 @@ Gate
 2. 在dense validation 1000场上，5A为`0.3090`；真值组合为`0.5450`。
 3. epoch-16全程运行的前256场中，full success为`0.2305`，timeout为`0.5156`。
    它降低碰撞但不适合承担普通导航。
-4. `2.0 m`切换使用其他机器人真值位置，只是不可部署oracle上界，不是已训练Gate。
+4. `2.0 m`切换使用其他机器人真值位置，只是不可部署的特权距离诊断，不是已训练Gate，
+   也不是严格最优上界。
 5. 历史可部署Gate在独立exact-edge-2的200场上从`0.325`提高到`0.405`，但
-   `p=0.06812`且只恢复oracle收益的`30.2%`，未通过最终准入。
+   `p=0.06812`且只恢复特权距离规则收益的`30.2%`，未通过最终准入。
 6. corrected edge-1完整Actor pilot在Actor解冻后，50场monitor的full success从
    `0.42-0.44`降至`0.16/0.10`，已经关闭，只作单Actor失败对照。
 7. G11-A0离线诊断中，单帧加入两个Actor动作没有增益；8帧GRU在360度标签下相对

@@ -7,6 +7,20 @@
 [PROJECT_STATUS](../../../PROJECT_STATUS.md)，历史实验状态见
 [实验注册表](../../EXPERIMENT_REGISTRY.md)。
 
+## 2026-08-17 V10审查修订
+
+当前Dense256和G17结果统一定义为development validation evidence，不再称最终测试证据。
+方法贡献定位为：在冻结普通/交互Actor的策略复用设定中，用训练期特权交互信息监督部署期仅
+依赖本机局部观测的时序Router，并完整量化其成功、安全与效率权衡；不声称发明新的Gate算法。
+
+特权监督包含两阶段：G0感知前端训练时由Gazebo机器人真值位置生成候选身份/中心标签，Router
+训练时由最近机器人真值距离生成二值交互标签。两类真值都不进入部署输入。G0未通过硬机器人
+分类准入，只保留为软形状和候选证据。
+
+正式补充协议见[G25最终闭环消融与Sealed评测](25_最终消融与Sealed评测/README.md)。先在
+validation补齐闭环结构消融和部署成本，冻结全部实现与统计后再一次性读取sealed test。该协议
+不授权Actor训练。
+
 ## 2026-08-17 唯一当前路线
 
 主方法冻结为`5A + epoch16 + B2`。Dense256是本文的主要任务分布；G17完整混合场景
@@ -228,7 +242,7 @@ R2B在G17/G18上只能作为历史5A流程的输出对照，因为其best位于A
 ### Actor I：avoidance-epoch16
 
 - 从5A初始化并完成原定epoch-16训练；
-- 在强交互五车训练集中采用逐机器人、逐时刻oracle分工；
+- 在强交互五车训练集中采用逐机器人、逐时刻的特权距离分工；
 - 最近活动机器人真值中心距离`<=2.0 m`时，由Actor I执行并进入其更新范围；
 - 其他状态始终由冻结5A执行；
 - 真值距离只用于训练分工，没有进入Actor的24维部署输入；
@@ -246,16 +260,16 @@ R2B在G17/G18上只能作为历史5A流程的输出对照，因为其best位于A
 
 ## 4. Gate定义
 
-### 当前oracle
+### 特权距离诊断
 
 当前有效组合逐机器人、逐时刻计算最近活动机器人的真值距离：
 
 ```text
-d_nearest <= 2.0 m -> epoch-17
+d_nearest <= 2.0 m -> epoch-16
 d_nearest >  2.0 m -> 5A
 ```
 
-这是不可部署上界，不是学习Gate成绩。机器人实际只有本机激光；现有20维扇区最小值
+这是不可部署诊断，不是学习Gate成绩，也不是严格最优上界。机器人实际只有本机激光；现有20维扇区最小值
 会把机器人、墙和箱子压成同一种障碍。
 
 ### 可部署Gate
@@ -267,8 +281,8 @@ Gate必须使用：
 - 自运动补偿后的候选跟踪、闭合速度、CPA/TTC等短时特征；
 - 滞回和最短保持时间，避免频繁抖动。
 
-Gate不得把“2米内有障碍物”直接当成机器人标签。`2.0 m` oracle可以用于监督初始化、
-诊断和上界；最终选择标准应接近“短期调用Actor I是否比继续Actor N更有利”。
+Gate不得把“2米内有障碍物”直接当成机器人标签。`2.0 m`特权距离规则可以用于监督和
+诊断；当前Router只估计该规则定义的交互状态代理，不声称学习哪个Actor具有更高长期收益。
 
 ## 5. 已确认结果
 
@@ -277,7 +291,7 @@ Gate不得把“2米内有障碍物”直接当成机器人标签。`2.0 m` orac
 | 方法 | agent success | collision | full success | timeout | 平均步数 |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | 5A全程 | `0.8186` | `0.1814` | `0.4214` | `0/140` | `35.2` |
-| 5A + epoch-16真值oracle | `0.9157` | `0.0800` | `0.7000` | `2/140` | `54.3` |
+| 5A + epoch-16特权距离规则 | `0.9157` | `0.0800` | `0.7000` | `2/140` | `54.3` |
 
 这是validation，不是test。组合改善主要位于deep和close层，同时存在更保守、更慢的代价。
 
@@ -286,7 +300,7 @@ Gate不得把“2米内有障碍物”直接当成机器人标签。`2.0 m` orac
 | 方法 | agent success | collision | unresolved | full success | timeout |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | 5A全程 | `0.7064` | `0.2930` | `0.0006` | `0.3090` | `0.0030` |
-| 5A + epoch-16真值oracle | `0.8476` | `0.1456` | `0.0068` | `0.5450` | `0.0180` |
+| 5A + epoch-16特权距离规则 | `0.8476` | `0.1456` | `0.0068` | `0.5450` | `0.0180` |
 
 epoch-16全程运行在前256场的full success为`0.2305`、timeout为`0.5156`，因此它是
 条件避障Actor，不是独立Dense Actor。
@@ -298,7 +312,7 @@ epoch-16全程运行在前256场的full success为`0.2305`、timeout为`0.5156`�
 - 5A full success：`0.325`；
 - learned Gate：`0.405`；
 - McNemar exact：`p=0.06812`；
-- oracle增益恢复：`30.2%`。
+- 特权距离规则增益恢复：`30.2%`。
 
 方向为正但未通过统计和收益恢复门槛，只能作为后续Gate基线。
 
@@ -331,7 +345,7 @@ single-to-multi零样本泛化。
 4. dense/standard sealed test。
 
 同一张方法对比表中的5A、epoch-16 always-on、规则Gate、A1、B2、最终Gate、参数匹配
-单Actor和oracle必须重新运行同一个冻结manifest。所有方法必须共享完全相同的scenario
+单Actor和特权距离规则必须重新运行同一个冻结manifest。所有方法必须共享完全相同的scenario
 ID与顺序、评测seed列表、重复次数、物理参数、最大步数和终止条件。结果逐场记录
 `scenario_id`和evaluation repeat；分析器必须先校验manifest SHA-256以及ID缺失、重复、
 错序和repeat不一致，任何一项失败都应终止分析。历史上不同集合或不同运行协议的汇总
@@ -349,7 +363,7 @@ ID与顺序、评测seed列表、重复次数、物理参数、最大步数和�
 4. 明确超过不区分机器人与静态障碍的min-laser规则Gate；
 5. 最终Gate在multi-edge上仍保持正向收益；第一候选若未达到，可加入train内部
    multi-edge重训同一个Gate，但必须取消零样本泛化表述；
-6. 报告相对同场oracle的收益恢复比例，不能只报告绝对最好值。
+6. 报告相对同场特权距离规则的收益恢复比例，不能只报告绝对最好值。
 
 主指标为`full_success_rate`，同时报告`agent_success_rate`、`collision_rate`、
 `unresolved_rate`、`timeout_episode_rate`、平均步数、Gate激活比例和切换次数。
@@ -368,7 +382,7 @@ success + collision + unresolved = agents * episodes
 | min-laser或距离规则Gate | 不区分机器人语义的可部署下界 |
 | 历史G2-A Gate | 已有学习Gate基线 |
 | 当前learned Gate | 最终方法 |
-| `2.0 m`真值oracle | 不可部署上界 |
+| `2.0 m`特权距离规则 | 不可部署诊断，不是最优上界 |
 | corrected edge-1完整Actor pilot | “为什么不用单一完整Actor”的失败对照 |
 | G12参数匹配加宽单Actor | 控制两个Actor checkpoint带来的参数容量增加 |
 
