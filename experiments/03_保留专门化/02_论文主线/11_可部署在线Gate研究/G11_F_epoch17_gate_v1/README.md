@@ -1,6 +1,9 @@
 # G11-F epoch-17可部署Gate
 
-状态：`F-A1 selected / F-B2 rejected by closed-loop pilot`。登记日期：`2026-08-14`。
+状态：`historical epoch17 ablation / superseded by Dense selection of epoch16+B2`。登记日期：`2026-08-14`。
+
+> 当前方法已于`2026-08-17`按Dense256主任务冻结为`5A + epoch16 + B2`。本文件中的
+> F-A1选择是epoch17分支内部的历史pilot结论，保留实验事实，但不再定义论文主方法。
 
 ## 目的
 
@@ -128,9 +131,9 @@ F-C已完成`300/300`场并通过结果审计。两个repeat合并结果如下�
 F-A1相对5A为15场改善、8场退化，F-B2相对5A为16场改善、12场退化；F-B2相对F-A1
 为9场改善、12场退化，McNemar exact `p=0.6636`。F-B2的collision比F-A1低`0.008`，
 但timeout高`0.030`、平均步数高`11.46`，且full success低`0.030`，因此按预注册规则
-拒绝F-B2，冻结F-A1作为当前Gate候选。F-B2保留为DAgger消融，不再继续聚合训练。
+拒绝F-B2，当时冻结F-A1作为epoch17 Gate候选。F-B2保留为DAgger消融，不再继续聚合训练。
 
-当前F-A1尚未与R2-10k参数匹配大Actor在同一manifest上比较；历史R2/B2结果使用旧
+当时F-A1尚未与R2-10k参数匹配大Actor在同一manifest上比较；历史R2/B2结果使用旧
 epoch-16和不同manifest，只作背景证据。最终统一方法表前必须补做同场F-A1、F-B2、
 R2-10k、5A和oracle比较。
 

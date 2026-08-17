@@ -1,20 +1,30 @@
 # 可部署在线 Gate 研究
 
-状态：`legacy epoch-16 Gate archived / G11-F epoch-17 rebuild active`。更新日期：`2026-08-14`。
+状态：`epoch16 + B2 frozen for Dense main task`。更新日期：`2026-08-17`。
 
 本目录只研究两个冻结 Actor 之间的在线切换：
 
 - Actor N：`generalist-5a`，负责普通导航；
-- Actor I：`avoidance-epoch17`，负责局部机器人交互；
-- Gate：逐机器人、逐时刻选择 Actor，并负责进入和退出交互模式。
+- Actor I：`avoidance-epoch16`，负责局部机器人交互；
+- Gate：冻结B2，逐机器人、逐时刻选择 Actor，并负责进入和退出交互模式。
 
 两个 Actor 不再更新。Gate 部署时只能读取本机传感器、本机导航状态、两个 Actor
 对同一观测给出的候选动作以及本机短时历史。其他机器人真值、场景标签和冲突图只能
 在训练期生成监督或训练 Critic，不能进入部署 Gate。
 
-旧G11-A1/B2/D2均使用epoch-16，只作结构、训练流程和历史消融证据。当前G11-F复用
-A1保存的5A轨迹与24维状态，离线重算epoch-17候选动作并重训时序Gate；随后必须重新
-采集epoch-17 student rollout，旧B1 shard和B2 checkpoint不得直接进入最终方法。
+最终选择以Dense256高冲突主任务为准。B2 checkpoint来自G11-B聚合训练，使用8帧GRU、
+on/off阈值`0.43/0.33`、最短保持3个Gate帧和stride 2。其SHA-256为
+`fc59b4f783f7c5461ebb0239fab4b34896ad910ee78e7223e88d29ce9c3f5a52`。
+
+Dense256上epoch16+B2的full success为`0.4258`，是冻结Gate套件中的最高可部署点估计；相对5A的
+`0.2695`为56场改善、16场退化，exact `p=2.40e-6`。G17完整混合场景上其full success
+为`0.5917`，仍高于5A的`0.5000`（42/20，pooled McNemar `p=0.00715`；按120个场景
+聚类的sign-flip `p=0.02569`），但timeout为`0.0167`且平均步数为`36.78`。因此B2是
+Dense主方法，同时必须报告完整场景效率代价。
+
+G11-F的epoch17/F-A1重建仍是有效消融：它在G17更高效，但在Dense256的full success为
+`0.4023`，低于epoch16+B2。两者差异不显著（43/37，`p=0.5764`），所以不能声称
+student-rollout或B2结构本身普遍优于A1；当前选择只由预先确定的Dense主任务决定。
 
 ## 研究主张边界
 

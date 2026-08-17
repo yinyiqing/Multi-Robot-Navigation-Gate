@@ -1,4 +1,7 @@
-# G18 Dense256当前大Actor复测
+# G18 Dense256 epoch17方法复测（历史选择）
+
+> 后续epoch16同场补测完成后，论文已按Dense主任务冻结`epoch16+B2`。本文件保留
+> epoch17/F-A1分支在当时套件内的选择过程，不再作为当前方法定义。
 
 状态：`complete / audited`。登记日期：`2026-08-15`。
 

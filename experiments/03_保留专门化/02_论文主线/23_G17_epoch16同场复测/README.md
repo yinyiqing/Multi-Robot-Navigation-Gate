@@ -1,6 +1,6 @@
 # G17 epoch16同场复测
 
-状态：`registered / running`。登记日期：`2026-08-17`。
+状态：`complete / retained as full-scene evidence`。登记日期：`2026-08-17`。
 
 ## 问题
 
@@ -53,6 +53,9 @@ epoch17+F-A1为29场改善、23场退化，`p=0.4885`。两个2m规则为26场�
 `p=0.5966`，不支持epoch16或epoch17本身存在明显能力差异。epoch16+A1恢复了同Actor
 2m规则收益的`65.9%`，epoch17+F-A1恢复`46.9%`。
 
-当前判断是epoch16+A1为完整场景上的暂定learned-Gate候选，B2因成功率、timeout和效率
-均不占优而拒绝。由于论文主要压力集是Dense256，而历史Dense256没有epoch16+A1，正式
-替换主方法前只补这一组256场同场评测，不重跑已有5A、F-A1和2m规则。
+最终入选的epoch16+B2相对5A为42场改善、20场退化，pooled McNemar `p=0.00715`；
+考虑两个repeat共享120个场景后，scenario-cluster sign-flip仍为`p=0.02569`。
+
+当时判断epoch16+A1为完整场景上的暂定learned-Gate候选，B2在该分布上的成功率、timeout
+和效率均不占优。后续Dense256同场补测完成后，按预先确定的高冲突主任务最终冻结
+epoch16+B2；本文件保留为完整场景能力和效率代价证据。

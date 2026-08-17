@@ -1,6 +1,9 @@
 # R2D：3D2前置扩宽大Actor稳定续训
 
-状态：`registered / running`。登记日期：`2026-08-16`。
+状态：`stopped / outside frozen paper scope / do not resume`。登记日期：`2026-08-16`。
+
+> 当前论文范围已冻结为已有Actor复用与在线Router。本实验未形成当前容量baseline，
+> 不再恢复；以下内容只保留当时登记的训练协议。
 
 ## 研究问题
 

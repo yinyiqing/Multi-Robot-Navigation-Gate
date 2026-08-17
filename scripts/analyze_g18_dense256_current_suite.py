@@ -99,6 +99,9 @@ def main():
             for name, rows in runs.items()
             if name != "5a"
         },
+        "paired_epoch16_b2_vs_r2b_best": paired(
+            runs["historical_epoch16_b2"], runs["r2b_best"]
+        ),
         "by_conflict_edges": {},
     }
     for band in ("0", "1", "2", "3+"):

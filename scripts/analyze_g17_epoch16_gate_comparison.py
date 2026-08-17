@@ -27,7 +27,21 @@ def paired(a,b):
     x,y=a[:,8].astype(int),b[:,8].astype(int)
     imp,deg=int((x>y).sum()),int((x<y).sum()); n=imp+deg
     p=min(1.0,2*sum(math.comb(n,k) for k in range(min(imp,deg)+1))/2**n) if n else 1.0
-    return {"improved":imp,"degraded":deg,"tied":len(x)-n,"mcnemar_exact_p":p}
+    half=len(a)//2
+    if len(a)%2 or [str(v) for v in a[:half,12]] != [str(v) for v in a[half:,12]]:
+        raise ValueError("clustered sign-flip requires two aligned repeats")
+    differences=(x-y).reshape(2,half).sum(axis=0)
+    observed=abs(int(differences.sum()))
+    distribution={0:1.0}
+    for difference in differences:
+        updated={}
+        for total,probability in distribution.items():
+            updated[total+int(difference)]=updated.get(total+int(difference),0.0)+probability/2.0
+            updated[total-int(difference)]=updated.get(total-int(difference),0.0)+probability/2.0
+        distribution=updated
+    cluster_p=sum(probability for total,probability in distribution.items() if abs(total)>=observed)
+    return {"improved":imp,"degraded":deg,"tied":len(x)-n,"mcnemar_exact_p":p,
+            "scenario_cluster_sign_flip_p":cluster_p}
 def main():
     data={
       "5a":load("g17_5a_s{seed}.npy",G17),

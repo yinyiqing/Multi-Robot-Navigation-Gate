@@ -1,7 +1,7 @@
 # ICRA论文主线：普通导航Actor、条件避障Actor与在线Gate
 
-状态：`legacy route frozen / all E2 interaction-Actor pilots rejected`。
-更新时间：`2026-08-13`。
+状态：`5A + epoch16 + B2 frozen for Dense main task`。
+更新时间：`2026-08-17`。
 
 本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见
 [PROJECT_STATUS](../../../PROJECT_STATUS.md)，历史实验状态见
@@ -9,9 +9,18 @@
 
 ## 2026-08-17 唯一当前路线
 
-主方法继续冻结为`5A + epoch17 + F-A1`。5A承担快速、坚定的普通推进，epoch-17承担
-条件交互避障；N5更安全但更慢且存在timeout，其行为已经覆盖较多避障，因此只作为强
-单Actor基线，不替换互补性更清晰的5A。
+主方法冻结为`5A + epoch16 + B2`。Dense256是本文的主要任务分布；G17完整混合场景
+用于检查普通能力保持、timeout和效率代价，不覆盖Dense主指标的模型选择。
+
+同一Dense256协议中，5A、epoch17+F-A1、epoch16+A1和epoch16+B2的full success分别为
+`0.2695/0.4023/0.3867/0.4258`。epoch16+B2相对5A为56场改善、16场退化，exact
+`p=2.40e-6`，collision从`0.3000`降至`0.2102`，并恢复同一epoch16特权距离规则收益的
+`75.5%`，因此入选。它相对epoch17+F-A1的43/37、`p=0.5764`不显著；不能声称B2或
+student-rollout本身稳定优于A1，只能说该冻结组合在Dense主任务上获得最高可部署Gate点估计。
+
+5A承担快速、坚定的普通推进，epoch16承担条件交互避障。N5更安全但更慢且存在timeout，
+只作为强单Actor基线，不替换互补性更清晰的5A。epoch17与F-A1保留为Actor续训和
+Router机制消融，不再是当前主方法。
 
 本文范围固定为“不重新训练Actor的冻结策略复用”。R2B严格匹配5A起点、五车数据、预算
 和优化流程，是主表中的容量消融；N5/R2-10k使用新课程和连续Critic，属于完整策略重训的
@@ -19,10 +28,10 @@
 已在首个N5 repeat未完成时停止，不再恢复。
 
 当前不再训练Actor、不恢复R2D/G20、不启动N5专用Gate，也不得用不同seed或冲突比例拼接
-主表。论文只主张F-A1在冻结策略复用设定下优于5A和同流程容量扩展R2B，不主张优于所有
-允许完整重训的单Actor方法。
+主表。论文只主张epoch16+B2在冻结策略复用设定和Dense256协议下显著优于5A及同流程容量
+扩展R2B；相对R2B为59改善/18退化，`p=3.06e-6`。不主张优于所有允许完整重训的单Actor方法。
 
-## 2026-08-13避障Actor续训授权
+## 2026-08-13避障Actor续训授权（历史决策，已被Dense最终选择覆盖）
 
 主线恢复为`5A + 避障Actor + 可部署Gate`。epoch-16是原避障Actor，epoch-17是当前冻结
 避障Actor；数字只用于标识artifact。原避障Actor在16轮预算边界达到明显新高，
@@ -41,16 +50,17 @@ epoch 18-20没有形成更高成功率，并呈现避障占比、timeout和步�
 在读取sealed test前，项目于`2026-08-14`显式修订模型选择目标：full success作为主指标，
 collision与timeout作为安全约束，平均步数改为必须报告的效率代价。epoch 17在internal和
 独立matched validation上full success方向一致，且matched collision下降、timeout不变，
-因此冻结为当前避障Actor；epoch 16保留为消融对照。论文和实验记录必须披露该规则修订、
+因此当时冻结为候选避障Actor；epoch 16当时保留为消融对照。论文和实验记录必须披露该规则修订、
 `p=0.1421`及`1.159x`步数代价，不能声称epoch 17通过了原效率准入。
 
 G11-F随后完成epoch-17动作特征下的A1离线重建和`640/640`场student rollout全量审计。
-当前只聚合原5A轨迹与新epoch-17 student轨迹训练Gate；旧epoch-16 B1 shard和B2
+当时只聚合原5A轨迹与新epoch-17 student轨迹训练Gate；旧epoch-16 B1 shard和B2
 checkpoint只作历史证据，不进入最终方法。
 
 G11-F-C的`300/300`场闭环pilot中，5A/F-A1/F-B2的full success为
 `0.640/0.710/0.680`。F-B2碰撞略低但timeout和平均步数明显更高，且相对F-A1逐场为
-9改善、12退化，因此当前冻结F-A1，F-B2作为DAgger消融。
+9改善、12退化，因此当时冻结F-A1，F-B2作为DAgger消融。该pilot选择已被后续Dense256
+主任务上的epoch16+B2最终选择覆盖。
 
 同场R2-10k补充pilot随后完成。R2-10k的full success为`0.760`，高于F-A1的`0.710`；
 collision为`0.060 vs 0.088`，平均步数为`28.44 vs 33.41`，但timeout为`0.030 vs 0`。
@@ -116,8 +126,8 @@ validation上的full success为`0.630/0.605`，collision为`0.094/0.099`，timeo
 
 ```text
 Actor N：冻结5A，负责普通导航、目标推进和静态障碍
-Actor I：冻结epoch-17，负责短时局部机器人冲突
-Gate：运行时逐机器人、逐时刻选择Actor，并负责进入与退出避障状态
+Actor I：冻结epoch-16，负责短时局部机器人冲突
+Gate：冻结B2，运行时逐机器人、逐时刻选择Actor，并负责进入与退出避障状态
 ```
 
 执行策略为：
@@ -155,7 +165,7 @@ Gate成立的必要条件是两个Actor存在不同优势区。如果Actor I在�
 
 ## 3. Actor训练契约
 
-当前方法中的5A和epoch-17 artifact继续冻结，不得覆盖。epoch-16作为消融对照保留。
+当前方法中的5A、epoch-16和B2 artifact继续冻结，不得覆盖。epoch-17与F-A1作为消融保留。
 当前不再授权Actor训练；以下条目记录已经结束的书面例外：
 
 - [避障Actor续训](16_避障Actor续训/README.md)从epoch-16完整checkpoint分叉，只追加
@@ -198,7 +208,8 @@ F-A1相对两者的配对检验分别为`p=0.00444/0.04022`，但平均步数为
 dense场景上完成。5A/R2B-best/F-A1/F-B2的full success为
 `0.2695/0.2656/0.4023/0.4141`；F-A1相对两个公平baseline均显著
 （`p=4.45e-5/2.17e-5`），collision也从5A的`0.3000`降至`0.2227`。F-B2相对F-A1
-不显著（`p=0.8126`）且平均步数从`32.94`升至`40.44`，因此F-A1继续作为主Gate。
+不显著（`p=0.8126`）且平均步数从`32.94`升至`40.44`，因此当时F-A1继续作为主Gate。
+后续epoch16同场复测表明B2在Dense256达到`0.4258`，按Dense主任务标准最终改选epoch16+B2。
 2m真值规则为`0.5078`并显著高于F-A1，说明Gate仍有未恢复的切换收益；该规则不可部署，
 也不是严格性能上界。
 
@@ -214,15 +225,15 @@ R2B在G17/G18上只能作为历史5A流程的输出对照，因为其best位于A
 - 负责目标推进、墙和箱子避障以及普通状态；
 - 当前冻结，不再微调。
 
-### Actor I：avoidance-epoch17
+### Actor I：avoidance-epoch16
 
-- 从5A初始化，并从原epoch-16完整训练状态续训一轮；
+- 从5A初始化并完成原定epoch-16训练；
 - 在强交互五车训练集中采用逐机器人、逐时刻oracle分工；
 - 最近活动机器人真值中心距离`<=2.0 m`时，由Actor I执行并进入其更新范围；
 - 其他状态始终由冻结5A执行；
 - 真值距离只用于训练分工，没有进入Actor的24维部署输入；
-- 原epoch 16训练`320,000` agent samples并覆盖`2560/2560`场；当前epoch 17从该完整
-  状态继续训练一轮`20,000` samples，epoch 18-20因退化拒绝。
+- epoch16训练`320,000` agent samples并覆盖`2560/2560`场，现作为最终条件避障Actor
+  冻结；epoch17-20续训结果保留为Actor选择消融。
 
 完整路径复审发现原2560场中有11场实际为edge-2，占`0.43%`。当前默认论文主张是
 “两个冻结Actor由一个可部署Gate在线分工”，不主张整个系统严格只见single-edge，
@@ -408,8 +419,8 @@ success + collision + unresolved = agents * episodes
 8. I-E2、I-E2-M和I-E2-F4均已拒绝。旧epoch-16继续作为fallback；不追加这些E2配套
    Actor的训练，不扫描reward权重，也不启动基于F4的新Gate。当前唯一避障Actor训练是
    从原epoch-16完整状态固定续训epoch 17-20；F4不得作为其warm start或配置来源。
-9. G17三方完整场景统一对比及G18 dense256压力集Gate消融已经完成；当前冻结F-A1为
-   主Gate，F-B2为DAgger消融，并按预注册稳定闸门顺序运行G19-R2C原宽/加宽容量pilot。
+9. G17三方完整场景统一对比、G18 dense256压力集Gate消融及epoch16同场补测已经完成；
+   当前冻结epoch16+B2为Dense主方法，epoch17/F-A1、epoch16/A1和F-B2作为消融。
    G11-E的50场
    exact-edge-2 pilot与后150场
    confirmation已经完成清单冻结和互斥审计，不得并行启动第二套Gazebo。

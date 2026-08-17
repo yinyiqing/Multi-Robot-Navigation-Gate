@@ -6,12 +6,21 @@
 [论文主线协议](experiments/03_保留专门化/02_论文主线/README.md)为准；历史 README
 中的“当前”和“下一步”只代表当时判断。
 
-## 2026-08-17 论文范围冻结
+## 2026-08-17 Dense主任务最终冻结
 
-主方法保持为`5A + avoidance-epoch17 + F-A1`。选择5A不是因为它overall最高，而是因为
-它推进快、无系统性timeout且在强交互中存在明确短板；epoch-17补充条件避障能力，两者
-形成Router所需的行为互补。N5虽然成功率点估计更高，但更慢、更保守并有timeout，当前
-只作为强单Actor基线，不替换主方法中的普通Actor。
+论文主方法冻结为`5A + avoidance-epoch16 + B2`。Dense256是预先明确的主要任务分布，
+因为本文解决的是高冲突条件下普通推进与条件避障的在线分工；G17完整混合场景用于检查
+普通能力保持和效率代价，不覆盖Dense主指标的模型选择。
+
+同一Dense256冻结Gate套件下，`epoch16+B2`是最高的可部署Gate组合点估计：full success为`0.4258`，
+高于5A的`0.2695`，逐场56改善/16退化，McNemar exact `p=2.40e-6`；collision从
+`0.3000`降至`0.2102`。它恢复同一epoch16特权距离规则收益的`75.5%`。该选择不授权
+声称B2显著优于A1或epoch17+F-A1：相对epoch17+F-A1为43改善/37退化，`p=0.5764`；
+student-rollout聚合不能单独表述为已证明的稳定增益。
+
+选择5A不是因为它overall最高，而是因为它推进快、无系统性timeout且在强交互中存在明确
+短板；epoch16补充条件避障能力，两者形成Router所需的行为互补。N5虽然成功率点估计更高，
+但更慢、更保守并有timeout，只作为强单Actor基线，不替换主方法中的普通Actor。
 
 本文研究范围固定为：**不重新训练Actor，只学习一个可部署时序Gate复用已有互补策略**。
 容量结论和训练流程结论必须拆开：
@@ -19,13 +28,14 @@
 - `R2B`与历史5A共享3D2起点、五车数据、预算和优化流程，只回答“参数量翻倍”效应；
 - `N5/R2-10k`使用新的完整课程与连续Critic，属于完整策略重训的内部跨协议探索，不进入
   本文方法表或论文叙事，也不能称为纯容量对照；相关记录只留在项目历史中；
-- G17/G18中F-A1相对R2B的结果进入主容量对照；
+- G17/G18中的R2B结果作为流程匹配容量对照；Dense256中的`epoch16+B2`是主方法结果；
 - [G20跨协议审计](experiments/03_保留专门化/02_论文主线/20_夜间最终统一评测/README.md)
   因超出本文冻结策略复用范围，于首个N5 repeat未完成时停止并归档，不再恢复。
 
 当前不训练或修改任何Actor，不恢复R2D/G20，也不启动N5专用Gate。论文不得声称优于所有
-重新训练的单Actor；准确主张是：在冻结策略复用设定下，F-A1比5A及同5A流程的容量扩展
-R2B更有效地利用已有互补行为。
+重新训练的单Actor；准确主张是：在冻结策略复用设定和Dense256协议下，`epoch16+B2`
+显著优于5A及同5A流程的容量扩展R2B；相对R2B为59改善/18退化，`p=3.06e-6`。该结论
+不外推到任意完整重训的单Actor。
 
 ## 2026-08-17 Gate机制对照完成
 
@@ -34,8 +44,8 @@ epoch17全程运行、F-A1和2m特权距离规则的full success分别为
 `0.5000/0.2667/0.5958/0.7042`。F-A1相对5A显著改善（42场改善、19场退化，
 McNemar exact `p=0.00444`），相对epoch17全程运行也显著更好（100/21，
 `p=1.61e-13`）；epoch17全程运行的timeout达到`0.5708`，确认避障Actor必须被条件调用。
-2m特权距离规则仍显著高于F-A1（46/20，`p=0.00186`），说明当前可部署Gate有效，但仍有
-明确的切换时机误差。下一步先做F-A1相对2m规则的逐帧时序诊断，不盲目追加Gate训练。
+2m特权距离规则仍显著高于F-A1（46/20，`p=0.00186`），说明该epoch17 Gate有效但仍有
+切换时机误差。该段是最终Dense选择之前的机制对照，不再决定当前主方法。
 
 G17上的epoch16同场复测随后完成。epoch16+A1/epoch16+B2的full success分别为
 `0.6208/0.5917`，其中epoch16+A1相对5A为47场改善、18场退化（`p=0.000422`），相对
@@ -45,12 +55,12 @@ epoch17+F-A1为`+0.0250`但不显著（29/23，`p=0.4885`）。epoch16与epoch17
 随后补历史Dense256缺失的epoch16+A1同场评测，最终判断以下一段为准。
 
 Dense256的epoch16+A1补测已经完成，并纠正了上述暂定判断：epoch16+A1为`0.3867`，
-未超过epoch17+F-A1的`0.4023`；历史同场epoch16+B2为最高可部署点估计`0.4258`，相对
+未超过epoch17+F-A1的`0.4023`；历史同场epoch16+B2为最高可部署Gate组合点估计`0.4258`，相对
 5A的`0.2695`显著（56场改善、16场退化，`p=2.40e-6`），并恢复epoch16特权规则
 `0.4766`收益的`75.5%`。epoch16+B2相对epoch17+F-A1为43/37，`p=0.5764`，不能声称
-两者显著不同；G17中二者也近似持平，但B2更慢且timeout略高。当前方法选择进入最终冻结
-决策：若论文以高冲突Dense为主任务，则epoch16+B2是更强的验证候选；无论选择哪一组，
-都不得把student rollout本身表述为已证明的显著贡献。
+两者显著不同；G17中二者也近似持平，但B2更慢且timeout略高。论文现已明确以高冲突
+Dense为主任务，因此最终冻结`epoch16+B2`；仍不得把student rollout本身表述为已证明的
+显著贡献。
 
 ## 投稿时间
 
@@ -69,7 +79,7 @@ Gate 根据本机传感器在两者之间逐机器人、逐时刻切换。
 Actor N = generalist-5a
   普通推进、目标导航、墙和箱子避障
 
-Actor I = avoidance-epoch17
+Actor I = avoidance-epoch16
   局部机器人冲突中的减速、避让和脱困
 
 Gate
@@ -89,10 +99,12 @@ Gate
 | ID | artifact | SHA-256 | 状态 |
 | --- | --- | --- | --- |
 | `generalist-5a` | `TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best_actor.pth` | `fa28855049b67b3ee44c66d55d4f14441fc7c521e5429862c75b152f7d5cacc5` | 普通导航 Actor |
-| `avoidance-epoch17` | `avoidance_actor_from_5a_balanced_continue_e20_s20260813_best_actor.pth` | `149c2e42848ecc9bc478cbed7fd89b9062936dbd5c669b55e6964441685155a5` | 条件避障 Actor |
+| `avoidance-epoch16` | `interaction_focused_actor_from_5a_fullstrong_balanced_formal_s20260726_epoch_016_actor.pth` | `6ec1942fcd497ab1cc2a85a5aaec8f524395dc21ff21a442dca243a52e917c0b` | 条件避障 Actor |
+| `router-b2` | `experiments/03_保留专门化/02_论文主线/11_可部署在线Gate研究/G11_B_student_rollout_v1/local_data/training/seed20260804/any/T1/best.pt` | `fc59b4f783f7c5461ebb0239fab4b34896ad910ee78e7223e88d29ce9c3f5a52` | 最终时序 Router |
 
-两者的部署 Actor 输入均为本车24维观测。`avoidance-epoch17`训练时使用了仿真真值
-进行状态分工，但真值距离没有进入 Actor 输入。
+两个Actor的部署输入均为本车24维观测。`avoidance-epoch16`训练时使用了仿真真值进行
+状态分工，但真值距离没有进入Actor输入。B2使用8帧、82维可部署输入，on/off阈值为
+`0.43/0.33`，最短保持3个Gate帧，stride为2；部署时不读取真值距离。
 
 ## 已确认事实
 
@@ -283,7 +295,7 @@ Gate
     `0.640/0.710/0.680`，collision分别为`0.104/0.088/0.080`，timeout分别为
     `0/0/0.030`，平均步数分别为`21.91/33.41/44.87`。F-B2相对F-A1为9场改善、12场
     退化，exact `p=0.6636`，且成功率低3个百分点、timeout和步数更高；因此拒绝F-B2，
-    冻结F-A1作为当前Gate候选。F-A1与R2-10k大Actor尚未在同一manifest上比较，历史
+    当时冻结F-A1作为epoch17 Gate候选。F-A1与R2-10k大Actor尚未在同一manifest上比较，历史
     R2/B2数字不得替代该实验。
 45. G11-F-C的R2-10k同场补充pilot已完成`100/100`场。5A/F-A1/F-B2/R2-10k的full
     success为`0.640/0.710/0.680/0.760`，collision为`0.104/0.088/0.080/0.060`，timeout
@@ -326,7 +338,8 @@ Gate
     `0.3000/0.3031/0.2227/0.2141/0.2156/0.1594`。F-A1相对5A和R2B-best的逐场检验
     分别为`p=4.45e-5/2.17e-5`，确认可部署Gate在多冲突压力集上的收益；平均步数
     `32.94 vs 17.46/19.80`，效率代价明显。F-B2相对F-A1仅`+0.0117` full success，
-    `p=0.8126`且平均步数升至`40.44`，因此F-A1继续作为主Gate，F-B2只作DAgger消融。
+    `p=0.8126`且平均步数升至`40.44`，因此当时F-A1继续作为epoch17主Gate，F-B2只作
+    DAgger消融；该选择后来被Dense256上的epoch16+B2最终决策覆盖。
     2m真值规则仍显著高于F-A1（`p=0.00404`），当前缺口在可部署Gate而不是Actor重训。
     历史R2-10k同场为`0.5273`，但训练课程和预算不匹配，只能作cross-protocol诊断。
 52. G19-R2C已于`2026-08-16`停止并删除执行产物。它从训练完成的5A函数出发，只能回答
@@ -337,75 +350,32 @@ Gate
     （3D2前置扩宽、Actor尚未更新）继续，保持五车standard、individual reward、24维
     Critic和30k总预算。20k前Actor冻结；20k至30k只增加Q尺度归一化、权重1.0的全状态
     行为锚定和1.0梯度裁剪。30k是唯一更新候选；失败后不得追加预算或扫描anchor。
+54. epoch16 Gate同场补测已完成并形成最终选择。Dense256上epoch16+B2为`0.4258`，相对
+    5A为56改善/16退化，`p=2.40e-6`；G17上为`0.5917`，相对5A为42改善/20退化，
+    pooled McNemar `p=0.00715`，按120个场景聚类的sign-flip `p=0.02569`。按Dense主任务
+    冻结`5A + epoch16 + B2`，epoch17/F-A1与A1保留为消融。
 
 以上都是validation或diagnostic，不是sealed test结果。不同数据集上的数值不得直接
 横向比较。
 
 ## 当前工作
 
-当前主线仍是可部署Gate；参数匹配单Actor只作论文公平对照：
+当前Gate训练已经结束，进入论文级冻结评测与写作阶段：
 
-1. 主线冻结旧5A与epoch-17避障Actor。epoch 17未通过原`1.10x`效率硬门槛，但在读取
-   sealed test前按修订后的“full success主指标、collision/timeout安全约束、步数报告
-   代价”规则入选；epoch 16保留为消融对照，不再继续Actor训练。
-2. Gate使用本机激光雷达、导航状态及必要的短时历史，不能读取其他机器人里程计、
-   场景类别或冲突图。
-3. `2.0 m` oracle用于监督、诊断和上界；最终Gate需要判断何时调用避障Actor更有利，
-   不能把“附近有障碍物”直接等同于“附近有机器人”。
-4. 旧epoch-16的G11-D2已经归档：B2导航收益成立但效率准入失败，只作历史证据。当前
-   G11-F已完成epoch-17 A1重建、student rollout和闭环pilot，F-A1冻结为Gate候选；
-   F-B2只作DAgger消融，不得直接进入最终方法。
-5. G17和G18已经完成完整场景、dense256扩大样本及Gate消融；G19-R2C因从5A后置扩宽
-   而停止，当前容量对照只允许从3D2共同起点前置扩宽。完成该对照后再在读取sealed test
-   前冻结最终报告协议。G11-E已经冻结50场
-   exact-edge-2 pilot与后150场confirmation，二者与当前Gate训练、G11-C和G11-D2均
-   无场景重叠。若自然泛化不足，可以在读取sealed test前
-   书面修订协议、加入navigation-train的multi-edge数据并重训同一个Gate；此时不再
-   声称single-to-multi零样本泛化。
-6. G12-P1已停止并降级为训练稳定性诊断。G12-R3也已因Actor解冻后退化而停止，不再扩展
-   R4。后续容量对照遵循
-   [G12-R公平路线](experiments/03_保留专门化/02_论文主线/12_参数匹配单Actor容量对照/REVISED_PLAN.md)：
-   先做原宽度控制，再让参数匹配Actor从头完成普通导航课程和完整五车分布联合训练。
-   任何新长跑必须先冻结具体超参数和manifest，不得用D2或sealed test调参。R2因
-   额外课程和预算不匹配已降级为cross-protocol诊断；流程匹配的R2B按自动
-   validation best选择epoch 1，R2B-best的G11-F-C同场评测已完成并归档。
-7. G12-R1已归档到`logs/archive/diagnostic/g12_r1/`，只作机制诊断，其checkpoint不得
-   作为R2 warm start或论文主性能模型。
-8. G12完整场景内部validation已经冻结为`g12_full_scene_selection_v1`：120场按来源和
-   0-edge/edge-1/multi-edge同时平衡，与全部navigation train及G11-C/D2/E逐一互斥。
-   历史课程审计也已完成：2D/3D2/5A的selected checkpoint没有可靠Actor更新证据，且
-   初始基础模型预算未知。R2改为随机加宽Actor先做n1 broad导航，再补固定单车case并按
-   n2/n3/n5扩展。R2-S0已经完成并通过；S1的8-case repair-only首段因broad full success
-   降至`0.575`而拒绝。S2至S4已完成两车、三车和五车完整场景首段；S4训练内best为20k，
-   但20k配对准入因timeout多1场未通过，唯一10k fallback通过全部五项准入，因此冻结
-   S4 10k作为R2参考。R3 40k的混合清单、数值配置、21k Actor解冻阈值和停止条件已经
-   冻结并执行完成，但Actor解冻后退化。R2-10k与B2的同场数据仅保留为历史
-   cross-protocol诊断，不再作为候选容量baseline。失败S1不得作为warm start。
-9. 新的普通Actor重训 baseline 已改为课程式路线，目标不是替代当前Gate主线，而是为
-   `generalist-5a` 的角色重建一个更强的普通Actor N。`2026-08-09`直接五车 fresh local
-   critic pilot 已中止归档；正式路线从原宽度随机Actor/Critic的单车 broad N1 开始，
-   再按 N2/N3/N5 扩展，local critic 不再在五车阶段突然 fresh 接入。N1已经完成并通过，
-   N2、N3和N5首段也已经完成并通过；N5同场配对准入因timeout失败，不能直接替换旧5A。
-   `epoch-16`已经是使用邻域
-   critic和交互reward训练出的避障专家，因此普通Actor N的clean课程继续保持原24维critic。
-   当前登记的N5 efficiency repair E1只处理N5-20k的timeout/效率问题，不改变普通Actor的
-   观测结构，也不把它训练成第二个避障Actor。
-10. 最终方法表必须重新在同一个冻结manifest上运行全部方法。每个方法使用完全相同的
-   scenario ID、顺序、评测seed列表、重复次数、物理参数和终止条件；分析前逐项审计
-    manifest哈希、缺失/重复/错序ID。不同场景或不同评测协议的历史汇总值不得混入同一表。
-11. 当前三个E2配套Actor pilot均已完成并拒绝。首版I-E2因单冲突训练分布导致multi-edge不足；
-    I-E2-M修复了数据覆盖，但训练目标仍只覆盖逼近风险状态，没有学到停滞恢复和交还。
-    I-E2-F4进一步覆盖完整交互窗口和四阶段恢复信号，但Actor更新后全面退化。三者均不得
-    替换旧epoch-16；当前不授权继续Actor长跑或启动基于新Actor的Gate训练。历史协议位于
-    [E2恢复Actor诊断与训练](experiments/03_保留专门化/02_论文主线/15_E2恢复Actor诊断与训练/README.md)
-    。
-
-12. 不再沿用当前TD3目标做第五次E2配套Actor权重微调。若未来重启，必须先提出与F4有
-    本质区别的训练形式，并在离线或短窗反事实上证明有效后重新书面修订协议。
-13. `I-E2-F4`已归档为失败诊断；完整结果见
-    `15_E2恢复Actor诊断与训练/I_E2_F4_RESULTS.md`。
-14. G19-R2C已关闭且不得恢复。后续容量baseline必须保持R2B的正确血缘：从3D2共同起点
-    扩宽，并在完整5A五车阶段全程使用加宽Actor；仍不授权修改5A、epoch17或Gate。
+1. 冻结`generalist-5a`、`avoidance-epoch16`和B2 checkpoint及其`0.43/0.33`滞回、
+   hold 3、stride 2配置；不再根据validation结果调整Actor、Gate或阈值。
+2. Dense256是主要任务分布；G17完整混合场景是普通能力保持与效率补充。不得将两个数据集
+   的数值拼接，也不得因G17局部排名重新选择主方法。
+3. 论文主张限定为：B2在Dense256上显著超过5A和流程匹配R2B，并恢复epoch16特权距离规则
+   收益的`75.5%`。不得声称B2显著超过A1、epoch17+F-A1或所有完整重训单Actor。
+4. 下一步只补同协议机制消融、部署成本、逐帧切换诊断和一次sealed test。sealed test读取前
+   必须冻结方法表、场景manifest、seed、统计脚本和失败处理规则。
+5. epoch17/F-A1、epoch16/A1、always-on、简单LiDAR规则和2m特权距离规则均作为消融或
+   诊断保留；2m规则不可部署，也不是最优上界。
+6. N5、E2、I-E2、R2-10k、R2D/G20及其他Actor训练路线保持关闭或历史诊断状态，不恢复
+   Actor训练。R2B只作为同5A流程的容量对照。
+7. 所有正式方法必须使用完全一致的scenario ID、顺序、评测seed、物理参数和终止条件；
+   不同场景或不同协议的历史汇总值不得进入同一主表。
 
 ## 问题与主张边界
 
