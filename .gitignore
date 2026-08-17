@@ -39,6 +39,7 @@ catkin_ws/src/multi_robot_scenario/launch/pioneer3dx_multi_*_standard.rviz
 .g17_full_scene_comparison.pid
 .g17_gate_mechanism.pid
 .g17_epoch16_gate_comparison.pid
+.dense256_epoch16_a1.pid
 .g18_dense256_*.pid
 .g19_r2c_paired_pilot.pid
 .e2_ie2_multi_conflict_pipeline.pid
@@ -74,6 +75,7 @@ experiments/03_保留专门化/02_论文主线/19_R2C公平容量对照/local_da
 experiments/03_保留专门化/02_论文主线/20_夜间最终统一评测/local_data/
 experiments/03_保留专门化/02_论文主线/22_G17_Gate机制对照/local_data/
 experiments/03_保留专门化/02_论文主线/23_G17_epoch16同场复测/local_data/
+experiments/03_保留专门化/02_论文主线/24_Dense256_epoch16_A1复测/local_data/
 
 # Local-only experiment checkpoints; GitHub rejects large .pt artifacts.
 experiments/03_保留专门化/02_论文主线/results/**/checkpoints/
