@@ -1,7 +1,7 @@
 # G25 最终闭环消融与 Sealed 评测预注册
 
 状态：`方案冻结，尚未启动`
-登记日期：`2026-08-17`
+登记日期：`2026-08-17`，统计细节修订：`2026-08-18`
 
 ## 1. 目的与边界
 
@@ -63,6 +63,19 @@ checkpoint 选择规则；只改变表中指定因素。V4 仍使用同一 GRU c
 报告中不得用“双 Actor 参数量约等于 R2B”替代运行时成本。PIRoute 每个路由帧需要两个 Actor
 候选动作，这是相对单 Actor 的明确部署代价。
 
+“不重新训练 Actor”的成本优势也必须量化。由冻结日志和 artifact 审计以下训练成本，不补跑
+Actor，也不对缺失记录作估算：
+
+- 5A、epoch16 和 R2B 的训练 agent samples、environment steps、wall-clock、设备和可恢复的
+  GPU/CPU hours；
+- G0 的场景数、帧数、候选数、训练 epoch 和 wall-clock；
+- A1/B2 的原始与 student-rollout 场景数、Gate 帧数、Router 训练 wall-clock 和设备；
+- V4/V5 新增 Router 消融的样本量、wall-clock 和设备。
+
+只有在统一口径的记录可恢复时才比较计算成本；无法恢复的历史 wall-clock 标为 `not recorded`，
+不得用理论值替代实测值。论文中的“低成本复用”限定为“不产生新的 Actor 更新和 Actor rollout
+训练预算”，不能在审计完成前声称总计算成本必然更低。
+
 ## 5. Sealed test 一次性协议
 
 ### 5.1 数据与 seed
@@ -78,8 +91,23 @@ Router、冲突边数或历史结果筛选。生成只包含这 256 个场景的
 20260901, 20260902, 20260903
 ```
 
-三个 repeat 均对 V0-V10 使用相同的场景和 seed。方法顺序采用循环移位，避免某一方法总在
-仿真进程的相同位置运行。失败重启只允许从已落盘的最后完整 scene ID 继续，不得重跑后择优。
+sealed test 只运行下列 7 个方法：
+
+```text
+V0  5A
+V1  epoch16 always-on
+V2  min-LiDAR rule
+V3  TTC rule
+V8  B2/PIRoute
+V9  2 m privileged distance rule
+V10 R2B-best
+```
+
+三个 repeat 均对这 7 个方法使用相同场景和 seed，总预算固定为
+`7 x 256 x 3 = 5376 episodes`。V4 single-frame、V5 no-action-difference、V6
+no-hysteresis/hold 和 V7 A1 只在 Dense256 validation 做闭环消融，不进入 sealed；它们不属于
+唯一确认性假设的必要方法。方法顺序采用循环移位，避免某一方法总在仿真进程的相同位置运行。
+失败重启只允许从已落盘的最后完整 scene ID 继续，不得重跑后择优。
 
 ### 5.2 假设与指标
 
@@ -89,23 +117,47 @@ Router、冲突边数或历史结果筛选。生成只包含这 256 个场景的
 
 统计单位是 scene。三个 repeat 不能当作 768 个相互独立场景：
 
-1. 报告每个 repeat 的点估计和改善/退化/持平数；
-2. pooled McNemar 只作参考；
-3. 主推断使用按 scene 聚类的 paired bootstrap 95% CI 和 scene-level sign-flip test；
-4. collision、timeout、steps、interaction share 同样使用 scene-cluster paired bootstrap CI；
-5. 按 0/1/2/3+ 冲突边分层只作预注册异质性分析，不分别宣称新的主要显著性结论。
+1. 报告每个 repeat 的点估计和改善/退化/持平数；pooled McNemar 只作参考；
+2. 对每个 scene 先计算三个 repeat 的 PIRoute-5A 配对差值均值，再以 scene 为 cluster；
+3. 主效应 95% CI 使用 scene-cluster BCa paired bootstrap，重采样 `20,000` 次，随机 seed
+   固定为 `20260818`；每次抽取 256 个 scene cluster，并携带各自全部 repeat；bias correction
+   由bootstrap分布计算，acceleration使用leave-one-scene-cluster-out jackknife；
+4. sign-flip 使用上述 scene-level 配对差值，进行 `100,000` 次 Monte Carlo 随机符号翻转，
+   检验统计量`T`为256个scene差值的均值；双侧检验，
+   `p=(1 + count(|T*| >= |T_obs|))/(100000 + 1)`，随机 seed `20260818`；
+5. 唯一主要检验的显著性水平为双侧 `alpha=0.05`，不做多重校正。只有 BCa 95% CI 下界
+   大于 0 且 sign-flip `p<0.05` 时，才称 sealed test 确认核心 full-success 差异；
+6. 若点估计为正但 CI 跨 0 或 sign-flip 未达阈值，只写正向趋势；若点估计不为正，则写未复现；
+7. collision、timeout、steps、interaction share 使用相同 scene-cluster BCa bootstrap。
+   它们是次要/描述性指标；若额外报告 p 值，统一用 Holm 方法校正并明确探索性；
+8. 按 0/1/2/3+ 冲突边分层只作预注册异质性分析，不分别宣称新的主要显著性结论。
 
-V1-V7、V9-V10 是机制/边界对照。B2 对 A1、single-frame 或 no-action-difference 的比较即使
-显著，也不改变主方法或主要假设；B2 对 student-rollout 的现有非显著结论必须如实保留。
+### 5.3 步数与提前终止
+
+碰撞会提前结束 episode，因此“所有 episode 原始平均步数更少”可能反而代表更差的安全性。
+步数固定报告三种口径：
+
+1. `raw termination steps`：所有 episode 到终止的原始步数，只描述仿真占用时间，不称导航效率；
+2. `paired-success steps`：仅在 PIRoute 与比较方法对同一 scene/repeat 都 full success 时计算
+   配对步数差，作为成功条件下的导航效率；同时报告有效配对数，不跨方法比较不同成功子集，
+   并明确该口径受“双方均成功”的条件选择影响，只作描述性结果；
+3. `penalized completion steps`：full success 使用实际步数，其他结局统一赋值为该协议配置中的
+   最大 horizon `H_max`，用于联合表示完成率和耗时。
+
+三种口径均按 scene 聚类给出 95% CI。不得只选取对方法有利的一种步数定义。
+
+V1-V7、V9-V10 是机制/边界对照。B2 对 A1、single-frame 或 no-action-difference 的 validation
+比较即使显著，也不改变主方法或主要假设；B2 对 student-rollout 的现有非显著结论必须如实保留。
 
 ## 6. 图表与停止规则
 
 最终输出固定包括：
 
 - success-collision-steps Pareto 图，validation 与 sealed 分面显示；
-- full success、collision、timeout、steps、interaction share 的配对差值及 95% CI；
+- full success、collision、timeout、三种 steps、interaction share 的配对差值及 95% CI；
 - 至少一个成功路由、一个晚退出和一个误触发案例的时间轴；
-- 参数量、前向次数、FLOPs、延迟和控制频率表。
+- 参数量、前向次数、FLOPs、延迟和控制频率表；
+- Actor、G0 和 Router 的训练样本量、wall-clock 与可恢复计算成本表。
 
 读取 sealed 后禁止：重新选择 Actor/Router、调整阈值、删除不利 seed、改变主要指标、改变
 dense 场景范围或新增用于挽救结论的模型。若主要假设不成立，论文必须按阴性结果修改，而不是
@@ -122,9 +174,10 @@ R2B-best 只回答“相同 5A recipe、数据、预算和优化流程下的参�
 ## 8. 执行顺序
 
 1. 实现并单元测试 V2-V6，核对它们只改变登记因素；
-2. 运行 Dense256 validation 闭环消融和部署成本审计；
-3. 冻结脚本、容器/环境、manifest、顺序与统计输出，完成一次 dry-run；
-4. 一次性运行三个 seed 的 dense sealed test；
-5. 只运行预注册统计脚本并生成最终表图。
+2. 审计现有 Dense256 的 V0/V7/V8/V9/V10 逐场结果；协议与哈希完全相同则复用，不重复运行；
+3. 只补跑缺失的 V1-V6 Dense256 validation，并完成部署/训练成本审计；
+4. 冻结脚本、容器/环境、manifest、顺序与统计输出，完成一次 dry-run；
+5. 一次性运行 7 个方法、三个 seed 的 dense sealed test；
+6. 只运行预注册统计脚本并生成最终表图。
 
 本文件不授权任何 Actor 训练。

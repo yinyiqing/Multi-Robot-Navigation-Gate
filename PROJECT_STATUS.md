@@ -1,6 +1,6 @@
 # 当前项目状态
 
-更新时间：`2026-08-17`。
+更新时间：`2026-08-18`。
 
 本文件是进入项目后的第一阅读入口。方法定义、实验准入和数据边界以
 [论文主线协议](experiments/03_保留专门化/02_论文主线/README.md)为准；历史 README
@@ -22,6 +22,12 @@ G17 均参与过开发或模型选择，现有显著性只属于 validation evid
 先在 validation 上补 single-frame、no-action-difference、no-hysteresis/hold、epoch16
 always-on、min-LiDAR/TTC 规则及部署成本，再冻结协议一次性运行多个 repeat seed 的 dense
 sealed test。当前仍禁止训练 Actor；本次只修改论文和实验方案，尚未启动 G25。
+
+G25统计细节已于`2026-08-18`补齐。sealed只运行5A、epoch16 always-on、min-LiDAR、TTC、
+B2、2m特权距离规则和R2B共7个方法，三个repeat合计`5376 episodes`；A1与三个结构消融只在
+validation运行。主要检验固定为scene-cluster BCa 95% CI和双侧sign-flip，`alpha=0.05`。
+步数拆分为raw termination、paired-success和penalized completion，避免把碰撞提前终止误判
+为效率优势；另需审计Actor、G0与Router的训练样本和计算成本。
 
 ## 2026-08-17 Dense主任务最终冻结
 
