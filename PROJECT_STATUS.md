@@ -46,6 +46,10 @@ no-action-difference分别为`0.3789/0.3945`，均显著优于5A，但相对完�
 `1.443 ms`、p95 `1.490 ms`。下一步是训练成本审计、sealed runner dry-run与一次性sealed
 三repeat评测；此前仍不得读取sealed test。
 
+G25训练成本审计随后完成。A1/B2的CPU Router训练实测为`42.15/94.27 s`，但B1另需640场
+student rollout；5A完整warm-start血缘、epoch16和G0的历史wall-clock没有可靠记录，统一标为
+`not recorded`。因此投稿只声称当前方法阶段不更新Actor，不声称完整系统总训练成本更低。
+
 G25统计细节已于`2026-08-18`补齐。sealed只运行5A、epoch16 always-on、min-LiDAR、TTC、
 B2、2m特权距离规则和R2B共7个方法，三个repeat合计`5376 episodes`；A1与三个结构消融只在
 validation运行。主要检验固定为scene-cluster BCa 95% CI和双侧sign-flip，`alpha=0.05`。

@@ -199,6 +199,14 @@ CPU部署成本审计已按上述协议完成。单Actor、双Actor顺序前向�
 部署成本结果文件SHA-256为
 `6c7d4ed8657a9355eb1a88974a63f1f424c26dacfb21c2a2ce625a4f01dec0dc`。
 
+训练成本审计也已完成。可恢复的A1/B2/V4/V5 CPU Router训练wall-clock分别为
+`42.15/94.27/62.70/85.38 s`；A1使用`28,082`训练帧，B2/V4/V5均使用A1与student
+聚合后的`70,981`帧。B1 student rollout另包含640场、42,899帧，其wall-clock未记录。
+epoch16可恢复为`320,000` agent samples和2,560场，5A所选历史路径只能确认约190k新增
+samples的下界；5A完整warm-start血缘、epoch16与G0的wall-clock均未可靠记录。论文只能声称
+本文阶段没有新增Actor更新，不能声称完整系统总训练成本已证明更低。审计结果SHA-256为
+`9265e57679d0ea0e2887f43abc1404b0960eca296e07b1cd0be9aeb4f554277b`。
+
 ## 5. Sealed test 一次性协议
 
 ### 5.1 数据与 seed
@@ -231,6 +239,11 @@ V10 R2B-best
 no-hysteresis/hold 和 V7 A1 只在 Dense256 validation 做闭环消融，不进入 sealed；它们不属于
 唯一确认性假设的必要方法。方法顺序采用循环移位，避免某一方法总在仿真进程的相同位置运行。
 失败重启只允许从已落盘的最后完整 scene ID 继续，不得重跑后择优。
+
+方法基础顺序冻结为`5A / epoch16 always-on / min-LiDAR / TTC / B2 / 2m privileged / R2B`；
+三个repeat分别循环左移`0/1/2`位。dry-run固定只读取Dense validation前2场，seed为
+`20260818`，运行同一七方法入口；只有七组结果均通过形状、场景顺序和终止记账检查后，才允许
+`prepare_g25_sealed_manifest.py`首次读取dense test并按原始顺序截取前256场。
 
 ### 5.2 假设与指标
 
