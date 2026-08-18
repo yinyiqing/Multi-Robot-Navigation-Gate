@@ -158,9 +158,11 @@ configure_policy() {
 }
 
 run_one() {
-  local method="$1" seed="$2" run_name="g25_${PROFILE}_${method}_s${seed}"
-  local result="$RESULT_DIR/${run_name}.npy" state="$STATE_DIR/${run_name}_state.pt"
+  local method="$1" seed="$2" run_name result state
   local attempt status log progress
+  run_name="g25_${PROFILE}_${method}_s${seed}"
+  result="$RESULT_DIR/${run_name}.npy"
+  state="$STATE_DIR/${run_name}_state.pt"
   if [[ -f "$result" ]] && verify_result "$result" 2>/dev/null; then
     echo "Skipping completed $run_name"
     return 0
