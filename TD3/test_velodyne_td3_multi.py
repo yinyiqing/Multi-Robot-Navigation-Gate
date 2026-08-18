@@ -22,6 +22,7 @@ from oracle_controllers import ConflictPairYieldOracle, RightHandPassOracle
 from outcome_utils import resolve_terminal_outcome
 from robot_perception.recorder import PerceptionShardRecorder
 from rule_gate_controllers import MinLidarActorSwitcher
+from ttc_gate_controller import RiskThresholds, TtcCpaActorSwitcher
 
 
 class TD3(object):
@@ -368,11 +369,12 @@ if actor_selection_mode not in (
     "recovery_oracle",
     "learned_gate",
     "min_lidar_gate",
+    "ttc_cpa_gate",
 ):
     raise ValueError(
         "DRL_MULTI_ACTOR_SELECTION_MODE must be one of: single, hard_switch, "
         "case_oracle, interaction_oracle, recovery_oracle, learned_gate, "
-        "min_lidar_gate"
+        "min_lidar_gate, ttc_cpa_gate"
     )
 if actor_selection_mode != "single" and not dual_actor_enabled:
     raise ValueError(
@@ -405,8 +407,40 @@ min_lidar_switch_off_distance = env_float(
 min_lidar_minimum_hold_steps = env_int(
     "DRL_MULTI_MIN_LIDAR_MINIMUM_HOLD_STEPS", 3
 )
-if actor_selection_mode == "learned_gate":
-    if not gate_checkpoint_path or not gate_detector_checkpoint_path:
+ttc_enter_thresholds = RiskThresholds(
+    shape_probability=env_float("DRL_MULTI_TTC_ENTER_SHAPE_PROBABILITY", 0.4),
+    minimum_age=env_int("DRL_MULTI_TTC_ENTER_MINIMUM_AGE", 2),
+    maximum_range=env_float("DRL_MULTI_TTC_ENTER_MAXIMUM_RANGE", 2.5),
+    minimum_closing_speed=env_float(
+        "DRL_MULTI_TTC_ENTER_MINIMUM_CLOSING_SPEED", 0.05
+    ),
+    maximum_ttc=env_float("DRL_MULTI_TTC_ENTER_MAXIMUM_TTC", 3.0),
+    maximum_cpa_distance=env_float(
+        "DRL_MULTI_TTC_ENTER_MAXIMUM_CPA_DISTANCE", 0.75
+    ),
+)
+ttc_stay_thresholds = RiskThresholds(
+    shape_probability=env_float("DRL_MULTI_TTC_STAY_SHAPE_PROBABILITY", 0.3),
+    minimum_age=env_int("DRL_MULTI_TTC_STAY_MINIMUM_AGE", 2),
+    maximum_range=env_float("DRL_MULTI_TTC_STAY_MAXIMUM_RANGE", 3.0),
+    minimum_closing_speed=env_float(
+        "DRL_MULTI_TTC_STAY_MINIMUM_CLOSING_SPEED", 0.025
+    ),
+    maximum_ttc=env_float("DRL_MULTI_TTC_STAY_MAXIMUM_TTC", 3.5),
+    maximum_cpa_distance=env_float(
+        "DRL_MULTI_TTC_STAY_MAXIMUM_CPA_DISTANCE", 1.0
+    ),
+)
+ttc_minimum_hold_steps = env_int("DRL_MULTI_TTC_MINIMUM_HOLD_STEPS", 3)
+ttc_max_candidates = env_int("DRL_MULTI_TTC_MAX_CANDIDATES", 12)
+ttc_evaluation_stride = env_int("DRL_MULTI_TTC_EVALUATION_STRIDE", 2)
+if actor_selection_mode in ("learned_gate", "ttc_cpa_gate"):
+    if not gate_detector_checkpoint_path:
+        raise ValueError(
+            "%s mode requires DRL_MULTI_GATE_DETECTOR_CHECKPOINT"
+            % actor_selection_mode
+        )
+    if actor_selection_mode == "learned_gate" and not gate_checkpoint_path:
         raise ValueError(
             "learned_gate mode requires DRL_MULTI_GATE_CHECKPOINT and "
             "DRL_MULTI_GATE_DETECTOR_CHECKPOINT"
@@ -768,6 +802,18 @@ if dual_actor_enabled:
             switch_off_distance=min_lidar_switch_off_distance,
             minimum_hold_steps=min_lidar_minimum_hold_steps,
         )
+    elif actor_selection_mode == "ttc_cpa_gate":
+        dense_policy_controller = TtcCpaActorSwitcher(
+            standard_policy=network,
+            interaction_policy=dense_network,
+            detector_checkpoint=gate_detector_checkpoint_path,
+            device=device,
+            enter_thresholds=ttc_enter_thresholds,
+            stay_thresholds=ttc_stay_thresholds,
+            minimum_hold_steps=ttc_minimum_hold_steps,
+            max_candidates=ttc_max_candidates,
+            evaluation_stride=ttc_evaluation_stride,
+        )
 if rule_oracle_mode == "conflict_pair_yield":
     if actor_selection_mode != "single":
         raise ValueError("Conflict-pair yield oracle only supports single actor mode")
@@ -884,6 +930,13 @@ if dual_actor_enabled:
         print("Min-LiDAR switch-on distance:", min_lidar_switch_on_distance)
         print("Min-LiDAR switch-off distance:", min_lidar_switch_off_distance)
         print("Min-LiDAR minimum hold steps:", min_lidar_minimum_hold_steps)
+    elif actor_selection_mode == "ttc_cpa_gate":
+        print("TTC detector checkpoint:", gate_detector_checkpoint_path)
+        print("TTC enter thresholds:", dict(ttc_enter_thresholds._asdict()))
+        print("TTC stay thresholds:", dict(ttc_stay_thresholds._asdict()))
+        print("TTC minimum hold steps:", ttc_minimum_hold_steps)
+        print("TTC maximum candidates:", ttc_max_candidates)
+        print("TTC evaluation stride:", ttc_evaluation_stride)
 else:
     print("Dual actor mode: disabled")
 print("Rule oracle mode:", rule_oracle_mode or "disabled")
@@ -1049,7 +1102,7 @@ while True:
             else:
                 episode_standard_action_steps[idx] += 1
         elif dense_policy_controller is not None:
-            if actor_selection_mode == "learned_gate":
+            if actor_selection_mode in ("learned_gate", "ttc_cpa_gate"):
                 action, mode, gate_probability, _ = (
                     dense_policy_controller.choose_action(
                         env,
@@ -1206,7 +1259,11 @@ while True:
     )
     gate_stats = (
         dense_policy_controller.episode_stats()
-        if actor_selection_mode in ("learned_gate", "min_lidar_gate")
+        if actor_selection_mode in (
+            "learned_gate",
+            "min_lidar_gate",
+            "ttc_cpa_gate",
+        )
         else {"switches": 0, "mean_probability": 0.0}
     )
     dense_action_share = float(np.sum(episode_dense_action_steps)) / max(
