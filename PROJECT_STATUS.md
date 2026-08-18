@@ -21,7 +21,16 @@ G17 均参与过开发或模型选择，现有显著性只属于 validation evid
 [G25最终闭环消融与Sealed评测](experiments/03_保留专门化/02_论文主线/25_最终消融与Sealed评测/README.md)：
 先在 validation 上补 single-frame、no-action-difference、no-hysteresis/hold、epoch16
 always-on、min-LiDAR/TTC 规则及部署成本，再冻结协议一次性运行多个 repeat seed 的 dense
-sealed test。当前仍禁止训练 Actor；本次只修改论文和实验方案，尚未启动 G25。
+sealed test。当前仍禁止训练 Actor；G25 按预注册顺序补充实验，不得用 validation 结果反向
+修改冻结主方法。
+
+G25 的 V1/V2/V6 validation 控制消融已于 `2026-08-18` 完成。epoch16 always-on 复用同协议
+历史结果：full success `0.3281`，但 timeout `0.4062`。min-LiDAR 的 full success 为
+`0.3008`，相对冻结 5A 不显著（37 改善/29 退化，`p=0.3891`），且 I 占比 `0.9995`、
+timeout `0.3984`，说明简单距离阈值不能替代 Router。B2 去掉滞回/保持后为 `0.3984`，仍显著
+优于 5A，但与完整 B2 的 `0.4258` 无显著差异（38 改善/45 退化，`p=0.5104`）；滞回只能
+作为减少切换抖动的工程机制。剩余前置项为 V3/V4/V5、部署与训练成本审计和 sealed dry-run，
+未完成前不得读取 sealed test。
 
 G25统计细节已于`2026-08-18`补齐。sealed只运行5A、epoch16 always-on、min-LiDAR、TTC、
 B2、2m特权距离规则和R2B共7个方法，三个repeat合计`5376 episodes`；A1与三个结构消融只在
