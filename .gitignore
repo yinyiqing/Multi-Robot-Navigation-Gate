@@ -45,6 +45,7 @@ catkin_ws/src/multi_robot_scenario/launch/pioneer3dx_multi_*_standard.rviz
 .e2_ie2_multi_conflict_pipeline.pid
 .avoidance_actor_e17_e20.pid
 .avoidance_actor_matched_admission.pid
+.g25_*.pid
 catkin_ws/build_isolated/
 catkin_ws/devel_isolated/
 catkin_ws/.catkin_workspace
@@ -76,6 +77,7 @@ experiments/03_保留专门化/02_论文主线/20_夜间最终统一评测/local
 experiments/03_保留专门化/02_论文主线/22_G17_Gate机制对照/local_data/
 experiments/03_保留专门化/02_论文主线/23_G17_epoch16同场复测/local_data/
 experiments/03_保留专门化/02_论文主线/24_Dense256_epoch16_A1复测/local_data/
+experiments/03_保留专门化/02_论文主线/25_最终消融与Sealed评测/local_data/
 
 # Local-only experiment checkpoints; GitHub rejects large .pt artifacts.
 experiments/03_保留专门化/02_论文主线/results/**/checkpoints/
