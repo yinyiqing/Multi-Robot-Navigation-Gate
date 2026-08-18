@@ -132,8 +132,8 @@ class LearnedInteractionGateController(object):
             or np.any(self.feature_std <= 0.0)
         ):
             raise ValueError("Gate normalization must be finite with positive scales")
-        if self.is_temporal and not self.uses_actor_features:
-            raise ValueError("T1 Gate requires Actor comparison features")
+        if self.feature_set not in ("base", "base_and_actor_actions"):
+            raise ValueError("unsupported Gate feature set: %s" % self.feature_set)
         actor_feature_dim = ACTOR_COMPARISON_DIM if self.uses_actor_features else 0
         inferred_max_tracks = infer_max_tracks(
             input_dim, actor_feature_dim=actor_feature_dim
@@ -142,8 +142,8 @@ class LearnedInteractionGateController(object):
         if self.max_tracks != inferred_max_tracks:
             raise ValueError("Gate max_tracks does not match its feature dimension")
         self.sequence_length = int(gate_payload.get("sequence_length", 1))
-        if self.is_temporal and self.sequence_length < 2:
-            raise ValueError("temporal Gate requires sequence_length >= 2")
+        if self.is_temporal and self.sequence_length < 1:
+            raise ValueError("temporal Gate requires sequence_length >= 1")
         if not self.is_temporal and self.sequence_length != 1:
             raise ValueError("static Gate requires sequence_length == 1")
         self.evaluation_stride = int(evaluation_stride)
@@ -240,12 +240,12 @@ class LearnedInteractionGateController(object):
                 float(logical_time),
             )
             state_array = np.asarray(state)
-            standard_action = self.standard_policy.get_action(state_array)
-            dense_action = self.dense_policy.get_action(state_array)
             feature = build_gate_feature(
                 state_array, tracked, max_tracks=self.max_tracks
             )
             if self.uses_actor_features:
+                standard_action = self.standard_policy.get_action(state_array)
+                dense_action = self.dense_policy.get_action(state_array)
                 action_features = actor_comparison_features(
                     np.asarray(standard_action, dtype=np.float32)[None, :],
                     np.asarray(dense_action, dtype=np.float32)[None, :],
@@ -257,7 +257,11 @@ class LearnedInteractionGateController(object):
             mode = self.switchers[name].update(probability)
             self.last_probabilities[name] = probability
             self.last_track_counts[name] = len(tracked)
-            action = dense_action if mode == "dense" else standard_action
+            if self.uses_actor_features:
+                action = dense_action if mode == "dense" else standard_action
+            else:
+                policy = self.dense_policy if mode == "dense" else self.standard_policy
+                action = policy.get_action(state_array)
         else:
             probability = self.last_probabilities[name]
             mode = self.switchers[name].mode

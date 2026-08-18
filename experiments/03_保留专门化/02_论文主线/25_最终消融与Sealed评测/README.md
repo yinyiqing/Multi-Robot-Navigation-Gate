@@ -96,6 +96,18 @@ V6 相对 5A 为 49 场改善、16 场退化，`p=5.08e-5`，说明去掉滞回�
 和 seed 下得到 `0.2852`，反映 Gazebo 闭环仍有运行波动；不得把 G12 的 5A 数字与冻结主表
 混用，sealed test 的多个 repeat 与 scene-cluster 统计正是为处理这一问题。
 
+### 3.3 V4/V5 实现冻结
+
+V4/V5 继续使用 B2 的 A1 640 场加 student-rollout 640 场聚合训练数据、source+scenario
+等权、类别权重、FPR 约束、40 epoch、hidden width 64、seed `20260804`和 checkpoint 选择
+规则。V4 唯一结构变化是 GRU 序列长度从 8 改为 1，每次前向只接收当前帧；V5 保持 8 帧
+GRU，但从输入中删除两个 Actor 动作及其差分，输入维度从 82 变为 76。二者阈值均由原训练
+recipe 独立选择，不复用或扫描 Dense256 阈值。训练入口为：
+
+```bash
+bash scripts/run_g25_router_ablations.sh
+```
+
 ## 4. 部署成本审计
 
 在固定硬件、batch size 1、预热 200 次、计时 2000 次的协议下分别测量：

@@ -139,6 +139,11 @@ def parse_args():
     parser.add_argument("--sequence-length", type=int, default=8)
     parser.add_argument("--temporal-hidden-dim", type=int, default=64)
     parser.add_argument("--max-tracks", type=int, default=4)
+    parser.add_argument(
+        "--feature-set",
+        choices=("base", "base_and_actor_actions"),
+        default="base_and_actor_actions",
+    )
     parser.add_argument("--seed", type=int, default=20260804)
     parser.add_argument("--device", default="cpu")
     return parser.parse_args()
@@ -240,13 +245,14 @@ def evaluate_temporal_checkpoint(path, dataset, raw_features, args):
     payload = torch.load(path, map_location=args.device, weights_only=False)
     if payload.get("model_id") != "T1" or payload.get("label") != "any":
         raise ValueError("A1 reference is not an any-label T1 checkpoint")
-    if int(payload.get("sequence_length", -1)) != args.sequence_length:
-        raise ValueError("A1 reference sequence length mismatch")
+    sequence_length = int(payload.get("sequence_length", -1))
+    if sequence_length < 1:
+        raise ValueError("A1 reference sequence length is invalid")
     normalized = (
         raw_features - np.asarray(payload["feature_mean"], dtype=np.float32)
     ) / np.asarray(payload["feature_std"], dtype=np.float32)
     windows, indices = make_temporal_windows(
-        normalized.astype(np.float32), dataset.sequence_indices, args.sequence_length
+        normalized.astype(np.float32), dataset.sequence_indices, sequence_length
     )
     model = TemporalInteractionGate(**payload["model_config"]).to(args.device)
     model.load_state_dict(payload["model_state_dict"])
@@ -265,7 +271,7 @@ def main():
     args.labels = ["any"]
     if args.device != "cpu" and not torch.cuda.is_available():
         raise ValueError("requested device is unavailable: %s" % args.device)
-    if args.epochs < 1 or args.sequence_length < 2 or args.max_tracks < 1:
+    if args.epochs < 1 or args.sequence_length < 1 or args.max_tracks < 1:
         raise ValueError("training dimensions must be positive")
 
     manifest_hashes = {
@@ -331,10 +337,15 @@ def main():
     verify_dataset_ids(validation, validation_ids, "A1 validation")
     train = concatenate_sources((("a1_5a", a1_train), ("student", student_train)))
 
-    train_raw = np.concatenate((train.base_features, train.actor_features), axis=1)
-    validation_raw = np.concatenate(
+    reference_validation_raw = np.concatenate(
         (validation.base_features, validation.actor_features), axis=1
     )
+    if args.feature_set == "base_and_actor_actions":
+        train_raw = np.concatenate((train.base_features, train.actor_features), axis=1)
+        validation_raw = reference_validation_raw
+    else:
+        train_raw = train.base_features
+        validation_raw = validation.base_features
     train_normalized, validation_normalized, mean, std = normalize_source_balanced(
         train_raw, validation_raw, train.scenarios
     )
@@ -349,7 +360,7 @@ def main():
     s0_metrics = a1_summary["results"]["any"]["S0"]["validation"]
     fpr_caps = {"fpr": s0_metrics["fpr"], "weak_fpr": s0_metrics["weak_fpr"]}
     a1_reference = evaluate_temporal_checkpoint(
-        args.a1_main_checkpoint, validation, validation_raw, args
+        args.a1_main_checkpoint, validation, reference_validation_raw, args
     )
     source_counts = {
         "a1_5a": {
@@ -369,7 +380,9 @@ def main():
         "train_manifest_sha256": manifest_hashes["train"],
         "validation_manifest_sha256": manifest_hashes["validation"],
         "a1_reference_checkpoint_sha256": args.expected_a1_checkpoint_sha256,
+        "feature_set": args.feature_set,
     }
+    args.checkpoint_feature_set = args.feature_set
     args.output_dir.mkdir(parents=True, exist_ok=True)
     result = train_candidate(
         "T1",
@@ -397,10 +410,15 @@ def main():
             "seed": args.seed,
             "epochs": args.epochs,
             "sequence_length": args.sequence_length,
+            "feature_set": args.feature_set,
             "balance_unit": "source+scenario_id",
             "normalization": "source+scenario_id weighted",
             "base_feature_dim": gate_feature_dim(24, args.max_tracks),
-            "actor_comparison_dim": ACTOR_COMPARISON_DIM,
+            "actor_comparison_dim": (
+                ACTOR_COMPARISON_DIM
+                if args.feature_set == "base_and_actor_actions"
+                else 0
+            ),
             "frozen_hashes": frozen_hashes,
             "manifest_hashes": manifest_hashes,
             "a1_main_summary_sha256": args.expected_a1_summary_sha256,

@@ -339,8 +339,8 @@ def normalize_features(train_features, validation_features):
 
 
 def make_temporal_windows(features, sequence_indices, sequence_length):
-    if features.ndim != 2 or sequence_length < 2:
-        raise ValueError("temporal windows require [N, D] features and length >= 2")
+    if features.ndim != 2 or sequence_length < 1:
+        raise ValueError("temporal windows require [N, D] features and length >= 1")
     windows = []
     target_indices = []
     for indices in sequence_indices:
@@ -651,6 +651,11 @@ def train_candidate(
             "input_dim": model.input_dim,
             "hidden_dims": model.hidden_dims,
         }
+    checkpoint_feature_set = getattr(args, "checkpoint_feature_set", None)
+    if checkpoint_feature_set is None:
+        checkpoint_feature_set = (
+            "base" if model_id == "S0" else "base_and_actor_actions"
+        )
     checkpoint = {
         "format_version": 1,
         "diagnostic_only": args.experiment_id == "G11-A0",
@@ -658,7 +663,7 @@ def train_candidate(
         "label": label_name,
         "model_state_dict": best[2],
         "model_config": model_config,
-        "feature_set": "base" if model_id == "S0" else "base_and_actor_actions",
+        "feature_set": checkpoint_feature_set,
         "feature_mean": mean,
         "feature_std": std,
         "threshold": threshold,
