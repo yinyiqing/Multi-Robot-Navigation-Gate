@@ -245,6 +245,10 @@ no-hysteresis/hold 和 V7 A1 只在 Dense256 validation 做闭环消融，不进
 `20260818`，运行同一七方法入口；只有七组结果均通过形状、场景顺序和终止记账检查后，才允许
 `prepare_g25_sealed_manifest.py`首次读取dense test并按原始顺序截取前256场。
 
+该dry-run已于`2026-08-18`完成。七种方法均在第一次实际仿真尝试中跑满`2/2`，结果形状、
+场景顺序和每组10个机器人终止状态全部通过；期间没有读取dense test。completion记录
+SHA-256为`db757448457e3785f6bc8e4adafc40681ba64d620c4fd65cd33667c5b10c895f`。
+
 ### 5.2 假设与指标
 
 唯一主要假设：在 dense sealed test 上，B2/PIRoute 的 episode-level full success 高于 5A。
