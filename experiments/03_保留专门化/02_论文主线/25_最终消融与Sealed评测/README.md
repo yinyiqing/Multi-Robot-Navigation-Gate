@@ -249,6 +249,11 @@ no-hysteresis/hold 和 V7 A1 只在 Dense256 validation 做闭环消融，不进
 场景顺序和每组10个机器人终止状态全部通过；期间没有读取dense test。completion记录
 SHA-256为`db757448457e3785f6bc8e4adafc40681ba64d620c4fd65cd33667c5b10c895f`。
 
+dry-run提交后已首次读取冻结dense test并生成正式manifest，只取原始顺序前256场，不做任何
+策略相关筛选。原始dense test SHA-256为
+`03a744048102d7310db026e399e41c4ce664ed31b180438b2a2b519c78133eab`，正式前256场manifest
+SHA-256为`1098d13d09af2a4850c2d227eec8fe87f05a7de3b3a8d830de2dd472a059e211`。
+
 ### 5.2 假设与指标
 
 唯一主要假设：在 dense sealed test 上，B2/PIRoute 的 episode-level full success 高于 5A。

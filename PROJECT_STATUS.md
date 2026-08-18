@@ -54,6 +54,11 @@ G25 sealed dry-run已通过：七种冻结方法均在Dense validation前2场完
 终止记账和自动归档检查，且此时dense test仍未读取。现已满足首次生成sealed前256场manifest
 并启动三个预注册repeat的前置条件。
 
+随后已按冻结规则首次生成dense sealed前256场manifest，选择仅为原始顺序截取；source/output
+SHA-256分别为`03a744048102d7310db026e399e41c4ce664ed31b180438b2a2b519c78133eab`和
+`1098d13d09af2a4850c2d227eec8fe87f05a7de3b3a8d830de2dd472a059e211`。从此禁止根据sealed
+结果修改方法、阈值、场景范围或主要统计方案。
+
 G25统计细节已于`2026-08-18`补齐。sealed只运行5A、epoch16 always-on、min-LiDAR、TTC、
 B2、2m特权距离规则和R2B共7个方法，三个repeat合计`5376 episodes`；A1与三个结构消融只在
 validation运行。主要检验固定为scene-cluster BCa 95% CI和双侧sign-flip，`alpha=0.05`。
