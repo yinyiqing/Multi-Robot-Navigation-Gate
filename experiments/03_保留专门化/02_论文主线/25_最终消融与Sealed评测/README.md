@@ -114,6 +114,22 @@ bash scripts/run_g25_router_ablations.sh
 `95ba582ec2c9a35ed60f17a21936c83166267d3b5ec25b302e6d7bfad3c94012`。离线 validation F1
 分别为 `0.8333/0.8365`，只用于实现审计，不替代 Dense256 闭环消融。
 
+### 3.4 V3 TTC/CPA 规则冻结
+
+V3 只在 A1 640 场与 student-rollout 640 场 navigation-train 数据上选择阈值，共
+`70,981`帧；脚本不得读取 Dense256 validation 或 sealed test。网格选择首先要求 0-edge
+oracle-negative 帧误触发率不超过 `0.10`，再最大化 2 m 交互标签召回，最后最小化总体 FPR。
+
+冻结进入条件为：G0/G1 候选 raw/smoothed shape probability 最大值 `>=0.4`、轨迹年龄`>=2`、
+距离`<=2.5 m`、closing speed `>=0.05 m/s`、TTC `<=3.0 s`且CPA distance `<=0.75 m`。
+退出采用固定宽松边界：shape `>=0.3`、距离`<=3.0 m`、closing speed `>=0.025 m/s`、
+TTC `<=3.5 s`、CPA `<=1.0 m`；hold 3、stride 2。训练集 frame recall 为 `0.2525`，总体
+FPR为`0.1049`，0-edge负帧FPR为`0.09835`。选择入口为：
+
+```bash
+python3 scripts/select_g25_ttc_rule.py
+```
+
 ## 4. 部署成本审计
 
 在固定硬件、batch size 1、预热 200 次、计时 2000 次的协议下分别测量：
