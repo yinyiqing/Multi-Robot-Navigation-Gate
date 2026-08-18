@@ -39,6 +39,13 @@ timeout `0.3984`，说明简单距离阈值不能替代 Router。B2 去掉滞回
 作为减少切换抖动的工程机制。剩余前置项为 V3/V4/V5、部署与训练成本审计和 sealed dry-run，
 未完成前不得读取 sealed test。
 
+G25的V3/V4/V5现已全部完成。V3 TTC/CPA手工风险规则full success为`0.2969`，相对5A
+不显著（`p=0.3368`），且显著低于B2的`0.4258`（`p=1.12e-4`）；V4 single-frame和V5
+no-action-difference分别为`0.3789/0.3945`，均显著优于5A，但相对完整B2的下降未显著，
+不能声称两个组件各自必要。部署成本审计也已完成：单线程CPU代表帧的完整路由平均延迟
+`1.443 ms`、p95 `1.490 ms`。下一步是训练成本审计、sealed runner dry-run与一次性sealed
+三repeat评测；此前仍不得读取sealed test。
+
 G25统计细节已于`2026-08-18`补齐。sealed只运行5A、epoch16 always-on、min-LiDAR、TTC、
 B2、2m特权距离规则和R2B共7个方法，三个repeat合计`5376 episodes`；A1与三个结构消融只在
 validation运行。主要检验固定为scene-cluster BCa 95% CI和双侧sign-flip，`alpha=0.05`。
