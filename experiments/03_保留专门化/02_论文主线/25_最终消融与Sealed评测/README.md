@@ -108,6 +108,12 @@ recipe 独立选择，不复用或扫描 Dense256 阈值。训练入口为：
 bash scripts/run_g25_router_ablations.sh
 ```
 
+两组训练均已完成。V4 best epoch 7，阈值 `0.43`，checkpoint SHA-256 为
+`4189e5976b0de06ead49ba66ff9b11f7cf2ef029a8f39709f8a56cc72d4a858a`；V5 best epoch 1，
+阈值 `0.51`，checkpoint SHA-256 为
+`95ba582ec2c9a35ed60f17a21936c83166267d3b5ec25b302e6d7bfad3c94012`。离线 validation F1
+分别为 `0.8333/0.8365`，只用于实现审计，不替代 Dense256 闭环消融。
+
 ## 4. 部署成本审计
 
 在固定硬件、batch size 1、预热 200 次、计时 2000 次的协议下分别测量：
