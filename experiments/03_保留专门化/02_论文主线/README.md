@@ -1,7 +1,7 @@
 # ICRA论文主线：普通导航Actor、条件避障Actor与在线Gate
 
 状态：`5A + epoch16 + B2 frozen for Dense main task`。
-更新时间：`2026-08-18`。
+更新时间：`2026-08-19`。
 
 本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见
 [PROJECT_STATUS](../../../PROJECT_STATUS.md)，历史实验状态见
@@ -25,6 +25,11 @@ validation补齐闭环结构消融和部署成本，冻结全部实现与统计�
 single-frame、no-action-difference和no-hysteresis/hold只在validation闭环消融。主检验采用
 双侧`alpha=0.05`、20,000次scene-cluster BCa bootstrap和100,000次sign-flip。原始终止
 步数不再单独解释为效率，并新增成功配对步数、失败惩罚步数和训练计算成本审计。
+
+`2026-08-19`登记但尚未执行的[G26补充实验](26_数量泛化与外部切换基线/README.md)只在
+G25 sealed完成、归档和冻结统计后启动。G26先比较冻结5A与B2在3车/7车上的数量泛化，再用
+受IROS 2024启发的normalizing-flow OOD switch替换B2做同Actor外部切换基线。G26禁止Actor
+训练和B2调参，不修改G25七方法sealed表，也不把补充结果混入G25确认性统计。
 
 ## 2026-08-17 唯一当前路线
 
