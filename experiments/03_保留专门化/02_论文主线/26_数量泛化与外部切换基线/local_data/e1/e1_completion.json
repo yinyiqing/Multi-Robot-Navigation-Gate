@@ -1,0 +1,18 @@
+{
+  "status": "complete",
+  "manifest": "/home/jiutian/Local-Critic-Multi-Robot-Navigation-gate/experiments/03_\u4fdd\u7559\u4e13\u95e8\u5316/02_\u8bba\u6587\u4e3b\u7ebf/26_\u6570\u91cf\u6cdb\u5316\u4e0e\u5916\u90e8\u5207\u6362\u57fa\u7ebf/local_data/e1/manifests/dense_test_256_384.json.gz",
+  "manifest_sha256": "56c231aca154181d0d4408df23d1a03c3f11ed5cc02c95cf232f76585868c5d8",
+  "episodes_per_method": 128,
+  "seeds": [
+    20260921,
+    20260922
+  ],
+  "methods": [
+    "5a",
+    "nf_switch",
+    "b2"
+  ],
+  "total_episodes": 768,
+  "sealed_test_read": true,
+  "actor_or_router_updated": false
+}

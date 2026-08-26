@@ -1,6 +1,6 @@
 # G26 数量泛化与外部切换基线
 
-状态：`Q1 已完成并冻结统计；E1 manifest 已冻结，三方法同场评估进行中`
+状态：`Q1 与 E1 均已完成并冻结统计`
 
 登记日期：`2026-08-19`
 
@@ -86,19 +86,31 @@ rule-based方法之间切换；参考文献包含Graph Normalizing Flows、RealN
    `256:384`的128场E1 manifest。测试seed仍为`20260921/20260922`，同场运行
    `5A / NF-inspired / B2`共`768 episodes`。
 
-E1训练本身只更新flow，不更新Actor、G0或B2。上述检查已通过，manifest已固定并开始读取
-E1 test；从此不再修改上述任一实现参数。
+E1训练本身只更新flow，不更新Actor、G0或B2。上述检查已通过，manifest已固定并读取完毕；
+从此不再修改上述任一实现参数。
 
-## 2026-08-26 E1 评估进行中
+## 2026-08-26 E1 完成与结果
 
-E1评估按单Gazebo实例串行运行`2 seeds x 3 methods x 128 scenes = 768 episodes`。当前首个
-组合`g26_e1_5a_s20260921`正在增量执行，其余组合尚未开始。运行入口为
-`scripts/start_g26_e1_evaluation.sh`，实时总日志为
-`logs/active/g26-e1-evaluation/runner.log`，单次方法日志为同目录下的
-`g26_e1_<method>_s<seed>_attempt*.log`；完成后日志归档至
-`logs/archive/test/g26_e1_evaluation/`。结果临时写入
-`local_data/e1/results/`，完成后再运行`scripts/analyze_g26_e1_results.py`生成统计。
-评估期间不读取中间结果来调整任何冻结组件。
+E1按单Gazebo实例串行运行`2 seeds x 3 methods x 128 scenes = 768 episodes`。六个结果文件均为
+`(128,17)`，通过manifest顺序和每车终止记账检查；完成标记为
+`local_data/e1/e1_completion.json`，完整统计为`local_data/e1/e1_statistics.json`，SHA-256为
+`c212a241dcdc48d793708dd7e8efa19537b6020443e33e203bb4ac65c2eed3eb`。运行日志已归档至
+`logs/archive/test/g26_e1_evaluation/`。
+
+| 方法 | full success | agent success | collision | timeout | raw steps | I占比 | switches |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 5A | 0.2852 | 0.6930 | 0.3070 | 0 | 16.72 | 0 | 0 |
+| NF-inspired | 0.3008 | 0.7055 | 0.2945 | 0 | 17.85 | 5.6% | 2.57 |
+| B2/PIRoute | 0.3594 | 0.7789 | 0.2188 | 0.0117 | 34.67 | 70.3% | 7.55 |
+
+NF-inspired相对5A的full-success差值为`+0.0156`，scene-cluster BCa 95% CI为
+`[-0.0430,+0.0742]`，探索性sign-flip `p=0.6960`；collision差值为`-0.0125`，CI
+`[-0.0391,+0.0141]`。因此该实现没有显示出相对5A的明确收益，也不能解释B2在本项目中的
+提升。B2相对5A的full-success差值为`+0.0742`，CI `[0,+0.1475]`、探索性`p=0.0670`；
+agent-success差值为`+0.0859`，CI `[+0.0531,+0.1195]`，collision差值为`-0.0883`，CI
+`[-0.1219,-0.0563]`，但raw steps增加`17.95`、双方共同成功场景的paired-success steps
+增加`17.03`。这些均为G26补充性探索结果，不改变G25确认性统计，也不支持严格复现IROS 2024
+系统的表述。
 
 ## 1. 目的与边界
 
@@ -240,8 +252,8 @@ flow 方法，也不能声称全面超过 IROS 2024 原系统。
 1. G25 sealed 七方法、三 repeat 已完成、归档并完成冻结统计；
 2. 3/7 车场景审计、Q1 manifests、零更新评测和探索性统计已完成；
 3. IROS 2024 文献审计、E1 flow 实现、训练 split 和测试切片已冻结；
-4. 当前运行 E1 三方法同场评测，完成后执行逐场格式校验和统计分析；
-5. 统一生成补充表格，不把 G26 探索性结果并入 G25 确认性 p 值或主假设。
+4. E1 三方法同场评测、逐场格式校验和统计分析已完成；
+5. 将Q1/E1作为独立补充表格，不把G26探索性结果并入G25确认性p值或主假设。
 
 任一阶段发现实现依赖真值、场景错序、车辆数配置不一致或测试结果参与阈值选择时立即停止并
 修复协议，不保留择优结果。本文件不授权任何 Actor 训练。

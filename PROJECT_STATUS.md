@@ -65,12 +65,19 @@ SHA-256 `bf43581ba0aab37f96f267f094f858143005b5876e0c5d4a31cd79c1eedeb6af`；
 训练摘要为同目录`summary.json`，SHA-256
 `c465058e9d9a6e78b6fafb230a574368c9a3a426d10af0126935b531fb6eea45`。
 
-随后已按冻结协议生成Dense test原始顺序`256:384`的128场manifest，并启动
-`5A / NF-inspired / B2`同场评测。当前6个组合中的第一个`5a / 20260921`正在运行，结果和
-checkpoint按场景增量写入本地；不得根据E1闭环结果修改flow、阈值、checkpoint、Actor或B2。
-live runner日志位于`logs/active/g26-e1-evaluation/runner.log`，单次方法日志位于同目录的
-`g26_e1_<method>_s<seed>_attempt*.log`；全部完成后会归档到
-`logs/archive/test/g26_e1_evaluation/`，并运行`scripts/analyze_g26_e1_results.py`。
+随后已按冻结协议生成Dense test原始顺序`256:384`的128场manifest，并完成
+`5A / NF-inspired / B2`同场评测，共`768 episodes`。完整统计为
+`26_数量泛化与外部切换基线/local_data/e1/e1_statistics.json`，SHA-256为
+`c212a241dcdc48d793708dd7e8efa19537b6020443e33e203bb4ac65c2eed3eb`；六个结果均通过
+`(128,17)`形状、场景顺序和每车终止记账检查。不得根据E1结果修改flow、阈值、checkpoint、
+Actor或B2。运行日志已归档到`logs/archive/test/g26_e1_evaluation/`。
+
+E1合并描述指标为：5A/NF/B2的full success分别为`0.2852/0.3008/0.3594`，collision为
+`0.3070/0.2945/0.2188`，raw steps为`16.72/17.85/34.67`，interaction Actor占比为
+`0/5.6%/70.3%`。NF相对5A的full-success差值为`+0.0156`，探索性BCa 95% CI
+`[-0.0430,+0.0742]`、sign-flip `p=0.6960`，不能声称优于5A或解释G25 PIRoute收益；B2
+相对5A为`+0.0742`，CI `[0,+0.1475]`、探索性`p=0.0670`，同时raw steps增加`17.95`、
+paired-success steps增加`17.03`。E1仍是独立探索性补充，不进入G25确认性统计。
 
 ## 2026-08-20 G25 sealed 完成与论文结果整合
 
