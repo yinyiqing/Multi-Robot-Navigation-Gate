@@ -112,6 +112,10 @@ agent-success差值为`+0.0859`，CI `[+0.0531,+0.1195]`，collision差值为`-0
 增加`17.03`。这些均为G26补充性探索结果，不改变G25确认性统计，也不支持严格复现IROS 2024
 系统的表述。
 
+投稿表格和矢量图由`scripts/generate_paper_artifacts.py`统一生成，位于
+`paper/generated/g26_supplement_table.md`、`paper/generated/g26_supplement_table.csv`和
+`paper/generated/g26_e1_effects.svg`；输入输出哈希见`paper/generated/generation_record.json`。
+
 ## 1. 目的与边界
 
 本阶段补充两个不改变论文主方法的问题：

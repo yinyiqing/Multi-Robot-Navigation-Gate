@@ -1,0 +1,13 @@
+# G26 Supplementary Table
+
+| Supplement | Setting / method | Full success | Agent success | Collision | Timeout | Raw steps | Interaction share |
+|---|---|---|---|---|---|---|---|
+| Q1 | 3 robots / 5A | 76.2% | 87.8% | 12.1% | 0.4% | 22.54 | 0.0% |
+| Q1 | 3 robots / B2/PIRoute | 79.3% | 90.1% | 9.5% | 1.2% | 36.81 | 68.2% |
+| Q1 | 7 robots / 5A | 5.9% | 56.0% | 44.0% | 0.0% | 16.54 | 0.0% |
+| Q1 | 7 robots / B2/PIRoute | 7.4% | 65.6% | 34.3% | 0.8% | 33.96 | 65.2% |
+| E1 | 5 robots / 5A | 28.5% | 69.3% | 30.7% | 0.0% | 16.72 | 0.0% |
+| E1 | 5 robots / NF-inspired | 30.1% | 70.5% | 29.5% | 0.0% | 17.85 | 5.6% |
+| E1 | 5 robots / B2/PIRoute | 35.9% | 77.9% | 21.9% | 1.2% | 34.67 | 70.3% |
+
+> Q1 and E1 are exploratory supplements. E1 is a local literature-inspired baseline, not a strict reproduction of the IROS 2024 system.

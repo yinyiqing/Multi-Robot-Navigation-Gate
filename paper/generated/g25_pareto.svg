@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="660" viewBox="0 0 1000 660" role="img" aria-labelledby="title desc">
+<title id="title">G25 sealed success collision steps Pareto</title>
+<desc id="desc">Generated from frozen experiment statistics.</desc>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="500.0" y="34.0" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#20252b">G25 sealed: success, collision, and raw-step trade-off</text>
+<line x1="105.0" y1="525.0" x2="930.0" y2="525.0" stroke="#34404b" stroke-width="1.2"/>
+<line x1="105.0" y1="70.0" x2="105.0" y2="525.0" stroke="#34404b" stroke-width="1.2"/>
+<line x1="105.0" y1="525.0" x2="105.0" y2="531.0" stroke="#34404b" stroke-width="1"/>
+<text x="105.0" y="549.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="middle" fill="#4d5965">14%</text>
+<line x1="270.0" y1="525.0" x2="270.0" y2="531.0" stroke="#34404b" stroke-width="1"/>
+<text x="270.0" y="549.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="middle" fill="#4d5965">18%</text>
+<line x1="435.0" y1="525.0" x2="435.0" y2="531.0" stroke="#34404b" stroke-width="1"/>
+<text x="435.0" y="549.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="middle" fill="#4d5965">22%</text>
+<line x1="600.0" y1="525.0" x2="600.0" y2="531.0" stroke="#34404b" stroke-width="1"/>
+<text x="600.0" y="549.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="middle" fill="#4d5965">26%</text>
+<line x1="765.0" y1="525.0" x2="765.0" y2="531.0" stroke="#34404b" stroke-width="1"/>
+<text x="765.0" y="549.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="middle" fill="#4d5965">30%</text>
+<line x1="930.0" y1="525.0" x2="930.0" y2="531.0" stroke="#34404b" stroke-width="1"/>
+<text x="930.0" y="549.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="middle" fill="#4d5965">34%</text>
+<line x1="99.0" y1="525.0" x2="105.0" y2="525.0" stroke="#34404b" stroke-width="1"/>
+<line x1="105.0" y1="525.0" x2="930.0" y2="525.0" stroke="#e5e9ed" stroke-width="1" stroke-dasharray="3 4"/>
+<text x="93.0" y="529.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="end" fill="#4d5965">20%</text>
+<line x1="99.0" y1="440.7" x2="105.0" y2="440.7" stroke="#34404b" stroke-width="1"/>
+<line x1="105.0" y1="440.7" x2="930.0" y2="440.7" stroke="#e5e9ed" stroke-width="1" stroke-dasharray="3 4"/>
+<text x="93.0" y="444.7" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="end" fill="#4d5965">25%</text>
+<line x1="99.0" y1="356.5" x2="105.0" y2="356.5" stroke="#34404b" stroke-width="1"/>
+<line x1="105.0" y1="356.5" x2="930.0" y2="356.5" stroke="#e5e9ed" stroke-width="1" stroke-dasharray="3 4"/>
+<text x="93.0" y="360.5" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="end" fill="#4d5965">30%</text>
+<line x1="99.0" y1="272.2" x2="105.0" y2="272.2" stroke="#34404b" stroke-width="1"/>
+<line x1="105.0" y1="272.2" x2="930.0" y2="272.2" stroke="#e5e9ed" stroke-width="1" stroke-dasharray="3 4"/>
+<text x="93.0" y="276.2" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="end" fill="#4d5965">35%</text>
+<line x1="99.0" y1="188.0" x2="105.0" y2="188.0" stroke="#34404b" stroke-width="1"/>
+<line x1="105.0" y1="188.0" x2="930.0" y2="188.0" stroke="#e5e9ed" stroke-width="1" stroke-dasharray="3 4"/>
+<text x="93.0" y="192.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="end" fill="#4d5965">40%</text>
+<line x1="99.0" y1="103.7" x2="105.0" y2="103.7" stroke="#34404b" stroke-width="1"/>
+<line x1="105.0" y1="103.7" x2="930.0" y2="103.7" stroke="#e5e9ed" stroke-width="1" stroke-dasharray="3 4"/>
+<text x="93.0" y="107.7" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="end" fill="#4d5965">45%</text>
+<text x="517.5" y="577.0" font-family="Arial, sans-serif" font-size="14" font-weight="600" text-anchor="middle" fill="#20252b">Collision rate (lower is better)</text>
+<text x="47.0" y="297.5" font-family="Arial, sans-serif" font-size="14" font-weight="600" text-anchor="middle" fill="#20252b">Full success (higher is better)</text>
+<circle cx="835.9" cy="447.3" r="5.9" fill="#3b6ea8" stroke="#ffffff" stroke-width="1.5"/>
+<text x="845.9" y="452.3" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="start" fill="#28333d">5A (17.3)</text>
+<circle cx="260.1" cy="379.3" r="12.3" fill="#9b6a9f" stroke="#ffffff" stroke-width="1.5"/>
+<text x="270.1" y="371.3" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="start" fill="#28333d">epoch16 always-on (145.2)</text>
+<circle cx="255.8" cy="414.4" r="12.8" fill="#c28f3d" stroke="#ffffff" stroke-width="1.5"/>
+<text x="265.8" y="428.4" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="start" fill="#28333d">min-LiDAR rule (155.1)</text>
+<circle cx="777.9" cy="399.0" r="6.0" fill="#4f9d9d" stroke="#ffffff" stroke-width="1.5"/>
+<text x="787.9" y="416.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="start" fill="#28333d">TTC/CPA rule (20.6)</text>
+<circle cx="823.0" cy="432.0" r="5.8" fill="#7b8794" stroke="#ffffff" stroke-width="1.5"/>
+<text x="833.0" y="447.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="start" fill="#28333d">R2B (16.9)</text>
+<circle cx="295.6" cy="113.8" r="6.8" fill="#5a9367" stroke="#ffffff" stroke-width="1.5"/>
+<text x="305.6" y="104.8" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="start" fill="#28333d">2 m privileged rule (35.5)</text>
+<circle cx="454.6" cy="212.5" r="6.6" fill="#d1495b" stroke="#ffffff" stroke-width="1.5"/>
+<text x="464.6" y="202.5" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="start" fill="#28333d">PIRoute (B2) (31.5)</text>
+<text x="105.0" y="625.0" font-family="Arial, sans-serif" font-size="12" font-weight="400" text-anchor="start" fill="#596570">Bubble size is proportional to raw termination steps.</text>
+</svg>

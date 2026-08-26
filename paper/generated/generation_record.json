@@ -1,0 +1,23 @@
+{
+  "generator": "scripts/generate_paper_artifacts.py",
+  "sources": {
+    "experiments/03_保留专门化/02_论文主线/25_最终消融与Sealed评测/local_data/sealed/sealed_statistics.json": "a79431643bb030599e5c7b06047ea7fe7a1112cde20a053867c84168a81bc6eb",
+    "experiments/03_保留专门化/02_论文主线/26_数量泛化与外部切换基线/local_data/q1/results/q1_statistics.json": "c02c17fa49509d5a31fd70f0862508fc7d1d04855f0047794c5019bdd0b835fb",
+    "experiments/03_保留专门化/02_论文主线/26_数量泛化与外部切换基线/local_data/e1/e1_statistics.json": "c212a241dcdc48d793708dd7e8efa19537b6020443e33e203bb4ac65c2eed3eb"
+  },
+  "outputs": {
+    "README.md": "2f3f6813c6496b998df8374aad71307a3a8b7522afcd7ee115034ec0b14f1b68",
+    "g25_main_table.csv": "d729d654f5b3a7ba87109ddbbb9be4ea9369ca9a5203af7c8ad15d75d2c07075",
+    "g25_main_table.md": "758d08891b692a6e22bd3546b41ff8189cca5adedb63495d4eaee8eff88e7c39",
+    "g25_pareto.svg": "4933fcff3ad743d268bb43c2f0a9dd05c9ebc9047a6d50c2083b357c07bac0eb",
+    "g25_primary_effects.svg": "6dcfaad26db5f2caeec0b07e593ee3d1e19cc3d6585ccb56d362cdc69bd55bb7",
+    "g26_e1_effects.svg": "75ff9a108c16d102d13b85546757fd8558b708caa99fd93ae13096f68a46987f",
+    "g26_supplement_table.csv": "adc9132efa42bd3733f76b1bd66db34f9be28222c03bc8e35ee37ca8a08acf41",
+    "g26_supplement_table.md": "5f9d9bf9369f785ee63777585ec32a3a2943ff1217969fc7712d1bf84eab04dd"
+  },
+  "notes": [
+    "G25 is the only confirmatory result set.",
+    "Q1 and E1 are exploratory supplements and must not modify G25 inference.",
+    "Trajectory timelines require frame-level logs and are not generated from episode-level statistics."
+  ]
+}
