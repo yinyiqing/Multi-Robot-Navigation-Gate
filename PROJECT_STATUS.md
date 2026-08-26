@@ -79,6 +79,17 @@ E1合并描述指标为：5A/NF/B2的full success分别为`0.2852/0.3008/0.3594`
 相对5A为`+0.0742`，CI `[0,+0.1475]`、探索性`p=0.0670`，同时raw steps增加`17.95`、
 paired-success steps增加`17.03`。E1仍是独立探索性补充，不进入G25确认性统计。
 
+## 2026-08-26 投稿材料初版
+
+已由`scripts/generate_paper_artifacts.py`从三份冻结统计 JSON 生成投稿材料初版：G25主表、
+success/collision/raw-steps Pareto图、PIRoute相对5A主效应图，以及Q1/E1补充表和E1效应图。
+输出位于`paper/generated/`，输入输出SHA-256记录在
+`paper/generated/generation_record.json`。该生成器不读取或修改Actor、Router、manifest和原始
+运行结果。
+
+当前不再开启任何新实验。剩余投稿工作是逐帧Router时间轴与代表性视频采集、英文稿整理、
+BibTeX/格式核对和最终补充材料编排；现有episode级sealed结果不能事后生成逐帧轨迹。
+
 ## 2026-08-20 G25 sealed 完成与论文结果整合
 
 G25 已按预注册协议完成、归档并冻结统计。7 个冻结方法在 dense test 原始顺序前 256 个场景、

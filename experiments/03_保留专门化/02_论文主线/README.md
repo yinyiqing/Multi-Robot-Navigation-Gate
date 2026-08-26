@@ -53,6 +53,10 @@ B2相对5A增加`0.0742`，CI为`[0,+0.1475]`、探索性`p=0.0670`，但raw ste
 paired-success steps增加`17.03`。E1不支持“NF切换解释了PIRoute收益”，只说明本项目中的这一
 literature-inspired实现没有复现B2的收益水平；完整统计、哈希和解释边界见G26 README。
 
+G25主表、Pareto图和主效应图，以及Q1/E1补充材料，均由
+[`scripts/generate_paper_artifacts.py`](../../../scripts/generate_paper_artifacts.py)生成并记录
+哈希。当前阶段不再开启新实验，转入逐帧视频、英文稿和投稿格式整理。
+
 ## 2026-08-17 唯一当前路线
 
 主方法冻结为`5A + epoch16 + B2`。Dense256是本文的主要任务分布；G17完整混合场景
