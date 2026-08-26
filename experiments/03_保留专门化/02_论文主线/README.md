@@ -1,7 +1,7 @@
 # ICRA论文主线：普通导航Actor、条件避障Actor与在线Gate
 
 状态：`5A + epoch16 + B2 frozen for Dense main task`。
-更新时间：`2026-08-19`。
+更新时间：`2026-08-21`。
 
 本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见
 [PROJECT_STATUS](../../../PROJECT_STATUS.md)，历史实验状态见
@@ -30,6 +30,21 @@ single-frame、no-action-difference和no-hysteresis/hold只在validation闭环�
 G25 sealed完成、归档和冻结统计后启动。G26先比较冻结5A与B2在3车/7车上的数量泛化，再用
 受IROS 2024启发的normalizing-flow OOD switch替换B2做同Actor外部切换基线。G26禁止Actor
 训练和B2调参，不修改G25七方法sealed表，也不把补充结果混入G25确认性统计。
+
+`2026-08-20` G25 sealed 已完成并归档：dense test 原始顺序前 256 个场景、三个 repeat、七种
+冻结方法，共 `5376 episodes`。统计文件为
+`25_最终消融与Sealed评测/local_data/sealed/sealed_statistics.json`，SHA-256 为
+`a79431643bb030599e5c7b06047ea7fe7a1112cde20a053867c84168a81bc6eb`。PIRoute 相对 5A 的
+full-success 差值为 `+0.1393`，scene-cluster BCa 95% CI `[+0.1016,+0.1784]`，双侧
+sign-flip `p=0.00001`；collision 下降 `0.0924`，paired-success steps 增加 `13.51`。
+G25 结果是当前唯一确认性主检验；G26 只能作为独立补充证据，不改变冻结 Actor、B2 或 G25 统计。
+
+`2026-08-21` G26-Q1 已完成3车/7车零更新数量泛化，共`1024 episodes`。B2相对5A的
+full-success差值分别为`+0.0313/+0.0156`，但探索性scene-cluster BCa区间均跨0，不能声称
+整队成功率提高。7车的agent-success差值为`+0.0954`、collision差值为`-0.0965`，区间均不
+跨0，支持高冲突数量外推下的每车成功与安全收益；3车对应结果只支持方向性趋势。3/7车raw
+steps分别增加`14.27/17.42`，继续确认时间代价。完整结果和解释边界见
+[G26补充实验](26_数量泛化与外部切换基线/README.md)；该探索性补充不进入G25确认性统计。
 
 ## 2026-08-17 唯一当前路线
 

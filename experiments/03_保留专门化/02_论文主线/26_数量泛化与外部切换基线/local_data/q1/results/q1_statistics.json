@@ -1,0 +1,695 @@
+{
+  "protocol": {
+    "experiment_id": "G26-Q1-quantity-generalization",
+    "methods": [
+      "5a",
+      "b2"
+    ],
+    "vehicle_counts": [
+      3,
+      7
+    ],
+    "seeds": [
+      20260911,
+      20260912
+    ],
+    "scene_clusters_per_vehicle_count": 128,
+    "repeats": 2,
+    "total_episodes": 1024,
+    "bootstrap_samples": 20000,
+    "sign_flip_samples": 100000,
+    "random_seed": 20260818,
+    "inference_status": "exploratory_post_hoc_g25_matched",
+    "g25_confirmatory_statistics_modified": false,
+    "actor_or_router_updated": false
+  },
+  "vehicle_counts": {
+    "3": {
+      "manifest": {
+        "path": "experiments/03_保留专门化/02_论文主线/26_数量泛化与外部切换基线/local_data/q1/manifests/n3/test.json",
+        "sha256": "f1fa8cfa22c9fab9c14b5b73c46a9334fbd92c642bad28da70b1d454c4fd87e9",
+        "generation_seed": 20260913,
+        "generated_candidate_count": 133,
+        "gazebo_candidate_count": 128,
+        "gazebo_accepted_count": 128,
+        "gazebo_rejected_count": 0,
+        "conflict_edge_count_min": 0,
+        "conflict_edge_count_max": 3,
+        "conflict_edge_count_mean": 0.6015625
+      },
+      "completion_sha256": "9cf9f91445466650ac87e6d7d9d9e3961e561b9ff32907ea9b91b53b9763abdb",
+      "result_sha256": {
+        "5a_s20260911": "faaaae3d46d7b415050cfe0a8744126004c4bdb179f26f0bdad85ce2e45a4c22",
+        "5a_s20260912": "b589aa585315ac8c72a21e519eeac2b8bf6a0f2d4cd95fd5f4d186732f4d619d",
+        "b2_s20260911": "85575c49af0234e07b81c32e57b984c54b4f6cb6962a766457f1d752db191362",
+        "b2_s20260912": "ab389580f54bedaadc905a86d3876724df72e728b018bf92f31ef33796f35005"
+      },
+      "per_repeat": {
+        "5a": {
+          "20260911": {
+            "full_success": 0.765625,
+            "agent_success": 0.8802083333333334,
+            "collision": 0.11979166666666667,
+            "unresolved": 0.0,
+            "timeout": 0.0,
+            "raw_steps": 20.765625,
+            "interaction_share": 0.0,
+            "switches": 0.0
+          },
+          "20260912": {
+            "full_success": 0.7578125,
+            "agent_success": 0.875,
+            "collision": 0.12239583333333333,
+            "unresolved": 0.0026041666666666665,
+            "timeout": 0.0078125,
+            "raw_steps": 24.3125,
+            "interaction_share": 0.0,
+            "switches": 0.0
+          }
+        },
+        "b2": {
+          "20260911": {
+            "full_success": 0.8203125,
+            "agent_success": 0.9140625,
+            "collision": 0.0859375,
+            "unresolved": 0.0,
+            "timeout": 0.0,
+            "raw_steps": 35.8359375,
+            "interaction_share": 0.67432828124851,
+            "switches": 4.5546875
+          },
+          "20260912": {
+            "full_success": 0.765625,
+            "agent_success": 0.8880208333333334,
+            "collision": 0.10416666666666667,
+            "unresolved": 0.0078125,
+            "timeout": 0.0234375,
+            "raw_steps": 37.78125,
+            "interaction_share": 0.6896613244177365,
+            "switches": 4.53125
+          }
+        }
+      },
+      "pooled_descriptive": {
+        "5a": {
+          "full_success": 0.76171875,
+          "agent_success": 0.8776041666666666,
+          "collision": 0.12109375,
+          "unresolved": 0.0013020833333333333,
+          "timeout": 0.00390625,
+          "raw_steps": 22.5390625,
+          "interaction_share": 0.0,
+          "switches": 0.0
+        },
+        "b2": {
+          "full_success": 0.79296875,
+          "agent_success": 0.9010416666666666,
+          "collision": 0.09505208333333333,
+          "unresolved": 0.00390625,
+          "timeout": 0.01171875,
+          "raw_steps": 36.80859375,
+          "interaction_share": 0.6819948028331233,
+          "switches": 4.54296875
+        }
+      },
+      "exploratory_b2_minus_5a": {
+        "full_success": {
+          "mean_difference": 0.03125,
+          "scene_cluster_bca_95_ci": [
+            -0.02734375,
+            0.09375
+          ],
+          "exploratory_sign_flip_two_sided_p": 0.3852561474385256,
+          "per_repeat_pairs": {
+            "20260911": {
+              "improved": 14,
+              "degraded": 7,
+              "tied": 107
+            },
+            "20260912": {
+              "improved": 16,
+              "degraded": 15,
+              "tied": 97
+            }
+          }
+        },
+        "agent_success": {
+          "mean_difference": 0.023437500000000003,
+          "scene_cluster_bca_95_ci": [
+            -0.007812500000000003,
+            0.05859375
+          ]
+        },
+        "collision": {
+          "mean_difference": -0.02604166666666667,
+          "scene_cluster_bca_95_ci": [
+            -0.0625,
+            0.006510416666666664
+          ]
+        },
+        "unresolved": {
+          "mean_difference": 0.0026041666666666665,
+          "scene_cluster_bca_95_ci": [
+            -0.0013020833333333333,
+            0.009114583333333332
+          ]
+        },
+        "timeout": {
+          "mean_difference": 0.0078125,
+          "scene_cluster_bca_95_ci": [
+            -0.00390625,
+            0.02734375
+          ]
+        },
+        "raw_steps": {
+          "mean_difference": 14.26953125,
+          "scene_cluster_bca_95_ci": [
+            8.561200118434368,
+            20.137412762512113
+          ]
+        },
+        "interaction_share": {
+          "mean_difference": 0.6819948028331232,
+          "scene_cluster_bca_95_ci": [
+            0.6523607233395123,
+            0.7106389026760426
+          ]
+        },
+        "switches": {
+          "mean_difference": 4.54296875,
+          "scene_cluster_bca_95_ci": [
+            4.38671875,
+            4.6953125
+          ]
+        },
+        "paired_success_steps": {
+          "joint_success_scene_repeat_pairs": 173,
+          "scene_clusters_with_pairs": 96,
+          "mean_difference": 11.880208333333334,
+          "scene_cluster_bca_95_ci": [
+            7.096740433440021,
+            16.54214538745449
+          ]
+        },
+        "penalized_completion_steps": {
+          "horizon": 300,
+          "mean_difference": 1.69140625,
+          "scene_cluster_bca_95_ci": [
+            -15.4296875,
+            18.176635737603178
+          ]
+        }
+      },
+      "by_conflict_edges_descriptive": {
+        "0": {
+          "scenes": 61,
+          "full_success": {
+            "5a": 0.9344262295081968,
+            "b2": 0.9262295081967213,
+            "mean_difference": -0.00819672131147541
+          },
+          "agent_success": {
+            "5a": 0.9699453551912568,
+            "b2": 0.9699453551912568,
+            "mean_difference": 0.0
+          },
+          "collision": {
+            "5a": 0.027322404371584702,
+            "b2": 0.02459016393442623,
+            "mean_difference": -0.0027322404371584704
+          },
+          "unresolved": {
+            "5a": 0.00273224043715847,
+            "b2": 0.00546448087431694,
+            "mean_difference": 0.00273224043715847
+          },
+          "timeout": {
+            "5a": 0.00819672131147541,
+            "b2": 0.01639344262295082,
+            "mean_difference": 0.00819672131147541
+          },
+          "raw_steps": {
+            "5a": 25.09016393442623,
+            "b2": 38.90983606557377,
+            "mean_difference": 13.819672131147541
+          },
+          "interaction_share": {
+            "5a": 0.0,
+            "b2": 0.6875717639611268,
+            "mean_difference": 0.6875717639611268
+          },
+          "switches": {
+            "5a": 0.0,
+            "b2": 4.524590163934426,
+            "mean_difference": 4.524590163934426
+          }
+        },
+        "1": {
+          "scenes": 58,
+          "full_success": {
+            "5a": 0.6293103448275862,
+            "b2": 0.7068965517241379,
+            "mean_difference": 0.07758620689655173
+          },
+          "agent_success": {
+            "5a": 0.8132183908045977,
+            "b2": 0.853448275862069,
+            "mean_difference": 0.040229885057471264
+          },
+          "collision": {
+            "5a": 0.18678160919540227,
+            "b2": 0.14367816091954022,
+            "mean_difference": -0.04310344827586207
+          },
+          "unresolved": {
+            "5a": 0.0,
+            "b2": 0.0028735632183908046,
+            "mean_difference": 0.0028735632183908046
+          },
+          "timeout": {
+            "5a": 0.0,
+            "b2": 0.008620689655172414,
+            "mean_difference": 0.008620689655172414
+          },
+          "raw_steps": {
+            "5a": 20.663793103448278,
+            "b2": 36.12931034482759,
+            "mean_difference": 15.46551724137931
+          },
+          "interaction_share": {
+            "5a": 0.0,
+            "b2": 0.6624918254953905,
+            "mean_difference": 0.6624918254953905
+          },
+          "switches": {
+            "5a": 0.0,
+            "b2": 4.543103448275862,
+            "mean_difference": 4.543103448275862
+          }
+        },
+        "2": {
+          "scenes": 8,
+          "full_success": {
+            "5a": 0.5,
+            "b2": 0.4375,
+            "mean_difference": -0.0625
+          },
+          "agent_success": {
+            "5a": 0.7083333333333333,
+            "b2": 0.75,
+            "mean_difference": 0.04166666666666667
+          },
+          "collision": {
+            "5a": 0.29166666666666663,
+            "b2": 0.24999999999999997,
+            "mean_difference": -0.04166666666666667
+          },
+          "unresolved": {
+            "5a": 0.0,
+            "b2": 0.0,
+            "mean_difference": 0.0
+          },
+          "timeout": {
+            "5a": 0.0,
+            "b2": 0.0,
+            "mean_difference": 0.0
+          },
+          "raw_steps": {
+            "5a": 15.0625,
+            "b2": 25.1875,
+            "mean_difference": 10.125
+          },
+          "interaction_share": {
+            "5a": 0.0,
+            "b2": 0.7875019524534712,
+            "mean_difference": 0.7875019524534712
+          },
+          "switches": {
+            "5a": 0.0,
+            "b2": 4.6875,
+            "mean_difference": 4.6875
+          }
+        },
+        "3+": {
+          "scenes": 1,
+          "full_success": {
+            "5a": 0.0,
+            "b2": 0.5,
+            "mean_difference": 0.5
+          },
+          "agent_success": {
+            "5a": 0.3333333333333333,
+            "b2": 0.6666666666666666,
+            "mean_difference": 0.33333333333333337
+          },
+          "collision": {
+            "5a": 0.6666666666666666,
+            "b2": 0.3333333333333333,
+            "mean_difference": -0.3333333333333333
+          },
+          "unresolved": {
+            "5a": 0.0,
+            "b2": 0.0,
+            "mean_difference": 0.0
+          },
+          "timeout": {
+            "5a": 0.0,
+            "b2": 0.0,
+            "mean_difference": 0.0
+          },
+          "raw_steps": {
+            "5a": 35.5,
+            "b2": 41.0,
+            "mean_difference": 5.5
+          },
+          "interaction_share": {
+            "5a": 0.0,
+            "b2": 0.6289156626506024,
+            "mean_difference": 0.6289156626506024
+          },
+          "switches": {
+            "5a": 0.0,
+            "b2": 4.5,
+            "mean_difference": 4.5
+          }
+        }
+      }
+    },
+    "7": {
+      "manifest": {
+        "path": "experiments/03_保留专门化/02_论文主线/26_数量泛化与外部切换基线/local_data/q1/manifests/n7/test.json",
+        "sha256": "1b8d5d136d2eaac09ef986a7d0ae9cc784bf00c69045b2ac40713081b5210d40",
+        "generation_seed": 20260914,
+        "generated_candidate_count": 2288,
+        "gazebo_candidate_count": 132,
+        "gazebo_accepted_count": 128,
+        "gazebo_rejected_count": 4,
+        "conflict_edge_count_min": 1,
+        "conflict_edge_count_max": 10,
+        "conflict_edge_count_mean": 5.3984375
+      },
+      "completion_sha256": "603c41d7525b44a27df534cdacde89d4a144662fb3dfb4e0216b823402c42b7d",
+      "result_sha256": {
+        "5a_s20260911": "4fc7545e0b17445d17c6bedc77fcd31b5ae7d93f85706e91ebfa47810e32ac57",
+        "5a_s20260912": "3b1160263a90201fa4d7b542c254c8ef52c840988c7e73dec332f629f72a554c",
+        "b2_s20260911": "9f985b9a9b33fc9500ad185ff5d39690afa19a54b6776c90fbc595788ea49fa5",
+        "b2_s20260912": "02a8a919fd670629e9d088569e96c2f41d63d6c5bea2552a8d41875192be3148"
+      },
+      "per_repeat": {
+        "5a": {
+          "20260911": {
+            "full_success": 0.0625,
+            "agent_success": 0.5636160714285714,
+            "collision": 0.43638392857142855,
+            "unresolved": 0.0,
+            "timeout": 0.0,
+            "raw_steps": 15.703125,
+            "interaction_share": 0.0,
+            "switches": 0.0
+          },
+          "20260912": {
+            "full_success": 0.0546875,
+            "agent_success": 0.5569196428571429,
+            "collision": 0.44308035714285715,
+            "unresolved": 0.0,
+            "timeout": 0.0,
+            "raw_steps": 17.3828125,
+            "interaction_share": 0.0,
+            "switches": 0.0
+          }
+        },
+        "b2": {
+          "20260911": {
+            "full_success": 0.0703125,
+            "agent_success": 0.6584821428571429,
+            "collision": 0.3392857142857143,
+            "unresolved": 0.002232142857142857,
+            "timeout": 0.015625,
+            "raw_steps": 34.3828125,
+            "interaction_share": 0.6559028268548537,
+            "switches": 11.3125
+          },
+          "20260912": {
+            "full_success": 0.078125,
+            "agent_success": 0.6529017857142857,
+            "collision": 0.3470982142857143,
+            "unresolved": 0.0,
+            "timeout": 0.0,
+            "raw_steps": 33.5390625,
+            "interaction_share": 0.6473227180546649,
+            "switches": 11.0234375
+          }
+        }
+      },
+      "pooled_descriptive": {
+        "5a": {
+          "full_success": 0.05859375,
+          "agent_success": 0.5602678571428571,
+          "collision": 0.43973214285714285,
+          "unresolved": 0.0,
+          "timeout": 0.0,
+          "raw_steps": 16.54296875,
+          "interaction_share": 0.0,
+          "switches": 0.0
+        },
+        "b2": {
+          "full_success": 0.07421875,
+          "agent_success": 0.6556919642857143,
+          "collision": 0.3431919642857143,
+          "unresolved": 0.0011160714285714285,
+          "timeout": 0.0078125,
+          "raw_steps": 33.9609375,
+          "interaction_share": 0.6516127724547593,
+          "switches": 11.16796875
+        }
+      },
+      "exploratory_b2_minus_5a": {
+        "full_success": {
+          "mean_difference": 0.015625,
+          "scene_cluster_bca_95_ci": [
+            -0.02734375,
+            0.0546875
+          ],
+          "exploratory_sign_flip_two_sided_p": 0.5748942510574895,
+          "per_repeat_pairs": {
+            "20260911": {
+              "improved": 8,
+              "degraded": 7,
+              "tied": 113
+            },
+            "20260912": {
+              "improved": 9,
+              "degraded": 6,
+              "tied": 113
+            }
+          }
+        },
+        "agent_success": {
+          "mean_difference": 0.09542410714285715,
+          "scene_cluster_bca_95_ci": [
+            0.06138392857142857,
+            0.12723214285714285
+          ]
+        },
+        "collision": {
+          "mean_difference": -0.09654017857142858,
+          "scene_cluster_bca_95_ci": [
+            -0.12834821428571427,
+            -0.0625
+          ]
+        },
+        "unresolved": {
+          "mean_difference": 0.0011160714285714285,
+          "scene_cluster_bca_95_ci": [
+            0.0,
+            0.00390625
+          ]
+        },
+        "timeout": {
+          "mean_difference": 0.0078125,
+          "scene_cluster_bca_95_ci": [
+            0.0,
+            0.02734375
+          ]
+        },
+        "raw_steps": {
+          "mean_difference": 17.41796875,
+          "scene_cluster_bca_95_ci": [
+            14.71875,
+            22.8984375
+          ]
+        },
+        "interaction_share": {
+          "mean_difference": 0.6516127724547593,
+          "scene_cluster_bca_95_ci": [
+            0.636003409592608,
+            0.6670321528349926
+          ]
+        },
+        "switches": {
+          "mean_difference": 11.16796875,
+          "scene_cluster_bca_95_ci": [
+            10.94921875,
+            11.3828125
+          ]
+        },
+        "paired_success_steps": {
+          "joint_success_scene_repeat_pairs": 2,
+          "scene_clusters_with_pairs": 2,
+          "mean_difference": 8.0,
+          "scene_cluster_bca_95_ci": [
+            2.0,
+            14.0
+          ]
+        },
+        "penalized_completion_steps": {
+          "horizon": 300,
+          "mean_difference": -3.1953125,
+          "scene_cluster_bca_95_ci": [
+            -13.328125,
+            8.5972253175578
+          ]
+        }
+      },
+      "by_conflict_edges_descriptive": {
+        "0": {
+          "scenes": 0
+        },
+        "1": {
+          "scenes": 1,
+          "full_success": {
+            "5a": 1.0,
+            "b2": 0.0,
+            "mean_difference": -1.0
+          },
+          "agent_success": {
+            "5a": 1.0,
+            "b2": 0.8571428571428571,
+            "mean_difference": -0.1428571428571429
+          },
+          "collision": {
+            "5a": 0.0,
+            "b2": 0.14285714285714285,
+            "mean_difference": 0.14285714285714285
+          },
+          "unresolved": {
+            "5a": 0.0,
+            "b2": 0.0,
+            "mean_difference": 0.0
+          },
+          "timeout": {
+            "5a": 0.0,
+            "b2": 0.0,
+            "mean_difference": 0.0
+          },
+          "raw_steps": {
+            "5a": 19.5,
+            "b2": 34.5,
+            "mean_difference": 15.0
+          },
+          "interaction_share": {
+            "5a": 0.0,
+            "b2": 0.5046923879040668,
+            "mean_difference": 0.5046923879040668
+          },
+          "switches": {
+            "5a": 0.0,
+            "b2": 12.0,
+            "mean_difference": 12.0
+          }
+        },
+        "2": {
+          "scenes": 4,
+          "full_success": {
+            "5a": 0.25,
+            "b2": 0.5,
+            "mean_difference": 0.25
+          },
+          "agent_success": {
+            "5a": 0.8035714285714286,
+            "b2": 0.8928571428571429,
+            "mean_difference": 0.0892857142857143
+          },
+          "collision": {
+            "5a": 0.19642857142857142,
+            "b2": 0.10714285714285714,
+            "mean_difference": -0.08928571428571427
+          },
+          "unresolved": {
+            "5a": 0.0,
+            "b2": 0.0,
+            "mean_difference": 0.0
+          },
+          "timeout": {
+            "5a": 0.0,
+            "b2": 0.0,
+            "mean_difference": 0.0
+          },
+          "raw_steps": {
+            "5a": 13.25,
+            "b2": 31.125,
+            "mean_difference": 17.875
+          },
+          "interaction_share": {
+            "5a": 0.0,
+            "b2": 0.6666816736321388,
+            "mean_difference": 0.6666816736321388
+          },
+          "switches": {
+            "5a": 0.0,
+            "b2": 10.875,
+            "mean_difference": 10.875
+          }
+        },
+        "3+": {
+          "scenes": 123,
+          "full_success": {
+            "5a": 0.044715447154471545,
+            "b2": 0.06097560975609756,
+            "mean_difference": 0.016260162601626018
+          },
+          "agent_success": {
+            "5a": 0.5487804878048781,
+            "b2": 0.6463414634146342,
+            "mean_difference": 0.0975609756097561
+          },
+          "collision": {
+            "5a": 0.45121951219512196,
+            "b2": 0.35249709639953547,
+            "mean_difference": -0.09872241579558652
+          },
+          "unresolved": {
+            "5a": 0.0,
+            "b2": 0.0011614401858304297,
+            "mean_difference": 0.0011614401858304297
+          },
+          "timeout": {
+            "5a": 0.0,
+            "b2": 0.008130081300813009,
+            "mean_difference": 0.008130081300813009
+          },
+          "raw_steps": {
+            "5a": 16.6260162601626,
+            "b2": 34.048780487804876,
+            "mean_difference": 17.422764227642276
+          },
+          "interaction_share": {
+            "5a": 0.0,
+            "b2": 0.6523172015591591,
+            "mean_difference": 0.6523172015591591
+          },
+          "switches": {
+            "5a": 0.0,
+            "b2": 11.170731707317072,
+            "mean_difference": 11.170731707317072
+          }
+        }
+      }
+    }
+  },
+  "interpretation_guardrails": [
+    "Compare B2 with 5A only within the same vehicle count, scene, and repeat.",
+    "Do not compare absolute 3-, 5-, and 7-robot full-success rates as a quantity effect.",
+    "The BCa intervals and sign-flip p-values are exploratory supplemental inference, not G25 confirmatory tests."
+  ]
+}

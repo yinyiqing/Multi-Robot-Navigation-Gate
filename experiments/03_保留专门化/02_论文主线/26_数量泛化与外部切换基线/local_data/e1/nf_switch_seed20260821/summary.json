@@ -1,0 +1,358 @@
+{
+  "protocol": {
+    "experiment_id": "G26-E1-normalizing-flow-inspired-switch",
+    "implementation_label": "normalizing-flow-inspired switching baseline",
+    "strict_reproduction": false,
+    "seed": 20260821,
+    "device": "cpu",
+    "epochs": 50,
+    "optimizer": "Adam",
+    "learning_rate": 0.001,
+    "weight_decay": 1e-06,
+    "fit_fraction_by_stratum": 0.8,
+    "threshold_rule": "calibration NLL 95th percentile",
+    "test_data_read": false,
+    "actor_or_b2_updated": false
+  },
+  "sources": {
+    "train_manifest": "experiments/03_保留专门化/02_论文主线/datasets/fixed_v1/views/g11_a1_gate_v1/train.json.gz",
+    "train_manifest_sha256": "a97534ed22d1b4b12951cd42b80d515037774830f38cb432926c0e9f50379026",
+    "collection_log": "logs/archive/diagnostic/g11_a1/collection/collect_g11_a1_gate_train_20260804_212736.log",
+    "collection_log_sha256": "8c58e0b15e69db1913a636742ee451d26774ed64293d2bb251de686144c39c51",
+    "a1_shard_dir": "experiments/03_保留专门化/02_论文主线/11_可部署在线Gate研究/G11_A1_当前协议时序pilot/local_data/shards/train",
+    "a1_shard_digest": "7b50f36611629332f89515b8035ce5576c100217a80536b7fe13601ce839fa4e",
+    "a1_shard_count": 640,
+    "a1_shard_audit": "experiments/03_保留专门化/02_论文主线/11_可部署在线Gate研究/G11_A1_当前协议时序pilot/local_data/shard_audit.json"
+  },
+  "manifest_dataset_id": "g11-a1-gate-v1-train",
+  "source_collection": {
+    "episodes": 640,
+    "full_success_scenarios": 442,
+    "collision_scenarios": 196,
+    "timeout_scenarios": 4
+  },
+  "split": {
+    "strata": {
+      "dense_interaction": {
+        "success_scenarios": 81,
+        "fit_scenarios": 64,
+        "calibration_scenarios": 17
+      },
+      "dense_weak": {
+        "success_scenarios": 150,
+        "fit_scenarios": 120,
+        "calibration_scenarios": 30
+      },
+      "standard_interaction": {
+        "success_scenarios": 71,
+        "fit_scenarios": 56,
+        "calibration_scenarios": 15
+      },
+      "standard_weak": {
+        "success_scenarios": 140,
+        "fit_scenarios": 112,
+        "calibration_scenarios": 28
+      }
+    },
+    "fit_scenarios": 352,
+    "calibration_scenarios": 90,
+    "fit_frames": 15011,
+    "calibration_frames": 4059,
+    "fit_frame_count_range": [
+      21,
+      104
+    ],
+    "calibration_frame_count_range": [
+      23,
+      104
+    ]
+  },
+  "normalization": {
+    "feature_mean": [
+      2.6086134910583496,
+      2.618072271347046,
+      2.693666458129883,
+      2.790203332901001,
+      2.859541654586792,
+      2.911602735519409,
+      2.964354991912842,
+      3.0041441917419434,
+      3.0123329162597656,
+      2.9956510066986084,
+      3.0002975463867188,
+      3.010531425476074,
+      3.0208864212036133,
+      2.9422430992126465,
+      2.865048408508301,
+      2.822066307067871,
+      2.7672905921936035,
+      2.7297258377075195,
+      2.743253707885742,
+      2.7884955406188965,
+      0.9186291098594666,
+      0.3262975215911865,
+      0.7107027173042297,
+      0.023887010291218758
+    ],
+    "feature_std": [
+      1.4680991172790527,
+      1.4480469226837158,
+      1.4585258960723877,
+      1.4720380306243896,
+      1.4925897121429443,
+      1.498347520828247,
+      1.5041663646697998,
+      1.479870319366455,
+      1.4552409648895264,
+      1.4238035678863525,
+      1.424538493156433,
+      1.443008542060852,
+      1.4745322465896606,
+      1.4791069030761719,
+      1.4567855596542358,
+      1.452377200126648,
+      1.4194176197052002,
+      1.403830647468567,
+      1.4332627058029175,
+      1.4678211212158203,
+      0.5336496233940125,
+      0.6458912491798401,
+      0.4469984769821167,
+      0.8994017839431763
+    ],
+    "std_floor": 1e-06,
+    "floored_dimensions": []
+  },
+  "model_config": {
+    "input_dim": 24,
+    "num_blocks": 6,
+    "hidden_dim": 128,
+    "log_scale_limit": 2.0
+  },
+  "training_history": [
+    {
+      "epoch": 1,
+      "weighted_nll": 36.73495101928711
+    },
+    {
+      "epoch": 2,
+      "weighted_nll": 34.9333381652832
+    },
+    {
+      "epoch": 3,
+      "weighted_nll": 34.379817962646484
+    },
+    {
+      "epoch": 4,
+      "weighted_nll": 34.05616760253906
+    },
+    {
+      "epoch": 5,
+      "weighted_nll": 33.76673889160156
+    },
+    {
+      "epoch": 6,
+      "weighted_nll": 33.5001335144043
+    },
+    {
+      "epoch": 7,
+      "weighted_nll": 33.260807037353516
+    },
+    {
+      "epoch": 8,
+      "weighted_nll": 33.028831481933594
+    },
+    {
+      "epoch": 9,
+      "weighted_nll": 32.779197692871094
+    },
+    {
+      "epoch": 10,
+      "weighted_nll": 32.51042175292969
+    },
+    {
+      "epoch": 11,
+      "weighted_nll": 32.242618560791016
+    },
+    {
+      "epoch": 12,
+      "weighted_nll": 32.000267028808594
+    },
+    {
+      "epoch": 13,
+      "weighted_nll": 31.798189163208008
+    },
+    {
+      "epoch": 14,
+      "weighted_nll": 31.63530158996582
+    },
+    {
+      "epoch": 15,
+      "weighted_nll": 31.497278213500977
+    },
+    {
+      "epoch": 16,
+      "weighted_nll": 31.366994857788086
+    },
+    {
+      "epoch": 17,
+      "weighted_nll": 31.235187530517578
+    },
+    {
+      "epoch": 18,
+      "weighted_nll": 31.101680755615234
+    },
+    {
+      "epoch": 19,
+      "weighted_nll": 30.969417572021484
+    },
+    {
+      "epoch": 20,
+      "weighted_nll": 30.836959838867188
+    },
+    {
+      "epoch": 21,
+      "weighted_nll": 30.702299118041992
+    },
+    {
+      "epoch": 22,
+      "weighted_nll": 30.571128845214844
+    },
+    {
+      "epoch": 23,
+      "weighted_nll": 30.452861785888672
+    },
+    {
+      "epoch": 24,
+      "weighted_nll": 30.348777770996094
+    },
+    {
+      "epoch": 25,
+      "weighted_nll": 30.251638412475586
+    },
+    {
+      "epoch": 26,
+      "weighted_nll": 30.15650177001953
+    },
+    {
+      "epoch": 27,
+      "weighted_nll": 30.063465118408203
+    },
+    {
+      "epoch": 28,
+      "weighted_nll": 29.971351623535156
+    },
+    {
+      "epoch": 29,
+      "weighted_nll": 29.877010345458984
+    },
+    {
+      "epoch": 30,
+      "weighted_nll": 29.778242111206055
+    },
+    {
+      "epoch": 31,
+      "weighted_nll": 29.67519760131836
+    },
+    {
+      "epoch": 32,
+      "weighted_nll": 29.57010269165039
+    },
+    {
+      "epoch": 33,
+      "weighted_nll": 29.465845108032227
+    },
+    {
+      "epoch": 34,
+      "weighted_nll": 29.36207389831543
+    },
+    {
+      "epoch": 35,
+      "weighted_nll": 29.255340576171875
+    },
+    {
+      "epoch": 36,
+      "weighted_nll": 29.146102905273438
+    },
+    {
+      "epoch": 37,
+      "weighted_nll": 29.0357666015625
+    },
+    {
+      "epoch": 38,
+      "weighted_nll": 28.920886993408203
+    },
+    {
+      "epoch": 39,
+      "weighted_nll": 28.800439834594727
+    },
+    {
+      "epoch": 40,
+      "weighted_nll": 28.678316116333008
+    },
+    {
+      "epoch": 41,
+      "weighted_nll": 28.55451202392578
+    },
+    {
+      "epoch": 42,
+      "weighted_nll": 28.42808723449707
+    },
+    {
+      "epoch": 43,
+      "weighted_nll": 28.300949096679688
+    },
+    {
+      "epoch": 44,
+      "weighted_nll": 28.17286491394043
+    },
+    {
+      "epoch": 45,
+      "weighted_nll": 28.042221069335938
+    },
+    {
+      "epoch": 46,
+      "weighted_nll": 27.911712646484375
+    },
+    {
+      "epoch": 47,
+      "weighted_nll": 27.782642364501953
+    },
+    {
+      "epoch": 48,
+      "weighted_nll": 27.654714584350586
+    },
+    {
+      "epoch": 49,
+      "weighted_nll": 27.527605056762695
+    },
+    {
+      "epoch": 50,
+      "weighted_nll": 27.40024185180664
+    }
+  ],
+  "fit_nll": {
+    "mean": 27.43049428750622,
+    "std": 5.60597203788604,
+    "min": 12.786584854125977,
+    "p50": 27.003387451171875,
+    "p95": 36.83765411376953,
+    "max": 87.61109924316406
+  },
+  "calibration_nll": {
+    "mean": 28.460759424170593,
+    "std": 7.030985782695357,
+    "min": 13.244695663452148,
+    "p50": 27.536970138549805,
+    "p95": 39.64945640563965,
+    "max": 113.79733276367188
+  },
+  "threshold_nll": 39.64945640563965,
+  "invertibility_check": {
+    "max_reconstruction_error": 9.5367431640625e-07,
+    "max_log_det_error": 1.9073486328125e-06
+  },
+  "checkpoint": "experiments/03_保留专门化/02_论文主线/26_数量泛化与外部切换基线/local_data/e1/nf_switch_seed20260821/checkpoint.pt",
+  "checkpoint_sha256": "bf43581ba0aab37f96f267f094f858143005b5876e0c5d4a31cd79c1eedeb6af",
+  "claim_boundary": "This is a local normalizing-flow-inspired switch under the frozen G26-E1 protocol; it is not the original authors' implementation."
+}

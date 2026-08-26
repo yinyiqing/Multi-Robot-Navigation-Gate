@@ -1,8 +1,104 @@
 # G26 数量泛化与外部切换基线
 
-状态：`已登记，等待 G25 sealed 完成后执行`
+状态：`Q1 已完成并冻结统计；E1 manifest 已冻结，三方法同场评估进行中`
 
 登记日期：`2026-08-19`
+
+更新时间：`2026-08-26`
+
+## 2026-08-21 Q1 完成与证据边界
+
+Q1 已按冻结协议完成：3车和7车分别使用128个独立生成且通过Gazebo reset的场景，5A与B2
+各运行两个repeat（`20260911/20260912`），合计`1024 episodes`。全部8个结果文件均通过
+`(128,17)`形状、manifest顺序和每车终止记账检查；期间未训练或更新Actor、B2，也未使用
+2 m特权距离规则。统计文件为`local_data/q1/results/q1_statistics.json`，SHA-256为
+`c02c17fa49509d5a31fd70f0862508fc7d1d04855f0047794c5019bdd0b835fb`。
+
+Q1的scene-cluster BCa区间与sign-flip沿用G25计算口径，但Q1登记时未单独冻结显著性门槛，
+因此统一标为补充性探索推断，不进入G25确认性主检验。主要结果如下：
+
+| 车辆数 | 方法 | full success | agent success | collision | timeout | raw steps | I占比 | switches |
+|---:|---|---:|---:|---:|---:|---:|---:|---:|
+| 3 | 5A | 0.7617 | 0.8776 | 0.1211 | 0.0039 | 22.54 | 0 | 0 |
+| 3 | B2 | 0.7930 | 0.9010 | 0.0951 | 0.0117 | 36.81 | 0.6820 | 4.54 |
+| 7 | 5A | 0.0586 | 0.5603 | 0.4397 | 0 | 16.54 | 0 | 0 |
+| 7 | B2 | 0.0742 | 0.6557 | 0.3432 | 0.0078 | 33.96 | 0.6516 | 11.17 |
+
+3车B2相对5A的full-success差值为`+0.0313`，BCa 95% CI
+`[-0.0273,+0.0938]`，探索性sign-flip `p=0.3853`；7车差值为`+0.0156`，CI
+`[-0.0273,+0.0547]`，`p=0.5749`。两者都只能称正向点估计，不能称已证明整队成功率提高。
+7车的agent-success差值为`+0.0954`（CI `[+0.0614,+0.1272]`），collision差值为
+`-0.0965`（CI `[-0.1283,-0.0625]`），支持更高并发下的每车完成与安全收益；3车对应区间
+均跨0，只支持方向性结果。
+
+代价与G25一致：3/7车raw steps分别增加`14.27/17.42`，I占比为`68.2%/65.2%`。
+3车双方共同成功的173个scene-repeat pair中，B2平均增加`11.88`步（CI
+`[7.10,16.54]`）；7车只有2个双方共同成功pair，paired-success steps不具稳定解释价值。
+penalized completion steps在3/7车的差值区间都跨0。timeout点估计各增加`0.0078`，不能
+声称timeout改善。
+
+场景分布用于限定解释：3车冲突边`0/1/2/3+ = 61/58/8/1`，B2收益主要出现在1-edge；
+7车有`123/128`场属于3+ edge，冲突边均值`5.3984`。因此7车极低的绝对full success不能与
+五车G25直接横向比较，也不能单独解释成数量泛化失败。Q1最终支持的表述是：冻结系统从五车
+零更新部署到3/7车后，B2相对5A保持了full-success正向点估计，并在7车高冲突条件下明确改善
+每车成功率和碰撞，但没有证明3车或7车的整队成功率提升。
+
+3车manifest 0-edge的61场需要单独披露：5A/B2 full success为`0.9344/0.9262`，agent
+success均为`0.9699`，collision为`0.0273/0.0246`；任务结果基本保持，但B2的I占比仍为
+`68.8%`，raw steps增加`13.82`。manifest 0-edge只表示名义同步路径没有预测冲突，不保证实际
+闭环轨迹完全无交互；即便如此，这一高调用率仍不支持“低负载下Router稀疏调用或几乎不误触发”
+的表述。Q1数量外推主要保持了结果方向，没有保持调用效率或证明Gate具有良好的数量校准。
+
+## 2026-08-21 E1 文献审计与实现冻结
+
+已核对DOI `10.1109/IROS58592.2024.10802676`的Crossref、OpenAlex、Semantic Scholar、
+Unpaywall、arXiv、DBLP、作者ORCID、IEEE入口和公开代码索引。可访问证据确认原工作以当前状态
+likelihood为依据，用normalizing flow判断是否处于学习方法预期分布，并在learning-based与
+rule-based方法之间切换；参考文献包含Graph Normalizing Flows、RealNVP和GATv2。IEEE全文
+不是开放获取，公开索引没有作者全文或官方代码，因此无法核对其精确图状态、网络层数、阈值、
+切换保持机制和rule-based控制器。结构化审计见`local_data/e1/literature_audit.json`。
+
+因此E1不再称严格复现，固定名称为`normalizing-flow-inspired switching baseline`。它只复现
+“用nominal-state likelihood决定何时离开默认策略”的切换思想，并在本项目中保持5A与epoch16
+两个Actor完全相同，只替换Router。原论文切向rule-based方法，而本基线切向冻结epoch16；这项
+差异必须在正文和补充材料中披露，E1不能代表原论文系统的绝对性能。
+
+在读取E1测试场景前，冻结以下实现，不按后续闭环结果修改：
+
+1. 训练源只使用G11-A1的640场navigation-train冻结5A轨迹。train manifest SHA-256为
+   `a97534ed22d1b4b12951cd42b80d515037774830f38cb432926c0e9f50379026`，640场逐场结局日志
+   SHA-256为`8c58e0b15e69db1913a636742ee451d26774ed64293d2bb251de686144c39c51`，A1 shard语义
+   digest为`7b50f36611629332f89515b8035ce5576c100217a80536b7fe13601ce839fa4e`；
+2. 只保留5A整队full-success的`442/640`场。按`scenario_pool + interaction_band`四层，使用
+   `SHA256("20260821:" + scenario_id)`排序后，各层前80%作为fit、其余作为calibration；固定为
+   `352/90`场、`15011/4059`帧；
+3. 输入只取shard中每车24维`frame_actor_states`，即部署时已有的本机Actor观测。不使用Oracle
+   标签、其他机器人真值、ego pose、场景名、冲突图、G0检测标签或测试数据；
+4. flow固定为24维RealNVP：6个交替mask affine coupling block，每个coupling的scale/shift
+   MLP为`24 -> 128 -> 128 -> 48`，ReLU，log-scale经`tanh`限制到`[-2,2]`；标准正态base；
+5. fit特征均值/标准差只由fit split计算。优化固定为CPU、seed `20260821`、Adam
+   `lr=1e-3`、weight decay `1e-6`、50个full-batch epoch；每场总权重相同，长轨迹不因帧多
+   获得更大总权重，不做epoch、层数或学习率扫描；
+6. checkpoint固定使用第50 epoch，不读取calibration选择模型。唯一阈值为calibration NLL的
+   95分位数；每个环境步若`NLL > threshold`则调用epoch16，否则调用5A。无滞回、无最短保持、
+   无测试后阈值调整；日志中的Gate score定义为calibration NLL empirical CDF；
+7. flow checkpoint、阈值、训练摘要和SHA-256全部冻结后，才允许首次生成Dense test原始顺序
+   `256:384`的128场E1 manifest。测试seed仍为`20260921/20260922`，同场运行
+   `5A / NF-inspired / B2`共`768 episodes`。
+
+E1训练本身只更新flow，不更新Actor、G0或B2。上述检查已通过，manifest已固定并开始读取
+E1 test；从此不再修改上述任一实现参数。
+
+## 2026-08-26 E1 评估进行中
+
+E1评估按单Gazebo实例串行运行`2 seeds x 3 methods x 128 scenes = 768 episodes`。当前首个
+组合`g26_e1_5a_s20260921`正在增量执行，其余组合尚未开始。运行入口为
+`scripts/start_g26_e1_evaluation.sh`，实时总日志为
+`logs/active/g26-e1-evaluation/runner.log`，单次方法日志为同目录下的
+`g26_e1_<method>_s<seed>_attempt*.log`；完成后日志归档至
+`logs/archive/test/g26_e1_evaluation/`。结果临时写入
+`local_data/e1/results/`，完成后再运行`scripts/analyze_g26_e1_results.py`生成统计。
+评估期间不读取中间结果来调整任何冻结组件。
 
 ## 1. 目的与边界
 
@@ -141,10 +237,10 @@ flow 方法，也不能声称全面超过 IROS 2024 原系统。
 
 ## 6. 执行顺序与停止规则
 
-1. 等待 G25 sealed 七方法、三 repeat 全部完成、归档并完成冻结统计；
-2. 审计 3/7 车 launch、场景生成器和逐场结果格式，冻结 Q1 manifests 后运行 Q1；
-3. 获取并核对 IROS 2024 全文，冻结 E1 的 flow 实现、训练 split 和测试切片；
-4. 完成 flow 训练审计后运行 E1 三方法同场评测；
+1. G25 sealed 七方法、三 repeat 已完成、归档并完成冻结统计；
+2. 3/7 车场景审计、Q1 manifests、零更新评测和探索性统计已完成；
+3. IROS 2024 文献审计、E1 flow 实现、训练 split 和测试切片已冻结；
+4. 当前运行 E1 三方法同场评测，完成后执行逐场格式校验和统计分析；
 5. 统一生成补充表格，不把 G26 探索性结果并入 G25 确认性 p 值或主假设。
 
 任一阶段发现实现依赖真值、场景错序、车辆数配置不一致或测试结果参与阈值选择时立即停止并

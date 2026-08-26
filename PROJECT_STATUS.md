@@ -1,6 +1,6 @@
 # 当前项目状态
 
-更新时间：`2026-08-19`。
+更新时间：`2026-08-26`。
 
 本文件是进入项目后的第一阅读入口。方法定义、实验准入和数据边界以
 [论文主线协议](experiments/03_保留专门化/02_论文主线/README.md)为准；历史 README
@@ -9,9 +9,9 @@
 ## 2026-08-18 导师确认
 
 导师已确认当前两个冻结 Actor 加可部署时序 Gate 的阶段结果，并要求“以这个为目标推进”。
-剩余投稿周期用于 G25 闭环消融、独立 sealed 多次复测、统计、图表、视频和论文写作；不再
-重新开启 Actor 训练、Actor 选型或方法主线切换。若 sealed 结果与 development validation
-不一致，按预注册规则如实收缩结论，不返回 validation 调参。
+G25 闭环消融、独立 sealed 多次复测和统计已经完成，剩余投稿周期用于结果整合、图表、视频和
+论文写作；不再重新开启 Actor 训练、Actor 选型或方法主线切换。sealed 与 development 的差异
+已按预注册规则如实写入论文，不返回 validation 调参。
 
 ## 2026-08-19 Sealed 后补充实验登记
 
@@ -21,11 +21,82 @@ G25 sealed 完成、归档和冻结统计后，按
 normalizing-flow switching启发的同Actor、同场景外部Router基线。两项均不训练Actor、
 不修改B2，也不改变或插队当前G25 sealed协议；G26结果不并入G25的确认性主检验。
 
-## 2026-08-17 V10 审查后证据边界与最终评测
+## 2026-08-21 G26-Q1 数量泛化完成
+
+冻结5A与`epoch16+B2`已在独立生成的3车/7车场景上完成零更新评测：每个车辆数128场、
+两个repeat、两种方法，合计`1024 episodes`。全部结果通过形状、场景顺序和终止记账检查。
+统计文件为
+`26_数量泛化与外部切换基线/local_data/q1/results/q1_statistics.json`，SHA-256为
+`c02c17fa49509d5a31fd70f0862508fc7d1d04855f0047794c5019bdd0b835fb`。Q1统计沿用G25的
+scene-cluster BCa与sign-flip计算方式，但因Q1未单独预注册显著性门槛，只作探索性补充推断。
+
+3车full success为`0.7617 -> 0.7930`，差值`+0.0313`、95% CI
+`[-0.0273,+0.0938]`、探索性`p=0.3853`；7车为`0.0586 -> 0.0742`，差值`+0.0156`、
+CI `[-0.0273,+0.0547]`、`p=0.5749`。因此两个车辆数都只有正向点估计，不能声称整队成功率
+显著提高。7车agent success从`0.5603`升至`0.6557`（差值CI
+`[+0.0614,+0.1272]`），collision从`0.4397`降至`0.3432`（差值CI
+`[-0.1283,-0.0625]`），支持高并发下的每车成功与安全收益。代价为3/7车raw steps分别增加
+`14.27/17.42`，I占比约`68.2%/65.2%`；timeout均无改善证据。
+
+3车manifest 0-edge的61场中，B2与5A的full success为`0.9262/0.9344`，agent success相同，
+但B2的I占比仍达`68.8%`且raw steps增加`13.82`。名义0-edge不保证执行轨迹中完全没有交互，
+但该结果明确不支持“低负载时Router很少误触发或稀疏调用”的主张；数量外推保持了任务结果，
+没有保持调用效率。
+
+Q1不改变G25确认性结论，也不支持把3/5/7车绝对full success直接横向比较。下一项登记实验
+仍是G26-E1 normalizing-flow-inspired外部Router基线；启动前必须先核对原论文全文并冻结
+flow输入、训练split和阈值规则，仍不授权任何Actor训练或B2调参。
+
+## 2026-08-26 G26-E1 flow checkpoint 冻结
+
+G26-E1的normalizing-flow-inspired外部Router基线已完成文献审计、实现冻结和flow训练；
+实现标签固定为
+`normalizing-flow-inspired switching baseline`，不得称严格复现或作者官方实现。训练只使用
+G11-A1 navigation-train中5A整队full-success的`442/640`场，按四个
+`scenario_pool + interaction_band`层切为`352/90`场、`15011/4059`帧；输入仅为24维
+`frame_actor_states`，不使用真值、场景名、冲突图、G0标签或测试数据。
+
+flow为24维RealNVP、6个交替coupling block、hidden dim `128`、CPU seed `20260821`、
+Adam `lr=1e-3`、weight decay `1e-6`、50个full-batch epoch，checkpoint固定取第50 epoch。
+最终weighted NLL为`27.400242`；calibration NLL 95分位阈值为`39.64945640563965`；
+可逆性检查最大重构误差`9.5367e-07`、最大log-det误差`1.9073e-06`。checkpoint为
+`26_数量泛化与外部切换基线/local_data/e1/nf_switch_seed20260821/checkpoint.pt`，
+SHA-256 `bf43581ba0aab37f96f267f094f858143005b5876e0c5d4a31cd79c1eedeb6af`；
+训练摘要为同目录`summary.json`，SHA-256
+`c465058e9d9a6e78b6fafb230a574368c9a3a426d10af0126935b531fb6eea45`。
+
+随后已按冻结协议生成Dense test原始顺序`256:384`的128场manifest，并启动
+`5A / NF-inspired / B2`同场评测。当前6个组合中的第一个`5a / 20260921`正在运行，结果和
+checkpoint按场景增量写入本地；不得根据E1闭环结果修改flow、阈值、checkpoint、Actor或B2。
+live runner日志位于`logs/active/g26-e1-evaluation/runner.log`，单次方法日志位于同目录的
+`g26_e1_<method>_s<seed>_attempt*.log`；全部完成后会归档到
+`logs/archive/test/g26_e1_evaluation/`，并运行`scripts/analyze_g26_e1_results.py`。
+
+## 2026-08-20 G25 sealed 完成与论文结果整合
+
+G25 已按预注册协议完成、归档并冻结统计。7 个冻结方法在 dense test 原始顺序前 256 个场景、
+3 个 repeat（`20260901/20260902/20260903`）上共完成 `5376 episodes`；统计文件为
+`25_最终消融与Sealed评测/local_data/sealed/sealed_statistics.json`，SHA-256 为
+`a79431643bb030599e5c7b06047ea7fe7a1112cde20a053867c84168a81bc6eb`。主检验采用 scene-cluster
+BCa paired bootstrap（20,000 次）和双侧 sign-flip（100,000 次），不使用 sealed 结果回调模型、
+阈值、场景范围或指标。
+
+G25 主结果确认冻结 PIRoute（`epoch16+B2`）相对 5A 的 full-success 差值为 `+0.1393`
+（`0.2461 -> 0.3854`），BCa 95% CI 为 `[+0.1016,+0.1784]`，sign-flip `p=0.00001`；
+collision 从 `0.3172` 降至 `0.2247`，差值 CI 为 `[-0.1128,-0.0724]`。代价同样被确认：
+raw termination steps 增加 `14.18`，双方共同成功场景上的 paired-success steps 增加 `13.51`
+（CI `[9.07,18.91]`），interaction Actor 占比约 `70.0%`；timeout 差值 CI 跨 0，不能声称
+timeout 改善。该结果支持“冻结策略复用下的成功/安全收益伴随明显时间与调用成本”，不支持效率
+改善或双 Actor 优于所有完整重训单 Actor 的主张。
+
+当前工作转入论文结果整合、图表和投稿材料准备。G26 的 3/7 车数量泛化与外部 Router 基线仍是
+独立补充证据，是否执行不改变 G25 主结论，也不授权任何 Actor 训练。
+
+## 2026-08-17 V10 审查后证据边界与最终评测（历史状态，已由 2026-08-20 更新）
 
 V10 当前定位收窄为部署约束下的系统组合贡献，不声称提出新的 Gate/路由算法。Dense256 和
 G17 均参与过开发或模型选择，现有显著性只属于 validation evidence。投稿确认性结论必须来自
-方法和统计方案冻结后的一次性 sealed test。
+方法和统计方案冻结后的一次性 sealed test；该确认性测试已于 `2026-08-20` 完成，当前转入论文整合。
 
 感知与 Router 采用两阶段特权监督，论文必须完整披露：G0 detector 训练时使用 Gazebo 中其他
 机器人真值位置生成候选身份与中心偏移标签；随后 Router 使用最近机器人真值距离生成 2 m
@@ -428,7 +499,7 @@ Gate
 
 ## 当前工作
 
-当前Gate训练已经结束，进入论文级冻结评测与写作阶段：
+当前Gate训练已经结束，G25 sealed 已完成，进入论文结果整合与补充外部有效性阶段：
 
 1. 冻结`generalist-5a`、`avoidance-epoch16`和B2 checkpoint及其`0.43/0.33`滞回、
    hold 3、stride 2配置；不再根据validation结果调整Actor、Gate或阈值。
@@ -436,8 +507,8 @@ Gate
    的数值拼接，也不得因G17局部排名重新选择主方法。
 3. 论文主张限定为：B2在Dense256上显著超过5A和流程匹配R2B，并恢复epoch16特权距离规则
    收益的`75.5%`。不得声称B2显著超过A1、epoch17+F-A1或所有完整重训单Actor。
-4. 下一步只补同协议机制消融、部署成本、逐帧切换诊断和一次sealed test。sealed test读取前
-   必须冻结方法表、场景manifest、seed、统计脚本和失败处理规则。
+4. 同协议机制消融、部署成本审计和一次性 G25 sealed 已完成；论文现在应整合 sealed 主表、
+   三类步数和 scene-cluster 区间，并保留逐帧切换诊断、Pareto 图和轨迹图等写作任务。
 5. epoch17/F-A1、epoch16/A1、always-on、简单LiDAR规则和2m特权距离规则均作为消融或
    诊断保留；2m规则不可部署，也不是最优上界。
 6. N5、E2、I-E2、R2-10k、R2D/G20及其他Actor训练路线保持关闭或历史诊断状态，不恢复

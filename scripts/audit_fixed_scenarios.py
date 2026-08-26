@@ -16,7 +16,12 @@ def parse_args():
         description="Audit fixed scenario manifests for replay and split integrity."
     )
     parser.add_argument("manifests", nargs="+", help="JSON or JSON.GZ split files")
-    parser.add_argument("--num-agents", type=int, default=5)
+    parser.add_argument(
+        "--num-agents",
+        type=int,
+        default=5,
+        help="Expected agent count for every supplied manifest",
+    )
     return parser.parse_args()
 
 

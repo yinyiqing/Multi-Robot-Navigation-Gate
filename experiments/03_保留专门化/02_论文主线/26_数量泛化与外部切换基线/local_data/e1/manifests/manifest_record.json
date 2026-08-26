@@ -1,0 +1,14 @@
+{
+  "source": "experiments/03_保留专门化/02_论文主线/datasets/fixed_v1/dense/test.json.gz",
+  "source_sha256": "03a744048102d7310db026e399e41c4ce664ed31b180438b2a2b519c78133eab",
+  "output": "experiments/03_保留专门化/02_论文主线/26_数量泛化与外部切换基线/local_data/e1/manifests/dense_test_256_384.json.gz",
+  "output_sha256": "56c231aca154181d0d4408df23d1a03c3f11ed5cc02c95cf232f76585868c5d8",
+  "start_index_in_source": 256,
+  "stop_index_in_source": 384,
+  "scenes": 128,
+  "first_scenario_id": "dense-20260718009868-2aecc6aa077b",
+  "last_scenario_id": "dense-20260718010015-6a6cd4dc2308",
+  "selection": "original frozen order, source slice [256:384]",
+  "policy_independent": true,
+  "sealed_test_read": true
+}

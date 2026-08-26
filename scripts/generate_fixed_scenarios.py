@@ -2,6 +2,7 @@
 import argparse
 import json
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 
@@ -23,6 +24,7 @@ def parse_args():
     parser.add_argument("--test", type=int, default=0)
     parser.add_argument("--reserve", type=int, default=0)
     parser.add_argument("--max-candidates", type=int)
+    parser.add_argument("--num-agents", type=int, default=5)
     return parser.parse_args()
 
 
@@ -54,8 +56,11 @@ def main():
         "test": args.test,
         "reserve": args.reserve,
     }
+    if not 1 <= args.num_agents <= 10:
+        raise SystemExit("--num-agents must be between 1 and 10")
+    config = replace(PRESETS[args.preset], num_agents=args.num_agents)
     datasets = generate_dataset(
-        PRESETS[args.preset],
+        config,
         split_sizes,
         master_seed=args.seed,
         max_candidates=args.max_candidates,

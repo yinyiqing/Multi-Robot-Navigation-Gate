@@ -1,7 +1,7 @@
 # G25 最终闭环消融与 Sealed 评测预注册
 
-状态：`方案冻结，V1-V6 validation 消融与部署成本审计已完成`
-登记日期：`2026-08-17`，统计细节修订：`2026-08-18`
+状态：`方案冻结，V1-V6 validation 消融、部署成本审计与 G25 sealed 已完成`
+登记日期：`2026-08-17`，统计细节修订：`2026-08-18`，sealed 归档：`2026-08-20`
 
 ## 1. 目的与边界
 
@@ -11,7 +11,13 @@
 
 Dense256 和 G17 已参与模型选择，全部现有结果均定义为 development validation evidence。
 它们可以回答“为什么选择当前方法”，不能承担最终确认性结论。只有本协议冻结后的一次性
-sealed test 可以形成投稿主结论。
+sealed test 可以形成投稿主结论；该测试已完成并承担当前投稿主结论。
+
+G25 sealed 使用 dense test 原始顺序前 256 个场景、三个 repeat（`20260901/20260902/20260903`）
+和七种冻结方法，共 `5376 episodes`。PIRoute 相对 5A 的 full-success 差值为 `+0.1393`
+（`0.2461 -> 0.3854`），scene-cluster BCa 95% CI `[+0.1016,+0.1784]`，双侧 sign-flip
+`p=0.00001`；collision 差值为 `-0.0924`，paired-success steps 增加 `13.51`。完整统计与
+SHA-256 记录见 `local_data/sealed/sealed_statistics.json`。
 
 ## 2. 冻结 artifact
 

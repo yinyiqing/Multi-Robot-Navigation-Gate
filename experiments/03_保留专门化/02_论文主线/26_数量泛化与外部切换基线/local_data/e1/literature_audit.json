@@ -1,0 +1,62 @@
+{
+  "audit_date": "2026-08-21",
+  "paper": {
+    "title": "Crowd-Aware Robot Navigation with Switching Between Learning-Based and Rule-Based Methods Using Normalizing Flows",
+    "authors": [
+      "Kohei Matsumoto",
+      "Yuki Hyodo",
+      "Ryo Kurazume"
+    ],
+    "venue": "2024 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)",
+    "pages": "4823-4830",
+    "doi": "10.1109/IROS58592.2024.10802676"
+  },
+  "sources_checked": [
+    {
+      "source": "Crossref",
+      "result": "metadata, references, and IEEE landing/PDF links available; no accessible full text"
+    },
+    {
+      "source": "OpenAlex",
+      "result": "closed access; no repository full text"
+    },
+    {
+      "source": "Semantic Scholar",
+      "result": "abstract and citation contexts available; no open-access PDF"
+    },
+    {
+      "source": "Unpaywall",
+      "result": "no open-access location"
+    },
+    {
+      "source": "arXiv and DBLP",
+      "result": "bibliographic record only; no preprint"
+    },
+    {
+      "source": "author ORCID and public code search",
+      "result": "no author manuscript or official implementation found"
+    },
+    {
+      "source": "IEEE Xplore",
+      "result": "landing page identified; automated PDF request returned an access/anti-bot page"
+    }
+  ],
+  "verified_method_facts": [
+    "A normalizing flow estimates whether the current state belongs to situations anticipated by the learning-based method.",
+    "The estimated state likelihood drives online switching between learning-based and rule-based navigation methods.",
+    "The paper reports simulation and real-world experiments.",
+    "The reference list includes Graph Normalizing Flows, RealNVP, and GATv2."
+  ],
+  "unverified_details": [
+    "exact graph/state input",
+    "flow depth and hidden dimensions",
+    "training split and weighting",
+    "likelihood threshold selection",
+    "switch frequency, hysteresis, and hold logic",
+    "exact rule-based controller"
+  ],
+  "implementation_label": "normalizing-flow-inspired switching baseline",
+  "strict_reproduction": false,
+  "official_code": false,
+  "claim_boundary": "The local baseline tests whether nominal-state likelihood switching can explain PIRoute's gains under the same frozen Actors and scenarios. It is not the authors' implementation and does not reproduce the original learning/rule-based system."
+}

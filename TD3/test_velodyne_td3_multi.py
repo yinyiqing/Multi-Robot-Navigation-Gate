@@ -18,6 +18,7 @@ from actor_models import (
 from interaction_oracle import interaction_mask
 from learned_gate_controller import LearnedInteractionGateController
 from multi_agent_velodyne_env import MultiAgentGazeboEnv
+from nf_switch_controller import NormalizingFlowActorSwitcher
 from oracle_controllers import ConflictPairYieldOracle, RightHandPassOracle
 from outcome_utils import resolve_terminal_outcome
 from robot_perception.recorder import PerceptionShardRecorder
@@ -369,12 +370,14 @@ if actor_selection_mode not in (
     "recovery_oracle",
     "learned_gate",
     "min_lidar_gate",
+    "normalizing_flow_switch",
+    "nf_switch",
     "ttc_cpa_gate",
 ):
     raise ValueError(
         "DRL_MULTI_ACTOR_SELECTION_MODE must be one of: single, hard_switch, "
         "case_oracle, interaction_oracle, recovery_oracle, learned_gate, "
-        "min_lidar_gate, ttc_cpa_gate"
+        "min_lidar_gate, normalizing_flow_switch, nf_switch, ttc_cpa_gate"
     )
 if actor_selection_mode != "single" and not dual_actor_enabled:
     raise ValueError(
@@ -398,6 +401,7 @@ gate_switch_off_threshold = (
 gate_minimum_hold_steps = env_int("DRL_MULTI_GATE_MINIMUM_HOLD_STEPS", 3)
 gate_max_candidates = env_int("DRL_MULTI_GATE_MAX_CANDIDATES", 12)
 gate_evaluation_stride = env_int("DRL_MULTI_GATE_EVALUATION_STRIDE", 1)
+nf_switch_checkpoint_path = env_json_path("DRL_MULTI_NF_SWITCH_CHECKPOINT")
 min_lidar_switch_on_distance = env_float(
     "DRL_MULTI_MIN_LIDAR_SWITCH_ON_DISTANCE", 2.0
 )
@@ -446,6 +450,11 @@ if actor_selection_mode in ("learned_gate", "ttc_cpa_gate"):
             "DRL_MULTI_GATE_DETECTOR_CHECKPOINT"
         )
     os.environ["DRL_MULTI_RECORD_RAW_LIDAR"] = "1"
+if actor_selection_mode in ("normalizing_flow_switch", "nf_switch"):
+    if not nf_switch_checkpoint_path:
+        raise ValueError(
+            "normalizing_flow_switch mode requires DRL_MULTI_NF_SWITCH_CHECKPOINT"
+        )
 interaction_oracle_distance = env_float(
     "DRL_MULTI_ORACLE_INTERACTION_DISTANCE", 2.0
 )
@@ -814,6 +823,13 @@ if dual_actor_enabled:
             max_candidates=ttc_max_candidates,
             evaluation_stride=ttc_evaluation_stride,
         )
+    elif actor_selection_mode in ("normalizing_flow_switch", "nf_switch"):
+        dense_policy_controller = NormalizingFlowActorSwitcher(
+            standard_policy=network,
+            interaction_policy=dense_network,
+            flow_checkpoint=nf_switch_checkpoint_path,
+            device=device,
+        )
 if rule_oracle_mode == "conflict_pair_yield":
     if actor_selection_mode != "single":
         raise ValueError("Conflict-pair yield oracle only supports single actor mode")
@@ -937,6 +953,10 @@ if dual_actor_enabled:
         print("TTC minimum hold steps:", ttc_minimum_hold_steps)
         print("TTC maximum candidates:", ttc_max_candidates)
         print("TTC evaluation stride:", ttc_evaluation_stride)
+    elif actor_selection_mode in ("normalizing_flow_switch", "nf_switch"):
+        print("NF switch checkpoint:", nf_switch_checkpoint_path)
+        print("NF switch input dim:", dense_policy_controller.input_dim)
+        print("NF switch threshold NLL:", dense_policy_controller.threshold_nll)
 else:
     print("Dual actor mode: disabled")
 print("Rule oracle mode:", rule_oracle_mode or "disabled")
@@ -1102,7 +1122,12 @@ while True:
             else:
                 episode_standard_action_steps[idx] += 1
         elif dense_policy_controller is not None:
-            if actor_selection_mode in ("learned_gate", "ttc_cpa_gate"):
+            if actor_selection_mode in (
+                "learned_gate",
+                "ttc_cpa_gate",
+                "normalizing_flow_switch",
+                "nf_switch",
+            ):
                 action, mode, gate_probability, _ = (
                     dense_policy_controller.choose_action(
                         env,
@@ -1262,6 +1287,8 @@ while True:
         if actor_selection_mode in (
             "learned_gate",
             "min_lidar_gate",
+            "normalizing_flow_switch",
+            "nf_switch",
             "ttc_cpa_gate",
         )
         else {"switches": 0, "mean_probability": 0.0}

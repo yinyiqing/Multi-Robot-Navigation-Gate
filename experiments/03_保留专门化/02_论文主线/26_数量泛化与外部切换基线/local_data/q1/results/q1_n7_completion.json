@@ -1,0 +1,16 @@
+{
+  "status": "complete",
+  "num_agents": 7,
+  "manifest": "/home/jiutian/Local-Critic-Multi-Robot-Navigation-gate/experiments/03_\u4fdd\u7559\u4e13\u95e8\u5316/02_\u8bba\u6587\u4e3b\u7ebf/26_\u6570\u91cf\u6cdb\u5316\u4e0e\u5916\u90e8\u5207\u6362\u57fa\u7ebf/local_data/q1/manifests/n7/test.json",
+  "manifest_sha256": "1b8d5d136d2eaac09ef986a7d0ae9cc784bf00c69045b2ac40713081b5210d40",
+  "episodes_per_method": 128,
+  "seeds": [
+    20260911,
+    20260912
+  ],
+  "methods": [
+    "5a",
+    "b2"
+  ],
+  "sealed_test_read": false
+}

@@ -34,6 +34,7 @@ class ScenarioConfig:
     nominal_speed: float = 0.5
     conflict_distance: float = 0.9
     conflict_horizon: float = 8.0
+    num_agents: int = 5
 
 
 PRESETS = {
@@ -266,9 +267,17 @@ def _sample_point(rng, half_width, clearance):
     raise RuntimeError("Could not sample a map-valid point")
 
 
+def _agent_names(config):
+    count = int(config.num_agents)
+    if count < 1 or count > 10:
+        raise ValueError("num_agents must be between 1 and 10")
+    return tuple(f"r{index}" for index in range(1, count + 1))
+
+
 def _sample_starts(rng, config, half_width):
+    agent_names = _agent_names(config)
     starts = []
-    for _ in AGENT_NAMES:
+    for _ in agent_names:
         for _ in range(3000):
             candidate = _sample_point(rng, half_width, config.robot_map_clearance)
             if _far_enough(candidate, starts, config.robot_clearance):
@@ -276,7 +285,7 @@ def _sample_starts(rng, config, half_width):
                 break
         else:
             raise RuntimeError("Could not place all robot starts")
-    return dict(zip(AGENT_NAMES, starts))
+    return dict(zip(agent_names, starts))
 
 
 def _sample_dense_goal(rng, start, half_width, config):
@@ -311,8 +320,9 @@ def _sample_standard_goal(rng, start, half_width, config):
 
 
 def _sample_goals(rng, starts, config, half_width):
+    agent_names = _agent_names(config)
     goals = {}
-    for name in AGENT_NAMES:
+    for name in agent_names:
         for _ in range(3000):
             candidate = (
                 _sample_dense_goal(rng, starts[name], half_width, config)
@@ -350,6 +360,7 @@ def _sample_boxes(rng, starts, goals, config):
 
 
 def generate_scenario(generation_seed, config):
+    agent_names = _agent_names(config)
     rng = np.random.default_rng(int(generation_seed))
     half_width = float(
         rng.uniform(config.start_half_width_min, config.start_half_width_max)
@@ -366,7 +377,7 @@ def generate_scenario(generation_seed, config):
         planner = GridPlanner(*planner_key)
         _PLANNER_CACHE[planner_key] = planner
     paths = {}
-    for name in AGENT_NAMES:
+    for name in agent_names:
         path = planner.plan(starts[name], goals[name], boxes)
         if path is None:
             raise RuntimeError(f"No static path for {name}")
@@ -378,10 +389,10 @@ def generate_scenario(generation_seed, config):
         conflict_distance=config.conflict_distance,
         horizon=config.conflict_horizon,
     )
-    task_distances = {name: math.dist(starts[name], goals[name]) for name in AGENT_NAMES}
-    path_lengths = {name: _path_lengths(paths[name])[1] for name in AGENT_NAMES}
+    task_distances = {name: math.dist(starts[name], goals[name]) for name in agent_names}
+    path_lengths = {name: _path_lengths(paths[name])[1] for name in agent_names}
     agents = {}
-    for name in AGENT_NAMES:
+    for name in agent_names:
         goal_heading = math.atan2(
             goals[name][1] - starts[name][1], goals[name][0] - starts[name][0]
         )
@@ -400,7 +411,7 @@ def generate_scenario(generation_seed, config):
         "preset": config.preset,
         "generation_seed": int(generation_seed),
         "map_id": "TD3.world-v1",
-        "num_agents": len(AGENT_NAMES),
+        "num_agents": len(agent_names),
         "start_half_width_m": round(half_width, 6),
         "boxes": [[round(value, 6) for value in box] for box in boxes],
         "agents": agents,

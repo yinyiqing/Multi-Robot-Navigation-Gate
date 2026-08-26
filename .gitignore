@@ -79,6 +79,16 @@ experiments/03_保留专门化/02_论文主线/23_G17_epoch16同场复测/local_
 experiments/03_保留专门化/02_论文主线/24_Dense256_epoch16_A1复测/local_data/
 experiments/03_保留专门化/02_论文主线/25_最终消融与Sealed评测/local_data/
 
+# G26 generated runtime artifacts; protocol metadata and summary JSON remain trackable.
+experiments/03_保留专门化/02_论文主线/26_数量泛化与外部切换基线/local_data/q1/checkpoints/
+experiments/03_保留专门化/02_论文主线/26_数量泛化与外部切换基线/local_data/q1/launch/
+experiments/03_保留专门化/02_论文主线/26_数量泛化与外部切换基线/local_data/q1/manifests/
+experiments/03_保留专门化/02_论文主线/26_数量泛化与外部切换基线/local_data/q1/results/**/*.npy
+experiments/03_保留专门化/02_论文主线/26_数量泛化与外部切换基线/local_data/e1/checkpoints/
+experiments/03_保留专门化/02_论文主线/26_数量泛化与外部切换基线/local_data/e1/nf_switch_seed20260821/checkpoint.pt
+experiments/03_保留专门化/02_论文主线/26_数量泛化与外部切换基线/local_data/e1/results/*.npy
+.g26_e1_evaluation.pid
+
 # Local-only experiment checkpoints; GitHub rejects large .pt artifacts.
 experiments/03_保留专门化/02_论文主线/results/**/checkpoints/
 experiments/03_保留专门化/02_论文主线/results/**/pytorch_models/
