@@ -209,9 +209,13 @@ def g25_effects(data):
         svg_line(lines, x_map(0), center - 28, x_map(0), center + 28, stroke="#48545f", width=1.2, dash="4 3")
         svg_line(lines, x_map(interval[0]), center, x_map(interval[1]), center, stroke="#d1495b", width=5)
         svg_circle(lines, x_map(value), center, 7, "#d1495b")
-        svg_text(lines, x0, center + 40, f"-{scale:g}", 11, fill="#596570")
+        if index < 2:
+            tick_low, tick_high = f"-{scale * 100:.0f} pp", f"+{scale * 100:.0f} pp"
+        else:
+            tick_low, tick_high = f"-{scale:.0f} steps", f"+{scale:.0f} steps"
+        svg_text(lines, x0, center + 40, tick_low, 11, fill="#596570")
         svg_text(lines, x_map(0), center + 40, "0", 11, anchor="middle", fill="#596570")
-        svg_text(lines, x1, center + 40, f"+{scale:g}", 11, anchor="end", fill="#596570")
+        svg_text(lines, x1, center + 40, tick_high, 11, anchor="end", fill="#596570")
         value_text = f"{value * 100:+.2f} pp" if index < 2 else f"{value:+.2f} steps"
         interval_text = f"[{interval[0] * 100:+.2f}, {interval[1] * 100:+.2f}] pp" if index < 2 else f"[{interval[0]:+.2f}, {interval[1]:+.2f}]"
         svg_text(lines, right + 12, center - 5, value_text, 13, weight="600")
