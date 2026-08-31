@@ -362,7 +362,7 @@ def main():
     inputs = {str(path.relative_to(ROOT)): sha256(path) for path in (G25_PATH, Q1_PATH, E1_PATH)}
     outputs = {}
     for path in sorted(OUTPUT.iterdir()):
-        if path.name != "generation_record.json":
+        if path.is_file() and path.name != "generation_record.json":
             outputs[path.name] = sha256(path)
     record = {
         "generator": "scripts/generate_paper_artifacts.py",

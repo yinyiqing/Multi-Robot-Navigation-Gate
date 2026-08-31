@@ -11,6 +11,7 @@ python scripts/generate_paper_artifacts.py
 Outputs:
 
 - `piroute_overview.svg`: conceptual training/deployment information-boundary schematic;
+- `previews/*.png`: browser-friendly raster previews of the SVG figures;
 - `g25_main_table.csv` and `g25_main_table.md`: confirmatory sealed main table;
 - `g25_pareto.svg`: full-success, collision, and raw-step trade-off;
 - `g25_primary_effects.svg`: PIRoute effects relative to 5A with scene-cluster BCa intervals;
