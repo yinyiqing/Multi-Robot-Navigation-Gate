@@ -153,7 +153,7 @@ def write_markdown_table(path, title, fields, rows, note):
 
 def g25_pareto(data):
     width, height = 1000, 660
-    left, top, right, bottom = 105, 70, 930, 525
+    left, top, right, bottom = 145, 70, 930, 525
     x_min, x_max = 0.14, 0.34
     y_min, y_max = 0.20, 0.47
     x_map = lambda value: left + (value - x_min) / (x_max - x_min) * (right - left)
@@ -171,7 +171,7 @@ def g25_pareto(data):
         x_map,
         y_map,
         "Collision rate (lower is better)",
-        "Full success (higher is better)",
+        "Full success (higher)",
     )
     colors = {"5a": "#3b6ea8", "b2": "#d1495b", "privileged_2m": "#5a9367", "r2b": "#7b8794", "epoch16": "#9b6a9f", "min_lidar": "#c28f3d", "ttc_cpa": "#4f9d9d"}
     offsets = {"5a": (10, 5), "b2": (10, -10), "privileged_2m": (10, -9), "r2b": (10, 15), "epoch16": (10, -8), "min_lidar": (10, 14), "ttc_cpa": (10, 17)}
@@ -189,7 +189,7 @@ def g25_pareto(data):
 
 def g25_effects(data):
     width, height = 1000, 530
-    left, right = 260, 930
+    left, right = 260, 820
     panels = [
         ("Full success difference", data["primary_b2_minus_5a"]["mean_full_success_difference"], data["primary_b2_minus_5a"]["scene_cluster_bca_95_ci"], "percentage points", 0.20),
         ("Collision difference", data["secondary_b2_minus_5a"]["collision"]["mean_difference"], data["secondary_b2_minus_5a"]["collision"]["scene_cluster_bca_95_ci"], "percentage points", 0.14),
@@ -258,6 +258,74 @@ def g26_effects(e1):
     return svg_close(lines)
 
 
+def piroute_overview():
+    """Conceptual overview of the training/deployment information boundary."""
+    width, height = 1200, 640
+    lines = svg_open(width, height, "PIRoute training and deployment overview")
+    svg_text(lines, width / 2, 38, "PIRoute: privileged supervision, frozen policies, local-observation routing", 21, "middle", weight="700")
+
+    # Three stages emphasize the information boundary rather than model novelty.
+    stages = [
+        (40, 92, 315, 470, "Training-time supervision", "#f4f7fb"),
+        (442, 92, 315, 470, "Frozen policy library", "#f7f8f5"),
+        (844, 92, 315, 470, "Deployment", "#fbf6f4"),
+    ]
+    for x, y, w, h, title, fill in stages:
+        svg_rect(lines, x, y, w, h, fill, stroke="#c6ced6", radius=8)
+        svg_text(lines, x + 18, y + 32, title, 17, weight="700")
+
+    # Training column.
+    svg_rect(lines, 68, 150, 258, 86, "#e2edf8", stroke="#5f86ad", radius=5)
+    svg_text(lines, 197, 181, "Gazebo robot positions", 15, "middle", weight="600")
+    svg_text(lines, 197, 207, "privileged labels only", 13, "middle", fill="#4d5965")
+    svg_rect(lines, 68, 278, 258, 96, "#edf3fb", stroke="#5f86ad", radius=5)
+    svg_text(lines, 197, 309, "G0 LiDAR soft evidence", 15, "middle", weight="600")
+    svg_text(lines, 197, 335, "candidate shape + centre", 13, "middle", fill="#4d5965")
+    svg_rect(lines, 68, 416, 258, 96, "#edf3fb", stroke="#5f86ad", radius=5)
+    svg_text(lines, 197, 447, "2 m distance label", 15, "middle", weight="600")
+    svg_text(lines, 197, 473, "interaction-state target", 13, "middle", fill="#4d5965")
+    svg_line(lines, 197, 236, 197, 278, stroke="#5f86ad", width=1.8)
+    svg_line(lines, 197, 374, 197, 416, stroke="#5f86ad", width=1.8)
+
+    # Policy library column.
+    svg_rect(lines, 470, 164, 124, 120, "#e6f0e7", stroke="#6d9877", radius=5)
+    svg_text(lines, 532, 203, "Actor N", 16, "middle", weight="700")
+    svg_text(lines, 532, 230, "general", 13, "middle", fill="#4d5965")
+    svg_text(lines, 532, 253, "navigation", 13, "middle", fill="#4d5965")
+    svg_rect(lines, 606, 164, 124, 120, "#f4e9df", stroke="#b4774d", radius=5)
+    svg_text(lines, 668, 203, "Actor I", 16, "middle", weight="700")
+    svg_text(lines, 668, 230, "conditional", 13, "middle", fill="#4d5965")
+    svg_text(lines, 668, 253, "avoidance", 13, "middle", fill="#4d5965")
+    svg_text(lines, 600, 326, "freeze both actors", 14, "middle", weight="600")
+    svg_line(lines, 532, 284, 532, 360, stroke="#6d9877", width=1.8)
+    svg_line(lines, 668, 284, 668, 360, stroke="#b4774d", width=1.8)
+    svg_rect(lines, 500, 360, 200, 108, "#f2edf8", stroke="#8c6eaa", radius=5)
+    svg_text(lines, 600, 397, "Temporal Router", 16, "middle", weight="700")
+    svg_text(lines, 600, 424, "8-frame GRU + hysteresis", 13, "middle", fill="#4d5965")
+    svg_text(lines, 600, 447, "hard policy selection", 13, "middle", fill="#4d5965")
+    svg_line(lines, 700, 414, 844, 414, stroke="#8c6eaa", width=2)
+    svg_text(lines, 772, 395, "trained once", 12, "middle", fill="#596570")
+
+    # Deployment column.
+    svg_rect(lines, 870, 148, 264, 98, "#e8f1f8", stroke="#5f86ad", radius=5)
+    svg_text(lines, 1002, 180, "Local observation only", 15, "middle", weight="600")
+    svg_text(lines, 1002, 207, "LiDAR + motion + history", 13, "middle", fill="#4d5965")
+    svg_rect(lines, 870, 284, 264, 104, "#f2edf8", stroke="#8c6eaa", radius=5)
+    svg_text(lines, 1002, 316, "Router chooses", 15, "middle", weight="600")
+    svg_text(lines, 1002, 343, "Actor N or Actor I", 14, "middle", fill="#4d5965")
+    svg_rect(lines, 870, 428, 264, 94, "#f7f7f7", stroke="#8b949e", radius=5)
+    svg_text(lines, 1002, 460, "No communication", 15, "middle", weight="600")
+    svg_text(lines, 1002, 486, "no robot ground truth", 13, "middle", fill="#4d5965")
+    svg_line(lines, 1002, 246, 1002, 284, stroke="#5f86ad", width=1.8)
+    svg_line(lines, 1002, 388, 1002, 428, stroke="#8c6eaa", width=1.8)
+
+    # Boundary annotations.
+    svg_line(lines, 326, 198, 442, 198, stroke="#c86b5e", width=1.6, dash="6 5")
+    svg_text(lines, 384, 180, "labels removed", 12, "middle", fill="#a45045")
+    svg_text(lines, 600, 590, "Dashed boundary: privileged simulator state is used for supervision, then removed before deployment.", 13, "middle", fill="#596570")
+    return svg_close(lines)
+
+
 def main():
     for path in (G25_PATH, Q1_PATH, E1_PATH):
         if not path.is_file():
@@ -278,6 +346,7 @@ def main():
     )
     write_text(OUTPUT / "g25_pareto.svg", g25_pareto(g25))
     write_text(OUTPUT / "g25_primary_effects.svg", g25_effects(g25))
+    write_text(OUTPUT / "piroute_overview.svg", piroute_overview())
 
     g26_fields, g26_rows = g26_table(q1, e1)
     write_csv(OUTPUT / "g26_supplement_table.csv", g26_fields, g26_rows)

@@ -6,14 +6,16 @@
     "experiments/03_保留专门化/02_论文主线/26_数量泛化与外部切换基线/local_data/e1/e1_statistics.json": "c212a241dcdc48d793708dd7e8efa19537b6020443e33e203bb4ac65c2eed3eb"
   },
   "outputs": {
-    "README.md": "2f3f6813c6496b998df8374aad71307a3a8b7522afcd7ee115034ec0b14f1b68",
+    "README.md": "5f9bc4826d886db48a824ee76c2955504ab87ae10b980902b28df3bc9fe36f40",
+    "figure_audit.md": "af098105002af6760f2d2c28b98db42afda1d18a6cc87146d61521929d97f328",
     "g25_main_table.csv": "d729d654f5b3a7ba87109ddbbb9be4ea9369ca9a5203af7c8ad15d75d2c07075",
     "g25_main_table.md": "758d08891b692a6e22bd3546b41ff8189cca5adedb63495d4eaee8eff88e7c39",
-    "g25_pareto.svg": "4933fcff3ad743d268bb43c2f0a9dd05c9ebc9047a6d50c2083b357c07bac0eb",
-    "g25_primary_effects.svg": "6dcfaad26db5f2caeec0b07e593ee3d1e19cc3d6585ccb56d362cdc69bd55bb7",
+    "g25_pareto.svg": "5000e4c5ee4b88edcd932b2936d9e7c59baae8503ab858d6e678027df82bab68",
+    "g25_primary_effects.svg": "4d108ce9df3036fcfa7710b9beb2a19298bf5a89089452a42b82e47be52cefec",
     "g26_e1_effects.svg": "75ff9a108c16d102d13b85546757fd8558b708caa99fd93ae13096f68a46987f",
     "g26_supplement_table.csv": "adc9132efa42bd3733f76b1bd66db34f9be28222c03bc8e35ee37ca8a08acf41",
-    "g26_supplement_table.md": "5f9d9bf9369f785ee63777585ec32a3a2943ff1217969fc7712d1bf84eab04dd"
+    "g26_supplement_table.md": "5f9d9bf9369f785ee63777585ec32a3a2943ff1217969fc7712d1bf84eab04dd",
+    "piroute_overview.svg": "9dda7ff7ad2847c74f1b945109beccf1196deb83d6332e3c70d1be279bb7467a"
   },
   "notes": [
     "G25 is the only confirmatory result set.",
