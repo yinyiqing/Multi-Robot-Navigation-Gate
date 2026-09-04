@@ -113,8 +113,8 @@ agent-success差值为`+0.0859`，CI `[+0.0531,+0.1195]`，collision差值为`-0
 系统的表述。
 
 投稿表格和矢量图由`scripts/generate_paper_artifacts.py`统一生成，位于
-`paper/generated/g26_supplement_table.md`、`paper/generated/g26_supplement_table.csv`和
-`paper/generated/g26_e1_effects.svg`；输入输出哈希见`paper/generated/generation_record.json`。
+`paper/generated/tables/g26_supplement_table.md`、`paper/generated/tables/g26_supplement_table.csv`和
+`paper/generated/supplement/g26_e1_effects.svg`；输入输出哈希见`paper/generated/generation_record.json`。
 
 ## 1. 目的与边界
 

@@ -5,6 +5,8 @@ import csv
 import hashlib
 import html
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 
@@ -14,6 +16,14 @@ G25_PATH = BASE / "25_最终消融与Sealed评测/local_data/sealed/sealed_stati
 Q1_PATH = BASE / "26_数量泛化与外部切换基线/local_data/q1/results/q1_statistics.json"
 E1_PATH = BASE / "26_数量泛化与外部切换基线/local_data/e1/e1_statistics.json"
 OUTPUT = ROOT / "paper/generated"
+FIGURE_DIRS = {
+    "piroute_overview": OUTPUT / "fig1_overview",
+    "g25_pareto": OUTPUT / "fig2_tradeoff",
+    "g25_primary_effects": OUTPUT / "fig3_effects",
+    "g26_e1_effects": OUTPUT / "supplement",
+}
+TABLE_DIR = OUTPUT / "tables"
+FIG4_DIR = OUTPUT / "fig4_cycle"
 
 
 G25_METHODS = (
@@ -340,34 +350,53 @@ def main():
     OUTPUT.mkdir(parents=True, exist_ok=True)
 
     g25_fields, g25_rows = g25_table(g25)
-    write_csv(OUTPUT / "g25_main_table.csv", g25_fields, g25_rows)
+    TABLE_DIR.mkdir(parents=True, exist_ok=True)
+    for path in FIGURE_DIRS.values():
+        path.mkdir(parents=True, exist_ok=True)
+    write_csv(TABLE_DIR / "g25_main_table.csv", g25_fields, g25_rows)
     write_markdown_table(
-        OUTPUT / "g25_main_table.md",
+        TABLE_DIR / "g25_main_table.md",
         "G25 Sealed Main Table",
         g25_fields,
         g25_rows,
         "Source: frozen G25 sealed statistics; 256 scenes, 3 repeats, 5 robots. Development and exploratory results are excluded.",
     )
-    write_text(OUTPUT / "g25_pareto.svg", g25_pareto(g25))
-    write_text(OUTPUT / "g25_primary_effects.svg", g25_effects(g25))
-    write_text(OUTPUT / "piroute_overview.svg", piroute_overview())
+    write_text(FIGURE_DIRS["g25_pareto"] / "g25_pareto.svg", g25_pareto(g25))
+    write_text(FIGURE_DIRS["g25_primary_effects"] / "g25_primary_effects.svg", g25_effects(g25))
+    write_text(FIGURE_DIRS["piroute_overview"] / "piroute_overview.svg", piroute_overview())
 
     g26_fields, g26_rows = g26_table(q1, e1)
-    write_csv(OUTPUT / "g26_supplement_table.csv", g26_fields, g26_rows)
+    write_csv(TABLE_DIR / "g26_supplement_table.csv", g26_fields, g26_rows)
     write_markdown_table(
-        OUTPUT / "g26_supplement_table.md",
+        TABLE_DIR / "g26_supplement_table.md",
         "G26 Supplementary Table",
         g26_fields,
         g26_rows,
         "Q1 and E1 are exploratory supplements. E1 is a local literature-inspired baseline, not a strict reproduction of the IROS 2024 system.",
     )
-    write_text(OUTPUT / "g26_e1_effects.svg", g26_effects(e1))
+    write_text(FIGURE_DIRS["g26_e1_effects"] / "g26_e1_effects.svg", g26_effects(e1))
+
+    # Replace the compact hand-authored defaults with the publication layout
+    # after all frozen statistics have been loaded. The redraw script reads the
+    # same frozen JSON files and does not alter any experimental result.
+    subprocess.run(
+        [sys.executable, str(ROOT / "scripts/redraw_paper_figures.py")],
+        check=True,
+    )
 
     inputs = {str(path.relative_to(ROOT)): sha256(path) for path in (G25_PATH, Q1_PATH, E1_PATH)}
     outputs = {}
-    for path in sorted(OUTPUT.iterdir()):
-        if path.is_file() and path.name != "generation_record.json":
-            outputs[path.name] = sha256(path)
+    generated_roots = [TABLE_DIR, *FIGURE_DIRS.values(), FIG4_DIR]
+    for root in generated_roots:
+        if not root.exists():
+            continue
+        for path in sorted(root.rglob("*")):
+            if (
+                path.is_file()
+                and "手绘" not in path.parts
+                and path.suffix.lower() != ".pptx"
+            ):
+                outputs[str(path.relative_to(OUTPUT))] = sha256(path)
     record = {
         "generator": "scripts/generate_paper_artifacts.py",
         "sources": inputs,
