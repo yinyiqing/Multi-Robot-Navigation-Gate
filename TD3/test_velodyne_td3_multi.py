@@ -359,6 +359,9 @@ dense_actor_mode = os.environ.get(
     "DRL_MULTI_DENSE_ACTOR_MODE", "full"
 ).strip().lower()
 actor_selection_mode = os.environ.get("DRL_MULTI_ACTOR_SELECTION_MODE", "").strip().lower()
+trajectory_include_raw_lidar = env_flag(
+    "DRL_MULTI_TRAJECTORY_INCLUDE_RAW_LIDAR", False
+)
 dual_actor_enabled = bool(dense_actor_file)
 if not actor_selection_mode:
     actor_selection_mode = "hard_switch" if dual_actor_enabled else "single"
@@ -449,6 +452,8 @@ if actor_selection_mode in ("learned_gate", "ttc_cpa_gate"):
             "learned_gate mode requires DRL_MULTI_GATE_CHECKPOINT and "
             "DRL_MULTI_GATE_DETECTOR_CHECKPOINT"
         )
+    # Both deployable perception-based routers require raw point clouds at
+    # runtime. The trajectory flag controls JSONL serialization only.
     os.environ["DRL_MULTI_RECORD_RAW_LIDAR"] = "1"
 if actor_selection_mode in ("normalizing_flow_switch", "nf_switch"):
     if not nf_switch_checkpoint_path:
@@ -546,6 +551,9 @@ test_stats_path = os.environ.get(
     default_test_stats_path,
 )
 trajectory_path = os.environ.get("DRL_MULTI_TRAJECTORY_JSONL", "").strip()
+trajectory_include_router_diagnostics = env_flag(
+    "DRL_MULTI_TRAJECTORY_INCLUDE_ROUTER_DIAGNOSTICS", False
+)
 perception_output_dir = os.environ.get(
     "DRL_MULTI_ROBOT_PERCEPTION_OUTPUT_DIR", ""
 ).strip()
@@ -788,6 +796,7 @@ if dual_actor_enabled:
             minimum_hold_steps=gate_minimum_hold_steps,
             max_candidates=gate_max_candidates,
             evaluation_stride=gate_evaluation_stride,
+            record_diagnostics=trajectory_include_router_diagnostics,
         )
     elif actor_selection_mode == "recovery_oracle":
         dense_policy_controller = RecoveryOracleSwitcher(
@@ -1068,12 +1077,13 @@ while True:
             name: np.asarray(env.raw_lidar_points[name], dtype=float).round(4).tolist()
             for name in agent_names
         }
-        if env.record_raw_lidar and trajectory_path
+        if env.record_raw_lidar and trajectory_path and trajectory_include_raw_lidar
         else None
     )
     step_actor_modes = {}
     step_gate_probabilities = {}
     step_gate_diagnostics = {}
+    step_router_diagnostics = {}
     if perception_recorder is not None:
         perception_recorder.record_frame(
             env.raw_lidar_points,
@@ -1137,6 +1147,12 @@ while True:
                     )
                 )
                 step_gate_probabilities[agent_names[idx]] = gate_probability
+                if trajectory_include_router_diagnostics:
+                    diagnostics = dense_policy_controller.last_diagnostics.get(
+                        agent_names[idx]
+                    )
+                    if diagnostics is not None:
+                        step_router_diagnostics[agent_names[idx]] = diagnostics
             else:
                 action, mode, _, gate_diagnostics = dense_policy_controller.choose_action(
                     env, agent_names[idx], state
@@ -1177,6 +1193,7 @@ while True:
             "actor_modes": step_actor_modes or None,
             "gate_probabilities": step_gate_probabilities or None,
             "gate_diagnostics": step_gate_diagnostics or None,
+            "router_diagnostics": step_router_diagnostics or None,
             "positions": {
                 name: [float(value) for value in env.robot_positions[name]]
                 for name in agent_names

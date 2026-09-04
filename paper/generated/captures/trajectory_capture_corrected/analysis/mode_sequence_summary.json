@@ -1,0 +1,84 @@
+{
+  "trajectory": "paper/generated/captures/trajectory_capture_corrected/trajectories/trajectory_capture_b2_s20260910.jsonl",
+  "results": "paper/generated/captures/trajectory_capture_corrected/results/trajectory_capture_b2_s20260910.npy",
+  "episodes": 64,
+  "robot_sequences": 320,
+  "controller_switch_reconstruction_mismatches": [],
+  "first_mode_counts": {
+    "dense": 305,
+    "standard": 15
+  },
+  "signature_counts": {
+    "dense -> standard": 176,
+    "dense": 127,
+    "standard": 7,
+    "standard -> dense": 5,
+    "standard -> dense -> standard": 3,
+    "dense -> standard -> dense -> standard": 1,
+    "dense -> standard -> dense": 1
+  },
+  "complete_standard_dense_standard_cycles": 4,
+  "robots_with_complete_cycle": 4,
+  "ranked_cycle_candidates": [
+    {
+      "seed": 20260910,
+      "episode": 57,
+      "scenario_id": "dense-20260718009662-a0ecc9a49f8e",
+      "robot": "r1",
+      "full_success": 1,
+      "cycle_start_step": 1,
+      "interaction_start_step": 3,
+      "interaction_end_step": 18,
+      "cycle_end_step": 33,
+      "pre_standard_steps": 2,
+      "interaction_steps": 16,
+      "post_standard_steps": 15,
+      "minimum_phase_steps": 2
+    },
+    {
+      "seed": 20260910,
+      "episode": 50,
+      "scenario_id": "dense-20260718009688-b33f724b14b9",
+      "robot": "r3",
+      "full_success": 1,
+      "cycle_start_step": 1,
+      "interaction_start_step": 7,
+      "interaction_end_step": 12,
+      "cycle_end_step": 14,
+      "pre_standard_steps": 6,
+      "interaction_steps": 6,
+      "post_standard_steps": 2,
+      "minimum_phase_steps": 2
+    },
+    {
+      "seed": 20260910,
+      "episode": 55,
+      "scenario_id": "dense-20260718009817-bdd6b33634c0",
+      "robot": "r2",
+      "full_success": 0,
+      "cycle_start_step": 1,
+      "interaction_start_step": 3,
+      "interaction_end_step": 10,
+      "cycle_end_step": 15,
+      "pre_standard_steps": 2,
+      "interaction_steps": 8,
+      "post_standard_steps": 5,
+      "minimum_phase_steps": 2
+    },
+    {
+      "seed": 20260910,
+      "episode": 33,
+      "scenario_id": "dense-20260718009747-91d8a354e329",
+      "robot": "r5",
+      "full_success": 0,
+      "cycle_start_step": 9,
+      "interaction_start_step": 29,
+      "interaction_end_step": 34,
+      "cycle_end_step": 35,
+      "pre_standard_steps": 20,
+      "interaction_steps": 6,
+      "post_standard_steps": 1,
+      "minimum_phase_steps": 1
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "selection": "paper/generated/captures/trajectory_capture_corrected/figures_3/trajectory_overview_selection.json",
+  "trajectory": "paper/generated/captures/trajectory_capture_corrected/trajectories/trajectory_capture_b2_s20260910.jsonl",
+  "episodes": [
+    1,
+    22,
+    33
+  ]
+}

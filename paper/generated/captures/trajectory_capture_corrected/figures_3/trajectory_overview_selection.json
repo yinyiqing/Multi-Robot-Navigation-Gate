@@ -1,0 +1,22 @@
+{
+  "selected": [
+    {
+      "scenario_id": "dense-20260718009765-4dc66d048d98",
+      "label": "PIRoute succeeds, 5A fails"
+    },
+    {
+      "scenario_id": "dense-20260718009820-502a90af86bc",
+      "label": "Both succeed"
+    },
+    {
+      "scenario_id": "dense-20260718009747-91d8a354e329",
+      "label": "Both fail"
+    }
+  ],
+  "episode_indices": [
+    1,
+    22,
+    33
+  ],
+  "source": "G25 sealed outcome strata; qualitative visualization only"
+}

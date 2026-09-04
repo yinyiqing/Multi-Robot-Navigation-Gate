@@ -1,6 +1,64 @@
 # 当前项目状态
 
-更新时间：`2026-08-26`。
+更新时间：`2026-09-01`。
+
+## 2026-09-01 B2 定性轨迹采集修正与完整切换周期确认
+
+复核定性时间轴时发现，首次 `paper/generated/captures/trajectory_capture/` 采集为了不把原始点云写入
+JSONL，误将 learned Router 推理所需的原始 LiDAR 缓冲也关闭。该目录中的 5A 轨迹仍有效，
+但 B2 轨迹、Router 时间轴及其衍生判断无效，目录 README 已明确标记，不能用于论文。
+
+现已将“Router 内部采集原始 LiDAR”与“JSONL 是否序列化原始 LiDAR”分离，并增加回归测试。
+修正后在相同 64 个分层场景、固定 seed `20260910` 上重跑冻结 B2；64 个 episode、manifest
+顺序、逐步记录和 episode 总切换数重构全部通过审计，输出位于
+`paper/generated/captures/trajectory_capture_corrected/`。这仍是 post-sealed 定性采集，不改变或扩展
+G25 确认性统计。
+
+修正后的 320 条机器人模式序列中，305 条首个实际动作使用 interaction Actor，15 条使用
+standard Actor；共找到 4 个实际执行的 `standard -> interaction -> standard` 完整周期，来自
+4 个机器人，其中 2 个位于整队成功 episode。用于 Fig. 4 的真实实例为 episode 57、机器人
+`r1`：standard 2 步、interaction 16 步、standard 15 步并到达目标。该结果证明 Router 能完成
+进入与退出，但完整周期在这批分层定性样本中较少，且不能据此声称稀疏或高效调用；结合 G25
+约 70% interaction share，当前方法仍应定位为 safety-prioritized routing。
+
+已生成 `figures/gate_cycle_example.{png,pdf,svg}`，并通过 ICRA 双栏 `7.16 x 3.55 in`、
+600-DPI、PDF TrueType 字体嵌入、SVG 无位图嵌入和灰度可读性检查。旧 S2/S3 已用修正后的
+B2 数据重新生成到 `trajectory_capture_corrected/figures_3/`。
+
+## 2026-09-01 定性轨迹与 Router 时间轴采集完成
+
+为论文补充图，从 G25 Dense sealed manifest 按四类结果分层选取 64 个场景，在固定 seed
+`20260910` 下对冻结的 `5A` 与 `router-b2` 各完成 64 个 Gazebo 闭环 rollout。逐帧 JSONL
+记录已通过 episode 数量、manifest 顺序、连续步号和机器人状态完整性审计；首次输出位于
+`paper/generated/captures/trajectory_capture/`。其中 B2 采集后来确认存在 LiDAR 缓冲关闭问题，已由上节
+修正版本替代。该批运行只服务于定性轨迹图和 Router 模式时间轴，
+不修改 sealed 统计、不用于重新估计成功率/碰撞率，也不包含 privileged 2 m switch。
+
+已生成 `figures_3/trajectory_overview.{png,pdf,svg}` 与
+`figures_3/gate_timeline.{png,pdf,svg}`，并在中文初稿图注中登记为补充图 S2/S3。
+旧 B2 图件不得继续使用；后续应使用 `paper/generated/captures/trajectory_capture_corrected/`，不需要
+重新训练 Actor 或重跑 G25/G26。
+
+同日按 SciPilot/scientific-visualization 规范重绘了四张原投稿图：统一 ICRA 双栏尺寸、
+Okabe-Ito 色盲安全色板、面板层级和 600-DPI/矢量导出；主结果图改为“成功—碰撞关系 +
+完成步数代价”双面板，效应图改为紧凑 forest plot。新版已覆盖 `paper/generated/` 中的
+同名 SVG/PNG/PDF，生成脚本会自动保持该版式。
+
+其中方法图又按 `qinyan-nature-figures` 的机制图要求单独重构为“本机观测 -> 两个冻结 Actor
+候选动作 -> 时序 Router -> 执行动作”的在线闭环，并将训练期特权监督放在独立的下方区域；
+不再使用三栏卡片式架构模板。
+
+## 2026-08-28 投稿材料继续推进
+
+已开始英文投稿稿整理，新增
+[英文投稿摘要 V1](paper/英文投稿摘要_v1.md)，内容与冻结的 G25 主检验、G26 探索性补充及
+当前证据边界一致，明确写出成功/安全收益、时间与交互调用代价，以及不外推到所有重训单
+Actor、真实机器人或任意车辆数量的限制。冻结图表已重新生成并保持原始输入/输出哈希不变。
+
+验证方面，`tests/test_g26_e1_nf_switch.py` 的 5 个 `unittest` 用例和
+`tests/test_full_actor_edge1_mainline_protocol.py` 的 4 个用例全部通过；环境未安装 `pytest`，
+因此未执行 pytest 入口。后续继续工作限定为英文正文、BibTeX/格式核对、补充材料和逐帧视频
+采集，不新增 Actor 训练、不修改 Router/阈值，也不重跑 G25/G26 统计。
 
 本文件是进入项目后的第一阅读入口。方法定义、实验准入和数据边界以
 [论文主线协议](experiments/03_保留专门化/02_论文主线/README.md)为准；历史 README

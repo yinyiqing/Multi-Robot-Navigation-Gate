@@ -3,6 +3,19 @@
 状态：`5A + epoch16 + B2 frozen for Dense main task`。
 更新时间：`2026-08-26`。
 
+## 2026-09-01 post-sealed 定性轨迹修正
+
+定性轨迹不属于 G25 确认性统计。首次 B2 逐帧采集误将 Router 内部需要的原始 LiDAR 缓冲与
+JSONL 点云序列化共同关闭，因此旧 B2 时间轴无效。实现已修正为 learned/TTC Router 始终采集
+内部原始点云，而 `DRL_MULTI_TRAJECTORY_INCLUDE_RAW_LIDAR` 只控制是否写入日志。相同 64 个
+分层场景上的修正 B2 采集位于 `paper/generated/captures/trajectory_capture_corrected/`，不修改 Actor、
+Router、阈值、manifest 或任何 G25/G26 统计。
+
+修正采集在 320 条机器人序列中确认 4 个实际执行的
+`standard -> interaction -> standard` 周期，其中 2 个来自整队成功 episode。这只能证明完整
+进入/退出行为存在，不能估计总体发生率，也不支持稀疏调用主张；主方法仍按 G25 的约 70%
+interaction share 定位为 safety-prioritized routing。
+
 本文件是研究方法、数据边界和实验准入的唯一协议。项目快速状态见
 [PROJECT_STATUS](../../../PROJECT_STATUS.md)，历史实验状态见
 [实验注册表](../../EXPERIMENT_REGISTRY.md)。

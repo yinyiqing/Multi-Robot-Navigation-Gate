@@ -92,3 +92,19 @@ experiments/03_保留专门化/02_论文主线/26_数量泛化与外部切换基
 # Local-only experiment checkpoints; GitHub rejects large .pt artifacts.
 experiments/03_保留专门化/02_论文主线/results/**/checkpoints/
 experiments/03_保留专门化/02_论文主线/results/**/pytorch_models/
+
+# Post-sealed qualitative rollout payloads stay local. Curated summaries,
+# READMEs, and publication figures under paper/generated/captures remain trackable.
+paper/generated/captures/**/manifests/
+paper/generated/captures/**/results/
+paper/generated/captures/**/trajectories/
+paper/generated/captures/**/*.json.gz
+paper/generated/captures/gate_cycle_capture/
+paper/generated/captures/gate_cycle_capture_corrected/
+paper/generated/captures/method_figure_capture/
+paper/generated/captures/trajectory_capture/figures/
+paper/generated/captures/trajectory_capture/figures_3/
+
+# Local paper-reading library and rendered scratch files.
+readpaper/*.pdf
+/tmp/

@@ -1,0 +1,5 @@
+seed,episode,scenario_id,robot,full_success,cycle_start_step,interaction_start_step,interaction_end_step,cycle_end_step,pre_standard_steps,interaction_steps,post_standard_steps,minimum_phase_steps
+20260910,57,dense-20260718009662-a0ecc9a49f8e,r1,1,1,3,18,33,2,16,15,2
+20260910,50,dense-20260718009688-b33f724b14b9,r3,1,1,7,12,14,6,6,2,2
+20260910,55,dense-20260718009817-bdd6b33634c0,r2,0,1,3,10,15,2,8,5,2
+20260910,33,dense-20260718009747-91d8a354e329,r5,0,9,29,34,35,20,6,1,1

@@ -85,6 +85,7 @@ class LearnedInteractionGateController(object):
         minimum_hold_steps=3,
         max_candidates=12,
         evaluation_stride=1,
+        record_diagnostics=False,
     ):
         self.standard_policy = standard_policy
         self.dense_policy = dense_policy
@@ -149,6 +150,7 @@ class LearnedInteractionGateController(object):
         self.evaluation_stride = int(evaluation_stride)
         if self.evaluation_stride < 1:
             raise ValueError("evaluation_stride must be positive")
+        self.record_diagnostics = bool(record_diagnostics)
         checkpoint_threshold = float(gate_payload["threshold"])
         self.switch_on_threshold = (
             checkpoint_threshold
@@ -167,6 +169,7 @@ class LearnedInteractionGateController(object):
         self.evaluation_steps = {}
         self.last_probabilities = {}
         self.last_track_counts = {}
+        self.last_diagnostics = {}
         self.probability_sum = 0.0
         self.probability_count = 0
 
@@ -186,6 +189,7 @@ class LearnedInteractionGateController(object):
         self.evaluation_steps = {name: 0 for name in agent_names}
         self.last_probabilities = {name: 0.0 for name in agent_names}
         self.last_track_counts = {name: 0 for name in agent_names}
+        self.last_diagnostics = {name: None for name in agent_names}
         self.probability_sum = 0.0
         self.probability_count = 0
 
@@ -216,6 +220,7 @@ class LearnedInteractionGateController(object):
             raise ValueError("learned Gate must be reset before use")
         evaluate_gate = self.evaluation_steps[name] % self.evaluation_stride == 0
         self.evaluation_steps[name] += 1
+        diagnostics = None
         if evaluate_gate:
             odom = env.last_odom[name]
             pose = np.asarray(
@@ -243,9 +248,12 @@ class LearnedInteractionGateController(object):
             feature = build_gate_feature(
                 state_array, tracked, max_tracks=self.max_tracks
             )
-            if self.uses_actor_features:
+            standard_action = None
+            dense_action = None
+            if self.uses_actor_features or self.record_diagnostics:
                 standard_action = self.standard_policy.get_action(state_array)
                 dense_action = self.dense_policy.get_action(state_array)
+            if self.uses_actor_features:
                 action_features = actor_comparison_features(
                     np.asarray(standard_action, dtype=np.float32)[None, :],
                     np.asarray(dense_action, dtype=np.float32)[None, :],
@@ -262,11 +270,38 @@ class LearnedInteractionGateController(object):
             else:
                 policy = self.dense_policy if mode == "dense" else self.standard_policy
                 action = policy.get_action(state_array)
+            if self.record_diagnostics:
+                diagnostics = {
+                    "gate_evaluated": True,
+                    "mode": mode,
+                    "gate_probability": float(probability),
+                    "standard_action": np.asarray(standard_action, dtype=float).tolist()
+                    if standard_action is not None else None,
+                    "dense_action": np.asarray(dense_action, dtype=float).tolist()
+                    if dense_action is not None else None,
+                    "selected_action": np.asarray(action, dtype=float).tolist(),
+                    "candidate_centers": np.asarray(examples.candidate_centers, dtype=float).round(4).tolist(),
+                    "candidate_detector_probabilities": np.asarray(probabilities, dtype=float).round(4).tolist(),
+                }
         else:
             probability = self.last_probabilities[name]
             mode = self.switchers[name].mode
             policy = self.dense_policy if mode == "dense" else self.standard_policy
             action = policy.get_action(np.asarray(state))
+            if self.record_diagnostics:
+                standard_action = self.standard_policy.get_action(np.asarray(state))
+                dense_action = self.dense_policy.get_action(np.asarray(state))
+                diagnostics = {
+                    "gate_evaluated": False,
+                    "mode": mode,
+                    "gate_probability": float(probability),
+                    "standard_action": np.asarray(standard_action, dtype=float).tolist(),
+                    "dense_action": np.asarray(dense_action, dtype=float).tolist(),
+                    "selected_action": np.asarray(action, dtype=float).tolist(),
+                    "candidate_centers": None,
+                    "candidate_detector_probabilities": None,
+                }
+        self.last_diagnostics[name] = diagnostics
         self.probability_sum += probability
         self.probability_count += 1
         return action, mode, probability, self.last_track_counts[name]
