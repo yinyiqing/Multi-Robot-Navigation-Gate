@@ -99,7 +99,7 @@ G0 is first trained with simulator-generated candidate supervision. After G0, G1
 
 \begin{figure*}[t]
   \centering
-  \includesvg[inkscapelatex=false,width=0.96\textwidth]{../generated/fig1_overview/Section 2-2 3}
+  \includesvg[inkscapelatex=false,width=0.96\textwidth]{generated/fig1_overview/Section 2-2 3}
   \caption{PIRoute information boundary. During deployment, each robot uses only local observation history, two frozen actor candidates, and a temporal router before executing one selected action. During simulation training, robot positions provide supervision for the perception and interaction-state target; those states are removed before deployment.}
   \label{fig:overview}
 \end{figure*}
@@ -145,14 +145,14 @@ R2B & 25.52 & 68.57 & 31.41 & 0.13 & 16.89\\
 
 \begin{figure}[t]
   \centering
-  \includesvg[inkscapelatex=false,width=\columnwidth]{../generated/fig2_tradeoff/g25_pareto}
+  \includesvg[inkscapelatex=false,width=\columnwidth]{generated/fig2_tradeoff/g25_pareto}
   \caption{Joint success, collision, and raw-termination-step trade-off on G25.}
   \label{fig:tradeoff}
 \end{figure}
 
 \begin{figure}[t]
   \centering
-  \includesvg[inkscapelatex=false,width=\columnwidth]{../generated/fig3_effects/g25_primary_effects}
+  \includesvg[inkscapelatex=false,width=\columnwidth]{generated/fig3_effects/g25_primary_effects}
   \caption{PIRoute effects relative to 5A. Paired points show the observed rates; intervals are scene-cluster BCa 95\% intervals.}
   \label{fig:effects}
 \end{figure}
@@ -167,7 +167,7 @@ The post-sealed qualitative capture contains one real standard--interaction--sta
 
 \begin{figure*}[t]
   \centering
-  \includesvg[inkscapelatex=false,width=0.94\textwidth]{../generated/fig4_cycle/gate_cycle_example}
+  \includesvg[inkscapelatex=false,width=0.94\textwidth]{generated/fig4_cycle/gate_cycle_example}
   \caption{Representative post-sealed closed-loop cycle. The robot executes the standard actor, enters the interaction actor during a local conflict, and returns to standard control before reaching its goal.}
   \label{fig:cycle}
 \end{figure*}
