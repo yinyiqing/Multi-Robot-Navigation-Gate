@@ -18,19 +18,17 @@ Downloaded on 2026-09-05.
 
 ## Contents
 
-- `main.tex`: anonymous English manuscript draft using the ICRA class. It
-  contains four main figures; supplementary figures are kept separate.
-- `supplement.tex`: standalone document containing S1--S4 supplementary figures.
+- `main.tex`: self-contained anonymous English manuscript draft using the ICRA
+  class. It contains the four figures required by the core argument.
 - `references.bib`: references cited by `main.tex`.
 - `ieeeconf.cls`: required conference document class.
 - `bibtex/IEEEtran.bst`: standard IEEE numbered bibliography style.
 
 The manuscript uses the `svg` package so the editable SVG figures remain the
 source assets. On Overleaf, upload the required `generated/` figure folders
-alongside these files and compile `main.tex`; switch the main document to
-`supplement.tex` when reviewing S1--S4. The current machine does not have a
-LaTeX engine installed, so PDF compilation and page-count inspection still need
-to be run in Overleaf or another TeX environment.
+alongside these files and compile `main.tex`. The current machine does not have
+a LaTeX engine installed, so PDF compilation and page-count inspection still
+need to be run in Overleaf or another TeX environment.
 
 ICRA 2027 currently specifies an eight-page limit for the complete submission,
 including figures, tables, acknowledgments, and references, and uses double-
