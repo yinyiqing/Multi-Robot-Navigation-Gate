@@ -116,6 +116,12 @@ The primary metric is \emph{full success}: all five robots reach their goals wit
 \subsection{Implementation and Cost}
 The actors and G0/G1 are frozen during router training. The router operates at 5 Hz with a two-step routing stride. On a single CPU thread, the complete routed frame, including perception, two actor forwards, and router inference, has a representative latency of 1.443 ms (p95 1.490 ms), compared with 0.037 ms for the single-actor 5A forward. Thus the method has computation and interaction-time costs even though it does not perform additional actor updates.
 
+\subsection{Scenarios and Splits}
+All experiments use the Gazebo multi-robot navigation simulator with five differential-drive robots unless stated otherwise. The complete mixed-scene development set (G17) contains 120 fixed scenes, 60 standard and 60 dense, evaluated with two environment repeats. The Dense256 development set contains 256 fixed high-conflict scenes; 8, 61, 80, and 107 scenes have 0, 1, 2, and at least 3 reference-path conflict edges, respectively. Conflict edges are used only for offline stratification and never enter a policy or router input. The sealed G25 set is the first 256 scenes of a separate dense-test manifest, disjoint by scene ID from development. Training, validation, and sealed test scenes are never mixed. The post-sealed trajectory capture is a separate outcome-stratified qualitative sample and is not used to recompute any rate.
+
+\subsection{Metrics and Statistical Analysis}
+An episode is a full success only when every robot reaches its goal within the termination condition without collision. Robot-level agent success and collision are reported separately because a team can fail even when several robots succeed. We distinguish raw termination steps, which are affected by early collision termination, from paired-success steps, which are computed only on matched scene/repeat episodes where both methods achieve full success. For the primary PIRoute--5A comparison, repeated runs of a scene are clustered by scene. We use a scene-cluster BCa paired bootstrap with 20,000 resamples and a two-sided scene-level Monte Carlo sign-flip test with 100,000 draws. The preregistered decision threshold is two-sided $\alpha=0.05$; a confirmatory success claim requires a positive confidence-interval lower bound and a sign-flip $p$-value below this threshold. All percentages in Table~\ref{tab:g25} are pooled descriptive rates, whereas the reported differences and intervals use the paired clustered analysis.
+
 \section{Results}
 \subsection{Confirmatory Closed-Loop Result}
 Table~\ref{tab:g25} summarizes the sealed evaluation. Relative to 5A, PIRoute raises \fullsuccess{} from 24.61\% to 38.54\% and lowers robot-level collision from 31.72\% to 22.47\%. The scene-cluster paired full-success difference is 13.93 percentage points (BCa 95\% CI [10.16, 17.84]; two-sided sign-flip $p=0.00001$). The collision difference is $-9.24$ percentage points (BCa 95\% CI [$-11.28,-7.24$]). These are the confirmatory claims of the paper.
@@ -162,6 +168,30 @@ The always-on interaction actor lowers collision but incurs severe timeout and s
 
 Development validation supports the role of the policy library but is not confirmatory evidence. On Dense256, PIRoute reaches 42.58\% full success versus 26.95\% for 5A, while the epoch16 always-on and 2-m privileged variants expose the safety--efficiency trade-off. The validation choice between A1 and B2, and the effects of the individual router components, are not claimed as independent causal findings.
 
+\begin{table}[t]
+\caption{Development evidence used for method selection. These results are not part of the G25 confirmatory test.}
+\label{tab:development}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrrr}
+\toprule
+Setting / method & Full & Agent & Coll. & Steps\\
+\midrule
+G17: 5A & 50.00 & 80.75 & 19.25 & 21.63\\
+G17: PIRoute & 59.17 & 85.58 & 14.08 & 36.78\\
+Dense256: 5A & 26.95 & 69.92 & 30.00 & 17.46\\
+Dense256: A1 & 38.67 & 77.42 & 22.50 & 30.29\\
+Dense256: \textbf{B2} & \textbf{42.58} & \textbf{78.83} & \textbf{21.02} & 34.40\\
+Dense256: 2-m rule & 47.66 & 82.19 & 17.34 & 34.65\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The Dense256 comparison motivates the frozen B2 selection but does not replace the sealed result. B2 is higher than A1 in point estimate (42.58\% versus 38.67\%), yet the paired comparison is not significant under the development protocol. The process-matched R2B actor reaches 26.56\% on Dense256, close to 5A, which limits the interpretation to the tested training recipe rather than all possible larger single actors. The 2-m rule remains stronger because it observes the hidden distance label directly.
+
+The offline router diagnostic is consistent with, but cannot substitute for, closed-loop evaluation. The static single-frame S0 router has F1 0.83784, average precision 0.92242, interaction-interval IoU 0.72094, and 1109 switches. The eight-frame GRU A1 reaches F1 0.85549, average precision 0.93072, IoU 0.74747, and 876 switches on the frozen validation data. Removing history, action disagreement, or hysteresis was therefore retained as a development ablation rather than promoted to an independent causal claim.
+
 \subsection{Qualitative Closed-Loop Evidence}
 The post-sealed qualitative capture contains one real standard--interaction--standard cycle used in Fig.~\ref{fig:cycle}. It demonstrates that the router can enter and leave the interaction actor in a successful closed loop. The capture is outcome-stratified and uses one fixed seed; it is therefore a behavioral illustration, not an estimate of cycle frequency or routing efficiency.
 
@@ -171,6 +201,9 @@ The post-sealed qualitative capture contains one real standard--interaction--sta
   \caption{Representative post-sealed closed-loop cycle. The robot executes the standard actor, enters the interaction actor during a local conflict, and returns to standard control before reaching its goal.}
   \label{fig:cycle}
 \end{figure*}
+
+\subsection{Exploratory Boundary Checks}
+The zero-update robot-count check gives a positive but uncertain full-success difference of 3.13 percentage points for three robots and 1.56 percentage points for seven robots; both exploratory confidence intervals cross zero. At seven robots, however, robot-level success increases by 9.54 percentage points and robot-level collision decreases by 9.65 percentage points, with a corresponding raw-step increase of 17.42. A separate normalizing-flow-inspired external switching baseline obtains 30.08\% full success on an independent five-robot slice, compared with 28.52\% for 5A and 35.94\% for PIRoute; its difference from 5A is only 1.56 percentage points (exploratory BCa 95\% CI [$-4.30,+7.42$]). These checks are reported as scope boundaries and are not pooled with G25.
 
 \section{Limitations and Discussion}
 The result is a system-level result under a frozen-policy reuse protocol, not a claim of a new general switching algorithm. The interaction label is a distance-based proxy and can mark nearby robots that do not require avoidance. The router consequently calls the interaction actor often and exits conservatively, producing a measurable successful-run step cost. The two actors also require two forward passes at each routing instant.
