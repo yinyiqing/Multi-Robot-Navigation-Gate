@@ -1,0 +1,187 @@
+\documentclass[letterpaper,10pt,conference]{ieeeconf}
+
+\IEEEoverridecommandlockouts
+\overrideIEEEmargins
+
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{svg}
+\usepackage{xcolor}
+\usepackage{url}
+
+\title{PIRoute: Online Policy Routing for Communication-Free Multi-Robot Navigation}
+\author{Anonymous Authors}
+\newcommand{\method}{PIRoute}
+\newcommand{\fullsuccess}{full-episode success}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+\pagestyle{empty}
+
+\begin{abstract}
+In communication-free shared spaces, multiple robots must navigate toward their goals using only onboard observations while responding to changing inter-robot interactions. A single policy must simultaneously provide efficient goal-directed motion and conservative collision avoidance, which creates a difficult trade-off when interaction density changes over time. We present \method, an online policy-routing framework for decentralized multi-robot navigation. \method{} trains a general navigation actor and a conditional interaction-avoidance actor with a centralized critic, freezes both actors, and trains a temporal router to select between their candidate actions from each robot's local LiDAR, motion state, observation history, and candidate-action disagreement. Simulator-only robot states provide supervision during training; at deployment, every deployable method uses only local observations and no communication. In closed-loop simulation, \method{} increases \fullsuccess{} from 24.61\% to 38.54\% relative to the frozen general navigation actor and reduces the robot-level collision rate from 31.72\% to 22.47\%. These results support an effective deployment-constrained routing system for multi-robot interaction, while the accompanying efficiency and interaction-calling costs define the boundary of the result.
+\end{abstract}
+
+\section{Introduction}
+Multi-robot navigation in a shared workspace is coupled even when robots do not communicate. Each robot changes the future observations of the others through its speed, heading, and waiting decisions. The control problem therefore alternates between ordinary goal progress and short periods of yielding, slowing, or conflict resolution. A useful controller should recognize this change online and should allow a robot to return to efficient navigation after the interaction has ended.
+
+Many learning-based systems instead use one policy for both behaviors. This design is simple, but it asks one action mapping and one reward formulation to represent incompatible operating preferences: progress in ordinary states and conservative motion in dense interactions. Episode-level policy selection does not solve the problem because different robots can be in different interaction states at the same time, and the same robot can enter and leave an interaction within one episode. A distance rule based on other robots' positions can expose the potential value of conditional control, but it is unavailable to a decentralized robot at deployment.
+
+This paper studies a narrower question: given two already trained policies with complementary behavior, can a small deployable router identify the interaction-control phase using only local observations? We propose \method, which freezes a general navigation actor and a conditional interaction-avoidance actor, then learns a per-robot temporal router. During training, simulator robot positions are used only to generate supervision: they provide soft candidate evidence for a LiDAR front-end and a binary interaction-state target. At deployment, these privileged states, communication, and global conflict information are removed. The router observes local history and the disagreement between the two candidate actions, and applies hysteresis and a minimum hold time before hard-selecting one actor.
+
+The contribution is intentionally bounded. Two-policy switching, temporal state estimation, privileged training, and imitation-style data aggregation all have established precedents. Our contribution is their evaluation under the specific information boundary of communication-free multi-robot interaction, with the actors frozen during router training and with closed-loop success, safety, and efficiency reported together. The main evidence is a preregistered sealed evaluation; development and exploratory experiments are kept separate from that confirmatory result.
+
+\section{Related Work}
+\textbf{Decentralized multi-robot navigation.} Geometric reciprocal-avoidance methods such as ORCA provide explicit collision constraints, while CADRL demonstrated decentralized deep reinforcement learning for non-communicating agents \cite{vanDenBerg2008,chen2017cadrl}. Subsequent methods use centralized training with decentralized execution, parameter sharing, or learned neighborhood representations. These approaches primarily learn a single policy for navigation and interaction. We retain the local-observation deployment setting but study how to reuse two complementary policies without exposing neighborhood ground truth.
+
+\textbf{Temporal policy selection.} Options formalize temporally extended policies and termination conditions \cite{sutton1999options}; Option-Critic learns options and termination functions jointly \cite{bacon2017option}; deliberation costs penalize unnecessary switching \cite{harb2018deliberation}. Navigation systems have also learned context-dependent planner parameters or switches, including APPLD, APPLI, and APPLR \cite{xiao2020appld,wang2021appli,xu2021applr}, as well as switching between classical and learned planners \cite{kastner2022allinone,dey2023trust}. These works make clear that a gate or switch alone is not a novel algorithmic claim. \method{} differs in the deployment constraint and evidence target: the hidden variable is a per-robot interaction phase, the two actors remain frozen, and the principal outcome is closed-loop multi-robot behavior rather than selector accuracy alone.
+
+\textbf{Privileged supervision and closed-loop aggregation.} Asymmetric actor-critic methods allow a critic to use privileged state while the deployed actor uses sensors \cite{pinto2018asymmetric}; Learning by Cheating transfers information from a privileged teacher to a sensor policy \cite{chen2020cheating}. DAgger queries supervision on learner-visited states \cite{ross2011dagger}, with SafeDAgger and EnsembleDAgger studying safe intervention and uncertainty \cite{zhang2017safedagger,menda2019ensemble}. \method{} shares the training/deployment asymmetry but does not distill an expert action or value. Its privileged label is an interaction-state proxy, and its student-rollout aggregation is treated as a training detail rather than an independently established source of improvement.
+
+\section{Problem Formulation}
+Consider $N$ robots. Robot $i$ receives only its local observation
+\begin{equation}
+ o_t^i=[l_t^i,v_t^i,g_t^i]\in\mathbb{R}^{24},
+\end{equation}
+where $l_t^i$ is the LiDAR encoding, $v_t^i$ contains local motion state, and $g_t^i$ describes the goal. Robots do not exchange state, intent, or maps. Let $\pi_N$ and $\pi_I$ denote a general navigation actor and a conditional interaction-avoidance actor. Both receive the same deployable observation and produce candidate actions
+\begin{equation}
+ a_{N,t}^i=\pi_N(o_t^i),\qquad a_{I,t}^i=\pi_I(o_t^i),\qquad a\in\mathbb{R}^{2}.
+\end{equation}
+The router produces a binary state $z_t^i$ and executes a hard selection,
+\begin{equation}
+ a_t^i=(1-z_t^i)a_{N,t}^i+z_t^i a_{I,t}^i.
+ \label{eq:hardroute}
+\end{equation}
+The actors are not updated during router training. A robot may therefore use a different actor from another robot at the same environment time.
+
+During training only, the simulator provides robot centers $p_t^i$. For the nearest active robot, the interaction target is
+\begin{equation}
+ d_t^i=\min_{j\neq i,\,j\in\mathcal{A}_t}\|p_t^i-p_t^j\|_2,\qquad y_t^i=\mathbb{I}[d_t^i\leq 2.0\,\mathrm{m}].
+ \label{eq:label}
+\end{equation}
+Equation~\eqref{eq:label} is a supervision proxy, not a deployable distance rule and not a proof that the interaction actor is optimal at every positive frame.
+
+\section{PIRoute}
+\subsection{Frozen Policy Library and Perception}
+The general actor is the frozen \texttt{generalist-5a} policy. It provides default goal progress and static-obstacle handling. The interaction actor is the frozen \texttt{avoidance-epoch16} policy, which was specialized with interaction-window rewards and a neighborhood critic before freezing. Its deployment input remains the same 24-dimensional local observation; training-side neighborhood information is not passed to the actor at test time.
+
+The LiDAR front-end, G0, projects the VLP-16 scan into a local geometric representation and predicts soft candidate evidence and a center offset. G0 was supervised with simulator robot positions during training. Because its hard detection admission thresholds were not met, \method{} uses its outputs as soft evidence rather than as a claimed reliable robot detector. A deterministic tracking stage, G1, adds candidate age, relative velocity, closing speed, closest-point-of-approach, and time-to-collision features. G0 and G1 are frozen before router training.
+
+\subsection{Router Representation}
+At each routing instant, the router forms a 76-dimensional local representation $q_t^i$ from local state, LiDAR candidate features, and short-term tracking. It also receives both candidate actions and their disagreement,
+\begin{equation}
+ \Delta a_t^i=a_{I,t}^i-a_{N,t}^i,\qquad x_t^i=[q_t^i,a_{N,t}^i,a_{I,t}^i,\Delta a_t^i]\in\mathbb{R}^{82}.
+ \label{eq:routerinput}
+\end{equation}
+The action difference is a task-relevant cue, not a value-function difference: it indicates when the two frozen roles recommend materially different controls.
+
+\subsection{Temporal Estimation and Stable Switching}
+The router encodes the latest $H=8$ routing frames with a GRU,
+\begin{equation}
+ h_t^i=\mathrm{GRU}_\theta(x_{t-H+1:t}^i,h_{t-1}^i),\qquad p_t^i=\sigma(W h_t^i+b),
+ \label{eq:gru}
+\end{equation}
+where $p_t^i$ estimates the interaction-control phase. We optimize a class-weighted binary cross-entropy against Eq.~\eqref{eq:label}. The router is evaluated every two environment steps. To prevent noisy one-frame reversals, the binary state uses an entry threshold $\tau_{\rm on}=0.43$, an exit threshold $\tau_{\rm off}=0.33$, and a minimum hold of three routing frames:
+\begin{equation}
+ z_t^i=\begin{cases}
+ 1,&z_{t-1}^i=0\ \land\ p_t^i\geq\tau_{\rm on},\\
+ 0,&z_{t-1}^i=1\ \land\ p_t^i\leq\tau_{\rm off}\ \land\ c_t^i\geq 3,\\
+ z_{t-1}^i,&\text{otherwise.}
+ \end{cases}
+ \label{eq:hysteresis}
+\end{equation}
+Only the selected action is applied to the simulator, although both actor forward passes are computed. The complete information boundary is shown in Fig.~\ref{fig:overview}.
+
+\subsection{Training Protocol}
+G0 is first trained with simulator-generated candidate supervision. After G0, G1, $\pi_N$, and $\pi_I$ are frozen, navigation-training rollouts are used to construct Eq.~\eqref{eq:routerinput} and the privileged labels in Eq.~\eqref{eq:label}. The final B2 router combines the original navigation-actor shard with a student-rollout shard collected by an earlier router, while keeping the same GRU and switching rule. This aggregation changes the visited-state distribution; it is not presented as a separately proven causal component.
+
+\begin{figure*}[t]
+  \centering
+  \includesvg[inkscapelatex=false,width=0.96\textwidth]{../generated/fig1_overview/Section 2-2 3}
+  \caption{PIRoute information boundary. During deployment, each robot uses only local observation history, two frozen actor candidates, and a temporal router before executing one selected action. During simulation training, robot positions provide supervision for the perception and interaction-state target; those states are removed before deployment.}
+  \label{fig:overview}
+\end{figure*}
+
+\section{Experimental Protocol}
+\subsection{Research Questions and Comparisons}
+The confirmatory question is whether the frozen PIRoute system improves closed-loop success and safety over the frozen general actor under dense multi-robot interaction. Secondary comparisons test whether the result is consistent with conditional use of the interaction actor, rather than always-on control or a hand-designed local rule. We also include a process-matched widened single actor (R2B) as a capacity control. Single-frame, no-action-difference, and no-hysteresis variants are development ablations; they are not treated as independent proofs that each component is necessary.
+
+\subsection{Sealed Evaluation}
+The G25 sealed test uses the first 256 scenes of the frozen dense-test manifest, three preregistered environment repeats (seeds 20260901, 20260902, and 20260903), and seven frozen methods: 5A, epoch16 always-on, min-LiDAR rule, TTC/CPA rule, R2B, the privileged 2-m distance rule, and PIRoute (epoch16+B2). This gives $7\times256\times3=5376$ episodes. Scene IDs, order, physics, termination rules, and statistical procedures were fixed before the sealed outputs were read.
+
+The primary metric is \emph{full success}: all five robots reach their goals within the termination condition without collision. We additionally report robot-level agent success and collision, episode timeout, raw termination steps, paired-success steps, and interaction-actor share. Full success is analyzed with scene-cluster paired bootstrap confidence intervals and a two-sided scene-level sign-flip test; repeated runs of the same scene are not treated as independent scenes. The privileged 2-m rule is explicitly diagnostic and non-deployable.
+
+\subsection{Implementation and Cost}
+The actors and G0/G1 are frozen during router training. The router operates at 5 Hz with a two-step routing stride. On a single CPU thread, the complete routed frame, including perception, two actor forwards, and router inference, has a representative latency of 1.443 ms (p95 1.490 ms), compared with 0.037 ms for the single-actor 5A forward. Thus the method has computation and interaction-time costs even though it does not perform additional actor updates.
+
+\section{Results}
+\subsection{Confirmatory Closed-Loop Result}
+Table~\ref{tab:g25} summarizes the sealed evaluation. Relative to 5A, PIRoute raises \fullsuccess{} from 24.61\% to 38.54\% and lowers robot-level collision from 31.72\% to 22.47\%. The scene-cluster paired full-success difference is 13.93 percentage points (BCa 95\% CI [10.16, 17.84]; two-sided sign-flip $p=0.00001$). The collision difference is $-9.24$ percentage points (BCa 95\% CI [$-11.28,-7.24$]). These are the confirmatory claims of the paper.
+
+The gains do not imply a speed improvement. On the 71 scene clusters in which both methods achieve full success, PIRoute uses 13.51 additional environment steps on average (BCa 95\% CI [9.07, 18.91]). Approximately 70.0\% of routed frames select the interaction actor. Raw termination steps also increase, while the timeout interval crosses zero; we therefore do not claim timeout reduction or lower overall computation.
+
+\begin{table}[t]
+\caption{G25 sealed test. Percentages are pooled descriptive rates over 5376 episodes; raw steps are environment steps.}
+\label{tab:g25}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{lrrrrr}
+\toprule
+Method & Full & Agent & Coll. & Timeout & Steps\\
+\midrule
+5A & 24.61 & 68.23 & 31.72 & 0.26 & 17.31\\
+Always-on & 28.65 & 73.65 & 17.76 & 36.72 & 145.23\\
+Min-LiDAR & 26.56 & 72.73 & 17.66 & 40.63 & 155.06\\
+TTC/CPA & 27.47 & 69.56 & 30.31 & 0.65 & 20.60\\
+R2B & 25.52 & 68.57 & 31.41 & 0.13 & 16.89\\
+2-m privileged & 44.40 & 81.02 & 18.62 & 0.91 & 35.49\\
+\textbf{PIRoute} & \textbf{38.54} & \textbf{77.50} & \textbf{22.47} & 0.13 & 31.49\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \includesvg[inkscapelatex=false,width=\columnwidth]{../generated/fig2_tradeoff/g25_pareto}
+  \caption{Joint success, collision, and raw-termination-step trade-off on G25.}
+  \label{fig:tradeoff}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includesvg[inkscapelatex=false,width=\columnwidth]{../generated/fig3_effects/g25_primary_effects}
+  \caption{PIRoute effects relative to 5A. Paired points show the observed rates; intervals are scene-cluster BCa 95\% intervals.}
+  \label{fig:effects}
+\end{figure}
+
+\subsection{What the Comparisons Establish}
+The always-on interaction actor lowers collision but incurs severe timeout and step costs, whereas the simple LiDAR rule behaves similarly conservatively. The TTC/CPA rule and the process-matched R2B control do not reproduce the PIRoute success gain. The privileged 2-m rule performs better than PIRoute, as expected for a rule with access to the hidden interaction state; it is not an upper bound on an optimal deployable policy.
+
+Development validation supports the role of the policy library but is not confirmatory evidence. On Dense256, PIRoute reaches 42.58\% full success versus 26.95\% for 5A, while the epoch16 always-on and 2-m privileged variants expose the safety--efficiency trade-off. The validation choice between A1 and B2, and the effects of the individual router components, are not claimed as independent causal findings.
+
+\subsection{Qualitative Closed-Loop Evidence}
+The post-sealed qualitative capture contains one real standard--interaction--standard cycle used in Fig.~\ref{fig:cycle}. It demonstrates that the router can enter and leave the interaction actor in a successful closed loop. The capture is outcome-stratified and uses one fixed seed; it is therefore a behavioral illustration, not an estimate of cycle frequency or routing efficiency.
+
+\begin{figure*}[t]
+  \centering
+  \includesvg[inkscapelatex=false,width=0.94\textwidth]{../generated/fig4_cycle/gate_cycle_example}
+  \caption{Representative post-sealed closed-loop cycle. The robot executes the standard actor, enters the interaction actor during a local conflict, and returns to standard control before reaching its goal.}
+  \label{fig:cycle}
+\end{figure*}
+
+\section{Limitations and Discussion}
+The result is a system-level result under a frozen-policy reuse protocol, not a claim of a new general switching algorithm. The interaction label is a distance-based proxy and can mark nearby robots that do not require avoidance. The router consequently calls the interaction actor often and exits conservatively, producing a measurable successful-run step cost. The two actors also require two forward passes at each routing instant.
+
+R2B controls a specific confound: a parameter-matched actor trained with the same 5A recipe. It does not establish that every sufficiently trained larger single actor is inferior. Similarly, student-rollout aggregation is part of the selected B2 training procedure, but its comparison with A1 is not significant on the development protocol; it should not be advertised as a standalone gain.
+
+The three- and seven-robot zero-update tests and the normalizing-flow-inspired external router are exploratory supplements. They provide useful boundary checks, but their full-success intervals cross zero and they are not pooled with the G25 confirmatory analysis. All current results are simulated. Transfer to real LiDAR, different maps, arbitrary team sizes, and alternative policy libraries remains open.
+
+\section{Conclusion}
+We presented \method{}, a deployment-constrained system for routing between two frozen navigation policies in communication-free multi-robot navigation. A temporal router uses local observation history and candidate-action disagreement, while simulator-only robot positions provide training supervision and are removed at deployment. On the preregistered dense sealed test, PIRoute improves full-team success and reduces robot-level collision relative to the frozen general actor. The same evaluation also exposes the cost: longer successful runs and approximately 70\% interaction-actor usage. The evidence therefore supports a bounded conclusion: privileged interaction-state supervision can be converted into useful local online routing when complementary policies already exist, but the current system is safety-prioritized rather than a universally efficient or universally general switching solution.
+
+\bibliographystyle{bibtex/IEEEtran}
+\bibliography{references}
+\end{document}
