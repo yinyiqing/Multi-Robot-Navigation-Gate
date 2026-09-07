@@ -246,6 +246,9 @@ or qualitative and are not pooled with the G25 confirmatory analysis.
   \label{fig:s4}
 \end{figure*}
 
+% Flush the supplementary figure floats before the conclusion and bibliography.
+\clearpage
+
 \section{Conclusion}
 We presented \method{}, a deployment-constrained system for routing between two frozen navigation policies in communication-free multi-robot navigation. A temporal router uses local observation history and candidate-action disagreement, while simulator-only robot positions provide training supervision and are removed at deployment. On the preregistered dense sealed test, PIRoute improves full-team success and reduces robot-level collision relative to the frozen general actor. The same evaluation also exposes the cost: longer successful runs and approximately 70\% interaction-actor usage. The evidence therefore supports a bounded conclusion: privileged interaction-state supervision can be converted into useful local online routing when complementary policies already exist, but the current system is safety-prioritized rather than a universally efficient or universally general switching solution.
 
