@@ -212,43 +212,6 @@ R2B controls a specific confound: a parameter-matched actor trained with the sam
 
 The three- and seven-robot zero-update tests and the normalizing-flow-inspired external router are exploratory supplements. They provide useful boundary checks, but their full-success intervals cross zero and they are not pooled with the G25 confirmatory analysis. All current results are simulated. Transfer to real LiDAR, different maps, arbitrary team sizes, and alternative policy libraries remains open.
 
-\clearpage
-\section*{Supplementary Figures}
-The following figures are included in this draft so that all generated evidence
-can be inspected from the default Overleaf entry point. They are exploratory
-or qualitative and are not pooled with the G25 confirmatory analysis.
-
-\begin{figure*}[t]
-  \centering
-  \includesvg[inkscapelatex=false,width=0.92\textwidth]{generated/figS1_generalization/generalization}
-  \caption{Zero-update robot-count check. PIRoute is transferred without actor, router, or threshold updates to three- and seven-robot scenes. The full-team success differences are exploratory and their confidence intervals cross zero.}
-  \label{fig:s1}
-\end{figure*}
-
-\begin{figure*}[t]
-  \centering
-  \includesvg[inkscapelatex=false,width=0.92\textwidth]{generated/figS2_trajectories/trajectory_overview}
-  \caption{Representative closed-loop trajectories from the post-sealed qualitative capture. The outcome-stratified sample is used for visual diagnosis and not for re-estimating episode-level rates.}
-  \label{fig:s2}
-\end{figure*}
-
-\begin{figure*}[t]
-  \centering
-  \includesvg[inkscapelatex=false,width=0.92\textwidth]{generated/figS3_gate_timeline/gate_timeline}
-  \caption{Router probability and executed-policy timelines for the same qualitative capture scenes as Fig.~\ref{fig:s2}. The Router is updated every two environment steps; the timeline is descriptive rather than a population estimate of switching frequency.}
-  \label{fig:s3}
-\end{figure*}
-
-\begin{figure*}[t]
-  \centering
-  \includesvg[inkscapelatex=false,width=0.92\textwidth]{generated/figS4_external_router/g26_e1_effects}
-  \caption{Exploratory comparison with a normalizing-flow-inspired external switching baseline. This baseline is a local implementation inspired by prior work, not a strict reproduction, and is not pooled with G25.}
-  \label{fig:s4}
-\end{figure*}
-
-% Flush the supplementary figure floats before the conclusion and bibliography.
-\clearpage
-
 \section{Conclusion}
 We presented \method{}, a deployment-constrained system for routing between two frozen navigation policies in communication-free multi-robot navigation. A temporal router uses local observation history and candidate-action disagreement, while simulator-only robot positions provide training supervision and are removed at deployment. On the preregistered dense sealed test, PIRoute improves full-team success and reduces robot-level collision relative to the frozen general actor. The same evaluation also exposes the cost: longer successful runs and approximately 70\% interaction-actor usage. The evidence therefore supports a bounded conclusion: privileged interaction-state supervision can be converted into useful local online routing when complementary policies already exist, but the current system is safety-prioritized rather than a universally efficient or universally general switching solution.
 
