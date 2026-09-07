@@ -19,7 +19,7 @@ Key outputs:
 - `analysis/mode_sequence_summary.json`: complete sequence audit and ranked real-cycle candidates.
 - `analysis/mode_sequences.csv`: all 320 compressed per-robot mode sequences.
 - `analysis/complete_cycles.csv`: the four complete cycles.
-- `../../fig4_cycle/gate_cycle_example.{png,pdf,svg}`: selected full-success real-cycle figure.
+- `../../fig4_cycle/gate_cycle_example.svg`: selected full-success real-cycle figure.
 - `figures_3/`: corrected supplemental trajectory overview and Router timeline.
 
 Recreate the sequence audit and real-cycle figure:

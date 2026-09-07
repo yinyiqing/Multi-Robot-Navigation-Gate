@@ -12,9 +12,16 @@ from matplotlib.patches import Rectangle
 
 
 MODE_COLORS = {
-    "standard": "#0072B2",
-    "dense": "#D55E00",
-    "inactive": "#D9D9D9",
+    "standard": "#A7CED9",
+    "dense": "#DDB2C5",
+    "inactive": "#EEF1F2",
+}
+INK = "#4E5D66"
+GRID = "#D9E0E5"
+PANEL_TITLES = {
+    "PIRoute succeeds, 5A fails": "PIRoute succeeds; 5A fails",
+    "Both succeed": "Both succeed",
+    "Both fail": "Neither succeeds",
 }
 
 
@@ -57,7 +64,15 @@ def add_lane(ax, records, robot, lane):
     if valid:
         xs = [item[0] for item in valid]
         ys = [lane - 0.30 + 0.60 * float(item[1]) for item in valid]
-        ax.plot(xs, ys, color="#222222", linewidth=0.8, marker=".", markersize=2)
+        ax.plot(xs, ys, color=INK, linewidth=0.8, drawstyle="steps-post")
+        # The Router is evaluated every two environment steps. Mark only
+        # those routing instants; the step line shows the held probability.
+        evaluated = [(step, value) for step, value in valid if step % 2 == 1]
+        ax.scatter(
+            [item[0] for item in evaluated],
+            [lane - 0.30 + 0.60 * float(item[1]) for item in evaluated],
+            s=5.5, color=INK, edgecolor="white", linewidth=0.2, zorder=3,
+        )
 
 
 def main():
@@ -67,13 +82,22 @@ def main():
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
 
+    plt.rcParams.update({
+        "font.family": "sans-serif",
+        "font.sans-serif": ["Arial", "DejaVu Sans"],
+        "font.size": 8.0,
+        "axes.unicode_minus": False,
+        "svg.hashsalt": "piroute-supplement-timeline",
+        "svg.fonttype": "none",
+    })
+
     trajectories = load_trajectory(args.trajectory)
     selected = load_selected(args.selection)
     if not selected:
         raise SystemExit("selection is empty")
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    fig, axes = plt.subplots(1, len(selected), figsize=(2.45 * len(selected), 3.55),
+    fig, axes = plt.subplots(1, len(selected), figsize=(2.39 * len(selected), 3.05),
                              squeeze=False, sharey=True)
     axes = axes[0]
     for col, (episode, metadata) in enumerate(selected):
@@ -85,34 +109,44 @@ def main():
         for lane, robot in enumerate(robots):
             add_lane(ax, records, robot, lane)
         ax.set_yticks(range(len(robots)))
-        ax.set_yticklabels(robots, fontsize=7)
+        ax.set_yticklabels(robots, fontsize=7, color=INK)
         ax.set_ylim(-0.7, len(robots) - 0.3)
         ax.invert_yaxis()
         ax.set_xlim(0.5, max(int(record["step"]) for record in records) + 0.5)
-        ax.set_xlabel("environment step", fontsize=8)
-        ax.set_title(f"{metadata['label']}\n{metadata['scenario_id'][-8:]}", fontsize=8)
-        ax.grid(axis="x", linewidth=0.35, alpha=0.35)
-        ax.tick_params(axis="x", labelsize=7)
-        ax.text(0.02, 1.02, f"({chr(ord('a') + col)})", transform=ax.transAxes,
-                fontsize=8, fontweight="bold", va="bottom")
-    axes[0].set_ylabel("robot\n(line height: p=0 to 1)", fontsize=8)
-    fig.suptitle("PIRoute Router decisions on matched qualitative rollouts", fontsize=10.5)
+        ax.set_xlabel("environment step", fontsize=8, color=INK)
+        title = PANEL_TITLES.get(metadata["label"], metadata["label"])
+        ax.set_title(f"({chr(ord('a') + col)})  {title}", fontsize=8.0,
+                     fontweight="bold", color=INK, pad=8)
+        ax.grid(axis="x", color=GRID, linewidth=0.45)
+        ax.tick_params(axis="x", labelsize=7, colors=INK)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_color("#7F8C96")
+        ax.spines["bottom"].set_color("#7F8C96")
+        ax.spines["left"].set_linewidth(0.65)
+        ax.spines["bottom"].set_linewidth(0.65)
+    axes[0].set_ylabel("Robot", fontsize=8, color=INK)
+    fig.suptitle("Per-robot routing dynamics in representative rollouts", fontsize=10.0,
+                 fontweight="bold", color=INK)
     handles = [
         Rectangle((0, 0), 1, 1, facecolor=MODE_COLORS["standard"], label="standard Actor"),
         Rectangle((0, 0), 1, 1, facecolor=MODE_COLORS["dense"], label="interaction Actor"),
         Rectangle((0, 0), 1, 1, facecolor=MODE_COLORS["inactive"], label="inactive"),
-        Line2D([0], [0], color="#222222", linewidth=0.8, marker=".", label="Gate probability"),
+        Line2D([0], [0], color=INK, linewidth=0.8, marker="o", markersize=2.4,
+               label="Router probability (within-lane p=0-1)"),
     ]
     fig.legend(handles=handles, loc="lower center", ncol=4, frameon=False,
-               fontsize=7, bbox_to_anchor=(0.5, 0.0))
-    fig.tight_layout(rect=(0, 0.12, 1, 0.93))
-    for suffix in ("png", "pdf", "svg"):
-        fig.savefig(args.output_dir / f"gate_timeline.{suffix}", dpi=300, bbox_inches="tight")
-    (args.output_dir / "gate_timeline_selection.json").write_text(
-        json.dumps({"selection": str(args.selection), "trajectory": str(args.trajectory),
-                    "episodes": [episode for episode, _ in selected]}, indent=2) + "\n",
+               fontsize=6.8, bbox_to_anchor=(0.5, 0.0), handletextpad=0.45,
+               columnspacing=1.15)
+    fig.tight_layout(rect=(0, 0.14, 1, 0.92))
+    output = args.output_dir / "gate_timeline.svg"
+    fig.savefig(output, dpi=600, bbox_inches="tight", facecolor="white",
+                metadata={"Date": None})
+    output.write_text(
+        "\n".join(line.rstrip() for line in output.read_text(encoding="utf-8").splitlines()) + "\n",
         encoding="utf-8",
     )
+    plt.close(fig)
     print("Wrote Gate timeline to", args.output_dir)
 
 

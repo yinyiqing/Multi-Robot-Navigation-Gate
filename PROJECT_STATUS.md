@@ -16,8 +16,8 @@ G25 确认性统计。
 
 修正后的 320 条机器人模式序列中，305 条首个实际动作使用 interaction Actor，15 条使用
 standard Actor；共找到 4 个实际执行的 `standard -> interaction -> standard` 完整周期，来自
-4 个机器人，其中 2 个位于整队成功 episode。用于 Fig. 4 的真实实例为 episode 57、机器人
-`r1`：standard 2 步、interaction 16 步、standard 15 步并到达目标。该结果证明 Router 能完成
+4 个机器人，其中 2 个位于整队成功 episode。用于 Fig. 4 的真实实例为 episode 50、机器人
+`r3`：standard 6 步、interaction 6 步、standard 2 步并到达目标。该结果证明 Router 能完成
 进入与退出，但完整周期在这批分层定性样本中较少，且不能据此声称稀疏或高效调用；结合 G25
 约 70% interaction share，当前方法仍应定位为 safety-prioritized routing。
 

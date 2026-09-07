@@ -23,11 +23,13 @@ FIGURE_DIRS = {
     "piroute_overview": "fig1_overview",
     "g25_pareto": "fig2_tradeoff",
     "g25_primary_effects": "fig3_effects",
-    "g26_e1_effects": "supplement",
+    "g26_e1_effects": "figS4_external_router",
 }
 G25 = BASE / "25_最终消融与Sealed评测/local_data/sealed/sealed_statistics.json"
 Q1 = BASE / "26_数量泛化与外部切换基线/local_data/q1/results/q1_statistics.json"
 E1 = BASE / "26_数量泛化与外部切换基线/local_data/e1/e1_statistics.json"
+SEALED_RESULTS = BASE / "25_最终消融与Sealed评测/local_data/sealed/results"
+SEALED_SEEDS = (20260901, 20260902, 20260903)
 
 OKABE_ITO = {
     "blue": "#0072B2",
@@ -57,6 +59,33 @@ def load(path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def paired_success_step_means():
+    """Return cluster-weighted absolute steps on the joint-success subset."""
+    base = np.stack([
+        np.load(SEALED_RESULTS / f"g25_sealed_5a_s{seed}.npy", allow_pickle=True)
+        for seed in SEALED_SEEDS
+    ], axis=1)
+    piroute = np.stack([
+        np.load(SEALED_RESULTS / f"g25_sealed_b2_s{seed}.npy", allow_pickle=True)
+        for seed in SEALED_SEEDS
+    ], axis=1)
+    base_success = base[:, :, 8].astype(float)
+    piroute_success = piroute[:, :, 8].astype(float)
+    base_steps = base[:, :, 3].astype(float)
+    piroute_steps = piroute[:, :, 3].astype(float)
+    joint = (base_success == 1) & (piroute_success == 1)
+    cluster_base, cluster_piroute, cluster_delta = [], [], []
+    for scene in range(base.shape[0]):
+        mask = joint[scene]
+        if np.any(mask):
+            base_values = base_steps[scene, mask]
+            piroute_values = piroute_steps[scene, mask]
+            cluster_base.append(float(np.mean(base_values)))
+            cluster_piroute.append(float(np.mean(piroute_values)))
+            cluster_delta.append(float(np.mean(piroute_values - base_values)))
+    return float(np.mean(cluster_base)), float(np.mean(cluster_piroute)), float(np.mean(cluster_delta)), int(np.sum(joint)), len(cluster_base)
+
+
 def style():
     plt.rcParams.update({
         "font.family": "sans-serif",
@@ -70,6 +99,8 @@ def style():
         "lines.linewidth": 1.4,
         "pdf.fonttype": 42,
         "ps.fonttype": 42,
+        "svg.hashsalt": "piroute-redraw",
+        "svg.fonttype": "none",
         "axes.unicode_minus": False,
     })
 
@@ -87,6 +118,19 @@ def save(fig, stem):
                 "\n".join(line.rstrip() for line in path.read_text(encoding="utf-8").splitlines()) + "\n",
                 encoding="utf-8",
             )
+    plt.close(fig)
+
+
+def save_svg_only(fig, stem):
+    """Write a single editable SVG for figures requested as vector-only deliverables."""
+    target_dir = OUT / FIGURE_DIRS.get(stem, "supplement")
+    target_dir.mkdir(parents=True, exist_ok=True)
+    path = target_dir / f"{stem}.svg"
+    fig.savefig(path, dpi=600, bbox_inches="tight", facecolor="white", metadata={"Date": None})
+    path.write_text(
+        "\n".join(line.rstrip() for line in path.read_text(encoding="utf-8").splitlines()) + "\n",
+        encoding="utf-8",
+    )
     plt.close(fig)
 
 
@@ -571,118 +615,223 @@ def figure_overview_legacy():
 
 def figure_g25_tradeoff(g25):
     fig, (ax0, ax1) = plt.subplots(1, 2, figsize=(7.16, 3.25), gridspec_kw={"width_ratios": [1.18, 0.82]})
-    colors = {key: OKABE_ITO[color] for key, _, color in METHODS}
+    # Use one deliberate accent for the proposed method.  The remaining
+    # methods stay in a muted blue-gray family so the comparison reads first,
+    # while the privileged oracle is distinguished by its diamond marker.
+    colors = {
+        "5a": "#56A1B8",
+        "r2b": "#B9C7CD",
+        "ttc_cpa": "#6FA9BA",
+        "b2": "#C47FA0",
+        "privileged_2m": "#3E7183",
+        "epoch16": "#7F8C96",
+        "min_lidar": "#8FC3D0",
+    }
+    ink = "#4E5D66"
+    grid = "#D9E0E5"
     for key, label, _ in METHODS:
         item = g25["pooled_descriptive"][key]
         x, y = 100 * item["collision"], 100 * item["full_success"]
-        edge = "#111111" if key == "b2" else "white"
-        size = 115 if key == "b2" else 65
-        ax0.scatter(x, y, s=size, color=colors[key], edgecolor=edge, linewidth=1.0, zorder=3)
+        edge = ink if key == "b2" else "white"
+        size = 145 if key == "b2" else 48
+        marker = "D" if key == "privileged_2m" else "o"
+        ax0.scatter(x, y, s=size, marker=marker, color=colors[key], edgecolor=edge, linewidth=1.0, zorder=3)
         dx, dy = {"5a": (0.25, -1.7), "r2b": (0.25, 1.0), "ttc_cpa": (0.25, 1.0),
                   "b2": (0.25, 1.2), "privileged_2m": (0.25, 1.0), "epoch16": (0.25, 1.0),
                   "min_lidar": (0.25, -1.6)}[key]
-        ax0.annotate(label, (x, y), xytext=(x + dx, y + dy), fontsize=7.0, color=OKABE_ITO["ink"])
-    ax0.set_xlabel("Robot collision rate (%)")
-    ax0.set_ylabel("Full-episode success (%)")
+        display_label = "2 m oracle*" if key == "privileged_2m" else ("PIRoute (ours)" if key == "b2" else label)
+        ax0.annotate(display_label, (x, y), xytext=(x + dx, y + dy), fontsize=7.0,
+                     color=colors[key] if key == "b2" else ink,
+                     fontweight="bold" if key == "b2" else "normal")
+    ax0.set_xlabel("Robot collision rate (%)\n(lower is better)", color=ink)
+    ax0.set_ylabel("Full-episode success (%)\n(higher is better)", color=ink)
     ax0.set_xlim(14, 34)
     ax0.set_ylim(20, 47)
-    ax0.set_title("Success and safety", loc="left", fontweight="bold")
+    ax0.set_title("(a) Success-safety trade-off", loc="center", fontsize=8.5, fontweight="bold", color=ink)
     despine(ax0)
-    ax0.grid(color=OKABE_ITO["grid"], linewidth=0.55)
+    ax0.grid(color=grid, linewidth=0.45)
 
     order = ["5a", "r2b", "ttc_cpa", "b2", "privileged_2m", "epoch16", "min_lidar"]
     vals = [g25["pooled_descriptive"][key]["raw_steps"] for key in order]
     labels = {key: label for key, label, _ in METHODS}
     ys = np.arange(len(order))
     for y, key, value in zip(ys, order, vals):
-        ax1.hlines(y, 0, value, color=colors[key], linewidth=3.0, alpha=0.85)
-        ax1.scatter(value, y, color=colors[key], s=38, edgecolor="#111111" if key == "b2" else "white", linewidth=0.8, zorder=3)
-        ax1.text(value + 2.0, y, f"{value:.1f}", va="center", fontsize=7.0, color=OKABE_ITO["ink"])
+        ax1.hlines(y, 0, value, color=colors[key], linewidth=1.8, alpha=0.9)
+        marker = "D" if key == "privileged_2m" else "o"
+        ax1.scatter(value, y, marker=marker, color=colors[key], s=34, edgecolor=ink if key == "b2" else "white", linewidth=0.8, zorder=3)
+        ax1.text(value + 2.0, y, f"{value:.1f}", va="center", fontsize=7.0,
+                 color=colors[key] if key == "b2" else ink,
+                 fontweight="bold" if key == "b2" else "normal")
     ax1.set_yticks(ys)
     ax1.set_yticklabels([labels[key] for key in order])
-    ax1.set_xlabel("Raw termination steps")
+    for tick, key in zip(ax1.get_yticklabels(), order):
+        if key == "b2":
+            tick.set_fontweight("bold")
+            tick.set_color(colors[key])
+    ax1.set_xlabel("Raw termination steps\n(lower is faster)", color=ink)
     ax1.set_xlim(0, 175)
-    ax1.set_title("Completion-step cost", loc="left", fontweight="bold")
+    ax1.set_title("(b) Completion-step cost", loc="center", fontsize=8.5, fontweight="bold", color=ink)
     ax1.invert_yaxis()
     despine(ax1)
-    ax1.grid(axis="x", color=OKABE_ITO["grid"], linewidth=0.55)
-    fig.suptitle("G25 sealed test: PIRoute improves success and safety with a step cost", fontsize=11, fontweight="bold")
-    fig.text(0.01, 0.005, "PIRoute = frozen epoch16 Actor + B2 Router; 2 m oracle is privileged and not deployable.", fontsize=7.0, color="#52616D")
+    ax1.grid(axis="x", color=grid, linewidth=0.45)
+    fig.suptitle("Frozen-method trade-offs on the sealed test set", fontsize=10.5, fontweight="bold", color=ink)
+    fig.text(0.01, 0.005, "PIRoute = frozen epoch16 Actor + B2 Router. *2 m oracle uses privileged distance and is not deployable.", fontsize=7.0, color="#66747C")
     fig.tight_layout(rect=(0, 0.06, 1, 0.91), w_pad=2.2)
-    save(fig, "g25_pareto")
+    save_svg_only(fig, "g25_pareto")
 
 
 def forest_panel(ax, title, value, interval, xlim, unit, color):
-    ax.axvline(0, color="#5A6770", linewidth=0.9, linestyle=(0, (3, 2)))
+    ax.axvline(0, color="#4E5D66", linewidth=0.7, linestyle=(0, (3, 2)))
     ax.errorbar(value, 0, xerr=[[value - interval[0]], [interval[1] - value]], fmt="o",
-                color=color, ecolor=color, elinewidth=2.2, capsize=3.5, markersize=6.5,
-                markeredgecolor="#111111", markeredgewidth=0.5)
+                color=color, ecolor=color, elinewidth=1.45, capsize=2.5, markersize=5.8,
+                markeredgecolor="white", markeredgewidth=0.65)
     ax.set_xlim(*xlim)
     ax.set_yticks([])
-    ax.set_title(title, loc="left", fontsize=8.8, fontweight="bold")
-    ax.set_xlabel(unit, fontsize=7.8)
-    ax.grid(axis="x", color=OKABE_ITO["grid"], linewidth=0.55)
+    ax.set_title(title, loc="center", fontsize=8.3, fontweight="bold", color="#4E5D66")
+    ax.set_xlabel(unit, fontsize=7.8, color="#4E5D66")
+    ax.grid(axis="x", color="#D9E0E5", linewidth=0.45)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.spines["left"].set_visible(False)
-    ax.spines["bottom"].set_color("#71808B")
+    ax.spines["bottom"].set_color("#7F8C96")
+    ax.spines["bottom"].set_linewidth(0.65)
 
 
 def figure_g25_effects(g25):
-    fig, axes = plt.subplots(1, 3, figsize=(7.16, 2.55), gridspec_kw={"wspace": 0.55})
-    panels = [
-        ("Full success", g25["primary_b2_minus_5a"]["mean_full_success_difference"] * 100,
-         np.asarray(g25["primary_b2_minus_5a"]["scene_cluster_bca_95_ci"]) * 100, (-20, 20), "difference (pp)", OKABE_ITO["blue"]),
-        ("Collision", g25["secondary_b2_minus_5a"]["collision"]["mean_difference"] * 100,
-         np.asarray(g25["secondary_b2_minus_5a"]["collision"]["scene_cluster_bca_95_ci"]) * 100, (-14, 14), "difference (pp)", OKABE_ITO["orange"]),
-        ("Paired-success steps", g25["secondary_b2_minus_5a"]["paired_success_steps"]["mean_difference"],
-         np.asarray(g25["secondary_b2_minus_5a"]["paired_success_steps"]["scene_cluster_bca_95_ci"]), (-22, 22), "difference (steps)", OKABE_ITO["purple"]),
+    teal = "#56A1B8"
+    rose = "#C47FA0"
+    baseline = "#7F8C96"
+    ink = "#4E5D66"
+    fig = plt.figure(figsize=(7.16, 2.72))
+    grid = fig.add_gridspec(1, 2, width_ratios=(1.58, 1.0), left=0.09, right=0.98,
+                            bottom=0.27, top=0.77, wspace=0.34)
+    ax_outcomes = fig.add_subplot(grid[0, 0])
+    ax_cost = fig.add_subplot(grid[0, 1])
+
+    success_5a, success_b2 = 100 * g25["pooled_descriptive"]["5a"]["full_success"], 100 * g25["pooled_descriptive"]["b2"]["full_success"]
+    collision_5a, collision_b2 = 100 * g25["pooled_descriptive"]["5a"]["collision"], 100 * g25["pooled_descriptive"]["b2"]["collision"]
+    outcome_rows = [
+        (1, "Full success\n(higher is better)", success_5a, success_b2, "+13.93 pp", teal),
+        (0, "Collision\n(lower is better)", collision_5a, collision_b2, "-9.24 pp", teal),
     ]
-    for i, (title, value, interval, xlim, unit, color) in enumerate(panels):
-        forest_panel(axes[i], title, value, interval, xlim, unit, color)
-        axes[i].text(0.98, 0.82, f"{value:+.2f}\n[{interval[0]:+.2f}, {interval[1]:+.2f}]",
-                     transform=axes[i].transAxes, ha="right", va="top", fontsize=7.2,
-                     color=OKABE_ITO["ink"], fontweight="bold")
-        axes[i].text(-0.08, 1.08, f"({chr(ord('a') + i)})", transform=axes[i].transAxes,
-                     fontsize=8.5, fontweight="bold", va="top")
-    fig.suptitle("G25 sealed test: PIRoute effects relative to 5A", fontsize=10.8, fontweight="bold")
-    fig.text(0.01, 0.01, "Points are paired means; whiskers are scene-cluster BCa 95% CIs. Negative collision is favorable.", fontsize=7.0, color="#52616D")
-    fig.subplots_adjust(left=0.08, right=0.98, bottom=0.25, top=0.73, wspace=0.48)
-    save(fig, "g25_primary_effects")
+    for y, label, baseline_value, method_value, delta, color in outcome_rows:
+        ax_outcomes.plot([baseline_value, method_value], [y, y], color="#B9C7CD", linewidth=1.5, zorder=1)
+        ax_outcomes.scatter(baseline_value, y, s=45, color=baseline, edgecolor="white", linewidth=0.7, zorder=3)
+        ax_outcomes.scatter(method_value, y, s=55, color=color, edgecolor="white", linewidth=0.7, zorder=3)
+        ax_outcomes.text(baseline_value, y + 0.19, f"{baseline_value:.2f}%", ha="center", va="bottom", fontsize=7.0, color=baseline)
+        ax_outcomes.text(method_value, y + 0.19, f"{method_value:.2f}%", ha="center", va="bottom", fontsize=7.0, color=color, fontweight="bold")
+        ax_outcomes.text(48.5, y, delta, ha="right", va="center", fontsize=7.3, color=ink, fontweight="bold")
+        ax_outcomes.text(-0.04, y, label, transform=ax_outcomes.get_yaxis_transform(), ha="right", va="center", fontsize=7.8, color=ink)
+    ax_outcomes.set_xlim(0, 50)
+    ax_outcomes.set_ylim(-0.55, 1.55)
+    ax_outcomes.set_yticks([])
+    ax_outcomes.set_xlabel("rate (%)", fontsize=8.0, color=ink)
+    ax_outcomes.set_title("(a) Task outcomes", fontsize=8.5, fontweight="bold", color=ink, pad=8)
+    ax_outcomes.grid(axis="x", color="#D9E0E5", linewidth=0.45)
+    ax_outcomes.spines["top"].set_visible(False)
+    ax_outcomes.spines["right"].set_visible(False)
+    ax_outcomes.spines["left"].set_visible(False)
+    ax_outcomes.spines["bottom"].set_color(baseline)
+    ax_outcomes.spines["bottom"].set_linewidth(0.65)
+
+    step_5a, step_piroute, steps, pair_count, cluster_count = paired_success_step_means()
+    interval = np.asarray(g25["secondary_b2_minus_5a"]["paired_success_steps"]["scene_cluster_bca_95_ci"])
+    ax_cost.plot([step_5a, step_piroute], [0, 0], color="#B9C7CD", linewidth=1.5, zorder=1)
+    ax_cost.scatter(step_5a, 0, s=45, color=baseline, edgecolor="white", linewidth=0.7, zorder=3)
+    ax_cost.scatter(step_piroute, 0, s=55, color=teal, edgecolor="white", linewidth=0.7, zorder=3)
+    ax_cost.text(step_5a, 0.20, f"{step_5a:.2f}", ha="center", va="bottom", fontsize=7.0, color=baseline)
+    ax_cost.text(step_piroute, 0.20, f"{step_piroute:.2f}", ha="center", va="bottom", fontsize=7.0, color=teal, fontweight="bold")
+    ax_cost.text(39.5, 0.02, f"+{steps:.2f} steps", ha="right", va="bottom", fontsize=7.3, color=ink, fontweight="bold")
+    ax_cost.text(39.5, -0.18, f"[{interval[0]:+.2f}, {interval[1]:+.2f}]", ha="right", va="top", fontsize=7.0, color=ink)
+    ax_cost.set_xlim(0, 40)
+    ax_cost.set_ylim(-0.55, 0.55)
+    ax_cost.set_yticks([])
+    ax_cost.set_xlabel("paired-success steps (lower is better)", fontsize=8.0, color=ink)
+    ax_cost.set_title("(b) Efficiency cost", fontsize=8.5, fontweight="bold", color=ink, pad=8)
+    ax_cost.grid(axis="x", color="#D9E0E5", linewidth=0.45)
+    ax_cost.spines["top"].set_visible(False)
+    ax_cost.spines["right"].set_visible(False)
+    ax_cost.spines["left"].set_visible(False)
+    ax_cost.spines["bottom"].set_color(baseline)
+    ax_cost.spines["bottom"].set_linewidth(0.65)
+
+    legend = [
+        Line2D([0], [0], marker="o", color="none", markerfacecolor=baseline, markeredgecolor="white", markersize=5.8, label="5A"),
+        Line2D([0], [0], marker="o", color="none", markerfacecolor=teal, markeredgecolor="white", markersize=5.8, label="PIRoute"),
+    ]
+    fig.legend(handles=legend, loc="lower center", ncol=2, frameon=False, fontsize=7.3,
+               bbox_to_anchor=(0.34, 0.085), handletextpad=0.35, columnspacing=1.1)
+    fig.suptitle("PIRoute relative to 5A on the sealed test set", fontsize=10.5, fontweight="bold", color=ink)
+    fig.text(0.01, 0.015, f"Dots show pooled rates; labels show paired effects and scene-cluster BCa 95% CIs. Step cost uses {pair_count} scene-repeat pairs across {cluster_count} clusters.", fontsize=6.9, color="#66747C")
+    save_svg_only(fig, "g25_primary_effects")
 
 
 def figure_e1(e1):
-    fig, ax = plt.subplots(figsize=(5.4, 2.55))
-    rows = [("NF-inspired", "nf_switch_minus_5a", OKABE_ITO["gray"]), ("PIRoute (B2)", "b2_minus_5a", OKABE_ITO["red"])]
-    ys = np.array([1, 0])
-    for y, (label, key, color) in zip(ys, rows):
-        item = e1["comparisons"][key]["full_success"]
-        value = 100 * item["mean_difference"]
+    fig, ax = plt.subplots(figsize=(7.16, 2.35))
+    ink = "#4E5D66"
+    baseline = "#7F8C96"
+    connector = "#B9C7CD"
+    base_value = 100 * e1["pooled_descriptive"]["5a"]["full_success"]
+    rows = [
+        (1, "NF-inspired", "nf_switch", "nf_switch_minus_5a", "#56A1B8"),
+        (0, "PIRoute", "b2", "b2_minus_5a", "#C47FA0"),
+    ]
+    for y, label, method_key, comparison_key, color in rows:
+        method_value = 100 * e1["pooled_descriptive"][method_key]["full_success"]
+        item = e1["comparisons"][comparison_key]["full_success"]
+        difference = 100 * item["mean_difference"]
         interval = np.asarray(item["scene_cluster_bca_95_ci"]) * 100
-        ax.errorbar(value, y, xerr=[[value - interval[0]], [interval[1] - value]], fmt="o",
-                    color=color, ecolor=color, elinewidth=2.6, capsize=4, markersize=7,
-                    markeredgecolor="#111111", markeredgewidth=0.5)
-        ax.text(15.7, y + 0.12, f"{value:+.2f} pp  [{interval[0]:+.2f}, {interval[1]:+.2f}]",
-                ha="right", va="center", fontsize=7.4, color=OKABE_ITO["ink"])
-    ax.axvline(0, color="#5A6770", linewidth=0.9, linestyle=(0, (3, 2)))
-    ax.set_yticks(ys)
-    ax.set_yticklabels([row[0] for row in rows])
-    ax.set_xlim(-10, 16)
+        anchored_interval = base_value + interval
+        ax.errorbar(
+            method_value, y,
+            xerr=np.asarray([[method_value - anchored_interval[0]],
+                             [anchored_interval[1] - method_value]]),
+            fmt="none", ecolor=color, elinewidth=1.0, capsize=3.0,
+            capthick=1.0, alpha=0.72, zorder=0,
+        )
+        ax.plot([base_value, method_value], [y, y], color=connector,
+                linewidth=1.35, zorder=1)
+        ax.scatter(base_value, y, s=45, color=baseline, edgecolor="white", linewidth=0.7, zorder=3)
+        ax.scatter(method_value, y, s=55, color=color, edgecolor="white", linewidth=0.7, zorder=3)
+        ax.text(base_value - 0.28, y + 0.23, f"{base_value:.2f}%", ha="right", va="bottom",
+                fontsize=7.0, color=baseline)
+        ax.text(method_value + 0.28, y + 0.23, f"{method_value:.2f}%", ha="left", va="bottom",
+                fontsize=7.0, color=color, fontweight="bold")
+        ax.text(44.2, y + 0.04, f"{difference:+.2f} pp", ha="right", va="bottom",
+                fontsize=7.3, color=ink, fontweight="bold")
+        ax.text(44.2, y - 0.11, f"95% CI [{interval[0]:+.2f}, {interval[1]:+.2f}]",
+                ha="right", va="top", fontsize=6.9, color=ink)
+        ax.text(-0.035, y, label, transform=ax.get_yaxis_transform(), ha="right", va="center",
+                fontsize=7.8, color=ink)
+    ax.set_yticks([])
+    ax.set_xlim(0, 45)
     ax.set_ylim(-0.55, 1.55)
-    ax.set_xlabel("Full-success difference relative to 5A (percentage points)")
-    ax.set_title("G26-E1 exploratory external switching baseline", loc="left", fontsize=9.5, fontweight="bold")
-    despine(ax)
-    ax.grid(axis="x", color=OKABE_ITO["grid"], linewidth=0.55)
-    fig.text(0.02, 0.04, "Independent exploratory slice; intervals cross zero and do not enter G25 inference.",
-             fontsize=7.0, color="#52616D")
-    fig.subplots_adjust(left=0.18, right=0.98, bottom=0.28, top=0.80)
-    save(fig, "g26_e1_effects")
+    ax.set_xlabel("Full-episode success (%)", color=ink)
+    ax.set_title("External Router comparison", loc="center", fontsize=9.5,
+                 fontweight="bold", color=ink)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_visible(False)
+    ax.spines["bottom"].set_color(baseline)
+    ax.spines["bottom"].set_linewidth(0.65)
+    ax.grid(axis="x", color=OKABE_ITO["grid"], linewidth=0.45)
+    legend = [
+        Line2D([0], [0], marker="o", color="none", markerfacecolor=baseline,
+               markeredgecolor="white", markersize=5.8, label="5A"),
+        Line2D([0], [0], marker="o", color="none", markerfacecolor="#56A1B8",
+               markeredgecolor="white", markersize=5.8, label="NF-inspired"),
+        Line2D([0], [0], marker="o", color="none", markerfacecolor="#C47FA0",
+               markeredgecolor="white", markersize=5.8, label="PIRoute"),
+    ]
+    fig.legend(handles=legend, loc="lower center", ncol=3, frameon=False, fontsize=7.2,
+               bbox_to_anchor=(0.5, 0.01), handletextpad=0.35, columnspacing=1.0)
+    fig.subplots_adjust(left=0.18, right=0.98, bottom=0.32, top=0.82)
+    save_svg_only(fig, "g26_e1_effects")
 
 
 def main():
     style()
     g25, _q1, e1 = load(G25), load(Q1), load(E1)
-    figure_overview()
     figure_g25_tradeoff(g25)
     figure_g25_effects(g25)
     figure_e1(e1)

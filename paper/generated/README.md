@@ -9,17 +9,20 @@ python scripts/generate_paper_artifacts.py
 ```
 
 The generator first rebuilds the tables and then calls
-`scripts/redraw_paper_figures.py`, which applies the compact ICRA publication
-layout to the four SVG/PNG figures. The redraw script can also be run directly
-when only the figure style needs to be regenerated.
+`scripts/redraw_paper_figures.py`, which rebuilds the data-driven main and
+supplementary figures as editable SVG files. Fig. 1 is manually maintained and
+is intentionally not overwritten by either script.
 
 Outputs are grouped by figure rather than mixed in this directory:
 
-- `fig1_overview/`: training/deployment information-boundary schematic;
+- `fig1_overview/`: manually maintained training/deployment overview;
 - `fig2_tradeoff/`: G25 full-success, collision, and raw-step trade-off;
 - `fig3_effects/`: G25 PIRoute effects relative to 5A with scene-cluster BCa intervals;
 - `fig4_cycle/`: one real post-sealed `standard -> interaction -> standard` cycle;
-- `supplement/`: exploratory G26-E1 effect figure;
+- `figS1_generalization/`: exploratory robot-count generalization;
+- `figS2_trajectories/`: representative closed-loop trajectories;
+- `figS3_gate_timeline/`: Router probability and executed-policy timelines;
+- `figS4_external_router/`: exploratory G26-E1 external Router comparison;
 - `tables/`: confirmatory G25 and exploratory G26 tables;
 - `captures/`: frame-level logs and intermediate qualitative data;
 - `generation_record.json`: source and output SHA-256 values.

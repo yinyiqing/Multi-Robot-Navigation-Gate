@@ -12,7 +12,9 @@ from matplotlib.lines import Line2D
 import numpy as np
 
 
-ROBOT_COLORS = ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00"]
+INK = "#4E5D66"
+GRID = "#D9E0E5"
+ROBOT_COLORS = ["#56A1B8", "#8FC3D0", "#7F8C96", "#AAB9BF", "#3E7183"]
 
 
 def load_manifest(path):
@@ -143,9 +145,15 @@ def plot_episode(ax, records, scenario, title, is_piroute, limits=None):
         ax.set_xlim(*limits[0])
         ax.set_ylim(*limits[1])
     ax.set_aspect("equal", adjustable="box")
-    ax.grid(True, linewidth=0.35, alpha=0.35)
-    ax.set_title(title, fontsize=8)
-    ax.tick_params(labelsize=7)
+    ax.grid(True, color=GRID, linewidth=0.45)
+    ax.set_title(title, fontsize=7.5, color=INK)
+    ax.tick_params(labelsize=7, colors=INK)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_color("#7F8C96")
+    ax.spines["bottom"].set_color("#7F8C96")
+    ax.spines["left"].set_linewidth(0.65)
+    ax.spines["bottom"].set_linewidth(0.65)
 
 
 def main():
@@ -157,14 +165,37 @@ def main():
     parser.add_argument("--b2-trajectory", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--limit", type=int, default=6)
+    parser.add_argument(
+        "--selection",
+        type=Path,
+        help="Optional frozen selection JSON; preserves registered scene ordering.",
+    )
     args = parser.parse_args()
+
+    plt.rcParams.update({
+        "font.family": "sans-serif",
+        "font.sans-serif": ["Arial", "DejaVu Sans"],
+        "font.size": 8.0,
+        "axes.unicode_minus": False,
+        "svg.hashsalt": "piroute-supplement-trajectories",
+    })
 
     manifest = load_manifest(args.manifest)
     five_a = load_results(args.five_a)
     b2 = load_results(args.b2)
     five_a_traj = load_trajectory(args.five_a_trajectory)
     b2_traj = load_trajectory(args.b2_trajectory)
-    selected = choose_scenes(manifest, five_a, b2, args.limit)
+    if args.selection:
+        selection_payload = json.loads(args.selection.read_text(encoding="utf-8"))
+        selected = [
+            (item["scenario_id"], item["label"])
+            for item in selection_payload["selected"]
+        ]
+        missing = [scenario_id for scenario_id, _ in selected if scenario_id not in manifest]
+        if missing:
+            raise SystemExit(f"selected scenes missing from manifest: {missing}")
+    else:
+        selected = choose_scenes(manifest, five_a, b2, args.limit)
     if not selected:
         raise SystemExit("no scenes available for plotting")
 
@@ -198,27 +229,28 @@ def main():
             transform=axes[1, col].transAxes, va="top", fontsize=6.5,
             bbox={"facecolor": "white", "alpha": 0.75, "edgecolor": "none", "pad": 1.5},
         )
-    axes[0, 0].set_ylabel("5A\n y (m)", fontsize=8)
-    axes[1, 0].set_ylabel("PIRoute\n y (m)", fontsize=8)
+    axes[0, 0].set_ylabel("5A\n y (m)", fontsize=8, color=INK)
+    axes[1, 0].set_ylabel("PIRoute\n y (m)", fontsize=8, color=INK)
     panel_labels = "abcdef"
     for index, ax in enumerate(axes.flat):
         ax.text(
             0.02, 1.02, f"({panel_labels[index]})", transform=ax.transAxes,
-            va="bottom", ha="left", fontsize=8, fontweight="bold",
+            va="bottom", ha="left", fontsize=8, fontweight="bold", color=INK,
         )
     for ax in axes[-1, :]:
         ax.set_xlabel("x (m)", fontsize=8)
-    fig.suptitle("Qualitative multi-robot trajectories on matched Dense scenes", fontsize=11)
+    fig.suptitle("Qualitative multi-robot trajectories on matched scenes", fontsize=10.5,
+                 fontweight="bold", color=INK)
     robot_handles = [
         Line2D([0], [0], color=color, marker="o", linewidth=1.5,
                markersize=4, label=f"r{i + 1}")
         for i, color in enumerate(ROBOT_COLORS)
     ]
     symbol_handles = [
-        Line2D([0], [0], color="#444444", marker="o", linestyle="None", markersize=4, label="start"),
-        Line2D([0], [0], color="#444444", marker="x", linestyle="None", markersize=5, label="goal"),
+        Line2D([0], [0], color=INK, marker="o", linestyle="None", markersize=4, label="start"),
+        Line2D([0], [0], color=INK, marker="x", linestyle="None", markersize=5, label="goal"),
         Line2D([0], [0], color="#B2182B", marker="X", linestyle="None", markersize=5, label="collision"),
-        Line2D([0], [0], color="#444444", linestyle="--", linewidth=1.5, label="interaction Actor"),
+        Line2D([0], [0], color=INK, linestyle="--", linewidth=1.2, label="interaction Actor"),
     ]
     fig.legend(handles=robot_handles + symbol_handles, loc="lower center", ncol=9,
                frameon=False, fontsize=7, bbox_to_anchor=(0.5, 0.005))
