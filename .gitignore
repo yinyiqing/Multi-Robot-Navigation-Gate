@@ -95,6 +95,41 @@ experiments/03_保留专门化/02_论文主线/26_数量泛化与外部切换基
 experiments/03_保留专门化/02_论文主线/36_G34_G25slice_matched/logs/
 experiments/03_保留专门化/02_论文主线/36_G34_G25slice_matched/local_data/matched/results/
 experiments/03_保留专门化/02_论文主线/36_G34_G25slice_matched/local_data/matched/checkpoints/
+experiments/03_保留专门化/02_论文主线/36_G34_G25slice_matched/local_data/matched/completion.json
+
+# Local runtime payloads for the reward-aware experiment history.
+experiments/03_保留专门化/02_论文主线/27_反事实Reward增强Gate监督/local_data/
+experiments/03_保留专门化/02_论文主线/27_反事实Reward增强Gate监督/logs/
+experiments/03_保留专门化/02_论文主线/28_RewardAwareGate稳健修正版/local_data/
+experiments/03_保留专门化/02_论文主线/28_RewardAwareGate稳健修正版/logs/
+experiments/03_保留专门化/02_论文主线/29_RewardAware事件证据Gate/local_data/
+experiments/03_保留专门化/02_论文主线/29_RewardAware事件证据Gate/logs/
+experiments/03_保留专门化/02_论文主线/30_B6单头辅助Reward监督/local_data/
+experiments/03_保留专门化/02_论文主线/30_B6单头辅助Reward监督/logs/
+experiments/03_保留专门化/02_论文主线/31_B7完整数据B2初始化Reward辅助/local_data/
+experiments/03_保留专门化/02_论文主线/31_B7完整数据B2初始化Reward辅助/logs/
+experiments/03_保留专门化/02_论文主线/32_B8冻结B2独立RewardHead/local_data/
+experiments/03_保留专门化/02_论文主线/32_B8冻结B2独立RewardHead/logs/
+experiments/03_保留专门化/02_论文主线/33_双头联合监督预检/local_data/
+experiments/03_保留专门化/02_论文主线/33_双头联合监督预检/logs/
+experiments/03_保留专门化/02_论文主线/34_双头RewardAwareGate/local_data/
+experiments/03_保留专门化/02_论文主线/34_双头RewardAwareGate/logs/
+experiments/03_保留专门化/02_论文主线/35_当前协议对照补测/local_data/
+experiments/03_保留专门化/02_论文主线/35_当前协议对照补测/logs/
+
+# Local LaTeX builds and packaging scratch files.
+paper/icra2027_template/*.aux
+paper/icra2027_template/*.bbl
+paper/icra2027_template/*.blg
+paper/icra2027_template/*.fdb_latexmk
+paper/icra2027_template/*.fls
+paper/icra2027_template/*.log
+paper/icra2027_template/*.pdf
+paper/icra2027_template/*.synctex.gz
+paper/icra2027_template/*.zip
+paper/icra2027_template/piroute_icra2027_final_20260912/
+paper/icra2027_template/piroute_overleaf_fonts_fixed_20260908/
+paper/icra2027_template/tmp/
 
 # G27 raw simulator artifacts remain local; protocols, manifests, audited
 # summaries, and final statistics stay trackable.
