@@ -106,6 +106,7 @@ experiments/03_保留专门化/02_论文主线/29_RewardAware事件证据Gate/lo
 experiments/03_保留专门化/02_论文主线/29_RewardAware事件证据Gate/logs/
 experiments/03_保留专门化/02_论文主线/30_B6单头辅助Reward监督/local_data/
 experiments/03_保留专门化/02_论文主线/30_B6单头辅助Reward监督/logs/
+experiments/03_保留专门化/02_论文主线/30_B6单头辅助Reward监督/logs_launcher*.log
 experiments/03_保留专门化/02_论文主线/31_B7完整数据B2初始化Reward辅助/local_data/
 experiments/03_保留专门化/02_论文主线/31_B7完整数据B2初始化Reward辅助/logs/
 experiments/03_保留专门化/02_论文主线/32_B8冻结B2独立RewardHead/local_data/
