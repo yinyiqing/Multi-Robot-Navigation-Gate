@@ -2,7 +2,7 @@
   "selected": [
     {
       "scenario_id": "dense-20260718009765-4dc66d048d98",
-      "label": "PIRoute succeeds, 5A fails"
+      "label": "PIRoute succeeds, Navigation Actor fails"
     },
     {
       "scenario_id": "dense-20260718009697-385a7c884b01",

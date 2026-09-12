@@ -235,7 +235,7 @@ L 123.3257 87.07694
      </g>
     </g>
     <g id="text_7">
-     <!-- 5A -->
+     <!-- Navigation Actor -->
      <g style="fill: #4e5d66" transform="translate(13.27875 124.48025) rotate(-90) scale(0.08 -0.08)">
       <defs>
        <path id="DejaVuSans-35" d="M 691 4666 
@@ -944,7 +944,7 @@ z
     </g>
    </g>
    <g id="text_10">
-    <!-- 5A | PIRoute succeeds, 5A fails -->
+    <!-- Navigation Actor | PIRoute succeeds, Navigation Actor fails -->
     <g style="fill: #4e5d66" transform="translate(24.975295 52.593047) scale(0.075 -0.075)">
      <defs>
       <path id="DejaVuSans-7c" d="M 1344 4891 
@@ -1827,7 +1827,7 @@ z
     </g>
    </g>
    <g id="text_23">
-    <!-- 5A | Both succeed -->
+    <!-- Navigation Actor | Both succeed -->
     <g style="fill: #4e5d66" transform="translate(232.544621 52.593047) scale(0.075 -0.075)">
      <defs>
       <path id="DejaVuSans-42" d="M 1259 2228 
@@ -2484,7 +2484,7 @@ z
     </g>
    </g>
    <g id="text_37">
-    <!-- 5A | Both fail -->
+    <!-- Navigation Actor | Both fail -->
     <g style="fill: #4e5d66" transform="translate(426.187383 52.593047) scale(0.075 -0.075)">
      <use xlink:href="#DejaVuSans-35"/>
      <use xlink:href="#DejaVuSans-41" x="63.623047"/>
@@ -4523,7 +4523,7 @@ z
     </g>
    </g>
    <g id="text_48">
-    <!-- PIRoute | PIRoute succeeds, 5A fails -->
+    <!-- PIRoute | PIRoute succeeds, Navigation Actor fails -->
     <g style="fill: #4e5d66" transform="translate(15.673537 199.903047) scale(0.075 -0.075)">
      <use xlink:href="#DejaVuSans-50"/>
      <use xlink:href="#DejaVuSans-49" x="60.302734"/>

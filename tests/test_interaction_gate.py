@@ -21,6 +21,7 @@ from learned_gate_controller import (
 from robot_perception.gate_features import build_gate_feature, gate_feature_dim
 from robot_perception.models import LocalRobotDetector
 from temporal_interaction_gate import TemporalInteractionGate
+from reward_aware_gate import RewardAwareTemporalGate
 from train_interaction_gate import binary_metrics, gate_metrics, select_threshold
 from train_temporal_interaction_gate import make_temporal_windows
 
@@ -183,6 +184,78 @@ class TemporalGateControllerTest(unittest.TestCase):
             self.assertEqual(len(controller.feature_histories["r1"]), 2)
             self.assertEqual(standard.calls, 2)
             self.assertEqual(dense.calls, 3)
+
+    def test_reward_advantage_changes_online_actor_selection(self):
+        with tempfile.TemporaryDirectory() as directory:
+            directory = Path(directory)
+            detector = LocalRobotDetector()
+            detector_path = directory / "detector.pt"
+            torch.save(
+                {"model_config": {}, "model_state_dict": detector.state_dict()},
+                detector_path,
+            )
+            gate = RewardAwareTemporalGate(input_dim=82, hidden_dim=8)
+            for parameter in gate.parameters():
+                torch.nn.init.zeros_(parameter)
+            gate.advantage_head[-1].bias.data.fill_(-1.0)
+            gate_path = directory / "gate.pt"
+            torch.save(
+                {
+                    "model_id": "B3-reward-aware",
+                    "feature_set": "base_and_actor_actions",
+                    "model_config": {"input_dim": 82, "hidden_dim": 8},
+                    "model_state_dict": gate.state_dict(),
+                    "feature_mean": np.zeros(82, dtype=np.float32),
+                    "feature_std": np.ones(82, dtype=np.float32),
+                    "threshold": 0.43,
+                    "sequence_length": 8,
+                    "router_decision": {
+                        "score": "sigmoid(interaction_logit + clip(advantage_norm, -1, 1))",
+                        "advantage_clip": 1.0,
+                    },
+                },
+                gate_path,
+            )
+            standard = _FixedPolicy([-0.5, 0.1])
+            dense = _FixedPolicy([0.5, -0.2])
+            controller = LearnedInteractionGateController(
+                standard,
+                dense,
+                detector_path,
+                gate_path,
+                "cpu",
+                switch_off_threshold=0.33,
+                minimum_hold_steps=0,
+                evaluation_stride=2,
+                record_diagnostics=True,
+            )
+            controller.reset(["r1"])
+            position = SimpleNamespace(x=0.0, y=0.0)
+            env = SimpleNamespace(
+                last_odom={
+                    "r1": SimpleNamespace(
+                        pose=SimpleNamespace(pose=SimpleNamespace(position=position))
+                    )
+                },
+                raw_lidar_points={"r1": np.empty((0, 3), dtype=np.float32)},
+                _get_robot_yaw=lambda name: 0.0,
+            )
+            action, mode, score, _ = controller.choose_action(
+                env, "r1", np.zeros(24, dtype=np.float32), 0.2
+            )
+            np.testing.assert_array_equal(action, standard.action)
+            self.assertEqual(mode, "standard")
+            self.assertLess(score, 0.43)
+            self.assertAlmostEqual(
+                controller.last_diagnostics["r1"]["interaction_probability"],
+                0.5,
+                places=6,
+            )
+            self.assertAlmostEqual(
+                controller.last_diagnostics["r1"]["normalized_reward_advantage"],
+                -1.0,
+                places=6,
+            )
 
     def test_base_only_single_frame_gate_uses_one_actor_forward(self):
         with tempfile.TemporaryDirectory() as directory:

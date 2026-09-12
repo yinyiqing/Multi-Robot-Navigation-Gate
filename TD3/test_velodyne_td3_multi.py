@@ -1138,6 +1138,18 @@ while True:
                 "normalizing_flow_switch",
                 "nf_switch",
             ):
+                # Reward-aware B6 may expose a fresh-process one-step
+                # counterfactual hook.  Older environments leave it absent.
+                if getattr(dense_policy_controller, "is_b6_reward_aware", False):
+                    counterfactual = getattr(env, "counterfactual_one_step_delta_reward", None)
+                    if callable(counterfactual):
+                        delta_reward = counterfactual(agent_names[idx], state)
+                        dense_policy_controller.set_counterfactual_delta_reward(delta_reward)
+                    else:
+                        # Offline reward-aware training: deployment uses the
+                        # learned Gate probability when no live counterfactual
+                        # provider is available.
+                        dense_policy_controller.set_counterfactual_delta_reward(None)
                 action, mode, gate_probability, _ = (
                     dense_policy_controller.choose_action(
                         env,

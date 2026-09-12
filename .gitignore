@@ -88,6 +88,25 @@ experiments/03_保留专门化/02_论文主线/26_数量泛化与外部切换基
 experiments/03_保留专门化/02_论文主线/26_数量泛化与外部切换基线/local_data/e1/nf_switch_seed20260821/checkpoint.pt
 experiments/03_保留专门化/02_论文主线/26_数量泛化与外部切换基线/local_data/e1/results/*.npy
 .g26_e1_evaluation.pid
+.g27_*.pid
+.g34_g25slice_matched.pid
+
+# Current G34 G25-slice matched rollout runtime artifacts; keep protocol and summaries trackable.
+experiments/03_保留专门化/02_论文主线/36_G34_G25slice_matched/logs/
+experiments/03_保留专门化/02_论文主线/36_G34_G25slice_matched/local_data/matched/results/
+experiments/03_保留专门化/02_论文主线/36_G34_G25slice_matched/local_data/matched/checkpoints/
+
+# G27 raw simulator artifacts remain local; protocols, manifests, audited
+# summaries, and final statistics stay trackable.
+experiments/03_保留专门化/02_论文主线/27_反事实Reward增强Gate监督/logs/
+experiments/03_保留专门化/02_论文主线/27_反事实Reward增强Gate监督/local_data/pilot/anchors/
+experiments/03_保留专门化/02_论文主线/27_反事实Reward增强Gate监督/local_data/counterfactual/train/anchors/
+experiments/03_保留专门化/02_论文主线/27_反事实Reward增强Gate监督/local_data/counterfactual/validation/anchors/
+experiments/03_保留专门化/02_论文主线/27_反事实Reward增强Gate监督/local_data/counterfactual/audit/*.npz
+experiments/03_保留专门化/02_论文主线/27_反事实Reward增强Gate监督/local_data/training/**/*.pt
+experiments/03_保留专门化/02_论文主线/27_反事实Reward增强Gate监督/local_data/validation/results/*.npy
+experiments/03_保留专门化/02_论文主线/27_反事实Reward增强Gate监督/local_data/test/checkpoints/
+experiments/03_保留专门化/02_论文主线/27_反事实Reward增强Gate监督/local_data/test/results/*.npy
 
 # Local-only experiment checkpoints; GitHub rejects large .pt artifacts.
 experiments/03_保留专门化/02_论文主线/results/**/checkpoints/

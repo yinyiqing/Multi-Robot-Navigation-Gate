@@ -17,7 +17,7 @@ Outputs are grouped by figure rather than mixed in this directory:
 
 - `fig1_overview/`: manually maintained training/deployment overview;
 - `fig2_tradeoff/`: G25 full-success, collision, and raw-step trade-off;
-- `fig3_effects/`: G25 PIRoute effects relative to 5A with scene-cluster BCa intervals;
+- `fig3_effects/`: G25 PIRoute effects relative to Navigation Actor with scene-cluster BCa intervals;
 - `fig4_cycle/`: one real post-sealed `standard -> interaction -> standard` cycle;
 - `figS1_generalization/`: exploratory robot-count generalization;
 - `figS2_trajectories/`: representative closed-loop trajectories;
@@ -34,4 +34,4 @@ from these artifacts.
 The corrected post-sealed qualitative capture is documented in
 `captures/trajectory_capture_corrected/README.md`. Its exported Fig. 4 files are in
 `fig4_cycle/`. The earlier B2 trajectory under `captures/trajectory_capture/` is invalid because its
-Router input buffer was accidentally disabled; only the old 5A trajectory remains reusable.
+Router input buffer was accidentally disabled; only the old Navigation Actor trajectory remains reusable.

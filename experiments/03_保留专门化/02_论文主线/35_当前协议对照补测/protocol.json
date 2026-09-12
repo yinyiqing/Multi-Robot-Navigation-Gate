@@ -1,0 +1,55 @@
+{
+  "format_version": 1,
+  "experiment_id": "current-protocol-controls",
+  "registered_date": "2026-09-12",
+  "manifest": {
+    "path": "../34_双头RewardAwareGate/local_data/independent_test/manifest/dense_test_640_896.json.gz",
+    "sha256": "a0e5aa2884c75976503e34bda8316cfac3e99578317c501b53e4eba987e223cc",
+    "slice_zero_based": [640, 896],
+    "scenes": 256
+  },
+  "seeds": [20260914, 20260915, 20260916],
+  "agents": 5,
+  "termination": {
+    "horizon_environment_steps": 300,
+    "goal_tolerance_m": 0.30,
+    "collision_threshold_m": 0.35
+  },
+  "frozen_inputs": {
+    "navigation_actor": {
+      "basename": "TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best",
+      "sha256": "fa28855049b67b3ee44c66d55d4f14441fc7c521e5429862c75b152f7d5cacc5"
+    },
+    "interaction_actor": {
+      "basename": "interaction_focused_actor_from_5a_fullstrong_balanced_formal_s20260726_epoch_016",
+      "sha256": "6ec1942fcd497ab1cc2a85a5aaec8f524395dc21ff21a442dca243a52e917c0b"
+    },
+    "capacity_matched_actor": {
+      "basename": "capacity_wide_r2b_5a_recipe_n5_seed20260823_best",
+      "sha256": "da28dd5820d09845eea07cb68da45a7afd262fe56e8a71f80bf6b5781551523a"
+    },
+    "g0_detector_sha256": "0b914c0d090bbaba0a2be63c0d75d88580bf4d71778a7f1749c63989e3dbbd56",
+    "proximity_router_sha256": "fc59b4f783f7c5461ebb0239fab4b34896ad910ee78e7223e88d29ce9c3f5a52"
+  },
+  "methods": {
+    "always_on_interaction": "single actor mode using the frozen Interaction Actor",
+    "min_lidar_rule": "minimum LiDAR distance rule, on/off 2.0/2.2 m, hold 3",
+    "ttc_cpa_rule": "TTC/CPA detector rule with frozen G0 detector, hold 3, stride 2",
+    "capacity_matched_actor": "single actor mode using the frozen parameter-matched checkpoint",
+    "proximity_only_router": "frozen predecessor learned Gate, rerun on this manifest and seeds"
+  },
+  "exclusions": [
+    "privileged 2 m oracle is not deployable and is excluded",
+    "no historical G25/G26 outcomes are imported",
+    "no actor or router updates and no performance-based early stopping"
+  ],
+  "pilot": {
+    "target_episodes_per_method_seed": 16,
+    "seed": 20260914,
+    "checks": ["result shape (N,17)", "manifest order", "five-agent terminal accounting"]
+  },
+  "full_queue": {
+    "target_episodes_per_method_seed": 256,
+    "total_new_episodes": 3840
+  }
+}

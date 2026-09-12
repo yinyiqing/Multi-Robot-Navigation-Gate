@@ -17,6 +17,18 @@ from temporal_interaction_gate import (
     TemporalInteractionGate,
     actor_comparison_features,
 )
+from reward_aware_gate import (
+    AuxiliaryRewardTemporalGate,
+    DualEncoderRewardTemporalGate,
+    MultiTaskRewardTemporalGate,
+    RobustRewardAwareTemporalGate,
+    RewardAwareTemporalGate,
+    combined_routing_score,
+    conservative_routing_score,
+    selective_reward_routing_score,
+    joint_supervision_routing_score,
+    boundary_reward_tiebreak,
+)
 
 
 def infer_max_tracks(feature_dim, actor_state_dim=24, actor_feature_dim=0):
@@ -109,8 +121,70 @@ class LearnedInteractionGateController(object):
         self.model_id = str(gate_payload.get("model_id", "legacy"))
         self.feature_set = str(gate_payload.get("feature_set", "base"))
         self.uses_actor_features = self.feature_set == "base_and_actor_actions"
-        self.is_temporal = self.model_id == "T1"
-        if self.is_temporal:
+        self.is_reward_aware = self.model_id in (
+            "B3-reward-aware",
+            "B4-robust-reward-aware",
+            "B5-selective-reward-aware",
+        )
+        self.is_robust_reward_aware = self.model_id == "B4-robust-reward-aware"
+        self.is_selective_reward_aware = self.model_id == "B5-selective-reward-aware"
+        self.is_b6_reward_aware = self.model_id == "B6-single-head-reward-aware"
+        self.is_b7_reward_aware = self.model_id == "B7-multitask-reward-aware"
+        self.is_b8_reward_aware = self.model_id == "B8-frozen-b2-reward-aware"
+        self.is_joint_reward_aware = self.model_id in (
+            "G33-dual-encoder-reward-aware",  # Legacy metadata from the first G34 artifact.
+            "G34-dual-encoder-reward-aware",
+        )
+        self.is_temporal = (
+            self.model_id == "T1" or self.is_reward_aware or self.is_b6_reward_aware or self.is_b7_reward_aware or self.is_b8_reward_aware or self.is_joint_reward_aware
+        )
+        if self.is_reward_aware:
+            gate_class = (
+                RobustRewardAwareTemporalGate
+                if self.is_robust_reward_aware
+                else RewardAwareTemporalGate
+            )
+            self.gate = gate_class(
+                **gate_payload["model_config"]
+            ).to(self.device)
+            decision = gate_payload.get("router_decision", {})
+            expected_score = (
+                "sigmoid(logit_b2 + alpha * exp(-abs(logit_b2-logit_on)/temperature) * confident(advantage,0.25))"
+                if self.is_selective_reward_aware
+                else "sigmoid(logit_b2 + alpha * exp(-abs(logit_b2-logit_on)/temperature) * deadzone(clip(advantage,-1,1),0.1))"
+                if self.is_robust_reward_aware
+                else "sigmoid(interaction_logit + clip(advantage_norm, -1, 1))"
+            )
+            if decision.get("score") != expected_score:
+                raise ValueError("unsupported reward-aware Router decision")
+            self.advantage_clip = float(decision.get("advantage_clip", 1.0))
+            self.fusion_alpha = float(decision.get("fusion_alpha", 0.25))
+            self.fusion_temperature = float(
+                decision.get("fusion_temperature_logit", 1.0)
+            )
+            self.advantage_dead_zone = float(
+                decision.get("advantage_dead_zone", 0.10)
+            )
+            self.advantage_confidence_threshold = float(
+                decision.get("advantage_confidence_threshold", 0.25)
+            )
+        elif self.is_joint_reward_aware:
+            self.gate = DualEncoderRewardTemporalGate(
+                **gate_payload["model_config"]
+            ).to(self.device)
+            decision = gate_payload.get("router_decision", {})
+            if decision.get("score") != "sigmoid(interaction_logit + reward_weight * bounded_advantage)":
+                raise ValueError("unsupported G34 joint Router decision")
+            self.fusion_alpha = float(decision.get("reward_weight", 0.25))
+        elif self.is_b7_reward_aware or self.is_b8_reward_aware:
+            self.gate = MultiTaskRewardTemporalGate(
+                **gate_payload["model_config"]
+            ).to(self.device)
+        elif self.is_b6_reward_aware:
+            self.gate = AuxiliaryRewardTemporalGate(
+                **gate_payload["model_config"]
+            ).to(self.device)
+        elif self.is_temporal:
             self.gate = TemporalInteractionGate(
                 **gate_payload["model_config"]
             ).to(self.device)
@@ -168,8 +242,11 @@ class LearnedInteractionGateController(object):
         self.feature_histories = {}
         self.evaluation_steps = {}
         self.last_probabilities = {}
+        self.last_interaction_probabilities = {}
+        self.last_normalized_advantages = {}
         self.last_track_counts = {}
         self.last_diagnostics = {}
+        self.current_delta_reward = None
         self.probability_sum = 0.0
         self.probability_count = 0
 
@@ -188,8 +265,15 @@ class LearnedInteractionGateController(object):
         }
         self.evaluation_steps = {name: 0 for name in agent_names}
         self.last_probabilities = {name: 0.0 for name in agent_names}
+        self.last_interaction_probabilities = {name: 0.0 for name in agent_names}
+        self.last_normalized_advantages = {name: 0.0 for name in agent_names}
         self.last_track_counts = {name: 0 for name in agent_names}
         self.last_diagnostics = {name: None for name in agent_names}
+        self.current_delta_reward = None
+
+    def set_counterfactual_delta_reward(self, delta_reward):
+        """Provide the fresh-process one-step reward difference for the next gate evaluation."""
+        self.current_delta_reward = None if delta_reward is None else float(delta_reward)
         self.probability_sum = 0.0
         self.probability_count = 0
 
@@ -201,7 +285,7 @@ class LearnedInteractionGateController(object):
         return torch.sigmoid(self.detector(values)[0]).cpu().numpy()
 
     @torch.no_grad()
-    def _gate_probability(self, name, feature):
+    def _gate_outputs(self, name, feature):
         normalized = (feature - self.feature_mean) / self.feature_std
         if self.is_temporal:
             history = self.feature_histories[name]
@@ -213,7 +297,69 @@ class LearnedInteractionGateController(object):
             values = torch.from_numpy(window[None, ...]).to(self.device)
         else:
             values = torch.from_numpy(normalized.reshape(1, -1)).to(self.device)
-        return float(torch.sigmoid(self.gate(values)).cpu().item())
+        if self.is_joint_reward_aware:
+            interaction_logit, bounded_advantage = self.gate(values)
+            score = joint_supervision_routing_score(
+                interaction_logit,
+                bounded_advantage,
+                reward_weight=self.fusion_alpha,
+            )
+            return (
+                float(score.cpu().item()),
+                float(torch.sigmoid(interaction_logit).cpu().item()),
+                float(bounded_advantage.cpu().item()),
+            )
+        if self.is_b7_reward_aware or self.is_b8_reward_aware:
+            interaction_logit, reward_logit = self.gate(values)
+            base_probability = torch.sigmoid(interaction_logit).cpu().item()
+            reward_probability = float(torch.sigmoid(reward_logit).cpu().item())
+            probability = base_probability
+            if 0.40 <= base_probability <= 0.60 and abs(float(reward_logit.cpu().item())) >= 0.25:
+                probability = 1.0 if float(reward_logit.cpu().item()) > 0.0 else 0.0
+            return float(probability), float(base_probability), float(reward_probability)
+        if self.is_b6_reward_aware:
+            interaction_logit = self.gate(values)
+            base_probability = torch.sigmoid(interaction_logit).cpu().item()
+            # Offline reward-aware training: deployment may optionally receive
+            # a precomputed delta; without it, preserve the learned probability.
+            delta = getattr(self, "current_delta_reward", None)
+            probability = base_probability
+            if delta is not None:
+                probability = float(boundary_reward_tiebreak(
+                    torch.tensor([base_probability]), torch.tensor([float(delta)])
+                )[0])
+            return float(probability), float(base_probability), 0.0
+        if self.is_reward_aware:
+            interaction_logit, normalized_advantage = self.gate(values)
+            if self.is_selective_reward_aware:
+                score = selective_reward_routing_score(
+                    interaction_logit,
+                    normalized_advantage,
+                    switch_on_threshold=self.switch_on_threshold,
+                    fusion_alpha=self.fusion_alpha,
+                    fusion_temperature=self.fusion_temperature,
+                    advantage_confidence_threshold=self.advantage_confidence_threshold,
+                )
+            elif self.is_robust_reward_aware:
+                score = conservative_routing_score(
+                    interaction_logit,
+                    normalized_advantage,
+                    switch_on_threshold=self.switch_on_threshold,
+                    fusion_alpha=self.fusion_alpha,
+                    fusion_temperature=self.fusion_temperature,
+                    advantage_dead_zone=self.advantage_dead_zone,
+                )
+            else:
+                score = combined_routing_score(
+                    interaction_logit, normalized_advantage, self.advantage_clip
+                )
+            return (
+                float(score.cpu().item()),
+                float(torch.sigmoid(interaction_logit).cpu().item()),
+                float(normalized_advantage.cpu().item()),
+            )
+        probability = float(torch.sigmoid(self.gate(values)).cpu().item())
+        return probability, probability, 0.0
 
     def choose_action(self, env, name, state, logical_time):
         if name not in self.trackers or name not in self.switchers:
@@ -261,9 +407,13 @@ class LearnedInteractionGateController(object):
                 feature = np.concatenate((feature, action_features)).astype(
                     np.float32
                 )
-            probability = self._gate_probability(name, feature)
+            probability, interaction_probability, normalized_advantage = (
+                self._gate_outputs(name, feature)
+            )
             mode = self.switchers[name].update(probability)
             self.last_probabilities[name] = probability
+            self.last_interaction_probabilities[name] = interaction_probability
+            self.last_normalized_advantages[name] = normalized_advantage
             self.last_track_counts[name] = len(tracked)
             if self.uses_actor_features:
                 action = dense_action if mode == "dense" else standard_action
@@ -275,6 +425,8 @@ class LearnedInteractionGateController(object):
                     "gate_evaluated": True,
                     "mode": mode,
                     "gate_probability": float(probability),
+                    "interaction_probability": float(interaction_probability),
+                    "normalized_reward_advantage": float(normalized_advantage),
                     "standard_action": np.asarray(standard_action, dtype=float).tolist()
                     if standard_action is not None else None,
                     "dense_action": np.asarray(dense_action, dtype=float).tolist()
@@ -285,6 +437,8 @@ class LearnedInteractionGateController(object):
                 }
         else:
             probability = self.last_probabilities[name]
+            interaction_probability = self.last_interaction_probabilities[name]
+            normalized_advantage = self.last_normalized_advantages[name]
             mode = self.switchers[name].mode
             policy = self.dense_policy if mode == "dense" else self.standard_policy
             action = policy.get_action(np.asarray(state))
@@ -295,6 +449,8 @@ class LearnedInteractionGateController(object):
                     "gate_evaluated": False,
                     "mode": mode,
                     "gate_probability": float(probability),
+                    "interaction_probability": float(interaction_probability),
+                    "normalized_reward_advantage": float(normalized_advantage),
                     "standard_action": np.asarray(standard_action, dtype=float).tolist(),
                     "dense_action": np.asarray(dense_action, dtype=float).tolist(),
                     "selected_action": np.asarray(action, dtype=float).tolist(),

@@ -1,6 +1,175 @@
 # 当前项目状态
 
-更新时间：`2026-09-01`。
+更新时间：2026-09-12。
+
+## 2026-09-12 当前主评测切换为 G25 `[0:256]` matched slice
+
+按最新决定，论文主线采用 G34 在 G25 已冻结 Dense test 前 256 个场景上的 matched
+评测。G25 的 `20260901/20260902/20260903` 5A 结果直接复用，G34 只新增运行
+`256 × 3 = 768` 个 episode；不重复运行 5A，不使用结果择优。独立运行与日志登记在
+`experiments/03_保留专门化/02_论文主线/36_G34_G25slice_matched/`，先进行 16 场 pilot，
+通过场景顺序和终止记账检查后再启动完整队列。
+
+G34 原 `[640:896]` 结果及其目录保留为历史证据，不再作为当前论文主表、主图或主结论。
+当前 matched 评测属于 G25-slice comparison，论文不得将其描述为新的独立场景 sealed test。
+
+## 2026-09-12 `[640:896]` 对照补测登记（已不作为当前路线）
+
+此前由于 Table 1 不得混入旧 G25/G26 结果，曾登记新的
+`35_当前协议对照补测`，严格复用 G34 的 Dense test 切片 `[640:896]`、五车设置和
+seed `20260914,20260915,20260916`。待补方法为始终 Interaction Actor、min-LiDAR 规则、
+TTC/CPA 规则、参数匹配单 Actor和重新运行的 proximity-only Router；2 m 特权规则排除。
+
+该登记依赖的运行器为 `scripts/run_current_protocol_controls.sh`，先执行每方法 16 场 pilot，再自动排队
+每方法 256 场 × 3 seed 的 3,840 个新 episode。结果未完成前，Table 1 只保留已经在该切片
+完成的 Navigation Actor 与 Reward-aware router 两行，不使用占位数字或历史结果。原始结果、
+日志和哈希登记在 `experiments/03_保留专门化/02_论文主线/35_当前协议对照补测/`。
+
+## 2026-09-12 G34 双头 Reward-aware Gate 独立主评测完成（历史 `[640:896]`）
+
+根据导师最新说明，`y`（2 m 交互标签）和同状态双 Actor 一步 reward 差
+`Delta r = r_I - r_N` 应共同监督 Gate，部署时由 Gate 从本机观测预测二者，再按固定规则
+决定切换。G33 两轮 fresh-process 补采集和质量审计已经完成：第二轮从 512 个训练候选和
+64 个验证候选中得到 `235/38` 个四分支对齐 usable anchors；与 G27/G33 第一轮合并后，
+reward 训练集为 548 条记录、356 个 unique anchors、336 个 unique scenes，验证集为
+132 条记录、65 个 unique scenes。重复测量按 scene 加权，不作为独立场景。
+
+G34 不继承 B2 参数，使用两个互相独立的 64 维 GRU：interaction 分支学习完整 Gate 数据中的
+2 m 标签，reward 分支学习稳健有界的一步 `Delta r`。固定部署分数为
+`sigmoid(interaction_logit + 0.25 * bounded_advantage)`，保留 `0.43/0.33` 滞回阈值、
+3 次 Router 更新最短保持和 stride 2。两个 Actor 与 G0/G1 均冻结。
+
+唯一离线训练已完成并通过全部准入条件：reward validation weighted Huber 为 `0.01841`，
+优于 train-median 常数基线 `0.04817`；Pearson 为 `0.76267`，可靠 reward-sign accuracy
+为 `0.88`；联合分数的 phase F1/FPR 为 `0.83603/0.22548`，未破坏 phase 分支表现。
+checkpoint 哈希、全部输入哈希、权重一致性、归一化和运行时有限输出也已通过审计。部署输入仅为
+本机状态、LiDAR 候选与跟踪、两个冻结 Actor 候选动作及 8 帧历史；真实 `y` 和真实 `Delta r`
+均不进入部署。
+
+预先固定的 Dense32 development pilot 已完成：同一 manifest、同一 seed 下，G34 与 5A 的
+full success 为 `11/32` 对 `7/32`（`+12.50 pp`），机器人碰撞为 `42/160` 对 `51/160`
+（`-5.63 pp`），无 unresolved 或 timeout。G34 interaction selection share 为 `68.19%`，
+共 243 次切换，因此双模式实际使用、成功和碰撞三项停止线均通过。该结果只授权从原 validation
+清单中固定不重复的 `[32:96]` 64 场 development confirmation；不构成推断结论，也不自动授权
+256 场。B2 仍不作为采用基线。随后不重复的 Dense64 confirmation 也已通过：G34 与 5A 的
+full success 为 `27/64` 对 `20/64`（`+10.94 pp`），机器人碰撞为 `68/320` 对 `84/320`
+（`-5.00 pp`），无 unresolved 或 timeout，G34 interaction selection share 为 `73.60%`。
+
+当时 G34 曾冻结并登记独立主评测：使用此前未被 G25/G26/G27 使用的 Dense test 原始顺序
+`[640:896]`，256 场、3 个环境 repeat，只运行 5A 与 G34，共 `1536 episodes`。primary 为
+episode-level full success 的 scene-cluster BCa 95% CI 与双侧 sign-flip；collision 为次要安全
+结果。B2 不运行也不作主 baseline。禁止性能早停和结果后调参，完整登记位于
+`34_双头RewardAwareGate/local_data/independent_test/protocol.json`。
+
+该历史队列于 `2026-09-12 11:19 CST` 启动，并已完成全部六个 method--repeat 运行：2 个方法、3 个
+环境 repeat、共 `1536 episodes`。终端记账、场景顺序、checkpoint/hash 审计均通过，无性能早停，
+也未在结果读取后更新 Actor 或 Router。完整状态记录在
+`34_双头RewardAwareGate/local_data/independent_test/completion.json`，统计结果在同目录的
+`statistics.json`；实时总日志仍保留于 `34_双头RewardAwareGate/logs/independent_test/runner.log`。
+
+该历史统计结果为：Navigation Actor 与 G34 的 full success 分别为 `29.82%` 和 `45.44%`，差值
+`+15.63 pp`（scene-cluster BCa 95% CI `[+11.46,+19.92]`，双侧 sign-flip `p=0.00001`）；
+机器人级碰撞率分别为 `29.06%` 和 `19.48%`，差值 `-9.58 pp`（BCa 95% CI
+`[-11.74,-7.53]`）。G34 的 agent success 为 `80.42%`，平均增加 `15.08` 个原始环境步，
+在配对整队成功样本中增加 `9.13` 步，并在 `70.70%` 的路由帧选择 Interaction Actor。
+因此，G34 的主要成功与安全主张通过预注册检查，但伴随明确的完成步数和交互策略选择成本；
+结论仅适用于固定仿真场景、冻结策略库和当前部署协议。
+
+## 2026-09-11 G29 reward-aware 事件证据候选已登记
+
+G28 的失败原因已定位为：一步即时 `Delta r` 回归值在未覆盖状态上直接改变 B2 phase，少量
+临界决策经过 hysteresis/hold 后造成闭环退化。G29 保留导师要求的 2 m 交互标签与双 Actor
+reward 差，只允许 reward 在 B2 切换边界附近且 `|A_hat| >= 0.25` 时作为事件级 tie-breaker，
+固定 `alpha=0.20`、`tau=0.75`。G29 已完成离线训练，validation reward 触发率为 `22.81%`，
+57 个 validation 锚点没有额外改变 B2 phase；尚未运行闭环。B2 仍只作冻结对照/初始化来源，
+不能作为论文最终方法。
+
+## 2026-09-11 G28 reward-aware Gate 稳健修正版完成（未通过替换条件）
+
+G27-P4 已确认 reward-aware B3 相对原 B2 下降，原因诊断为一步终止奖励造成的极端 `Delta r`
+主导，以及 B3 继续更新 B2 phase 分支。为落实导师提出的 reward-aware 主线，已登记独立的
+G28 修正版目录 `28_RewardAwareGate稳健修正版/`，不覆盖 G27/P4：使用 training-only
+`P95(|Delta r|)` 截断后 `tanh` 目标，冻结 B2 的 GRU 与 interaction head，只训练 advantage
+head，并以固定小权重在 B2 切换边界附近融合 reward。先完成离线 P1 validation 诊断，再运行
+一批新的 development 闭环；不得读取 G27-P4、G25 sealed 或 G26 结果来调参。
+
+离线准入已完成：bounded advantage 的 validation Huber `0.03043` 低于 training-median
+基线 `0.04906`，Pearson `0.4141`；旧 MAE-only 筛查失败已原样保留。B2 phase 分支参数逐项
+审计最大差异 `0`，融合后 validation FPR/recall 在登记容差内。
+
+随后按冻结协议完成唯一一批 Dense256 development 闭环（256 episodes，seed `20260911`），
+并在同一 manifest、同一 seed 下完成冻结 B2 对照。B4 的 full success 为 `43.75%`
+（112/256），B2 为 `48.44%`（124/256），差异为 `-4.69` 个百分点；B4 的机器人级碰撞率
+为 `19.77%`，B2 为 `18.05%`，上升 `1.72` 个百分点；平均完成步数为 `33.39` 对 `31.44`，
+增加 `1.96` 步。B4 的 interaction-actor selection share 为 `70.94%`，与 B2 的 `70.31%`
+接近，因此结果不能解释为显著减少了交互策略调用。
+
+G28 未通过“不得低于冻结 B2”的替换条件。B4 作为当前 reward-aware 候选停止，不再对其
+reward head、融合公式和阈值做结果驱动的微调。B2 仅保留为冻结对照、初始化来源和工程参照，
+不能作为论文最终方法；导师要求的 reward-aware Router 替换主线仍未完成，下一版候选必须重新
+登记训练目标、数据覆盖和独立 development 准入条件。
+
+## 2026-09-11 G27-P4 独立测试完成
+
+G27-P4 已完成全部 `2304 episodes`（5A、proximity-only B2、reward-aware B3；256 个场景、3 个环境 repeat），并通过结果形状、场景顺序、终止记账、checkpoint 与哈希审计。统计文件为
+`27_反事实Reward增强Gate监督/local_data/test/p4_statistics.json`。
+
+B3 相对 5A 的 full success 为 `28.26% -> 41.02%`（`+12.76 pp`，scene-cluster BCa 95% CI `[+8.07,+17.32]`，sign-flip `p=0.00001`），robot-level collision 下降 `7.55 pp`。但 B3 相对 proximity-only B2 的 full success 下降 `3.65 pp`（BCa 95% CI `[-7.55,-0.13]`），因此未通过预注册的“不得低于 B2”替换条件。论文应报告 reward-aware supervision 相对 5A 的收益，同时明确其尚未验证为 B2 的替代方法；不得把 B3 写成替换成功。
+
+P4 结果图已生成至 `paper/icra2027_template/piroute_overleaf_fonts_fixed_20260908/generated/g27_p4/`，正文已填入三方法结果。后续仅需排版编译、图件检查和材料整理，不得根据 P4 结果重新训练或调整 B3。
+
+## 2026-09-10 G27 Reward-aware Gate 替换路线（P4 独立测试运行中）
+
+导师明确要求修订当前 Gate 的监督：保留训练期 2 m 交互阶段标签，同时增加两个冻结 Actor
+在同一状态下一步执行所得的共同评价 reward 差，并由两种信号共同决定路由。G27 的目标是通过
+新的 reward-aware Router 替换论文当前 B2，而不是增加一个补充实验。
+
+协议已登记在
+[27_反事实Reward增强Gate监督](experiments/03_保留专门化/02_论文主线/27_反事实Reward增强Gate监督/README.md)。
+generalist-5a、interaction-epoch16 和 G0/G1 继续冻结；只允许重新采集 Gate 监督和训练新
+Router。历史 G2-B/G4 的同进程 reset/replay 反事实路线已因状态恢复失败而封禁，不得重复。
+G27 首先只运行全新隔离 Gazebo 进程的一步反事实稳定性 pilot，满足预注册停止线后才允许扩大。
+
+P0 已完成并通过：32 个锚点中 31 个通过全部分支对齐，同 Actor 的 goal/collision
+完全一致，reward 噪声 95 分位界为 `0.00501`，16/31 个锚点可分辨且两次配对方向
+100% 一致，可分辨样本同时支持两个 Actor。但优势分布为 navigation 15、interaction 1，
+显示一步 reward 强烈偏向即时推进；该风险不通过更换 reward 修复，交由保留 2 m 任务头和
+P3 闭环安全准入约束。
+
+P1 已完成并通过冻结审计。512 个 training 候选保留 251 个四分支对齐锚点，120 个 validation
+候选保留 57 个；总数和八个“距离层×动作差异层”的逐层覆盖均达到预注册下限，train/validation
+场景互斥，原始记录、共同 reward 分量和哈希一致。审计器最初错误要求保存的完整特征历史不超过
+8 帧；修正后改为核验实际 `8×82` 窗口等于完整历史的最后 8 帧，采集数据未修改。
+
+唯一 B3 已按冻结协议完成 40 epoch 训练，joint validation loss 选择 epoch 2，checkpoint
+SHA-256 为 `b4fad03157a44a7eba1a318e08fe1e0c345e2c9ea3ea97507a1bc6a6c0b01aba`。离线 advantage
+相关性较弱，因此不以离线指标确认方法。
+
+P3 已在 Dense256 development 上一次性完成 256 个 B3 episode，结果文件 SHA-256 为
+`3b006bbff5597b9dfc54cc8f7503cd2644cbf86c7ec16df847a9ea9a15bce316`。B3 相对 B2 的
+full success 为 `0.4258 -> 0.4531`（`+2.73 pp`），robot collision 为
+`0.2102 -> 0.1969`（`-1.33 pp`），timeout 不变；但 interaction selection share 仅从
+`0.70018` 降到 `0.69979`（`-0.039 pp`），75 个双方成功配对中反而多用 `0.37` 步。
+原 P3 的前三项安全/成功准入通过，效率项失败。随后核对导师原始要求并经研究者明确：本次
+改动的目标是修正 proximity-only 标签与策略选择目标不一致的问题，而不是以降低 interaction
+share 或完成步数作为采用条件。原效率硬门槛是实验规划时额外引入的错误约束。该事实不改写，
+但已在读取 P4 前登记目标澄清；B3、融合公式、阈值和全部模型继续冻结，不做第二个变体。
+
+P4 已在读取 P3 最终结果前预先固定。目标澄清只移除错误的效率否决条件，不修改成功、安全、
+timeout、场景或统计要求。P4 按 Dense test
+原始顺序取此前未使用的 `[384:640]` 共 256 场，以 `20260911/20260912/20260913` 三个环境
+seed 同场运行 5A、原 B2 和唯一 B3，共 2304 episodes；manifest 同时核验 scene ID 与完整
+几何不重叠。修订登记时该 manifest 尚未生成、测试片段尚未读取、P4 尚未启动。
+
+G27-P4 已完成，B3 未通过替换条件；B2、G25、G26 和 G28 均保持只读作为论文主线及失败/补充
+记录。P3/P4/G28 数字均为 development 或独立补充证据，不得改写 G25 确认性主检验。
+
+P4 manifest 已在目标澄清登记后按冻结切片一次性生成，SHA-256 为
+`73e273f4b156a6286d66a08646f02aa16c1845717c83a532559fee8c690302c1`。256 个场景与
+Dense train/validation、G25 和 G26 的 scene ID 及完整几何重叠均为 0。2304-episode 队列已于
+`2026-09-10 18:51 CST` 后台启动；当前入口 PID 记录在 `.g27_p4_test.pid`，实时日志为
+`27_反事实Reward增强Gate监督/logs/p4_test/runner.log`。实验运行期间不得修改 B3、决策公式、
+阈值、hold、stride、manifest、seed 或统计判据。
 
 ## 2026-09-01 B2 定性轨迹采集修正与完整切换周期确认
 

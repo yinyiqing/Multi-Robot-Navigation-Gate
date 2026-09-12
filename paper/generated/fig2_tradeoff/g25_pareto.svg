@@ -297,7 +297,7 @@ z
     </g>
    </g>
    <g id="text_17">
-    <text style="fill: #4e5d66; font: 7px 'Arial', 'DejaVu Sans', sans-serif; text-anchor: start" x="256.579957" y="163.194745" transform="rotate(-0 256.579957 163.194745)">5A</text>
+    <text style="fill: #4e5d66; font: 7px 'Arial', 'DejaVu Sans', sans-serif; text-anchor: start" x="256.579957" y="163.194745" transform="rotate(-0 256.579957 163.194745)">Navigation Actor</text>
    </g>
    <g id="PathCollection_2">
     <defs>
@@ -572,7 +572,7 @@ L 503.669694 70.894545
       </g>
      </g>
      <g id="text_34">
-      <text style="font: 7.5px 'Arial', 'DejaVu Sans', sans-serif; text-anchor: end" x="338.374887" y="73.74396" transform="rotate(-0 338.374887 73.74396)">5A</text>
+      <text style="font: 7.5px 'Arial', 'DejaVu Sans', sans-serif; text-anchor: end" x="338.374887" y="73.74396" transform="rotate(-0 338.374887 73.74396)">Navigation Actor</text>
      </g>
     </g>
     <g id="ytick_8">
@@ -861,7 +861,7 @@ z
    <text style="fill: #4e5d66; font: 700 10.5px 'Arial', 'DejaVu Sans', sans-serif; text-anchor: middle" x="259.8048" y="15.178359" transform="rotate(-0 259.8048 15.178359)">Frozen-method trade-offs on the sealed test set</text>
   </g>
   <g id="text_50">
-   <text style="fill: #66747c; font: 7px 'Arial', 'DejaVu Sans', sans-serif; text-anchor: start" x="7.2" y="235.35" transform="rotate(-0 7.2 235.35)">PIRoute = frozen epoch16 Actor + B2 Router. *2 m oracle uses privileged distance and is not deployable.</text>
+   <text style="fill: #66747c; font: 7px 'Arial', 'DejaVu Sans', sans-serif; text-anchor: start" x="7.2" y="235.35" transform="rotate(-0 7.2 235.35)">PIRoute = frozen Interaction Actor Actor + B2 Router. *2 m oracle uses privileged distance and is not deployable.</text>
   </g>
  </g>
  <defs>

@@ -1,6 +1,6 @@
 # Qualitative trajectory capture
 
-This directory contains the first post-sealed qualitative rollout capture. The 5A trajectory is
+This directory contains the first post-sealed qualitative rollout capture. The Navigation Actor trajectory is
 valid, but the B2 trajectory is invalid: raw LiDAR collection needed by the Router was accidentally
 disabled while omitting point clouds from JSONL serialization. Do not use the B2 trajectory or the
 derived Gate timeline. Corrected B2 data are stored in `../trajectory_capture_corrected/`.
@@ -8,8 +8,8 @@ derived Gate timeline. Corrected B2 data are stored in `../trajectory_capture_co
 This capture does not modify or extend the G25 sealed statistics.
 
 - Source scenes: 64 scenes selected from the frozen G25 Dense test manifest, stratified into four
-  outcome groups (16 each) using the frozen `5A` and `router-b2` results.
-- Rollouts: one fixed-seed (`20260910`) run for each of `5A` and `router-b2`, 64 episodes per method.
+  outcome groups (16 each) using the frozen `Navigation Actor` and `router-b2` results.
+- Rollouts: one fixed-seed (`20260910`) run for each of `Navigation Actor` and `router-b2`, 64 episodes per method.
 - Deployment inputs: the same local-observation protocol as the mainline evaluation. No robot truth,
   communication, or privileged 2 m switch is used.
 - Recorded fields: per-step robot positions, actions, terminal state, actor mode, and Gate probability.

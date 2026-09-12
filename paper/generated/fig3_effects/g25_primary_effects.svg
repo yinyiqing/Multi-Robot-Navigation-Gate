@@ -355,7 +355,7 @@ L 541.777524 146.2464
    </g>
   </g>
   <g id="text_28">
-   <text style="fill: #4e5d66; font: 700 10.5px 'Arial', 'DejaVu Sans', sans-serif; text-anchor: middle" x="294.327924" y="15.178359" transform="rotate(-0 294.327924 15.178359)">PIRoute relative to 5A on the sealed test set</text>
+   <text style="fill: #4e5d66; font: 700 10.5px 'Arial', 'DejaVu Sans', sans-serif; text-anchor: middle" x="294.327924" y="15.178359" transform="rotate(-0 294.327924 15.178359)">PIRoute relative to Navigation Actor on the sealed test set</text>
   </g>
   <g id="text_29">
    <text style="fill: #66747c; font: 6.9px 'Arial', 'DejaVu Sans', sans-serif; text-anchor: start" x="41.723124" y="196.1856" transform="rotate(-0 41.723124 196.1856)">Dots show pooled rates; labels show paired effects and scene-cluster BCa 95% CIs. Step cost uses 140 scene-repeat pairs across 71 clusters.</text>
@@ -384,7 +384,7 @@ z
     </g>
    </g>
    <g id="text_30">
-    <text style="font: 7.3px 'Arial', 'DejaVu Sans', sans-serif; text-anchor: start" x="189.137731" y="174.388628" transform="rotate(-0 189.137731 174.388628)">5A</text>
+    <text style="font: 7.3px 'Arial', 'DejaVu Sans', sans-serif; text-anchor: start" x="189.137731" y="174.388628" transform="rotate(-0 189.137731 174.388628)">Navigation Actor</text>
    </g>
    <g id="line2d_27">
     <path d="M 206.806013 171.833628

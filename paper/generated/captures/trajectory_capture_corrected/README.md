@@ -6,12 +6,12 @@ from JSONL serialization. The capture does not modify or extend G25 sealed stati
 
 - Scenes: the same 64 outcome-stratified scenes as the first qualitative capture.
 - Seed: `20260910`.
-- Frozen method: `generalist-5a + interaction-epoch16 + router-b2`.
+- Frozen method: `Navigation Actor + interaction-Interaction Actor + router-b2`.
 - Audited data: 64 episodes, 320 per-robot sequences, no episode-switch reconstruction mismatch.
 - Complete executed `standard -> interaction -> standard` cycles: 4 across 4 robots.
 - Full-success episodes containing such a cycle: 2.
 
-The old 5A trajectory in `../trajectory_capture/` remains valid and is reused only for matched
+The old Navigation Actor trajectory in `../trajectory_capture/` remains valid and is reused only for matched
 trajectory comparison. The old B2 trajectory is invalid and must not be used.
 
 Key outputs:

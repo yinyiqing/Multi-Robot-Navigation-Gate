@@ -1,0 +1,13 @@
+{
+  "status": "complete",
+  "purpose": "qualitative trajectory capture",
+  "manifest": "/home/jiutian/Local-Critic-Multi-Robot-Navigation-gate/paper/generated/captures/trajectory_capture/trajectory_subset_64.json.gz",
+  "manifest_sha256": "5f4db8b29123958e44a226cd188e1a3e9def61b01642d62f6afa0a9d8d6e59e7",
+  "seed": 20260910,
+  "methods": [
+    "5a",
+    "b2"
+  ],
+  "episodes_per_method": 64,
+  "sealed_statistics_modified": false
+}
