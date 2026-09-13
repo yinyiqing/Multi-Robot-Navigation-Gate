@@ -1,4 +1,5 @@
 from collections import deque
+import os
 
 import numpy as np
 import torch
@@ -61,12 +62,16 @@ class GateHysteresis(object):
         self.dense_steps = 0
         self.switches = 0
 
-    def update(self, probability):
+    def update(self, probability, switch_on_threshold=None, switch_off_threshold=None):
         probability = float(probability)
         if not 0.0 <= probability <= 1.0:
             raise ValueError("gate probability must lie within [0, 1]")
+        on_threshold = self.switch_on_threshold if switch_on_threshold is None else float(switch_on_threshold)
+        off_threshold = self.switch_off_threshold if switch_off_threshold is None else float(switch_off_threshold)
+        if not 0.0 <= off_threshold <= on_threshold <= 1.0:
+            raise ValueError("dynamic gate thresholds must satisfy 0 <= off <= on <= 1")
         if self.mode == "standard":
-            if probability >= self.switch_on_threshold:
+            if probability >= on_threshold:
                 self.mode = "dense"
                 self.dense_steps = 0
                 self.switches += 1
@@ -74,7 +79,7 @@ class GateHysteresis(object):
             self.dense_steps += 1
             if (
                 self.dense_steps >= self.minimum_hold_steps
-                and probability <= self.switch_off_threshold
+                and probability <= off_threshold
             ):
                 self.mode = "standard"
                 self.dense_steps = 0
@@ -134,6 +139,7 @@ class LearnedInteractionGateController(object):
         self.is_joint_reward_aware = self.model_id in (
             "G33-dual-encoder-reward-aware",  # Legacy metadata from the first G34 artifact.
             "G34-dual-encoder-reward-aware",
+            "G34-selective-reward-aware",
         )
         self.is_temporal = (
             self.model_id == "T1" or self.is_reward_aware or self.is_b6_reward_aware or self.is_b7_reward_aware or self.is_b8_reward_aware or self.is_joint_reward_aware
@@ -173,9 +179,22 @@ class LearnedInteractionGateController(object):
                 **gate_payload["model_config"]
             ).to(self.device)
             decision = gate_payload.get("router_decision", {})
-            if decision.get("score") != "sigmoid(interaction_logit + reward_weight * bounded_advantage)":
+            expected_joint_scores = {
+                "sigmoid(interaction_logit + reward_weight * bounded_advantage)",
+                "sigmoid(interaction_logit + alpha * boundary_weight * confident * bounded_advantage)",
+            }
+            if decision.get("score") not in expected_joint_scores:
                 raise ValueError("unsupported G34 joint Router decision")
-            self.fusion_alpha = float(decision.get("reward_weight", 0.25))
+            # G34's original joint score calls this parameter ``reward_weight``;
+            # selective reward fusion stores the same deployment coefficient as
+            # ``fusion_alpha``.  Read the latter first so a selective checkpoint
+            # cannot silently fall back to the original 0.25 coefficient.
+            self.fusion_alpha = float(
+                decision.get("fusion_alpha", decision.get("reward_weight", 0.25))
+            )
+            self.selective_joint = decision.get("score") == "sigmoid(interaction_logit + alpha * boundary_weight * confident * bounded_advantage)"
+            self.fusion_temperature = float(decision.get("fusion_temperature", 0.75))
+            self.advantage_confidence_threshold = float(decision.get("advantage_confidence_threshold", 0.25))
         elif self.is_b7_reward_aware or self.is_b8_reward_aware:
             self.gate = MultiTaskRewardTemporalGate(
                 **gate_payload["model_config"]
@@ -190,6 +209,16 @@ class LearnedInteractionGateController(object):
             ).to(self.device)
         else:
             self.gate = InteractionGate(**gate_payload["model_config"]).to(self.device)
+        # Experimental H1 switch: keep the G25 weight-0.5 checkpoint and
+        # adjust only hysteresis thresholds from confident reward evidence.
+        self.reward_hysteresis = (
+            self.is_joint_reward_aware
+            and os.environ.get("GATE_REWARD_HYSTERESIS", "0") == "1"
+        )
+        self.reward_veto = (
+            self.is_joint_reward_aware
+            and os.environ.get("GATE_REWARD_VETO", "0") == "1"
+        )
         self.gate.load_state_dict(gate_payload["model_state_dict"])
         self.gate.eval()
         self.feature_mean = np.asarray(
@@ -299,11 +328,19 @@ class LearnedInteractionGateController(object):
             values = torch.from_numpy(normalized.reshape(1, -1)).to(self.device)
         if self.is_joint_reward_aware:
             interaction_logit, bounded_advantage = self.gate(values)
-            score = joint_supervision_routing_score(
-                interaction_logit,
-                bounded_advantage,
-                reward_weight=self.fusion_alpha,
-            )
+            if self.selective_joint:
+                score = selective_reward_routing_score(
+                    interaction_logit, bounded_advantage,
+                    switch_on_threshold=0.43,
+                    fusion_alpha=self.fusion_alpha,
+                    fusion_temperature=self.fusion_temperature,
+                    advantage_confidence_threshold=self.advantage_confidence_threshold,
+                )
+            else:
+                score = joint_supervision_routing_score(
+                    interaction_logit, bounded_advantage,
+                    reward_weight=self.fusion_alpha,
+                )
             return (
                 float(score.cpu().item()),
                 float(torch.sigmoid(interaction_logit).cpu().item()),
@@ -410,7 +447,28 @@ class LearnedInteractionGateController(object):
             probability, interaction_probability, normalized_advantage = (
                 self._gate_outputs(name, feature)
             )
-            mode = self.switchers[name].update(probability)
+            on_threshold = off_threshold = None
+            current_mode = self.switchers[name].mode
+            if (
+                self.reward_veto
+                and current_mode == "standard"
+                and normalized_advantage < -0.25
+                and 0.43 <= interaction_probability <= 0.55
+            ):
+                # Preserve the weight-0.5 score except for a narrow veto band:
+                # negative reward evidence may block a marginal entry into the
+                # Interaction Actor, but never forces an exit.
+                probability = min(probability, 0.42)
+            if self.reward_hysteresis and abs(normalized_advantage) >= 0.25:
+                if normalized_advantage > 0.0:
+                    on_threshold, off_threshold = 0.38, 0.28
+                else:
+                    on_threshold, off_threshold = 0.48, 0.38
+            mode = self.switchers[name].update(
+                probability,
+                switch_on_threshold=on_threshold,
+                switch_off_threshold=off_threshold,
+            )
             self.last_probabilities[name] = probability
             self.last_interaction_probabilities[name] = interaction_probability
             self.last_normalized_advantages[name] = normalized_advantage
