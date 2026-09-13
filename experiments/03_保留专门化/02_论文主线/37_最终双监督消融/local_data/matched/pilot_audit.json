@@ -1,0 +1,10 @@
+{
+  "format_version": 1,
+  "status": "pass",
+  "purpose": "infrastructure and terminal-accounting audit only",
+  "episodes": 16,
+  "seed": 20260901,
+  "result": "pilot_result_s20260901.npy",
+  "result_prefix_sha256": "28f25aa4cfc46996a089193460d01f562bed7814aba19b5efef61f92466bea2a",
+  "performance_used_as_stop_condition": false
+}

@@ -1,0 +1,71 @@
+{
+  "format_version": 1,
+  "experiment_id": "G34-G25-slice-matched-evaluation",
+  "manifest_sha256": "1098d13d09af2a4850c2d227eec8fe87f05a7de3b3a8d830de2dd472a059e211",
+  "result_sha256": {
+    "g34_s20260901": "c755d0650c0dfc0d05b12eb002031de7af71a4152fe087b2ce30d3255e73fc29",
+    "5a_s20260901": "8f56a877990f9c7d0a370b8b47574a091300fccd8d2d932da5008b66043409c8",
+    "g34_s20260902": "6d09c3364f19dcbfc981e9dc84b0f634b5d8ec1271d871965144ec4a6858fba2",
+    "5a_s20260902": "903c2e0dd53fc8ca6dfa3c0237430b1bc4693a8a826d1f32211def7edd27e53b",
+    "g34_s20260903": "577846067a6fa56dfeeab030b78d781c460e46ca1d70371daf411276d23e93b2",
+    "5a_s20260903": "a60828fd4c7e33a0c48b7882478cca7048684e324fa04fa44a82cf7b92c9772c"
+  },
+  "overall": {
+    "5a": {
+      "episodes": 768,
+      "full_success": 0.24609375,
+      "agent_success": 0.6822916666666666,
+      "robot_collision": 0.3171875,
+      "robot_unresolved": 0.0005208333333333333,
+      "episode_timeout": 0.0026041666666666665,
+      "environment_steps": 17.307291666666668,
+      "interaction_selection_share": 0.0,
+      "switches_per_episode": 0.0
+    },
+    "g34": {
+      "episodes": 768,
+      "full_success": 0.3854166666666667,
+      "agent_success": 0.7729166666666667,
+      "robot_collision": 0.22630208333333332,
+      "robot_unresolved": 0.00078125,
+      "episode_timeout": 0.00390625,
+      "environment_steps": 32.114583333333336,
+      "interaction_selection_share": 0.7056523211177786,
+      "switches_per_episode": 7.41015625
+    }
+  },
+  "g34_minus_5a": {
+    "full_success": {
+      "mean_scene_repeat_difference": 0.13932291666666666,
+      "scene_mean_min": -1.0,
+      "scene_mean_max": 1.0
+    },
+    "agent_success": {
+      "mean_scene_repeat_difference": 0.090625,
+      "scene_mean_min": -0.4666666666666666,
+      "scene_mean_max": 0.7333333333333334
+    },
+    "robot_collision": {
+      "mean_scene_repeat_difference": -0.09088541666666666,
+      "scene_mean_min": -0.7333333333333334,
+      "scene_mean_max": 0.4666666666666666
+    },
+    "environment_steps": {
+      "mean_scene_repeat_difference": 14.807291666666666,
+      "scene_mean_min": -73.33333333333333,
+      "scene_mean_max": 112.0
+    },
+    "interaction_selection_share": {
+      "mean_scene_repeat_difference": 0.7056523211177786,
+      "scene_mean_min": 0.40656814449917894,
+      "scene_mean_max": 1.0
+    },
+    "switches_per_episode": {
+      "mean_scene_repeat_difference": 7.41015625,
+      "scene_mean_min": 4.333333333333333,
+      "scene_mean_max": 10.0
+    }
+  },
+  "interpretation_boundary": "Matched reuse of G25 slice [0:256]; [640:896] is not used.",
+  "statistics_sha256": "644a6fdde5911d796fd0416fa8acd8edc02998686e26424298a0f1c83b1314bb"
+}

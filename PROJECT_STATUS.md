@@ -1,6 +1,36 @@
 # 当前项目状态
 
-更新时间：2026-09-12。
+更新时间：2026-09-13。
+
+## 2026-09-13 最终双监督消融已登记
+
+论文 Table 2 不再使用旧 proximity-supervised Router 的结构消融冒充最终方法消融。当前唯一
+新增的最终方法消融固定为 G34 same-checkpoint phase-only decision：完整保留两个 Actor、G0/G1、
+双 GRU 权重、归一化、8 帧历史、`0.43/0.33` 阈值、minimum hold 3 和 stride 2，仅将部署分数
+中的 `reward_weight` 从 `0.25` 设为 `0.0`。派生 checkpoint 已完成逐张量权重一致性审计；
+不训练 Actor、Router 或感知模块。
+
+评测复用 G25 Dense `[0:256]` manifest 和 `20260901/20260902/20260903` 三个 repeat；完整 G34
+结果直接复用，仅新增 phase-only 的 768 个 episode。队列先执行 16 场基础设施检查，通过后从
+同一结果继续至 256 场并自动完成其余两个 repeat。该比较属于复用 matched slice 的事后组件
+消融，不称独立确认性检验。协议与日志位于
+`experiments/03_保留专门化/02_论文主线/37_最终双监督消融/`。
+
+## 2026-09-13 G34 G25-slice matched evaluation completed
+
+G34 在 G25 Dense test 原始顺序 `[0:256]` 上完成三个 repeat，共 768 个新 episode；5A 结果
+直接复用 G25 同 manifest、同 seed 的已归档结果。三组 G34 结果均为 `(256, 17)`，场景顺序、
+终止记账和 checkpoint 未变更审计通过。
+
+匹配结果为：5A/G34 full success `24.61%/38.54%`，差值 `+13.93` 个百分点，scene-cluster
+BCa 95% CI `[+9.51,+18.23]`，双侧 sign-flip `p=0.00001`；机器人级碰撞率
+`31.72%/22.63%`，差值 `-9.09` 个百分点，BCa 95% CI `[-11.25,-7.03]`。G34 agent success
+为 `77.29%`，平均原始环境步 `32.11`（5A `17.31`）；126 个双方整队成功的 scene-repeat
+配对中，G34 多用 `12.90` 步（BCa 95% CI `[+10.06,+16.34]`）。Interaction Actor 选择占比
+为 `70.57%`，平均每 episode 切换 `7.41` 次。
+
+统计输出由 `scripts/analyze_g34_g25slice_matched.py` 生成，结果边界为 G25 slice matched
+comparison；原 `[640:896]` 结果仍只作历史记录。
 
 ## 2026-09-12 当前主评测切换为 G25 `[0:256]` matched slice
 

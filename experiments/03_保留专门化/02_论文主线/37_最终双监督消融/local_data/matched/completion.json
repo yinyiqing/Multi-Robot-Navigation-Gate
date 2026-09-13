@@ -1,0 +1,17 @@
+{
+  "format_version": 1,
+  "status": "complete",
+  "experiment_id": "G34-final-phase-only-ablation",
+  "manifest_sha256": "1098d13d09af2a4850c2d227eec8fe87f05a7de3b3a8d830de2dd472a059e211",
+  "episodes_per_repeat": 16,
+  "seeds": [
+    20260901
+  ],
+  "method": "phase_only",
+  "total_episodes": 16,
+  "result_sha256": {
+    "phase_only_s20260901": "28f25aa4cfc46996a089193460d01f562bed7814aba19b5efef61f92466bea2a"
+  },
+  "actor_or_router_updated": false,
+  "performance_early_stop": false
+}

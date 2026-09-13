@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BASE="$ROOT/experiments/03_保留专门化/02_论文主线"
-RUN="$BASE/36_G34_G25slice_matched"
+RUN="${G34_MATCHED_RUN:-$BASE/36_G34_G25slice_matched}"
 MANIFEST="${G34_MATCHED_MANIFEST:?G34_MATCHED_MANIFEST is required}"
 LOG_DIR="${G34_MATCHED_LOG_DIR:?G34_MATCHED_LOG_DIR is required}"
 RESULT_DIR="${G34_MATCHED_RESULT_DIR:?G34_MATCHED_RESULT_DIR is required}"
@@ -19,7 +19,11 @@ read -r -a SEEDS <<<"$SEEDS_TEXT"
 FIVE_A="TD3_velodyne_multi_v4_curriculum_stage2_to_5a_shared_from_3d2_guarded_best"
 EPOCH16="interaction_focused_actor_from_5a_fullstrong_balanced_formal_s20260726_epoch_016"
 DETECTOR="$BASE/results/06_Gate开发/D5_G0_robot_detector_v1/local_data/model/pilot_v1/best.pt"
-CHECKPOINT="$BASE/34_双头RewardAwareGate/local_data/training/seed20260912/best_runtime.pt"
+CHECKPOINT="${G34_MATCHED_CHECKPOINT:-$BASE/34_双头RewardAwareGate/local_data/training/seed20260912/best_runtime.pt}"
+RUN_PREFIX="${G34_MATCHED_RUN_PREFIX:-g34_g25slice}"
+EXPERIMENT_ID="${G34_MATCHED_EXPERIMENT_ID:-G34-G25-slice-matched-evaluation}"
+METHOD_ID="${G34_MATCHED_METHOD_ID:-g34}"
+COMPLETION_PATH="${G34_MATCHED_COMPLETION_PATH:-$RUN/local_data/matched/completion.json}"
 
 stop_runtime() {
   local pgid children
@@ -95,7 +99,7 @@ configure_g34() {
 }
 
 run_one() {
-  local seed="$1" run_name="g34_g25slice_s${1}" result state log status progress
+  local seed="$1" run_name="${RUN_PREFIX}_s${1}" result state log status progress
   result="$RESULT_DIR/${run_name}.npy"
   state="$STATE_DIR/${run_name}_state.pt"
   if [[ -f "$result" ]] && verify_result "$result" 2>/dev/null; then
@@ -131,24 +135,25 @@ run_one() {
 mkdir -p "$LOG_DIR" "$RESULT_DIR" "$STATE_DIR"
 for seed in "${SEEDS[@]}"; do run_one "$seed"; done
 
-python3 - "$MANIFEST" "$RESULT_DIR" "$RUN/local_data/matched/completion.json" "$EPISODES" "${SEEDS[*]}" <<'PY'
+python3 - "$MANIFEST" "$RESULT_DIR" "$COMPLETION_PATH" "$EPISODES" "${SEEDS[*]}" "$RUN_PREFIX" "$EXPERIMENT_ID" "$METHOD_ID" <<'PY'
 import hashlib,json,sys
 from pathlib import Path
 manifest,result_dir,output=Path(sys.argv[1]),Path(sys.argv[2]),Path(sys.argv[3])
 episodes=int(sys.argv[4]); seeds=[int(value) for value in sys.argv[5].split()]
+run_prefix,experiment_id,method_id=sys.argv[6:9]
 hashes={}
 for seed in seeds:
-    path=result_dir/('g34_g25slice_s%d.npy' % seed)
+    path=result_dir/('%s_s%d.npy' % (run_prefix,seed))
     if not path.is_file(): raise SystemExit('missing result: %s' % path)
-    hashes['g34_s%d' % seed]=hashlib.sha256(path.read_bytes()).hexdigest()
+    hashes['%s_s%d' % (method_id,seed)]=hashlib.sha256(path.read_bytes()).hexdigest()
 record={
     'format_version':1,
     'status':'complete',
-    'experiment_id':'G34-G25-slice-matched-evaluation',
+    'experiment_id':experiment_id,
     'manifest_sha256':hashlib.sha256(manifest.read_bytes()).hexdigest(),
     'episodes_per_repeat':episodes,
     'seeds':seeds,
-    'method':'g34',
+    'method':method_id,
     'total_episodes':episodes*len(seeds),
     'result_sha256':hashes,
     'actor_or_router_updated':False,

@@ -1,0 +1,16 @@
+{
+  "format_version": 1,
+  "experiment_id": "G34-final-phase-only-ablation",
+  "source_checkpoint": "experiments/03_\u4fdd\u7559\u4e13\u95e8\u5316/02_\u8bba\u6587\u4e3b\u7ebf/34_\u53cc\u5934RewardAwareGate/local_data/training/seed20260912/best_runtime.pt",
+  "source_sha256": "4cb3626289c5b353d3ccf858f02c0e06d828106aeadc9f551f62ed6c90e4e95d",
+  "derived_checkpoint": "experiments/03_\u4fdd\u7559\u4e13\u95e8\u5316/02_\u8bba\u6587\u4e3b\u7ebf/37_\u6700\u7ec8\u53cc\u76d1\u7763\u6d88\u878d/local_data/checkpoint/g34_phase_only.pt",
+  "derived_sha256": "9353c549b8ac93a2d97f9ce309fbac3b8bbcb41c3a8b4d5dfc9c046df66883a7",
+  "model_weights_identical": true,
+  "only_runtime_metadata_change": {
+    "router_decision.reward_weight": [
+      0.25,
+      0.0
+    ]
+  },
+  "actor_or_router_trained": false
+}

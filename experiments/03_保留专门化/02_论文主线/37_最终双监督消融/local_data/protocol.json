@@ -1,0 +1,34 @@
+{
+  "format_version": 1,
+  "status": "full_evaluation_running_after_pilot_pass",
+  "experiment_id": "G34-final-phase-only-ablation",
+  "registered_at": "2026-09-13T09:45:00+08:00",
+  "purpose": "isolate the deployment contribution of predicted reward-difference evidence in final G34",
+  "comparison": {
+    "full_method": "archived G34 matched results",
+    "ablation": "same checkpoint with router_decision.reward_weight set from 0.25 to 0.0"
+  },
+  "manifest": "experiments/03_保留专门化/02_论文主线/25_最终消融与Sealed评测/local_data/sealed_manifest/dense_test_first256.json.gz",
+  "manifest_sha256": "1098d13d09af2a4850c2d227eec8fe87f05a7de3b3a8d830de2dd472a059e211",
+  "scenes_per_repeat": 256,
+  "seeds": [20260901, 20260902, 20260903],
+  "source_checkpoint_sha256": "4cb3626289c5b353d3ccf858f02c0e06d828106aeadc9f551f62ed6c90e4e95d",
+  "phase_only_checkpoint_sha256": "9353c549b8ac93a2d97f9ce309fbac3b8bbcb41c3a8b4d5dfc9c046df66883a7",
+  "frozen": {
+    "actors": true,
+    "perception_and_tracking": true,
+    "router_weights": true,
+    "normalization": true,
+    "history_length": 8,
+    "switch_thresholds": [0.43, 0.33],
+    "minimum_hold_router_updates": 3,
+    "evaluation_stride_environment_steps": 2
+  },
+  "pilot": {
+    "episodes": 16,
+    "seed": 20260901,
+    "purpose": "infrastructure audit only",
+    "performance_stop_condition": false
+  },
+  "interpretation_boundary": "post-main-evaluation component ablation on a reused matched slice; not an independent confirmatory test"
+}
